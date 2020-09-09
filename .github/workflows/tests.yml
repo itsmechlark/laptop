@@ -1,0 +1,24 @@
+name: Tests CI
+on:
+  push:
+    branches: master
+  pull_request:
+jobs:
+  tests:
+    strategy:
+      matrix:
+        version: ["macos-10.15", "macos-10.14"]
+      fail-fast: false
+    runs-on: ${{ matrix.version }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Update Homebrew
+        run: brew update
+      - name: Install shellcheck
+        run: brew install shellcheck
+      - name: Run shellcheck
+        run: shellcheck mac -e SC2039
+      - name: Run mac
+        run: sh mac
+      
