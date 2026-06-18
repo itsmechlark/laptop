@@ -1,0 +1,113 @@
+{
+  "attribution": {
+    "commit": ""
+  },
+  "permissions": {
+    "additionalDirectories": [
+      "~/Codespace",
+      "~/.claude"
+    ],
+    "disableBypassPermissionsMode": "disable",
+    "deny": [
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.gnupg/**)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '(now | todate) + \" \" + (.tool_input.command | gsub(\"\\n\"; \" \"))' >> ~/.claude/bash-log.txt 2>/dev/null || true"
+          },
+          {
+            "type": "command",
+            "command": "cmd=$(jq -r '.tool_input.command'); case \"$cmd\" in *'worktree add'*) printf '%s' \"$cmd\" | grep -qE 'Codespace/[^/ ]+\\.worktrees/' || echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Worktrees must live at ~/Codespace/<repo>.worktrees/<name>, e.g. ~/Codespace/monolith.worktrees/HDR-1234-feat-slug. Re-run with that absolute path.\"}}';; esac"
+          }
+        ]
+      },
+      {
+        "matcher": "EnterWorktree",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -z \"$(jq -r '.tool_input.path // empty')\" ]; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Do not create worktrees with EnterWorktree (.claude/worktrees). Create with git worktree add ~/Codespace/<repo>.worktrees/<name> <branch>, then enter it with EnterWorktree path.\"}}'; fi"
+          }
+        ]
+      }
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "network": {
+      "allowLocalBinding": true,
+      "enableWeakerNetworkIsolation": true,
+      "allowedDomains": [
+        "github.com",
+        "*.github.com",
+        "*.githubusercontent.com",
+        "*.githubcopilot.com",
+        "rubygems.org",
+        "index.rubygems.org",
+        "cache.ruby-lang.org",
+        "hex.pm",
+        "*.hex.pm",
+        "nodejs.org",
+        "registry.npmjs.org",
+        "registry.yarnpkg.com",
+        "tablecheck-934763610305.d.codeartifact.ap-northeast-1.amazonaws.com",
+        "codeartifact.ap-northeast-1.amazonaws.com",
+        "sts.amazonaws.com",
+        "sts.ap-northeast-1.amazonaws.com",
+        "verdaccio.tablesolution.com",
+        "cdn.playwright.dev",
+        "playwright.download.prss.microsoft.com",
+        "download.cypress.io",
+        "cdn.cypress.io",
+        "sentry.io",
+        "mcp.atlassian.com",
+        "auth.atlassian.com",
+        "api.atlassian.com",
+        "tablecheck.atlassian.net"
+      ]
+    },
+    "filesystem": {
+      "denyRead": [
+        "~/"
+      ],
+      "allowRead": [
+        "~/Codespace",
+        "~/.claude",
+        "~/.gitconfig",
+        "~/.zshrc",
+        "~/.zprofile",
+        "~/.zshenv",
+        "~/.config",
+        "~/.asdf",
+        "~/.nvm",
+        "~/.rvm"
+      ],
+      "allowWrite": [
+        "~/Codespace",
+        "~/.claude",
+        "~/.asdf",
+        "~/.rvm"
+      ]
+    }
+  },
+  "enabledPlugins": {
+    "ruby-lsp@claude-plugins-official": true,
+    "atlassian@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "slack@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "mongodb@claude-plugins-official": true
+  }
+}

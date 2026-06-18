@@ -1,0 +1,119 @@
+# Global Engineering Standards
+
+These standards apply to all repositories and workspaces unless a project-local `CLAUDE.md` overrides them.
+
+## Non-negotiables
+
+Read these first; the rest of this document elaborates. None may be violated without explicit, in-the-moment user approval.
+
+- **Never commit or push unless explicitly told** — ask first (see the `git-commit` skill).
+- **Never add AI attribution** to commits or PRs (see the `git-commit` skill).
+- **Never hardcode or log secrets, credentials, or PII**; treat all external input as untrusted (§2, §7).
+- **No silent failures** — never swallow an exception or rejected promise (§7).
+- **Don't claim work is done until verified** — tests, lint, and type-checks pass (§5).
+- **Gate risky/behavioral change behind a default-off flag, and keep DB migrations backward-compatible** (§6).
+
+## Standards layout
+
+This file holds cross-cutting, always-on standards. Stack-specific standards and task workflows live beside it and load when relevant — apply them without being reminded:
+
+- **Language / framework standards** → `~/.claude/rules/` (auto-load when a matching file is opened): `ruby.md` (Ruby + Rails), `rspec.md`, `elixir.md`, `react-typescript.md` (Settings app), `ember.md` (TCM / Manager).
+- **Task workflows** → `~/.claude/skills/` (invoke when doing the task): `git-commit` (commit messages & branch naming), `pull-request` (PR title & description), `git-worktree` (worktree setup).
+
+## 1. Engineering mindset (plan & code like a staff engineer)
+
+Approach every task as a staff engineer would: understand the problem and its constraints before writing code, weigh blast radius and long-term cost against the benefit, and favor the simplest design that satisfies the requirement. Optimize for the team and the next maintainer, not just for landing this change.
+
+- **SOLID principles** guide design decisions:
+  - **S**ingle Responsibility — each module/class/function has one reason to change.
+  - **O**pen/Closed — open for extension, closed for modification.
+  - **L**iskov Substitution — subtypes must be substitutable for their base types.
+  - **I**nterface Segregation — prefer small, focused interfaces over broad ones.
+  - **D**ependency Inversion — depend on abstractions, not concretions; inject dependencies.
+- **Test-Driven Development (TDD)** — for new behavior and bug fixes, write a failing test first, make it pass with the minimum code, then refactor. A bug fix should start with a test that reproduces the bug.
+- Don't over-engineer. Don't add abstractions, configuration, or flexibility the task doesn't require. Three similar lines beat a premature abstraction.
+- Make the change explainable: a reviewer should be able to understand *why* from the diff and commit message.
+
+## 2. Quality attributes (always design for these)
+
+Every change must consider:
+
+- **Security**
+  - Treat all external input (user input, APIs, files, env) as untrusted; validate and sanitize at boundaries.
+  - Avoid the OWASP Top 10 classes of bugs: injection (SQL/command/XSS), broken auth, sensitive-data exposure, SSRF, insecure deserialization, etc.
+  - Never hardcode secrets/credentials; never log them. Use parameterized queries, safe output encoding, and least-privilege access.
+  - Prefer maintained libraries with no known CVEs; flag any dependency with a known vulnerability rather than introducing it.
+  - If you write insecure code, fix it immediately upon noticing.
+- **Maintainability**
+  - Clear, intention-revealing names; small functions; low coupling and high cohesion.
+  - **Restrict comments in production code.** Prefer self-documenting code (precise names, small functions) over prose. A comment may explain *why* — intent, a trade-off, a non-obvious constraint — but never *what*: if you feel the need to narrate what the code does, rename or refactor instead. Default to no comments, and never leave commented-out code.
+  - **Tests document the production code.** Treat the test suite as the executable specification — describe expected behavior, edge cases, and contracts clearly enough that the specs, not comments, are where a reader learns what the code does (see §1 TDD, and the `rspec` rule for Ruby).
+  - Leave the code at least as clean as you found it, scoped to the task.
+- **Performance**
+  - Be mindful of algorithmic complexity, N+1 queries, unnecessary allocations, and blocking I/O on hot paths.
+  - Optimize for correctness and clarity first; optimize for speed where it measurably matters. Avoid premature micro-optimization.
+
+## 3. Jira vs. Pull Requests — audience separation
+
+- **Jira tickets are for the product team.** Write ticket titles, descriptions, and comments in product/business language: the user-facing problem, desired outcome, acceptance criteria, and impact. Avoid implementation detail and code-level jargon.
+- **Pull Requests are for the engineering team.** Write PR titles and descriptions in technical language: what changed and how, design decisions and trade-offs, testing performed, risks, and migration/rollout notes. Link the relevant Jira ticket for product context, but keep the engineering narrative in the PR.
+- Don't paste raw engineering detail into Jira, and don't make a PR description carry product-acceptance criteria that belong in the ticket.
+
+For the PR title and description template, use the `pull-request` skill.
+
+## 4. App & codebase locations
+
+When any of these apps is referenced in a prompt, use the local path below as the working directory and the listed default branch as the base for branching, diffs, and PRs.
+
+| App | Local path | Repository | Default branch |
+| --- | --- | --- | --- |
+| TCM / Manager | `~/Codespace/manager-ember-desktop` | https://github.com/tablecheck/manager-ember-desktop | `main` |
+| Monolith | `~/Codespace/monolith` | https://github.com/tablecheck/monolith | `develop` |
+| Settings app | `~/Codespace/settings-frontend` | https://github.com/tablecheck/settings-frontend | `main` |
+| Hydra | `~/Codespace/hydra` | https://github.com/tablecheck/hydra | `develop` |
+| old Settings | `~/Codespace/monolith/engines/table_solution` | — (engine within Monolith) | `develop` (via Monolith) |
+
+Notes:
+- **TCM** and **Manager** refer to the same app (`manager-ember-desktop`).
+- **old Settings** is the `table_solution` engine inside the Monolith repo, not a standalone repository — branch, commit, and PR against Monolith on `develop`, and scope its commits accordingly (see the `git-commit` skill).
+- Always branch from and target the listed default branch unless told otherwise.
+- For worktree setup, use the `git-worktree` skill.
+
+## 5. Definition of Done
+
+Work is not "done" until it is verified — never report a task complete on unverified or "should work" code.
+
+- **Tests pass.** Run the relevant suite for the code you touched (RSpec, ExUnit, Vitest, QUnit), and add tests for new behavior and bug fixes (TDD — see §1).
+- **Lint, format & type-check pass.** Run the project's linters/formatters (RuboCop, Credo, ESLint/Prettier) and type-checks (`tsc` / `vite-plugin-checker`, Dialyzer) with no new errors.
+- **Exercise UI / behavioral changes.** Run the app and use the feature — happy path plus key edge cases — before claiming success. If you cannot run it in this environment, say so explicitly rather than asserting it works.
+- **Self-review the diff** for leftover debug output, secrets, and out-of-scope churn before handing it off.
+- If a check genuinely cannot be run here, state which one and why — don't silently skip it.
+
+## 6. Safe rollout, feature flags & migrations
+
+Ship behavioral change conservatively and reversibly.
+
+- **Gate risky or behavior-changing work behind a feature flag, off by default**, so it stays dark until deliberately enabled — Monolith shop/config flags (as in PR #7334) on the backend, DevCycle on the frontend. Plan the rollout: validate on test data/shops, then enable incrementally.
+- **Default-off must be behavior-preserving** — enabling the flag should be the only thing that changes behavior.
+- **Database migrations must be backward-compatible (expand/contract)** for zero-downtime deploys: add columns/indexes and backfill first, switch reads/writes, then remove the old shape in a later step. Keep migrations reversible, add indexes for new foreign keys and lookups, and avoid long-locking operations on large tables.
+- **Keep changes reversible.** Prefer additive changes; when removing or renaming, stage it so a rollback doesn't break running code or in-flight data.
+
+## 7. Error handling, observability & reliability
+
+- **No silent failures.** Never swallow exceptions or rejected promises — no empty `rescue`, bare `catch {}`, or ignored `{:error, _}`. A caught error must be handled, re-raised, or surfaced with context.
+- **Actionable errors.** Messages should say what failed and carry enough context to debug (identifiers, operation), without leaking secrets or PII.
+- **Fail fast at boundaries; degrade gracefully for users.** Validate inputs early; in user-facing flows show a meaningful error state, never a blank screen or unhandled crash.
+- **Structured, leveled logging.** Log at appropriate levels with structured context; never log secrets, tokens, or PII; keep hot paths quiet.
+- **Report to monitoring.** Send unexpected errors to the project's tracker (e.g. Sentry on `settings-frontend`) — don't rely on logs alone for production failures.
+- **Idempotency & concurrency.** Make background jobs and mutating endpoints safe to retry — a redelivered Sidekiq job or a double-submitted request must not double-book, double-charge, or double-send. Guard shared-state updates against races with database constraints, locks, or atomic operations; never rely on an unprotected read-then-write. This is the failure mode behind overbooking.
+- **Elixir:** use tagged tuples and `with` for *expected* errors; reserve "let it crash" + supervision for the genuinely exceptional.
+
+## 8. Engineering leverage & judgment
+
+Operate for impact beyond the immediate change — optimize for the team, the next maintainer, and the system over time.
+
+- **Record significant decisions.** For cross-cutting or architectural choices, write a lightweight ADR (context → decision → consequences, including the alternatives you rejected and why) so the rationale outlives the PR. Don't bury durable decisions in a PR description that rots.
+- **Keep PRs small and single-purpose.** One logical change per PR; separate pure refactors from behavior changes. Optimize for the reviewer's time and a clean revert.
+- **Be conservative with dependencies and complexity.** Prefer boring, proven technology and the stdlib / existing libraries over net-new dependencies; weigh each addition's maintenance, license, and CVE surface. Spend novelty deliberately, not by default.
+- **Steward contracts; deprecate with a path.** Treat published interfaces — APIs, serializers, provider-facing payloads (e.g. Hydra `internal_api`, `ts_server`) — as commitments to consumers: change additively, version when you must break, and pair any removal with a deprecation window and communication. (DB-level expand/contract lives in §6.)
+- **Make tech debt explicit.** Take on debt deliberately, never silently — record it with a `TODO` plus a tracking ticket and a breadcrumb to the follow-up. Surface trade-offs and risks early, rather than letting them surface in review.
