@@ -17,6 +17,9 @@
     ]
   },
   "model": "claude-opus-4-8",
+  "env": {
+    "RUBOCOP_CACHE_ROOT": "/Users/clarksumatra/.cache"
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -98,7 +101,8 @@
         "~/Codespace",
         "~/.claude",
         "~/.asdf",
-        "~/.rvm"
+        "~/.rvm",
+        "~/.cache/rubocop_cache"
       ],
       "denyRead": [
         "~/"
