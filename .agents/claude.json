@@ -3,19 +3,20 @@
     "commit": ""
   },
   "permissions": {
-    "additionalDirectories": [
-      "~/Codespace",
-      "~/.claude"
-    ],
-    "disableBypassPermissionsMode": "disable",
     "deny": [
       "Read(~/.ssh/**)",
       "Read(~/.aws/**)",
       "Read(~/.gnupg/**)",
       "Bash(git push --force*)",
       "Bash(git push -f*)"
+    ],
+    "disableBypassPermissionsMode": "disable",
+    "additionalDirectories": [
+      "~/Codespace",
+      "~/.claude"
     ]
   },
+  "model": "claude-opus-4-8",
   "hooks": {
     "PreToolUse": [
       {
@@ -42,11 +43,23 @@
       }
     ]
   },
+  "enabledPlugins": {
+    "ruby-lsp@claude-plugins-official": true,
+    "atlassian@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "slack@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "mongodb@claude-plugins-official": true,
+    "chrome-devtools-mcp@claude-plugins-official": true
+  },
   "sandbox": {
     "enabled": true,
+    "excludedCommands": [
+      "gh *"
+    ],
     "network": {
-      "allowLocalBinding": true,
-      "enableWeakerNetworkIsolation": true,
       "allowedDomains": [
         "github.com",
         "*.github.com",
@@ -74,14 +87,22 @@
         "auth.atlassian.com",
         "api.atlassian.com",
         "tablecheck.atlassian.net"
-      ]
+      ],
+      "allowLocalBinding": true
     },
     "filesystem": {
+      "allowWrite": [
+        "~/Codespace",
+        "~/.claude",
+        "~/.asdf",
+        "~/.rvm"
+      ],
       "denyRead": [
         "~/"
       ],
       "allowRead": [
         "~/Codespace",
+        "~/.cache",
         "~/.claude",
         "~/.gitconfig",
         "~/.zshrc",
@@ -91,23 +112,7 @@
         "~/.asdf",
         "~/.nvm",
         "~/.rvm"
-      ],
-      "allowWrite": [
-        "~/Codespace",
-        "~/.claude",
-        "~/.asdf",
-        "~/.rvm"
       ]
     }
-  },
-  "enabledPlugins": {
-    "ruby-lsp@claude-plugins-official": true,
-    "atlassian@claude-plugins-official": true,
-    "github@claude-plugins-official": true,
-    "security-guidance@claude-plugins-official": true,
-    "pr-review-toolkit@claude-plugins-official": true,
-    "slack@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true,
-    "mongodb@claude-plugins-official": true
   }
 }
