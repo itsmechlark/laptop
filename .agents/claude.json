@@ -88,7 +88,10 @@
         "api.atlassian.com",
         "tablecheck.atlassian.net"
       ],
-      "allowLocalBinding": true
+      "allowLocalBinding": true,
+      "allowUnixSockets": [
+        "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+      ]
     },
     "filesystem": {
       "allowWrite": [
