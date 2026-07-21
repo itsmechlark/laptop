@@ -1,4 +1,7 @@
 {
+  "env": {
+    "RUBOCOP_CACHE_ROOT": "/Users/clarksumatra/.cache"
+  },
   "attribution": {
     "commit": ""
   },
@@ -17,9 +20,6 @@
     ]
   },
   "model": "claude-opus-4-8",
-  "env": {
-    "RUBOCOP_CACHE_ROOT": "/Users/clarksumatra/.cache"
-  },
   "hooks": {
     "PreToolUse": [
       {
@@ -55,13 +55,11 @@
     "slack@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
     "mongodb@claude-plugins-official": true,
-    "chrome-devtools-mcp@claude-plugins-official": true
+    "chrome-devtools-mcp@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true
   },
   "sandbox": {
     "enabled": true,
-    "excludedCommands": [
-      "gh *"
-    ],
     "network": {
       "allowedDomains": [
         "github.com",
@@ -91,10 +89,10 @@
         "api.atlassian.com",
         "tablecheck.atlassian.net"
       ],
-      "allowLocalBinding": true,
       "allowUnixSockets": [
         "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-      ]
+      ],
+      "allowLocalBinding": true
     },
     "filesystem": {
       "allowWrite": [
@@ -111,15 +109,20 @@
         "~/Codespace",
         "~/.cache",
         "~/.claude",
+        "~/.hex",
         "~/.gitconfig",
         "~/.zshrc",
         "~/.zprofile",
         "~/.zshenv",
         "~/.config",
         "~/.asdf",
+        "~/.mix",
         "~/.nvm",
         "~/.rvm"
       ]
-    }
+    },
+    "excludedCommands": [
+      "gh *"
+    ]
   }
 }
