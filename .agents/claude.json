@@ -124,5 +124,6 @@
     "excludedCommands": [
       "gh *"
     ]
-  }
+  },
+  "effortLevel": "high"
 }
