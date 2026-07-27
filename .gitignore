@@ -1,3 +1,4 @@
 *.swp
 artifacts
 .claude/.cc-writes
+.agents/**/.claude
