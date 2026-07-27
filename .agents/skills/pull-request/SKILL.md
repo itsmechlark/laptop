@@ -11,7 +11,7 @@ Model PR descriptions on Monolith [PR #7334](https://github.com/tablecheck/monol
 
 ## Title
 
-The PR title follows the same Conventional Commits format as commits, with the **Jira ticket key appended in square brackets at the end** — `<type>(scope): <description> [TICKET-KEY]` (e.g. `fix(auto-allocation): validate overlap instead of auto-setting end_date [HDR-1097]`). If no ticket key is known, ask the user for it rather than omitting it. The title is bound by the same length limit as a commit subject — aim for ≤50 and never exceed the 72-character hard cap, measuring the `<type>(scope): <description>` portion (the trailing `[TICKET-KEY]` is exempt) so a PR and its commit stay easy to correlate at a glance.
+The PR title follows the same Conventional Commits format as commits, with the **Jira ticket key appended in square brackets at the end** — `<type>(scope): <description> [TICKET-KEY]` (e.g. `fix(onboarding): validate overlap instead of auto-setting end_date [ABC-1234]`). If no ticket key is known, ask the user for it rather than omitting it. The title is bound by the same length limit as a commit subject — aim for ≤50 and never exceed the 72-character hard cap, measuring the `<type>(scope): <description>` portion (the trailing `[TICKET-KEY]` is exempt) so a PR and its commit stay easy to correlate at a glance.
 
 ## Body
 
@@ -27,10 +27,10 @@ Product context plus engineering rationale.
 A product-like summary of what changed, with an engineering-level
 overview of the approach.
 
-More details [HDR-1089](https://tablecheck.atlassian.net/browse/HDR-1089)
+More details [ABC-1234](https://workspace.atlassian.net/browse/ABC-1234)
 ```
 
 Rules:
 - **Summary is not a code walkthrough.** The code is the source of truth — do not narrate it line by line or method by method. Describe *what* changed and *why* at a level above the diff: product-facing outcome plus a concise engineering summary of the approach.
 - **Behavior changes go in a table.** If the PR changes runtime/product behavior, include a Markdown table summarizing the behavior (e.g. input/condition → resulting behavior, or before → after).
-- **Ticket link is a Markdown link** here (unlike commits, which use a plain URL): `[HDR-1089](https://tablecheck.atlassian.net/browse/HDR-1089)`. If no ticket key is known, ask the user for it.
+- **Ticket link is a Markdown link** here (unlike commits, which use a plain URL): `[ABC-1234](https://workspace.atlassian.net/browse/ABC-1234)`. If no ticket key is known, ask the user for it.

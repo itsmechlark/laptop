@@ -1,13 +1,13 @@
 ---
 paths:
-  - "**/settings-frontend/**/*.ts"
-  - "**/settings-frontend/**/*.tsx"
+  - "**/*.ts"
+  - "**/*.tsx"
 ---
 
-# React + TypeScript standards (Settings app, `settings-frontend`)
+# React + TypeScript standards
 
 - **TypeScript strict.** No `any` — use `unknown` + narrowing or precise types; type external boundaries (API responses, component props) explicitly. Keep `tsc` / `vite-plugin-checker` clean.
-- **Components:** function components + hooks; small, focused, accessible. Build on the `@tablecheck/tablekit-react` design system and Radix primitives rather than hand-rolling UI — don't reimplement accessible dialogs, popovers, menus, etc.
+- **Components:** function components + hooks; small, focused, accessible. Build on the `@workspace/ui` design system and Radix primitives rather than hand-rolling UI — don't reimplement accessible dialogs, popovers, menus, etc.
 - **State:** server state via TanStack Query (don't hand-roll fetch/caching/refetch); model complex UI state with XState machines; forms with react-hook-form. Keep local state local.
 - **Accessibility (a11y):** preserve semantic HTML and Radix's built-in keyboard/ARIA behavior; label every interactive control. a11y is a requirement, not a follow-up.
 - **i18n:** never hardcode user-facing strings — add keys via i18next / react-i18next.
