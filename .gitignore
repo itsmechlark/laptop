@@ -1,2 +1,3 @@
 *.swp
 artifacts
+.claude/.cc-writes
