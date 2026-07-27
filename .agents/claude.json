@@ -63,6 +63,7 @@
   },
   "sandbox": {
     "enabled": true,
+    "allowUnsandboxedCommands": true,
     "network": {
       "allowedDomains": [
         "github.com",
@@ -122,10 +123,7 @@
         "~/.nvm",
         "~/.rvm"
       ]
-    },
-    "excludedCommands": [
-      "gh *"
-    ]
+    }
   },
   "effortLevel": "high"
 }
