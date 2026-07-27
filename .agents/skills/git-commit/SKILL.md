@@ -9,7 +9,7 @@ description: Conventions for writing git commits and branch names. Use whenever 
 
 **Never add AI attribution to commits.** No AI `Co-Authored-By` trailer, no "Generated with …" line, and no other AI co-author or attribution footer — even if a default workflow suggests one.
 
-When you are explicitly asked to commit, follow [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) and the well-formed message conventions from [A Note About Git Commit Messages](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html). Match whatever convention the repository's existing history already uses.
+When you are explicitly asked to commit, default to [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) and the well-formed-message conventions from [A Note About Git Commit Messages](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html). If the repository already follows a consistent commit convention of its own, match that instead — consistency within a project's history outranks this default.
 
 Format:
 ```
@@ -28,6 +28,12 @@ Format:
 - **Footers** follow git-trailer convention, one blank line after the body (e.g. `Refs: #123`, `Reviewed-by: …`).
 - **Issue reference (only if the project uses one):** if the work maps to a tracked issue, reference it the way the repository already does — a git trailer (`Refs: #123`) or a plain issue URL on its own line after a blank line. Don't fabricate a reference if the project doesn't track issues, and don't leave a placeholder; if the project's convention requires a key you don't have, ask for it rather than guessing.
 - **Skip CI on docs-only commits.** When a commit is `docs`-only (changes nothing CI validates — no code, config, or tests) and the project's CI honors it, include `[skip ci]` (or the equivalent `[ci skip]`) on its own line in the body. Never add it to a commit that touches code, config, or tests.
+
+## Creating the commit
+
+- **One logical change per commit.** Stage deliberately (`git add <paths>`); don't sweep unrelated changes with `git add -A`. Split unrelated work into separate commits.
+- **Review what's staged** with `git diff --staged` before writing the message, so the message matches the actual change.
+- **Preserve message formatting** by passing a prepared file (`git commit -F <file>`) or repeated `-m` flags; avoid inline heredocs/quoting that can mangle the subject/body split.
 
 ## Branch naming
 
