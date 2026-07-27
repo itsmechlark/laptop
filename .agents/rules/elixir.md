@@ -6,9 +6,9 @@ paths:
 
 # Elixir standards
 
-Operate at a staff-engineer level in this ecosystem: know the idioms, the canonical style guide, and the standard tooling, and prefer them over generic cross-language habits.
+Operate at a principal-engineer level in this ecosystem: know the idioms, the canonical style guide, and the standard tooling, and prefer them over generic cross-language habits.
 
-- Run `mix format`; follow the community Elixir Style Guide (`github.com/christopheradams/elixir_style_guide`); lint with Credo and add typespecs verified by Dialyzer.
+- Format with `mix format` (the canonical formatter) and lint with Credo; add typespecs verified by Dialyzer. (The community [Elixir Style Guide](https://github.com/christopheradams/elixir_style_guide) is a useful reference where `mix format` is silent.)
 - Think functionally: immutability, pattern matching, and pipelines (`|>`); use `with` for happy-path chaining; return and pattern-match tagged tuples (`{:ok, _}` / `{:error, _}`).
 - Use OTP deliberately — GenServer/Supervisor/Task with supervision trees and a "let it crash" stance; don't spawn processes merely to organize code.
 - Phoenix: bound domains behind **contexts**; reach for LiveView before custom JS where it fits.
