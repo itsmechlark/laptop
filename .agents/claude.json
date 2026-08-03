@@ -35,6 +35,7 @@
     "disableBypassPermissionsMode": "disable",
     "additionalDirectories": [
       "~/Codespace",
+      "~/.agents",
       "~/.claude"
     ]
   },
@@ -128,6 +129,7 @@
       ],
       "allowRead": [
         "~/Codespace",
+        "~/.agents",
         "~/.cache",
         "~/.claude",
         "~/.hex",

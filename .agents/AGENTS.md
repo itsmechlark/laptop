@@ -8,16 +8,17 @@ Read these first; the rest of this document elaborates. None may be violated wit
 
 - **Never commit or push unless explicitly told** — ask first (see the `git-commit` skill).
 - **Never add AI attribution** to commits or PRs (see the `git-commit` skill).
-- **Never hardcode or log secrets, credentials, or PII**; treat all external input as untrusted (§2, §7).
-- **No silent failures** — never swallow an exception or rejected promise (§7).
-- **Don't claim work is done until verified** — tests, lint, and type-checks pass (§5).
-- **Gate risky/behavioral change behind a default-off flag, and keep DB migrations backward-compatible** (§6).
+- **Never hardcode or log secrets, credentials, or PII**; treat all external input as untrusted (§2, §6).
+- **No silent failures** — never swallow an exception or rejected promise (§6).
+- **Don't claim work is done until verified** — tests, lint, and type-checks pass (§4).
+- **Gate risky/behavioral change behind a default-off flag, and keep DB migrations backward-compatible** (§5).
 
 ## Standards layout
 
 This file holds cross-cutting, always-on standards. Stack-specific standards and task workflows live beside it and load when relevant — apply them without being reminded:
 
-- **Language / framework standards** → `~/.claude/rules/` (auto-load when a matching file is opened): `ruby.md` (Ruby + Rails), `rspec.md`, `elixir.md`, `react-typescript.md` (Settings app), `ember.md` (TCM / Manager).
+- **Local overrides** → `~/.agents/AGENTS.local.md` — read this file at the start of every session; it contains machine-local context (app locations, paths) that applies to all work.
+- **Language / framework standards** → `~/.claude/rules/` (auto-load when a matching file is opened): `ruby.md` (Ruby + Rails), `rspec.md`, `elixir.md`, `react-typescript.md`, `ember.md`.
 - **Task workflows** → `~/.claude/skills/` (invoke when doing the task): `git-commit` (commit messages & branch naming), `pull-request` (PR title & description), `git-worktree` (worktree setup).
 
 ## 1. Engineering mindset (plan & code like a staff engineer)
@@ -61,25 +62,7 @@ Every change must consider:
 
 For the PR title and description template, use the `pull-request` skill.
 
-## 4. App & codebase locations
-
-When any of these apps is referenced in a prompt, use the local path below as the working directory and the listed default branch as the base for branching, diffs, and PRs.
-
-| App | Local path | Repository | Default branch |
-| --- | --- | --- | --- |
-| TCM / Manager | `~/Codespace/manager-ember-desktop` | https://github.com/tablecheck/manager-ember-desktop | `main` |
-| Monolith | `~/Codespace/monolith` | https://github.com/tablecheck/monolith | `develop` |
-| Settings app | `~/Codespace/settings-frontend` | https://github.com/tablecheck/settings-frontend | `main` |
-| Hydra | `~/Codespace/hydra` | https://github.com/tablecheck/hydra | `develop` |
-| old Settings | `~/Codespace/monolith/engines/table_solution` | — (engine within Monolith) | `develop` (via Monolith) |
-
-Notes:
-- **TCM** and **Manager** refer to the same app (`manager-ember-desktop`).
-- **old Settings** is the `table_solution` engine inside the Monolith repo, not a standalone repository — branch, commit, and PR against Monolith on `develop`, and scope its commits accordingly (see the `git-commit` skill).
-- Always branch from and target the listed default branch unless told otherwise.
-- For worktree setup, use the `git-worktree` skill.
-
-## 5. Definition of Done
+## 4. Definition of Done
 
 Work is not "done" until it is verified — never report a task complete on unverified or "should work" code.
 
@@ -89,7 +72,7 @@ Work is not "done" until it is verified — never report a task complete on unve
 - **Self-review the diff** for leftover debug output, secrets, and out-of-scope churn before handing it off.
 - If a check genuinely cannot be run here, state which one and why — don't silently skip it.
 
-## 6. Safe rollout, feature flags & migrations
+## 5. Safe rollout, feature flags & migrations
 
 Ship behavioral change conservatively and reversibly.
 
@@ -98,22 +81,22 @@ Ship behavioral change conservatively and reversibly.
 - **Database migrations must be backward-compatible (expand/contract)** for zero-downtime deploys: add columns/indexes and backfill first, switch reads/writes, then remove the old shape in a later step. Keep migrations reversible, add indexes for new foreign keys and lookups, and avoid long-locking operations on large tables.
 - **Keep changes reversible.** Prefer additive changes; when removing or renaming, stage it so a rollback doesn't break running code or in-flight data.
 
-## 7. Error handling, observability & reliability
+## 6. Error handling, observability & reliability
 
 - **No silent failures.** Never swallow exceptions or rejected promises — no empty `rescue`, bare `catch {}`, or ignored `{:error, _}`. A caught error must be handled, re-raised, or surfaced with context.
 - **Actionable errors.** Messages should say what failed and carry enough context to debug (identifiers, operation), without leaking secrets or PII.
 - **Fail fast at boundaries; degrade gracefully for users.** Validate inputs early; in user-facing flows show a meaningful error state, never a blank screen or unhandled crash.
 - **Structured, leveled logging.** Log at appropriate levels with structured context; never log secrets, tokens, or PII; keep hot paths quiet.
-- **Report to monitoring.** Send unexpected errors to the project's tracker (e.g. Sentry on `settings-frontend`) — don't rely on logs alone for production failures.
+- **Report to monitoring.** Send unexpected errors to the project's tracker (e.g. Sentry) — don't rely on logs alone for production failures.
 - **Idempotency & concurrency.** Make background jobs and mutating endpoints safe to retry — a redelivered Sidekiq job or a double-submitted request must not double-book, double-charge, or double-send. Guard shared-state updates against races with database constraints, locks, or atomic operations; never rely on an unprotected read-then-write. This is the failure mode behind overbooking.
 - **Elixir:** use tagged tuples and `with` for *expected* errors; reserve "let it crash" + supervision for the genuinely exceptional.
 
-## 8. Engineering leverage & judgment
+## 7. Engineering leverage & judgment
 
 Operate for impact beyond the immediate change — optimize for the team, the next maintainer, and the system over time.
 
 - **Record significant decisions.** For cross-cutting or architectural choices, write a lightweight ADR (context → decision → consequences, including the alternatives you rejected and why) so the rationale outlives the PR. Don't bury durable decisions in a PR description that rots.
 - **Keep PRs small and single-purpose.** One logical change per PR; separate pure refactors from behavior changes. Optimize for the reviewer's time and a clean revert.
 - **Be conservative with dependencies and complexity.** Prefer boring, proven technology and the stdlib / existing libraries over net-new dependencies; weigh each addition's maintenance, license, and CVE surface. Spend novelty deliberately, not by default.
-- **Steward contracts; deprecate with a path.** Treat published interfaces — APIs, serializers, provider-facing payloads (e.g. Hydra `internal_api`, `ts_server`) — as commitments to consumers: change additively, version when you must break, and pair any removal with a deprecation window and communication. (DB-level expand/contract lives in §6.)
+- **Steward contracts; deprecate with a path.** Treat published interfaces — APIs, serializers, provider-facing payloads — as commitments to consumers: change additively, version when you must break, and pair any removal with a deprecation window and communication. (DB-level expand/contract lives in §5.)
 - **Make tech debt explicit.** Take on debt deliberately, never silently — record it with a `TODO` plus a tracking ticket and a breadcrumb to the follow-up. Surface trade-offs and risks early, rather than letting them surface in review.

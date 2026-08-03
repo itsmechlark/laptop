@@ -209,9 +209,9 @@ gem_install_or_update "parity"
 fancy_echo "Installing latest Node ..."
 install_asdf_language "nodejs"
 
-fancy_echo "Linking AI agent configuration ..."
+fancy_echo "Linking configuration ..."
 
-link_agent_config() {
+symlink_path() {
   local target="$1" link="$2"
 
   if [ ! -e "$target" ]; then
@@ -230,13 +230,19 @@ link_agent_config() {
   ln -s "$target" "$link"
 }
 
-AGENTS_DIR="$(cd "$(dirname "$0")" && pwd)/.agents"
-CLAUDE_DIR="$HOME/.claude"
-mkdir -p "$CLAUDE_DIR"
-link_agent_config "$AGENTS_DIR/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
-link_agent_config "$AGENTS_DIR/rules" "$CLAUDE_DIR/rules"
-link_agent_config "$AGENTS_DIR/skills" "$CLAUDE_DIR/skills"
-link_agent_config "$AGENTS_DIR/claude.json" "$CLAUDE_DIR/settings.json"
+PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
+AGENTS_DIR="$PROJECT_DIR/.agents"
+AGENTS_GLOBAL_DIR="$HOME/.agents"
+
+symlink_path "$AGENTS_DIR" "$AGENTS_GLOBAL_DIR"
+symlink_path "$PROJECT_DIR/skills-lock.json" "$AGENTS_GLOBAL_DIR/skills-lock.json"
+
+CLAUDE_GLOBAL_DIR="$HOME/.claude"
+mkdir -p "$CLAUDE_GLOBAL_DIR"
+symlink_path "$AGENTS_GLOBAL_DIR/CLAUDE.md" "$CLAUDE_GLOBAL_DIR/CLAUDE.md"
+symlink_path "$AGENTS_GLOBAL_DIR/rules" "$CLAUDE_GLOBAL_DIR/rules"
+symlink_path "$AGENTS_GLOBAL_DIR/skills" "$CLAUDE_GLOBAL_DIR/skills"
+symlink_path "$AGENTS_GLOBAL_DIR/claude.json" "$CLAUDE_GLOBAL_DIR/settings.json"
 
 if [ -f "$HOME/.laptop.local" ]; then
   fancy_echo "Running your customizations from ~/.laptop.local ..."
