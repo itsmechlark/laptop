@@ -38,7 +38,7 @@
       "~/.claude"
     ]
   },
-  "model": "claude-opus-4-8",
+  "model": "sonnet",
   "hooks": {
     "PreToolUse": [
       {
@@ -143,5 +143,6 @@
       ]
     }
   },
-  "effortLevel": "high"
+  "effortLevel": "high",
+  "advisorModel": "opus"
 }
