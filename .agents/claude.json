@@ -38,7 +38,7 @@
       "~/.claude"
     ]
   },
-  "model": "sonnet",
+  "model": "sonnet[1m]",
   "hooks": {
     "PreToolUse": [
       {
