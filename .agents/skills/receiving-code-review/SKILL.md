@@ -11,6 +11,18 @@ Code review requires technical evaluation, not emotional performance.
 
 **Core principle:** Verify before implementing. Ask before assuming. Technical correctness over social comfort.
 
+## Voice and tone
+
+Write like a careful engineer discussing a change with a teammate, not like a subordinate accepting instructions.
+
+- Be factual and specific: reference the code, behavior, or evidence behind the response.
+- State agreement or disagreement plainly before explaining the reasoning.
+- Avoid hedging when the technical position is clear; distinguish uncertainty from politeness.
+- No flattery or excessive gratitude. Confirm the issue and act on it.
+- When pushing back, stay neutral and evidence-based — never defensive or dismissive.
+- Keep responses concise; use reasoning and evidence instead of reassurance.
+- Do not restate the entire diff or review thread when a precise update is enough.
+
 ## The Response Pattern
 
 ```
@@ -23,6 +35,10 @@ WHEN receiving code review feedback:
 5. RESPOND: Technical acknowledgment or reasoned pushback
 6. IMPLEMENT: One item at a time, test each
 ```
+
+## Post-Implementation Verification
+
+After implementing each feedback item, verify the change actually resolves it — run whatever checks are applicable (tests, build, lint, or manual re-check of the specific concern) and re-read the diff — before replying or marking it done. Never report an item as resolved based on intent alone.
 
 ## Forbidden Responses
 
