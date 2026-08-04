@@ -46,7 +46,7 @@ Commit the groups one at a time. For each:
 
 ## Step 4: Write the message
 
-Write each group's message to a file and commit with `git commit -F <file>` (or repeated `-m` flags) — avoid inline heredocs/quoting that can mangle the subject/body split. Always write the temp file to `$TMPDIR`, not `/tmp` — the sandbox blocks `/tmp` writes directly.
+Write each group's message to a file and commit with `git commit -F <file>` (or repeated `-m` flags) — avoid inline heredocs/quoting that can mangle the subject/body split. Always write the temp file to `$TMPDIR`, not `/tmp` — the macOS sandbox blocks `/tmp` writes directly.
 
 ### Format (Conventional Commits)
 

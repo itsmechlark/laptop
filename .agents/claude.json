@@ -11,6 +11,7 @@
       "Read(~/.ssh/**)",
       "Read(~/.aws/**)",
       "Read(~/.gnupg/**)",
+      "Read(~/.config/gh/**)",
       "Read(~/.config/gcloud/**)",
       "Read(~/.azure/**)",
       "Read(~/.kube/**)",
@@ -82,6 +83,9 @@
   "sandbox": {
     "enabled": true,
     "allowUnsandboxedCommands": true,
+    "excludedCommands": [
+      "gh *"
+    ],
     "network": {
       "allowedDomains": [
         "github.com",
@@ -124,7 +128,8 @@
         "~/.cache/rubocop_cache"
       ],
       "denyRead": [
-        "~/"
+        "~/",
+        "~/.config/gh"
       ],
       "allowRead": [
         "~/Codespace",
