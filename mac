@@ -235,7 +235,7 @@ AGENTS_DIR="$PROJECT_DIR/.agents"
 AGENTS_GLOBAL_DIR="$HOME/.agents"
 
 symlink_path "$AGENTS_DIR" "$AGENTS_GLOBAL_DIR"
-symlink_path "$PROJECT_DIR/skills-lock.json" "$AGENTS_GLOBAL_DIR/skills-lock.json"
+symlink_path "$PROJECT_DIR/skills-lock.json" "$AGENTS_GLOBAL_DIR/.skills-lock.json"
 
 CLAUDE_GLOBAL_DIR="$HOME/.claude"
 mkdir -p "$CLAUDE_GLOBAL_DIR"

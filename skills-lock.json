@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 3,
   "skills": {
     "agent-browser": {
       "source": "vercel-labs/agent-browser",
@@ -19,6 +19,15 @@
       "skillPath": "skills/explain/SKILL.md",
       "computedHash": "7583d6f659c610ceb0a8ea56c388bcf9f593e163ea713e4ae37c0909f0466639"
     },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/skills.git",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "skillFolderHash": "76a98a285cb0434f3d39e1a873823556330e398b",
+      "installedAt": "2026-08-04T04:42:01.408Z",
+      "updatedAt": "2026-08-04T04:42:01.408Z"
+    },
     "receiving-code-review": {
       "source": "obra/superpowers",
       "sourceType": "github",
@@ -31,5 +40,23 @@
       "skillPath": "rspec/SKILL.md",
       "computedHash": "4275d92422b1c4636fd4c1e9b3e91db63a7ec67d0cae576d50ee6b6a2b869281"
     }
-  }
+  },
+  "dismissed": {
+    "findSkillsPrompt": true
+  },
+  "lastSelectedAgents": [
+    "amp",
+    "antigravity",
+    "antigravity-cli",
+    "cline",
+    "codex",
+    "cursor",
+    "deepagents",
+    "gemini-cli",
+    "github-copilot",
+    "kimi-code-cli",
+    "opencode",
+    "warp",
+    "zed"
+  ]
 }
