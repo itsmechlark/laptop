@@ -11,7 +11,6 @@
       "Read(~/.ssh/**)",
       "Read(~/.aws/**)",
       "Read(~/.gnupg/**)",
-      "Read(~/.config/gh/**)",
       "Read(~/.config/gcloud/**)",
       "Read(~/.azure/**)",
       "Read(~/.kube/**)",
