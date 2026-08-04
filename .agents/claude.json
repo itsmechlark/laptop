@@ -83,9 +83,6 @@
   "sandbox": {
     "enabled": true,
     "allowUnsandboxedCommands": true,
-    "excludedCommands": [
-      "gh *"
-    ],
     "network": {
       "allowedDomains": [
         "github.com",
@@ -147,7 +144,10 @@
         "~/.nvm",
         "~/.rvm"
       ]
-    }
+    },
+    "excludedCommands": [
+      "gh *"
+    ]
   },
   "effortLevel": "high",
   "advisorModel": "opus"
