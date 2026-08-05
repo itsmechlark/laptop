@@ -17,7 +17,7 @@ A brief says what should be *true when the work is done*. For an issue that mean
 
 **Explicit scope boundaries.** Name what not to touch. Without them, an unattended agent gold-plates the adjacent thing that looked related.
 
-**A brief for a bug or a PR carries its repro.** The artifact from step 3 of triage goes in the brief verbatim — the failing test and the branch it's on, or the exact command and its unedited output. Prose decays: a week later "confirmed" doesn't say whether anyone actually ran anything. An artifact also gives the implementer its first move, which is TDD's starting point (AGENTS.md §1) handed over at the moment someone had the repro in hand. For a bug, the first acceptance criterion is that the repro passes.
+**A brief for a bug or a PR carries its repro.** The artifact from step 3 of triage goes in the brief verbatim — the failing test and the branch it's on, the exact command and its unedited output, or, for a UI bug, the `agent-browser` click path and the screenshot it produced. Prose decays: a week later "confirmed" doesn't say whether anyone actually ran anything. An artifact also gives the implementer its first move, which is TDD's starting point (AGENTS.md §1) handed over at the moment someone had the repro in hand. For a bug, the first acceptance criterion is that the repro passes.
 
 ## Template
 
@@ -28,9 +28,10 @@ A brief says what should be *true when the work is done*. For an issue that mean
 **Summary:** one line — what needs to happen
 
 **Repro:** *(bugs and PRs; omit for enhancements)*
-Either the failing test and the branch it lives on, or the exact command and
-its verbatim output. Enough that the reader can see the problem themselves
-without re-deriving it.
+The failing test and the branch it lives on, the exact command and its
+verbatim output, or (for a UI bug) the `agent-browser` click path and the
+screenshot it produced. Enough that the reader can see the problem
+themselves without re-deriving it.
 
 **Current behavior:**
 What happens today. For a bug, the broken behavior. For an enhancement, the
