@@ -93,12 +93,18 @@ When PRs are in scope, include them and tag each line `[PR]` or `[issue]`. Disco
 
 2. **Recommend.** State the category, the state, and the reasoning, plus what the codebase says about the request. Wait for direction before writing anything.
 
-3. **Verify the claim.** Before sharpening anything, check the claim holds. For a bug, reproduce it from the reporter's steps. *For a PR*, check it out and run the relevant tests or commands to confirm the diff does what it says. Report the outcome plainly: confirmed (with the code path), not reproducible, or too little detail to try — the last is a strong `needs-info` signal. Never soften an unverified claim into a verified one.
+3. **Verify the claim, and keep the artifact.** Before sharpening anything, check the claim holds — reproducing a bug from the reporter's steps, or running a PR's diff against what it promises. Verification has to leave behind something that outlives the conversation; the word "confirmed" in a comment doesn't. Produce the strongest tier available:
+
+   - **(a) A failing test**, on a scratch branch named `triage/<ref>-repro`, written with `tdd`. This makes the handoff red → green, which is where AGENTS.md §1 already points — a bug fix starts from a test that reproduces the bug. The `triage/` prefix marks the branch as scratch rather than work, so it sits outside the house branch convention on purpose; the fix PR absorbs the test or deletes the branch, because a scratch branch with no owner is litter.
+   - **(b) A copy-pasteable command and its verbatim output** — the exact invocation, and what it printed, unedited. This is a first-class outcome, not a consolation: tier (a) is disproportionate for UI, timing-dependent, or environment-specific bugs, and impossible on a repo you can't push to.
+   - **(c) "Couldn't reproduce," plus exactly what you tried** — commands, versions, environment, what you expected to see instead. This *is* the body of the `needs-info` comment, and it asks a far better question than "please provide more information."
+
+   *For a PR*, tier (b) is usually the fit: check the diff out, run the relevant tests or commands, record what you ran and what came back. A fresh enhancement has nothing to reproduce — skip to step 4. Never soften an unverified claim into a verified one, and never let a confident read of the code stand in for a reproduction.
 
 4. **Sharpen (only if underspecified).** Run `grilling` and `domain-modeling` together: grill the gaps one question at a time — never a wall of questions — while sharpening the domain's terms and writing decisions to `CONTEXT.md` or an ADR inline as they land, rather than burying them in a tracker comment. Aim each question at what would change the implementation: the ambiguous term, the unhandled edge case, the unstated expected behavior, the success criterion. If the request keeps growing, it's an epic — stop and hand it to `slice`.
 
 5. **Apply the outcome.** Draft it, show it, then write:
-   - `ready-for-agent` → post an agent brief ([AGENT-BRIEF.md](AGENT-BRIEF.md)).
+   - `ready-for-agent` → post an agent brief ([AGENT-BRIEF.md](AGENT-BRIEF.md)). A **bug** gets here only on a tier (a) or (b) artifact from step 3; tier (c) is `needs-info` by definition, because without a repro an unattended agent can't tell done from plausibly-done.
    - `ready-for-human` → same structure, plus why it can't be delegated (judgment call, external access, design decision, manual verification).
    - `needs-info` → post triage notes (template below).
    - `wontfix` → close, with the comment depending on **why**:
@@ -112,7 +118,7 @@ When PRs are in scope, include them and tag each line `[PR]` or `[issue]`. Disco
 
 ## Quick override
 
-"Move #42 to ready-for-agent" is a decision, not a question — trust it. Confirm what you're about to do (role changes, comment, close), then do it. Skip verification and sharpening. If it's moving to `ready-for-agent` and no brief exists, ask whether to write one; a brief-less `ready-for-agent` is how an unattended agent ends up guessing.
+"Move #42 to ready-for-agent" is a decision, not a question — trust it. Confirm what you're about to do (role changes, comment, close), then do it. Skip verification and sharpening. If it's moving to `ready-for-agent` and no brief exists, ask whether to write one; a brief-less `ready-for-agent` is how an unattended agent ends up guessing. Same for a bug with no repro artifact — offer to produce one, don't block on it.
 
 ## Needs-info template
 
@@ -130,7 +136,7 @@ When PRs are in scope, include them and tag each line `[PR]` or `[issue]`. Disco
 - question 2
 ```
 
-Everything settled during verification and sharpening goes under "established" — that's the record the next session resumes from. Questions must be specific and answerable; "please provide more information" is not a question.
+Everything settled during verification and sharpening goes under "established" — that's the record the next session resumes from. A tier (c) verification belongs there in full: the commands you ran, the versions, what you saw instead. Questions must be specific and answerable; "please provide more information" is not a question.
 
 ## Resuming
 

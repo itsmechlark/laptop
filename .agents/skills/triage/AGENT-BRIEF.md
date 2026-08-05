@@ -17,6 +17,8 @@ A brief says what should be *true when the work is done*. For an issue that mean
 
 **Explicit scope boundaries.** Name what not to touch. Without them, an unattended agent gold-plates the adjacent thing that looked related.
 
+**A brief for a bug or a PR carries its repro.** The artifact from step 3 of triage goes in the brief verbatim — the failing test and the branch it's on, or the exact command and its unedited output. Prose decays: a week later "confirmed" doesn't say whether anyone actually ran anything. An artifact also gives the implementer its first move, which is TDD's starting point (AGENTS.md §1) handed over at the moment someone had the repro in hand. For a bug, the first acceptance criterion is that the repro passes.
+
 ## Template
 
 ```markdown
@@ -24,6 +26,11 @@ A brief says what should be *true when the work is done*. For an issue that mean
 
 **Category:** bug / enhancement
 **Summary:** one line — what needs to happen
+
+**Repro:** *(bugs and PRs; omit for enhancements)*
+Either the failing test and the branch it lives on, or the exact command and
+its verbatim output. Enough that the reader can see the problem themselves
+without re-deriving it.
 
 **Current behavior:**
 What happens today. For a bug, the broken behavior. For an enhancement, the
@@ -53,6 +60,11 @@ What should be true afterward, including edge cases and error conditions.
 **Category:** bug
 **Summary:** Long skill descriptions truncate mid-word
 
+**Repro:**
+`triage/42-repro` — a test asserting that a 1,200-character description is cut
+at a word boundary. Fails today; the assertion diff shows the output ending
+"Use when the user wants to confi".
+
 **Current behavior:**
 A description over 1024 characters is cut at exactly 1024 regardless of word
 boundaries, producing output that ends mid-word ("Use when the user wants to confi").
@@ -68,6 +80,7 @@ untouched.
 - Any caller that assumes an exact-1024 cut
 
 **Acceptance criteria:**
+- [ ] the repro test on `triage/42-repro` passes
 - [ ] descriptions under the limit are byte-for-byte unchanged
 - [ ] longer ones break at the last word boundary before the limit
 - [ ] truncated output ends with "…" and is never longer than 1024 characters
@@ -93,4 +106,4 @@ has the issue.
 - src/triage/handler.ts (line 150)
 ```
 
-No category. "The triage thing is broken" describes nothing. Paths and line numbers that will be stale within a week. No current-vs-desired split, no criteria, no boundaries — so nobody, agent or human, can tell when it's finished.
+No category. "The triage thing is broken" describes nothing. Paths and line numbers that will be stale within a week. No repro, so there's no way to tell whether the bug was ever observed or just believed. No current-vs-desired split, no criteria, no boundaries — so nobody, agent or human, can tell when it's finished.
