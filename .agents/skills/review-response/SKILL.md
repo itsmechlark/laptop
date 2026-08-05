@@ -18,7 +18,8 @@ Write like a careful engineer discussing a change with a teammate, not like a su
 - Be factual and specific: reference the code, behavior, or evidence behind the response.
 - State agreement or disagreement plainly before explaining the reasoning.
 - Avoid hedging when the technical position is clear; distinguish uncertainty from politeness.
-- No flattery or excessive gratitude. Confirm the issue and act on it.
+- No sycophancy — never validation without substance. Brief courtesy attached to a fix or a reasoned position is fine ("Thanks! Fixed."); empty agreement is not.
+- Treat the reviewer as a colleague and review as protection for the product's long-term health, not a status contest — be humble and respectful, engineer to engineer.
 - When pushing back, stay neutral and evidence-based — never defensive or dismissive.
 - Keep responses concise; use reasoning and evidence instead of reassurance.
 - Do not restate the entire diff or review thread when a precise update is enough.
@@ -38,11 +39,13 @@ WHEN receiving code review feedback:
 
 ## Post-Implementation Verification
 
-After implementing each feedback item, verify the change actually resolves it — run whatever checks are applicable (tests, build, lint, or manual re-check of the specific concern) and re-read the diff — before replying or marking it done. Never report an item as resolved based on intent alone.
+After implementing each feedback item, verify the change actually resolves it — run whatever checks are applicable (tests, build, lint, or manual re-check of the specific concern) and re-read the diff — before replying or marking it done. Never report an item as resolved based on intent alone. When the feedback is about UI or styling, prose can't prove it's resolved — attach a before/after screenshot or short replay as the evidence, capturing it by driving the app with `agent-browser`.
 
 ## Forbidden Responses
 
-**NEVER:**
+The line is substance, not politeness. What's forbidden is validation that carries no technical content:
+
+**NEVER (empty — validation with nothing behind it):**
 - "You're absolutely right!" (explicit instruction-file violation)
 - "Great point!" / "Excellent feedback!" (performative)
 - "Let me implement that now" (before verification)
@@ -52,6 +55,8 @@ After implementing each feedback item, verify the change actually resolves it �
 - Ask clarifying questions
 - Push back with technical reasoning if wrong
 - Just start working (actions > words)
+
+The same words attached to substance are fine: "Good catch — off-by-one in the loop bound. Fixed." works because the fix is right there. "Good point!" on its own does not.
 
 ## Handling Unclear Feedback
 
@@ -126,6 +131,10 @@ FOR multi-item feedback:
   4. Verify no regressions
 ```
 
+## Keep the Response Surgical
+
+Fix what the comment raises — not the adjacent thing that caught your eye. Unrelated changes folded into a review response expand the diff and force a re-review; keep the change scoped to the comment out of respect for the reviewer's time. Out-of-scope ideas become their own follow-up, not a rider on this one.
+
 ## When To Push Back
 
 Push back when:
@@ -138,6 +147,7 @@ Push back when:
 
 **How to push back:**
 - Use technical reasoning, not defensiveness
+- A courteous opener is fine when it carries the reason: "Good point, but this breaks X because Y." Bare agreement is not.
 - Ask specific questions
 - Reference working tests/code
 - Involve your human partner if architectural
@@ -146,22 +156,20 @@ Push back when:
 
 ## Acknowledging Correct Feedback
 
-When feedback IS correct:
+When feedback IS correct, reply with the fix. Brief courtesy riding along with it is fine; what's forbidden is acknowledgment offered *instead of* the fix.
 ```
 ✅ "Fixed. [Brief description of what changed]"
 ✅ "Good catch - [specific issue]. Fixed in [location]."
+✅ "Thanks! Fixed." (courtesy + the action)
 ✅ [Just fix it and show in the code]
 
-❌ "You're absolutely right!"
-❌ "Great point!"
-❌ "Thanks for catching that!"
-❌ "Thanks for [anything]"
-❌ ANY gratitude expression
+❌ "You're absolutely right!" (validation, no substance)
+❌ "Great point!" (performative, no substance)
+❌ "Thanks for catching that!" on its own (courtesy with no fix beside it)
+❌ Any acknowledgment that stands in for the fix
 ```
 
-**Why no thanks:** Actions speak. Just fix it. The code itself shows you heard the feedback.
-
-**If you catch yourself about to write "Thanks":** DELETE IT. State the fix instead.
+**The test:** does the reply carry the fix (or a reasoned position)? If yes, a word of thanks is fine. If the reply is *only* acknowledgment, it's empty — state the fix instead.
 
 ## Gracefully Correcting Your Pushback
 
@@ -188,6 +196,7 @@ State the correction factually and move on.
 | Avoiding pushback | Technical correctness > comfort |
 | Partial implementation | Clarify all items first |
 | Can't verify, proceed anyway | State limitation, ask for direction |
+| Scope creep in the response | Keep the change to what the comment raised |
 
 ## Real Examples
 
@@ -219,3 +228,7 @@ You understand 1,2,3,6. Unclear on 4,5.
 ## GitHub Thread Replies
 
 When replying to inline review comments on GitHub, reply in the comment thread (`gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies`), not as a top-level PR comment.
+
+---
+
+The reception conventions here follow TableCheck's [code-review-guidelines](https://github.com/TableCheck-Labs/code-review-guidelines) (`submitters.md`): be humble and respectful, keep the response surgical, and show visual proof for visual changes.
