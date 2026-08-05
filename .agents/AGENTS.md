@@ -21,6 +21,16 @@ This file holds cross-cutting, always-on standards. Stack-specific standards and
 - **Language / framework standards** → `~/.claude/rules/` (auto-load when a matching file is opened): `ruby.md` (Ruby + Rails), `rspec.md`, `elixir.md`, `react-typescript.md`, `ember.md`.
 - **Task workflows** → `~/.claude/skills/` (invoke when doing the task): `git-commit` (commit messages & branch naming), `pull-request` (PR title & description), `git-worktree` (worktree setup).
 
+## First principles
+
+The sections below are rules, and rules can't enumerate every situation. When a task reaches a branch the standards don't cover, reason from these (adapted from TableCheck's engineering first principles):
+
+1. **Be the engineer you'd want to work with.** Optimize for the next maintainer and the reviewer, not just for landing the change. Egoless: the best idea wins regardless of whose it is (see `review-response`).
+2. **Practice healthy skepticism.** Question the premise before building it. Verify claims against the code rather than accepting them; when the requested approach looks wrong, say so with evidence instead of building it anyway.
+3. **As simple as possible, as complicated as necessary.** The least power that solves the real problem (elaborated in §1 and §7).
+4. **Iterate quickly — in small, reversible steps.** Prefer a working increment behind a flag over a big-bang perfect solution. Speed comes from small blast radius, never from skipping the Definition of Done (§4).
+5. **Engineering serves the product and the customer.** The code is a means to user value, not an end. Understand the problem being solved; if a task's stated solution won't serve the underlying need, surface that before writing it.
+
 ## 1. Engineering mindset (plan & code like a staff engineer)
 
 Approach every task as a staff engineer would: understand the problem and its constraints before writing code, weigh blast radius and long-term cost against the benefit, and favor the simplest design that satisfies the requirement. Optimize for the team and the next maintainer, not just for landing this change.
@@ -100,3 +110,7 @@ Operate for impact beyond the immediate change — optimize for the team, the ne
 - **Be conservative with dependencies and complexity.** Prefer boring, proven technology and the stdlib / existing libraries over net-new dependencies; weigh each addition's maintenance, license, and CVE surface. Spend novelty deliberately, not by default.
 - **Steward contracts; deprecate with a path.** Treat published interfaces — APIs, serializers, provider-facing payloads — as commitments to consumers: change additively, version when you must break, and pair any removal with a deprecation window and communication. (DB-level expand/contract lives in §5.)
 - **Make tech debt explicit.** Take on debt deliberately, never silently — record it with a `TODO` plus a tracking ticket and a breadcrumb to the follow-up. Surface trade-offs and risks early, rather than letting them surface in review.
+
+---
+
+The first principles above are adapted from TableCheck's [engineering-first-principles](https://github.com/TableCheck-Labs/engineering-first-principles) (MIT).
