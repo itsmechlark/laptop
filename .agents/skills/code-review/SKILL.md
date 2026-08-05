@@ -122,4 +122,4 @@ If your environment offers a deeper multi-agent PR toolkit — for example a `pr
 
 - Give context up front — "this is a hot path", "this handles PII", "focus on security" — it sharpens the review.
 - Report a defect once, at its root cause, not at every call site.
-- This skill is for *giving* a review. For *receiving* one, see the `receiving-code-review` skill.
+- This skill is for *giving* a review. For *receiving* one, see the `review-response` skill.

@@ -28,10 +28,10 @@
       "installedAt": "2026-08-04T04:42:01.408Z",
       "updatedAt": "2026-08-04T04:42:01.408Z"
     },
-    "receiving-code-review": {
+    "review-response": {
       "source": "obra/superpowers",
       "sourceType": "github",
-      "skillPath": "skills/receiving-code-review/SKILL.md",
+      "skillPath": "skills/review-response/SKILL.md",
       "computedHash": "59361179fc9225173e0c145ffd9bafbf9fdbf8b43ce3dc308497a0b4f83a6063"
     },
     "rspec": {
