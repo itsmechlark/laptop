@@ -21,6 +21,9 @@ jobs:
       - name: Run shellcheck
         run: shellcheck mac -e SC2039
       - name: Unlink preinstalled node
-        run: brew unlink node
+        run: |
+          if brew list node >/dev/null 2>&1; then
+            brew unlink node
+          fi
       - name: Run mac
         run: sh mac
