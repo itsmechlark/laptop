@@ -1,4 +1,3 @@
-<!-- START /templates/security.md -->
 # Security Policy
 
 ## Supported Versions
@@ -12,9 +11,8 @@ your reasons so that we can have a better understanding of your situation.
 
 ## Reporting a Vulnerability
 
-For security inquiries or vulnerability reports, visit
-<https://thoughtbot.com/security>.
+Please report vulnerabilities privately through GitHub, using
+[Report a vulnerability][advisory]. Don't open a public issue for a security
+problem.
 
-If you have any suggestions to improve this policy, visit <https://thoughtbot.com/security>.
-
-<!-- END /templates/security.md -->
+[advisory]: https://github.com/itsmechlark/laptop/security/advisories/new

@@ -12,10 +12,8 @@ Requirements
 
 We support:
 
+* macOS Tahoe (26.x) on Apple Silicon and Intel
 * macOS Sequoia (15.x) on Apple Silicon and Intel
-* macOS Sonoma (14.x) on Apple Silicon and Intel
-* macOS Ventura (13.x) on Apple Silicon and Intel
-* macOS Monterey (12.x) on Apple Silicon and Intel
 
 Older versions may work but aren't regularly tested.
 Bug reports for older versions are welcome.
@@ -26,7 +24,7 @@ Install
 Download the script:
 
 ```sh
-curl --remote-name https://raw.githubusercontent.com/thoughtbot/laptop/main/mac
+curl --remote-name https://raw.githubusercontent.com/itsmechlark/laptop/main/mac
 ```
 
 Review the script (avoid running scripts you haven't read!):
@@ -56,9 +54,7 @@ Debugging
 
 Your last Laptop run will be saved to `~/laptop.log`.
 Read through it to see if you can debug the issue yourself.
-If not, copy the lines where the script failed into a
-[new GitHub Issue](https://github.com/thoughtbot/laptop/issues/new) for us.
-Or, attach the whole log file as an attachment.
+Keep the lines where the script failed — they're the useful part.
 
 What it sets up
 ---------------
@@ -66,8 +62,10 @@ What it sets up
 macOS tools:
 
 * [Homebrew] for managing operating system libraries.
+* [GPG Suite] for signing commits and encrypting files
 
 [Homebrew]: http://brew.sh/
+[GPG Suite]: https://gpgtools.org/
 
 Unix tools:
 
@@ -76,8 +74,10 @@ Unix tools:
 * [Git] for version control
 * [OpenSSL] for Transport Layer Security (TLS)
 * [RCM] for managing company and personal dotfiles
+* [reattach-to-user-namespace] for using the macOS clipboard from inside tmux
 * [The Silver Searcher] for finding things in files
 * [Tmux] for saving project state and switching between projects
+* [Vim] for editing text
 * [Watchman] for watching for filesystem events
 * [Zsh] as your shell
 
@@ -86,8 +86,10 @@ Unix tools:
 [Git]: https://git-scm.com/
 [OpenSSL]: https://www.openssl.org/
 [RCM]: https://github.com/thoughtbot/rcm
+[reattach-to-user-namespace]: https://github.com/ChrisJohnsen/tmux-MacOSX-pasteboard
 [The Silver Searcher]: https://github.com/ggreer/the_silver_searcher
 [Tmux]: http://tmux.github.io/
+[Vim]: https://www.vim.org/
 [Watchman]: https://facebook.github.io/watchman/
 [Zsh]: http://www.zsh.org/
 
@@ -101,16 +103,26 @@ Image tools:
 
 * [ImageMagick] for cropping and resizing images
 
+PDF tools:
+
+* [Poppler] for rendering and extracting text from PDFs
+
+[Poppler]: https://poppler.freedesktop.org/
+
 Programming languages, package managers, and configuration:
 
 * [asdf-vm] for managing programming language versions
 * [Bundler] for managing Ruby libraries
+* [Coreutils] for the GNU versions of core Unix utilities
+* [libyaml] for parsing YAML, needed to build Ruby
 * [Node.js] and [npm], for running apps and installing JavaScript packages
 * [Ruby] stable for writing general-purpose code
 * [Yarn] for managing JavaScript packages
 * [Rosetta 2] for running tools that are not supported in Apple silicon processors
 
 [Bundler]: http://bundler.io/
+[Coreutils]: https://www.gnu.org/software/coreutils/
+[libyaml]: https://pyyaml.org/wiki/LibYAML
 [ImageMagick]: http://www.imagemagick.org/
 [Node.js]: http://nodejs.org/
 [npm]: https://www.npmjs.org/
@@ -220,25 +232,9 @@ the script each time on a fresh install that's ready to go.
 License
 -------
 
-Copyright © 2011 thoughtbot, inc.
+Copyright © 2011-2025 thoughtbot, inc.
+Copyright © 2020-2026 itsmechlark.
 It is free software,
 and may be redistributed under the terms specified in the [LICENSE] file.
 
 [LICENSE]: LICENSE
-
-<!-- START /templates/footer.md -->
-## About thoughtbot
-
-![thoughtbot](https://thoughtbot.com/thoughtbot-logo-for-readmes.svg)
-
-This repo is maintained and funded by thoughtbot, inc.
-The names and logos for thoughtbot are trademarks of thoughtbot, inc.
-
-We love open source software!
-See [our other projects][community].
-We are [available for hire][hire].
-
-[community]: https://thoughtbot.com/community?utm_source=github
-[hire]: https://thoughtbot.com/hire-us?utm_source=github
-
-<!-- END /templates/footer.md -->
