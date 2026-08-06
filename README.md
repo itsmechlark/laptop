@@ -91,13 +91,6 @@ Unix tools:
 [Watchman]: https://facebook.github.io/watchman/
 [Zsh]: http://www.zsh.org/
 
-Heroku tools:
-
-* [Heroku CLI] and [Parity] for interacting with the Heroku API
-
-[Heroku CLI]: https://devcenter.heroku.com/articles/heroku-cli
-[Parity]: https://github.com/thoughtbot/parity
-
 GitHub tools:
 
 * [GitHub CLI] for interacting with the GitHub API
