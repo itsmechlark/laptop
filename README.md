@@ -195,7 +195,6 @@ you agree to abide by the thoughtbot [code of conduct].
 
 Edit the `mac` file.
 Document in the `README.md` file.
-Update the `CHANGELOG`.
 Follow shell style guidelines by using [ShellCheck] and [ALE] or deprecated [Syntastic].
 
 ```sh
