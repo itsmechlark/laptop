@@ -5,6 +5,8 @@
   },
   "permissions": {
     "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
       "Read(~/.ssh/**)",
       "Read(~/.aws/**)",
       "Read(~/.gnupg/**)",
