@@ -17,7 +17,18 @@ A brief says what should be *true when the work is done*. For an issue that mean
 
 **Explicit scope boundaries.** Name what not to touch. Without them, an unattended agent gold-plates the adjacent thing that looked related.
 
-**A brief for a bug or a PR carries its repro.** The artifact from step 3 of triage goes in the brief verbatim — the failing test and the branch it's on, the exact command and its unedited output, or, for a UI bug, the `agent-browser` click path and the screenshot it produced. Prose decays: a week later "confirmed" doesn't say whether anyone actually ran anything. An artifact also gives the implementer its first move, which is TDD's starting point (AGENTS.md §1) handed over at the moment someone had the repro in hand. For a bug, the first acceptance criterion is that the repro passes.
+**A brief for a bug or a PR carries its repro.** The artifact from step 3 of triage goes in the brief verbatim — the failing test and the branch it's on, the exact command and its unedited output, or, for a UI bug, the `agent-browser` click path and the screenshot it produced. Prose decays: a week later "confirmed" doesn't say whether anyone actually ran anything. An artifact also gives the implementer its first move, which is TDD's starting point (AGENTS.md §1) handed over at the moment someone had the repro in hand. For a bug or a PR, the first acceptance criterion re-runs that artifact (see **Acceptance criteria** below).
+
+## Acceptance criteria
+
+Making every criterion one that can *fail* is easy to nod at and hard to do — these habits are where briefs slip:
+
+- **Lead with the repro.** The first criterion re-runs the step-3 artifact: for a bug, the failing test now passes; *for a PR*, the recorded command still prints its verified output. Quote it — "the repro command prints `published_remaining: 0`" — because it's the one check you've already run.
+- **Behavioral, not structural.** The *Behavioral, not procedural* principle above reaches the criteria too. "The three call sites share one calculation" can only be checked by reading code; "the same input yields the same remaining quantity through all three paths" can be checked without opening a file. Prefer the input→output shape.
+- **Pin invariants and negatives to a case.** "Takes the minimum without double-counting" or "never oscillates" states a principle with nothing to run. Give it values: "a booking present in both views is deducted once — qty 3, one table blocked in both → remaining 2, not 1."
+- **Reuse the command you already ran.** When the Repro block lists exact test invocations, a "tests pass" criterion names *those*, not a category — "focused tests pass" makes the implementer guess which suite you meant.
+- **Sweep for uncaptured claims.** Every behavioral claim in Desired behavior and Key interfaces — including one buried in an interface's description ("so the mapper doesn't oscillate between `pending` and `success`") — is either a criterion or a deliberate omission. A sharp behavior stated in prose but missing from the checklist is the usual way "done" ends up under-specified. Then confirm the artifact actually exercises the headline criteria; if it reaches only one branch, name the ones it doesn't.
+- **Keep human gates out of the list.** "CI green before merge", "a maintainer approves the semantics" are real, but an unattended agent can't tick them — and a criterion doing state-routing work ("this needs a human merge decision") is a sign the *state* should have been `ready-for-human` to begin with. Merge gates and the reason a human is needed belong in the `ready-for-human` rationale (SKILL.md step 5), not the behavioral checklist.
 
 ## Template
 
@@ -45,8 +56,8 @@ What should be true afterward, including edge cases and error conditions.
 - `functionName()` — what it returns now vs what it should return
 - config / payload shape — any new options
 
-**Acceptance criteria:**
-- [ ] specific, checkable criterion
+**Acceptance criteria:** *(bugs and PRs: first criterion re-runs the repro artifact)*
+- [ ] the repro passes — <exact test or command from Repro>
 - [ ] specific, checkable criterion
 
 **Out of scope:**
