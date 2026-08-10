@@ -51,13 +51,14 @@ The run log is the primary debugging artifact; keep the lines where it failed.
 ```
 mac                     # the provisioner (POSIX sh, shellcheck-clean)
 README.md               # human-facing docs — update alongside `mac`
-skills-lock.json        # provenance + content hashes for vendored skills
+skills-lock.json        # provenance + content hashes for vendored skills (tool-owned)
+skills-provenance.json  # source lineage for first-party derived skills (hand-owned)
 .agents/
   AGENTS.md             # global engineering standards (shipped to ~/.claude/CLAUDE.md)
   AGENTS.local.md       # machine-local overrides — git-ignored
-  skills/               # vendored third-party skills (tracked in skills-lock.json)
+  skills/               # skill bodies: vendored + project-only (project-only = not linked from skills/)
 rules/                  # path-scoped language standards, auto-loaded by glob
-skills/                 # first-party skills; vendored ones are symlinks into .agents/skills
+skills/                 # published skills → ~/.agents/skills; first-party dirs + symlinks into .agents/skills
 .claude/settings.json   # Claude Code settings (permissions, sandbox, hooks, plugins)
 .github/workflows/      # CI
 ```
@@ -168,6 +169,53 @@ Third-party skills live in `.agents/skills/<name>/`, are recorded in
 symlink at `skills/<name>` → `../.agents/skills/<name>`. Don't hand-edit vendored
 content: it desynchronizes the recorded hash. Re-vendor from upstream and update
 `skills-lock.json` instead.
+
+### Derived skills
+
+First-party skills we authored by adapting or drawing on outside material are
+tracked in `skills-provenance.json` (hand-owned; the `npx skills` tool never
+touches it). Vendored vs. derived is one record per skill, in the file whose
+owner won't clobber it: verbatim copies → `skills-lock.json`; things we wrote
+ourselves from a source → `skills-provenance.json`.
+
+Each skill maps to a **list** of sources, because one skill can draw on several
+(e.g. `agent-skills` adapts awesome-copilot, conforms to the agentskills.io
+spec, and cites anthropics/skills for examples). Every source carries its own
+`relationship`, which decides how it syncs:
+
+- `adapted` — forked then diverged; pinned to a `ref`. Update = 3-way reconcile
+  (`git diff <ref>..HEAD -- <path>`, port the non-conflicting upstream changes),
+  then bump that source's `ref` + `reviewed`. Never overwrite.
+- `spec` — conforms to an external spec; watch the spec URL/version.
+- `inspired-by` — ideas/terminology only, no `ref`; attribution, not synced.
+
+Keep the human-readable "Adapted from …" footer in each SKILL.md as the reader-
+facing attribution; `skills-provenance.json` is its machine-readable mirror.
+
+**Update the provenance whenever a first-party skill changes** — it is part of
+the change, not a follow-up:
+
+- Authored a new skill from outside material → add a `skills.<name>` entry with
+  one source per influence.
+- Drew on a new influence for an existing skill → append a source to its list.
+- Reconciled an upstream change into an `adapted` or `spec` source → bump that
+  source's `ref` (and, for `spec`, its version) and its `reviewed` date.
+- Edited a skill with no upstream source, or made a purely local change → no
+  `ref` change; `inspired-by` sources never carry one.
+
+Run the `update-skills` project skill (see below) to detect upstream drift and
+walk the reconcile per skill; it reads and writes `skills-provenance.json`. When
+you edit provenance by hand, keep this file and the SKILL.md footer in sync.
+
+### Project-only skills
+
+Some skills exist only to maintain *this* repo and must not ship to every
+machine. Their bodies live in `.agents/skills/<name>/` alongside the vendored
+ones, but — unlike vendored and first-party skills — they are deliberately **not**
+linked from `skills/`, so `mac`'s `skills/` → `~/.agents/skills` chain never
+carries them off this repo. They are available only when working inside this
+repository. `update-skills` is one: it keeps `skills-provenance.json` in sync
+with its sources and is scoped to this repo's skill set, so it stays here.
 
 ### Markdown
 

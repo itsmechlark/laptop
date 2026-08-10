@@ -1,0 +1,135 @@
+{
+  "version": 1,
+  "note": "Provenance for first-party (derived) skills — the counterpart to skills-lock.json. skills-lock.json is tool-owned (npx skills) and tracks VENDORED verbatim copies; this file is HAND-owned and tracks skills we authored by adapting or drawing on outside sources. The npx skills tool never touches this file. Each source is tracked independently: `relationship` decides sync behavior; `ref` is the upstream commit this skill is reconciled through as of `reviewed`. INITIAL PINS are baselines set to current upstream HEAD on the import date — they mean 'watch from here', not 'verified byte-identical to that commit'. To surface divergence that predates the baseline, run a one-time diff (see the drift-check step).",
+  "relationships": {
+    "adapted": "Forked from the source, then intentionally diverged. Has a `ref`. Sync = 3-way reconcile (diff ref..HEAD, port non-conflicting changes, then bump `ref`+`reviewed`). Never overwrite.",
+    "spec": "Conforms to an external normative specification rather than forking code. Watch the spec `url`/version; reconcile when the spec revises.",
+    "inspired-by": "Ideas, structure, or terminology only — no code lineage. Attribution only; the drift checker skips these (no `ref`)."
+  },
+  "skills": {
+    "agent-safety": {
+      "sources": [
+        {
+          "origin": "github/awesome-copilot",
+          "type": "github",
+          "url": "https://github.com/github/awesome-copilot",
+          "path": "agent-safety.instructions.md",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "3f0bba475ec40b9680e1d0311b9caffeec5ad4c3",
+          "reviewed": "2026-08-10"
+        },
+        {
+          "origin": "OWASP GenAI Security Project",
+          "type": "web",
+          "url": "https://genai.owasp.org/",
+          "relationship": "inspired-by"
+        }
+      ]
+    },
+    "agent-skills": {
+      "sources": [
+        {
+          "origin": "github/awesome-copilot",
+          "type": "github",
+          "url": "https://github.com/github/awesome-copilot",
+          "path": "agent-skills.instructions.md",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "3f0bba475ec40b9680e1d0311b9caffeec5ad4c3",
+          "reviewed": "2026-08-10"
+        },
+        {
+          "origin": "agentskills.io specification",
+          "type": "spec",
+          "url": "https://agentskills.io/specification",
+          "relationship": "spec"
+        },
+        {
+          "origin": "anthropics/skills",
+          "type": "github",
+          "url": "https://github.com/anthropics/skills",
+          "relationship": "inspired-by"
+        }
+      ]
+    },
+    "domain-modeling": {
+      "sources": [
+        {
+          "origin": "mattpocock/skills",
+          "type": "github",
+          "url": "https://github.com/mattpocock/skills",
+          "path": "skills/engineering/domain-modeling",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+          "reviewed": "2026-08-10"
+        }
+      ]
+    },
+    "draft-spec": {
+      "sources": [
+        {
+          "origin": "mattpocock/skills",
+          "type": "github",
+          "url": "https://github.com/mattpocock/skills",
+          "path": "skills/engineering/to-spec",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+          "reviewed": "2026-08-10"
+        }
+      ]
+    },
+    "grilling": {
+      "sources": [
+        {
+          "origin": "mattpocock/skills",
+          "type": "github",
+          "url": "https://github.com/mattpocock/skills",
+          "path": "skills/productivity/grilling",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+          "reviewed": "2026-08-10"
+        }
+      ]
+    },
+    "triage": {
+      "sources": [
+        {
+          "origin": "mattpocock/skills",
+          "type": "github",
+          "url": "https://github.com/mattpocock/skills",
+          "path": "skills/engineering/triage",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+          "reviewed": "2026-08-10"
+        }
+      ]
+    },
+    "code-review": {
+      "sources": [
+        {
+          "origin": "Martin Fowler, Refactoring (2nd ed.), ch. 3 — code smells",
+          "type": "book",
+          "relationship": "inspired-by"
+        }
+      ]
+    },
+    "codebase-design": {
+      "sources": [
+        { "origin": "David L. Parnas, On the Criteria To Be Used in Decomposing Systems into Modules (1972)", "type": "paper", "relationship": "inspired-by" },
+        { "origin": "Abelson & Sussman, Structure and Interpretation of Computer Programs", "type": "book", "relationship": "inspired-by" },
+        { "origin": "Eric Evans, Domain-Driven Design", "type": "book", "relationship": "inspired-by" },
+        { "origin": "Michael Feathers, Working Effectively with Legacy Code", "type": "book", "relationship": "inspired-by" },
+        { "origin": "Alistair Cockburn, Hexagonal Architecture", "type": "article", "relationship": "inspired-by" },
+        { "origin": "John Ousterhout, A Philosophy of Software Design", "type": "book", "relationship": "inspired-by" },
+        { "origin": "Peter Naur, Programming as Theory Building (1985)", "type": "paper", "relationship": "inspired-by" },
+        { "origin": "Melvin Conway, How Do Committees Invent? (1968)", "type": "paper", "relationship": "inspired-by" },
+        { "origin": "Richard Rumelt, Good Strategy Bad Strategy", "type": "book", "relationship": "inspired-by" }
+      ]
+    }
+  }
+}
