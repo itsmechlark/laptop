@@ -1,6 +1,6 @@
 # Global Engineering Standards
 
-These standards apply to all repositories and workspaces unless a project-local `CLAUDE.md` overrides them.
+These standards apply to all repositories and workspaces unless a project-local `AGENTS.md` overrides them.
 
 ## Non-negotiables
 
