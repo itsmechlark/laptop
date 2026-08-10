@@ -127,7 +127,28 @@ description: Web testing helpers.
 ```
 
 Then check it against the neighbors: if a sibling skill's description competes
-for the same keywords, both lose. Name the boundary in each.
+for the same keywords, both lose. Narrow both, and draw the boundary by *scope*
+rather than by naming the neighbor — see
+[Naming another skill](#naming-another-skill).
+
+## Naming another skill
+
+**Don't name one without asking first.** Every skill is its own directory and
+installs independently, so the sibling you point at may simply not be there — and
+a reference to a skill that doesn't exist sends the agent chasing it at the exact
+moment it was already unsure what to do. Your machine having both installed says
+nothing about the machine that ends up with one.
+
+State the exclusion in terms of the *task* instead:
+
+```markdown
+Not for reviewing feedback you received on a PR.   <!-- routes on any host -->
+Not for reviewing PR feedback — that's `review-response`.   <!-- breaks alone -->
+```
+
+Where two skills genuinely ship as a unit — a bundle installed together, or a
+repo that vendors both — a named reference is fine and often clearer. **Ask the
+user before adding one, and add it only if they agree.** Silence isn't approval.
 
 ## Body content
 
@@ -238,6 +259,9 @@ it. 500 lines is the hard ceiling for `SKILL.md`.
   reference that points at a third burns turns and loses the thread.
 - **Never bundle credentials or secrets**, and don't write paths that only exist
   on your machine — skills are meant to travel.
+- **Never name another skill unless the user approved it.** A cross-reference is
+  a dangling pointer everywhere that skill isn't installed. Draw the boundary by
+  scope instead — [Naming another skill](#naming-another-skill).
 
 ## Validation
 
@@ -267,8 +291,9 @@ before believing it. The rest is judgment:
 - [ ] Frontmatter has valid `name` and `description`; `name` matches the directory
 - [ ] `description` carries WHAT, WHEN, and keywords, and stays concise
 - [ ] The description literally contains the phrases a user would type
-- [ ] No sibling skill competes for the same keywords, or the boundary is stated
-      in both
+- [ ] No sibling skill competes for the same keywords, or both state the boundary
+      by scope rather than by naming each other
+- [ ] No other skill is named anywhere in the skill without the user's approval
 - [ ] Body teaches what the agent wouldn't already know
 - [ ] `## Gotchas` present if there's any non-obvious behavior or common trap
 - [ ] `SKILL.md` under 500 lines; split into `references/` at ~200

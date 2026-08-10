@@ -32,7 +32,9 @@ and, just as usefully, notice that it didn't.
 ```
 
 State the exclusions too when a neighboring skill could plausibly claim the
-task: "Not for unit-testing pure functions — use the `tdd` skill."
+task, described by scope rather than by name: "Not for unit-testing pure
+functions." Naming the neighbor assumes it's installed alongside this one — ask
+the user before writing one in.
 
 ## `## Prerequisites`
 
