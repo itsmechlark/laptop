@@ -1,6 +1,8 @@
 ---
 name: rspec
 description: RSpec testing best practices for Ruby and Rails applications, covering test organization, data management, and isolation patterns.
+paths:
+  - "**/*_spec.rb"
 ---
 
 # RSpec Testing Best Practices

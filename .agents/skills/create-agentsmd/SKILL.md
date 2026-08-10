@@ -1,6 +1,8 @@
 ---
 name: create-agentsmd
 description: 'Prompt for generating an AGENTS.md file for a repository'
+paths:
+  - "**/AGENTS.md"
 ---
 
 # Create high‑quality AGENTS.md file
