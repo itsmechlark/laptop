@@ -1,8 +1,8 @@
 # Deepening
 
-How to deepen a cluster of shallow modules safely, given its dependencies. Assumes the vocabulary in [SKILL.md](SKILL.md) — **module**, **interface**, **secret**, **seam**, **adapter**.
+How to deepen a cluster of shallow modules safely, given its dependencies. Assumes the vocabulary in [SKILL.md](../SKILL.md) — **module**, **interface**, **secret**, **seam**, **adapter**.
 
-Before any of this: confirm the cluster has a **secret** worth hiding ([SKILL.md](SKILL.md#1-list-the-secrets-before-drawing-any-line)). Merging shallow modules that share no design decision produces a bigger shallow module, not a deep one.
+Before any of this: confirm the cluster has a **secret** worth hiding ([SKILL.md](../SKILL.md#1-list-the-secrets-before-drawing-any-line)). Merging shallow modules that share no design decision produces a bigger shallow module, not a deep one.
 
 ## Dependency categories
 
@@ -87,8 +87,8 @@ Weigh it against where the module sits: Evans' advice is to "apply top talent to
 - Write new tests at the deepened module's interface. The **interface is the test surface**.
 - Tests assert on observable outcomes through the interface, not internal state.
 - Tests should survive internal refactors — they describe behaviour, not implementation. If a test has to change when the implementation changes, it's testing past the interface.
-- **Don't assert on what you didn't promise.** A test that pins an incidental ordering converts an implementation detail into a contract — the exact failure Parnas classified as "a design error" in his own circular shifter ([SKILL.md](SKILL.md#anti-patterns)). If callers don't need the guarantee, the test shouldn't demand it.
+- **Don't assert on what you didn't promise.** A test that pins an incidental ordering converts an implementation detail into a contract — the exact failure Parnas classified as "a design error" in his own circular shifter ([SKILL.md](../SKILL.md#anti-patterns)). If callers don't need the guarantee, the test shouldn't demand it.
 
 ## Sources
 
-Primary sources for the quotations above are listed in [SKILL.md](SKILL.md#sources) — principally Parnas (1972) on information hiding and the cost of indirection, and Evans (2003) on AGGREGATE, Conceptual Contours, Anticorruption Layer, and Core Domain.
+Primary sources for the quotations above are listed in [SKILL.md](../SKILL.md#sources) — principally Parnas (1972) on information hiding and the cost of indirection, and Evans (2003) on AGGREGATE, Conceptual Contours, Anticorruption Layer, and Core Domain.

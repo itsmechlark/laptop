@@ -13,8 +13,8 @@ Move items on the issue tracker through a small state machine. Triage produces a
 
 ## Reference docs
 
-- [AGENT-BRIEF.md](AGENT-BRIEF.md) — writing briefs that survive a changing codebase
-- [OUT-OF-SCOPE.md](OUT-OF-SCOPE.md) — the `.out-of-scope/` rejection knowledge base
+- [AGENT-BRIEF.md](references/AGENT-BRIEF.md) — writing briefs that survive a changing codebase
+- [OUT-OF-SCOPE.md](references/OUT-OF-SCOPE.md) — the `.out-of-scope/` rejection knowledge base
 
 Step 3 can run on `agent-browser` when the bug or PR lives in a web UI: drive the app to the failure and keep the screenshot as the artifact. Step 4 runs on two other skills: `grilling` (one question at a time until the shape is agreed) and `domain-modeling` (sharpen the terms, then capture them in `CONTEXT.md` or an ADR).
 
@@ -104,14 +104,14 @@ When PRs are in scope, include them and tag each line `[PR]` or `[issue]`. Disco
 4. **Sharpen (only if underspecified).** Run `grilling` and `domain-modeling` together: grill the gaps one question at a time — never a wall of questions — while sharpening the domain's terms and writing decisions to `CONTEXT.md` or an ADR inline as they land, rather than burying them in a tracker comment. Aim each question at what would change the implementation: the ambiguous term, the unhandled edge case, the unstated expected behavior, the success criterion. If the request keeps growing, it's an epic — stop and hand it to `slice`.
 
 5. **Apply the outcome.** Draft it, show it, then write:
-   - `ready-for-agent` → post an agent brief ([AGENT-BRIEF.md](AGENT-BRIEF.md)). A **bug** gets here only on a tier (a) or (b) artifact from step 3; tier (c) is `needs-info` by definition, because without a repro an unattended agent can't tell done from plausibly-done.
+   - `ready-for-agent` → post an agent brief ([AGENT-BRIEF.md](references/AGENT-BRIEF.md)). A **bug** gets here only on a tier (a) or (b) artifact from step 3; tier (c) is `needs-info` by definition, because without a repro an unattended agent can't tell done from plausibly-done.
    - `ready-for-human` → same structure, plus why it can't be delegated (judgment call, external access, design decision, manual verification).
    - `needs-info` → post triage notes (template below).
    - `wontfix` → close, with the comment depending on **why**:
      - *Already built* — point to where the behavior lives. Do **not** write to `.out-of-scope/`; that KB is for rejected requests, and a false entry poisons future dedupe.
      - *Duplicate* — link the original, move any new detail there, close this one.
      - *Rejected bug* — plain explanation, then close.
-     - *Rejected enhancement* — write the reasoning to `.out-of-scope/`, link it from the comment, then close ([OUT-OF-SCOPE.md](OUT-OF-SCOPE.md)).
+     - *Rejected enhancement* — write the reasoning to `.out-of-scope/`, link it from the comment, then close ([OUT-OF-SCOPE.md](references/OUT-OF-SCOPE.md)).
    - `needs-triage` → apply the role; comment only if there's partial progress worth keeping.
 
 **On Jira, mind the audience** (AGENTS.md §3). The ticket is read by the product team: keep the problem, the outcome, and the acceptance criteria in outcome language. Interface-level detail goes inside the clearly-marked agent brief block — its reader is an implementer, not the product team — and stays as short as the work allows.

@@ -12,8 +12,8 @@ Reading `CONTEXT.md` for vocabulary isn't this skill; that's a habit any skill s
 
 ## Reference docs
 
-- [CONTEXT-FORMAT.md](CONTEXT-FORMAT.md) — what belongs in `CONTEXT.md`, and how to write it
-- [ADR-FORMAT.md](ADR-FORMAT.md) — the ADR template, numbering, and what earns one
+- [CONTEXT-FORMAT.md](references/CONTEXT-FORMAT.md) — what belongs in `CONTEXT.md`, and how to write it
+- [ADR-FORMAT.md](references/ADR-FORMAT.md) — the ADR template, numbering, and what earns one
 
 ## Where the model lives
 
@@ -57,9 +57,9 @@ Create files lazily — only when there's something to put in them. No `CONTEXT.
 
 **Cross-reference with the code.** When the user states how something works, check whether the code agrees, and surface the contradiction: *"The code cancels whole Orders, but you just said partial cancellation is possible — which is right?"*
 
-**Write it down inline.** The moment a term is settled, update `CONTEXT.md` ([CONTEXT-FORMAT.md](CONTEXT-FORMAT.md)). Don't batch them — a batch is a thing you forget. Keep it a glossary: no implementation detail, no spec, no scratch pad.
+**Write it down inline.** The moment a term is settled, update `CONTEXT.md` ([CONTEXT-FORMAT.md](references/CONTEXT-FORMAT.md)). Don't batch them — a batch is a thing you forget. Keep it a glossary: no implementation detail, no spec, no scratch pad.
 
-**Offer ADRs sparingly.** Only when all three hold — hard to reverse, surprising without context, and the result of a real trade-off. If any is missing, skip it. When one qualifies, write it per [ADR-FORMAT.md](ADR-FORMAT.md); that's also the house rule (AGENTS.md §7 — durable decisions belong in an ADR, not buried in a PR description that rots).
+**Offer ADRs sparingly.** Only when all three hold — hard to reverse, surprising without context, and the result of a real trade-off. If any is missing, skip it. When one qualifies, write it per [ADR-FORMAT.md](references/ADR-FORMAT.md); that's also the house rule (AGENTS.md §7 — durable decisions belong in an ADR, not buried in a PR description that rots).
 
 ## Tone
 

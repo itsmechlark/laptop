@@ -7,24 +7,6 @@
       "skillPath": "skills/agent-browser/SKILL.md",
       "computedHash": "a674b7d81066e3cc471a7512ddb4ae724418cbfefa75cbb050b0dc430e4d57a0"
     },
-    "code-review": {
-      "source": "anthropics/knowledge-work-plugins",
-      "sourceType": "github",
-      "skillPath": "engineering/skills/code-review/SKILL.md",
-      "computedHash": "919719020590499db120437b53defa7dcb05e138aa5ce9e55034b88dbad7fff8"
-    },
-    "codebase-design": {
-      "source": "mattpocock/skills",
-      "sourceType": "github",
-      "skillPath": "skills/engineering/codebase-design/SKILL.md",
-      "computedHash": "a8d50abac5a4018f60e1d911d4b6f4e36454ca14d6c390c0695a578c7de65dad"
-    },
-    "explain": {
-      "source": "thoughtbot/rails-consultant",
-      "sourceType": "github",
-      "skillPath": "skills/explain/SKILL.md",
-      "computedHash": "7583d6f659c610ceb0a8ea56c388bcf9f593e163ea713e4ae37c0909f0466639"
-    },
     "find-skills": {
       "source": "vercel-labs/skills",
       "sourceType": "github",
@@ -33,24 +15,6 @@
       "skillFolderHash": "76a98a285cb0434f3d39e1a873823556330e398b",
       "installedAt": "2026-08-04T04:42:01.408Z",
       "updatedAt": "2026-08-04T04:42:01.408Z"
-    },
-    "review-response": {
-      "source": "obra/superpowers",
-      "sourceType": "github",
-      "skillPath": "skills/review-response/SKILL.md",
-      "computedHash": "59361179fc9225173e0c145ffd9bafbf9fdbf8b43ce3dc308497a0b4f83a6063"
-    },
-    "rspec": {
-      "source": "mindrally/skills",
-      "sourceType": "github",
-      "skillPath": "rspec/SKILL.md",
-      "computedHash": "4275d92422b1c4636fd4c1e9b3e91db63a7ec67d0cae576d50ee6b6a2b869281"
-    },
-    "to-spec": {
-      "source": "mattpocock/skills",
-      "sourceType": "github",
-      "skillPath": "skills/engineering/to-spec/SKILL.md",
-      "computedHash": "5d26479544b08048d3a8f79d937b39bc613a617f026b3fd083bafc1e99a7b811"
     }
   },
   "dismissed": {

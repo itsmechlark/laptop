@@ -79,7 +79,7 @@ Render a concise visual flowchart of the system using box-drawing characters. Th
 
 The goal is to outline the system concisely — show how it behaves, not how the code is structured. A reader should be able to understand the full lifecycle from the diagram alone.
 
-See the example in `example.md` for the expected style and level of detail.
+See the example in `references/example.md` for the expected style and level of detail.
 
 ### 2. Summary
 

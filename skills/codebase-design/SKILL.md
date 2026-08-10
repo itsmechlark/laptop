@@ -27,7 +27,7 @@ Use these terms exactly — don't substitute "component," "service," "API," or "
 
 **Over-promise** — a fact the interface guarantees that no caller needed. Every guarantee is a constraint on all future implementations, so an over-promise costs you options without buying anything. See [Anti-patterns](#anti-patterns).
 
-**Closure** _(SICP; Evans)_ — an operation whose result can be fed back into the same operation. Closure multiplies leverage where depth only adds it — see [COMPOSITION.md](COMPOSITION.md).
+**Closure** _(SICP; Evans)_ — an operation whose result can be fed back into the same operation. Closure multiplies leverage where depth only adds it — see [COMPOSITION.md](references/COMPOSITION.md).
 
 **Seam** _(Michael Feathers)_ — a place where you can alter behaviour without editing in that place; the *location* at which a module's interface lives. Where to put the seam is its own design decision, distinct from what goes behind it. _Avoid_: boundary (overloaded with DDD's bounded context).
 
@@ -89,15 +89,15 @@ Prefer lines that follow the domain over lines that follow the current code's ac
 
 > With each decision, ask yourself, Is this an expedient based on a particular set of relationships in the current model and code, or does it echo some contour of the underlying domain? — Evans, *Conceptual Contours*
 
-Invariants are the most reliable contour available — see [DEEPENING.md](DEEPENING.md#placing-the-seam).
+Invariants are the most reliable contour available — see [DEEPENING.md](references/DEEPENING.md#placing-the-seam).
 
 ### 5. Consider composition before depth
 
-If the operations could return their own input type, a small composable interface beats a small bespoke one. Don't reach for a third entry point when closure would have covered the case. See [COMPOSITION.md](COMPOSITION.md).
+If the operations could return their own input type, a small composable interface beats a small bespoke one. Don't reach for a third entry point when closure would have covered the case. See [COMPOSITION.md](references/COMPOSITION.md).
 
 ### 6. Price it, then decide
 
-Depth is not free. Parnas paid in call overhead — "If we are not careful the second decomposition will prove to be much less efficient than the first" — and we pay in indirection, cross-seam debugging, and migration cost. Name the price before recommending the change, and put **doing nothing** on the list of options. See [DEEPENING.md](DEEPENING.md#pricing-the-change).
+Depth is not free. Parnas paid in call overhead — "If we are not careful the second decomposition will prove to be much less efficient than the first" — and we pay in indirection, cross-seam debugging, and migration cost. Name the price before recommending the change, and put **doing nothing** on the list of options. See [DEEPENING.md](references/DEEPENING.md#pricing-the-change).
 
 ## Anti-patterns
 
@@ -120,8 +120,8 @@ Hiding the hard part is not enough if you leak an incidental guarantee alongside
 - **Depth is a property of the interface, not the implementation.** A deep module can be internally composed of small, mockable, swappable parts — they just aren't part of the interface. A module can have **internal seams** (private to its implementation, used by its own tests) as well as the **external seam** at its interface.
 - **The deletion test.** Imagine deleting the module. If complexity vanishes, it was a pass-through. If complexity reappears across N callers, it was earning its keep.
 - **The interface is the test surface.** Callers and tests cross the same seam. If you want to test *past* the interface, the module is probably the wrong shape.
-- **A seam needs a reason.** Something **varies**, something must be **substituted** for tests, or something **foreign** must be translated. Absent all three, it's indirection. (This supersedes the older "two adapters" rule, which was right about variation but wrongly forbade a single-adapter anticorruption layer — see [DEEPENING.md](DEEPENING.md#when-one-adapter-is-enough).)
-- **Depth is local; structure is global.** A codebase of individually deep modules can still be unmaintainable if the `uses` relation has cycles. Parnas: hierarchical structure and clean decomposition are "two desirable but independent properties." See [STRUCTURE.md](STRUCTURE.md).
+- **A seam needs a reason.** Something **varies**, something must be **substituted** for tests, or something **foreign** must be translated. Absent all three, it's indirection. (This supersedes the older "two adapters" rule, which was right about variation but wrongly forbade a single-adapter anticorruption layer — see [DEEPENING.md](references/DEEPENING.md#when-one-adapter-is-enough).)
+- **Depth is local; structure is global.** A codebase of individually deep modules can still be unmaintainable if the `uses` relation has cycles. Parnas: hierarchical structure and clean decomposition are "two desirable but independent properties." See [STRUCTURE.md](references/STRUCTURE.md).
 - **Not everything deserves depth.** Evans: "Boil the model down […] Make the CORE small […] Justify investment in any other part by how it supports the distilled CORE." Spend design effort where the system differentiates; take the boring option elsewhere.
 
 ## Stance
@@ -174,12 +174,12 @@ Good interfaces make testing natural:
 - An **Adapter** sits at a **Seam** and satisfies the **Interface**.
 - **Depth** produces **Leverage** for callers and **Locality** for maintainers.
 - **Closure** produces leverage multiplicatively where **Depth** produces it additively.
-- Modules are ordered by a **uses** relation, which must stay acyclic ([STRUCTURE.md](STRUCTURE.md)).
+- Modules are ordered by a **uses** relation, which must stay acyclic ([STRUCTURE.md](references/STRUCTURE.md)).
 
 ## Rejected framings
 
 - **Depth as ratio of implementation-lines to interface-lines** (Ousterhout): rewards padding the implementation. We use depth-as-leverage instead.
-- **Depth as method count.** A closed, composable interface of five orthogonal operations looks "shallower" than three bespoke entry points and is far more powerful. Count what a caller must *learn*, not what they may *call* ([COMPOSITION.md](COMPOSITION.md)).
+- **Depth as method count.** A closed, composable interface of five orthogonal operations looks "shallower" than three bespoke entry points and is far more powerful. Count what a caller must *learn*, not what they may *call* ([COMPOSITION.md](references/COMPOSITION.md)).
 - **"Interface" as the TypeScript `interface` keyword or a class's public methods**: too narrow — interface here includes every fact a caller must know, and every fact they may come to rely on.
 - **"Boundary"**: overloaded with DDD's bounded context. Say **seam** or **interface**.
 - **Decomposition by processing step**: the default, and almost always wrong (Parnas). Decompose by secret.
@@ -187,10 +187,10 @@ Good interfaces make testing natural:
 ## Going deeper
 
 - **What to hide, and where to cut** — this file, [The design loop](#the-design-loop).
-- **Structure across modules** — see [STRUCTURE.md](STRUCTURE.md): the `uses` relation, layering, the prune test, and team seams.
-- **Composable interfaces** — see [COMPOSITION.md](COMPOSITION.md): closure, additivity, and when composability beats depth.
-- **Deepening a cluster given its dependencies** — see [DEEPENING.md](DEEPENING.md): dependency categories, seam placement, pricing, and replace-don't-layer testing.
-- **Exploring alternative interfaces** — see [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md): spin up parallel sub-agents to design the interface several radically different ways, then compare on depth, locality, and seam placement.
+- **Structure across modules** — see [STRUCTURE.md](references/STRUCTURE.md): the `uses` relation, layering, the prune test, and team seams.
+- **Composable interfaces** — see [COMPOSITION.md](references/COMPOSITION.md): closure, additivity, and when composability beats depth.
+- **Deepening a cluster given its dependencies** — see [DEEPENING.md](references/DEEPENING.md): dependency categories, seam placement, pricing, and replace-don't-layer testing.
+- **Exploring alternative interfaces** — see [DESIGN-IT-TWICE.md](references/DESIGN-IT-TWICE.md): spin up parallel sub-agents to design the interface several radically different ways, then compare on depth, locality, and seam placement.
 
 ## Sources
 

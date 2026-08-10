@@ -1,6 +1,6 @@
 # Structure
 
-Depth is a property of one module. This file is about the relationships *between* modules — the part a per-module criterion cannot see. Assumes the vocabulary in [SKILL.md](SKILL.md) — **module**, **interface**, **secret**, **seam**.
+Depth is a property of one module. This file is about the relationships *between* modules — the part a per-module criterion cannot see. Assumes the vocabulary in [SKILL.md](../SKILL.md) — **module**, **interface**, **secret**, **seam**.
 
 A codebase of individually deep modules can still be unmaintainable. Parnas separates the two properties explicitly:
 

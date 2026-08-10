@@ -2,5 +2,6 @@
 artifacts
 .claude/.cc-writes
 .agents/**/.claude
+skills/**/.claude
 .agents/*.local.md
 .agents/.skills-lock.json

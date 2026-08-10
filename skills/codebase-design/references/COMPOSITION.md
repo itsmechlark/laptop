@@ -1,6 +1,6 @@
 # Composition
 
-Depth is not the only way to get leverage, and in some designs it's the weaker one. This file covers **closure** and **additivity** — two ways an interface can pay back more than the sum of its entry points. Assumes the vocabulary in [SKILL.md](SKILL.md).
+Depth is not the only way to get leverage, and in some designs it's the weaker one. This file covers **closure** and **additivity** — two ways an interface can pay back more than the sum of its entry points. Assumes the vocabulary in [SKILL.md](../SKILL.md).
 
 ## The correction
 
@@ -51,7 +51,7 @@ Both are leverage. They answer different questions.
 
 **Prefer depth when you need to constrain.** Closure hands callers a combinatorial space, and you own every point in it — including the combinations you never tested, the ones with pathological performance, and the ones that violate an invariant you assumed. If the operations touch money, permissions, or anything with a consistency requirement, a bounded interface you can reason about exhaustively is the safer instrument. Closure exposes range; depth exposes only what you chose.
 
-The honest failure mode of this file: closure is seductive, and a combinator library built for three call sites is over-engineering with better literature behind it. The evidence rule from [SKILL.md](SKILL.md) still applies — two call sites are a pattern, one is a coincidence.
+The honest failure mode of this file: closure is seductive, and a combinator library built for three call sites is over-engineering with better literature behind it. The evidence rule from [SKILL.md](../SKILL.md) still applies — two call sites are a pattern, one is a coincidence.
 
 ## Wishful thinking
 

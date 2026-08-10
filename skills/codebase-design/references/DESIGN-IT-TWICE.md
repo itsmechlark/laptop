@@ -2,13 +2,13 @@
 
 When the user wants to explore alternative interfaces for a chosen deepening candidate, use this parallel sub-agent pattern. Based on "Design It Twice" (Ousterhout) — your first idea is unlikely to be the best.
 
-Uses the vocabulary in [SKILL.md](SKILL.md) — **module**, **interface**, **secret**, **seam**, **adapter**, **leverage**.
+Uses the vocabulary in [SKILL.md](../SKILL.md) — **module**, **interface**, **secret**, **seam**, **adapter**, **leverage**.
 
 ## Before you start: is this worth it?
 
 Designing it twice costs several agents and a round of the user's attention. Spend that where it pays.
 
-- **Does the cluster have a secret?** If you can't name the decision that's likely to change, no interface will be better than another — you're arranging code, not designing. Go back to [SKILL.md](SKILL.md#1-list-the-secrets-before-drawing-any-line).
+- **Does the cluster have a secret?** If you can't name the decision that's likely to change, no interface will be better than another — you're arranging code, not designing. Go back to [SKILL.md](../SKILL.md#1-list-the-secrets-before-drawing-any-line).
 - **Is this core or generic?** Evans: "Apply top talent to the CORE DOMAIN […] Justify investment in any other part by how it supports the distilled CORE." For a generic subdomain, pick the boring interface and move on.
 - **Is doing nothing on the table?** If the honest recommendation is "leave it," say so instead of generating three ways to restructure it.
 
@@ -39,7 +39,7 @@ Prompt each sub-agent with a separate technical brief (file paths, coupling deta
 
 Agent 2 replaces the older "maximise flexibility" brief, which reliably produced a large configurable interface — a shallow module with options, not a flexible one.
 
-Include both [SKILL.md](SKILL.md) vocabulary and CONTEXT.md vocabulary in the brief so each sub-agent names things consistently with the architecture language and the project's domain language.
+Include both [SKILL.md](../SKILL.md) vocabulary and CONTEXT.md vocabulary in the brief so each sub-agent names things consistently with the architecture language and the project's domain language.
 
 Each sub-agent outputs:
 

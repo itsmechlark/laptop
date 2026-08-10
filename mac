@@ -230,7 +230,7 @@ CLAUDE_GLOBAL_DIR="$HOME/.claude"
 mkdir -p "$CLAUDE_GLOBAL_DIR"
 symlink_path "$AGENTS_GLOBAL_DIR/CLAUDE.md" "$CLAUDE_GLOBAL_DIR/CLAUDE.md"
 symlink_path "$AGENTS_GLOBAL_DIR/rules" "$CLAUDE_GLOBAL_DIR/rules"
-symlink_path "$AGENTS_GLOBAL_DIR/skills" "$CLAUDE_GLOBAL_DIR/skills"
+symlink_path "$PROJECT_DIR/skills" "$CLAUDE_GLOBAL_DIR/skills"
 symlink_path "$AGENTS_GLOBAL_DIR/claude.json" "$CLAUDE_GLOBAL_DIR/settings.json"
 
 if [ -f "$HOME/.laptop.local" ]; then
