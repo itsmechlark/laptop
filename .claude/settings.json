@@ -35,10 +35,13 @@
       "Read(**/id_ecdsa)",
       "Read(**/id_dsa)",
       "Read(**/*.pem)",
+      "Bash(chmod 777 *)",
       "Bash(git push --force*)",
       "Bash(git push -f*)",
       "Bash(git reset --hard*)",
-      "Bash(git clean -f*)"
+      "Bash(git clean -f*)",
+      "Bash(rm -rf *)",
+      "Bash(sudo *)"
     ],
     "disableBypassPermissionsMode": "disable",
     "additionalDirectories": [
