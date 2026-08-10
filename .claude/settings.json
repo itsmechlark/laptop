@@ -12,8 +12,8 @@
   },
   "permissions": {
     "deny": [
-      "Read(**/.env)",
-      "Read(**/.env.*)",
+      "Read(/**/.env)",
+      "Read(/**/.env.*)",
       "Read(~/.ssh/**)",
       "Read(~/.aws/**)",
       "Read(~/.gnupg/**)",
@@ -23,6 +23,7 @@
       "Read(~/.kube/**)",
       "Read(~/.claude/.credentials.json)",
       "Read(~/.claude.json)",
+      "Read(~/.claude/bash-log.txt)",
       "Read(~/.netrc)",
       "Read(~/.npmrc)",
       "Read(~/.docker/config.json)",
@@ -35,13 +36,70 @@
       "Read(**/id_ecdsa)",
       "Read(**/id_dsa)",
       "Read(**/*.pem)",
+      "Read(**/secrets/**)",
+      "Read(**/*.tfstate)",
+      "Read(**/*.tfstate.*)",
+      "Read(**/config/master.key)",
+      "Read(**/config/credentials/*.key)",
+      "Read(~/.git-credentials)",
+      "Read(**/.git-credentials)",
+      "Read(**/*.p12)",
+      "Read(**/*.pfx)",
+      "Read(~/.pypirc)",
+      "Read(~/.bash_history)",
+      "Read(~/.zsh_history)",
+      "Read(~/.local/share/fish/fish_history)",
+      "Read(~/.psql_history)",
+      "Read(~/.mysql_history)",
+      "Read(~/.rediscli_history)",
+      "Read(~/.node_repl_history)",
+      "Read(~/.irb_history)",
+      "Read(~/.pry_history)",
       "Bash(chmod 777 *)",
       "Bash(git push --force*)",
       "Bash(git push -f*)",
       "Bash(git reset --hard*)",
       "Bash(git clean -f*)",
       "Bash(rm -rf *)",
-      "Bash(sudo *)"
+      "Bash(sudo *)",
+      "Bash(doas *)",
+      "Bash(su *)",
+      "Bash(mkfs *)",
+      "Bash(fdisk *)",
+      "Bash(parted *)",
+      "Bash(shutdown *)",
+      "Bash(reboot *)",
+      "Bash(poweroff *)",
+      "mcp__plugin_mongodb_mongodb__drop-database",
+      "mcp__plugin_mongodb_mongodb__drop-collection"
+    ],
+    "ask": [
+      "Bash(git clean *)",
+      "Bash(gem push *)",
+      "Bash(gh *)",
+      "Bash(npm publish *)",
+      "Bash(terraform apply *)",
+      "Bash(terraform destroy *)",
+      "Bash(kubectl apply *)",
+      "Bash(kubectl delete *)",
+      "Bash(git push *)",
+      "Bash(git push)",
+      "Bash(git commit *)",
+      "Bash(git commit)",
+      "mcp__plugin_mongodb_mongodb__delete-many",
+      "mcp__plugin_mongodb_mongodb__update-many",
+      "mcp__plugin_mongodb_mongodb__drop-index",
+      "mcp__plugin_mongodb_mongodb__rename-collection",
+      "mcp__plugin_atlassian_atlassian__createJiraIssue",
+      "mcp__plugin_atlassian_atlassian__editJiraIssue",
+      "mcp__plugin_atlassian_atlassian__addCommentToJiraIssue",
+      "mcp__plugin_atlassian_atlassian__transitionJiraIssue",
+      "mcp__plugin_atlassian_atlassian__createIssueLink",
+      "mcp__plugin_atlassian_atlassian__addWorklogToJiraIssue",
+      "mcp__plugin_atlassian_atlassian__createConfluencePage",
+      "mcp__plugin_atlassian_atlassian__updateConfluencePage",
+      "mcp__plugin_atlassian_atlassian__createConfluenceFooterComment",
+      "mcp__plugin_atlassian_atlassian__createConfluenceInlineComment"
     ],
     "disableBypassPermissionsMode": "disable",
     "additionalDirectories": [
@@ -94,7 +152,8 @@
   },
   "sandbox": {
     "enabled": true,
-    "allowUnsandboxedCommands": true,
+    "failIfUnavailable": true,
+    "allowUnsandboxedCommands": false,
     "network": {
       "allowedDomains": [
         "github.com",
@@ -121,7 +180,15 @@
         "mcp.atlassian.com",
         "auth.atlassian.com",
         "api.atlassian.com",
-        "tablecheck.atlassian.net"
+        "tablecheck.atlassian.net",
+        "slack.com",
+        "*.slack.com",
+        "downloads.slack-edge.com",
+        "bugsnag.mcp.smartbear.com",
+        "static.rust-lang.org",
+        "index.crates.io",
+        "static.crates.io",
+        "*.mongodb.net"
       ],
       "allowUnixSockets": [
         "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
@@ -139,8 +206,28 @@
       "denyRead": [
         "~/",
         "~/.config/gh",
+        "~/.config/gcloud/**",
+        "~/.claude/.credentials.json",
+        "~/.claude/bash-log.txt",
+        "~/.git-credentials",
+        "~/.pypirc",
         "~/.cargo/credentials",
-        "~/.cargo/credentials.toml"
+        "~/.cargo/credentials.toml",
+        "./**/.env",
+        "./**/.env.*",
+        "./**/secrets/**",
+        "./**/*.tfstate",
+        "./**/*.tfstate.*",
+        "./**/config/master.key",
+        "./**/config/credentials/*.key",
+        "./**/*.pem",
+        "./**/*.p12",
+        "./**/*.pfx",
+        "./**/.git-credentials",
+        "./**/id_rsa",
+        "./**/id_ed25519",
+        "./**/id_ecdsa",
+        "./**/id_dsa"
       ],
       "allowRead": [
         "~/Codespace",
@@ -159,10 +246,7 @@
         "~/.rvm",
         "~/.cargo"
       ]
-    },
-    "excludedCommands": [
-      "gh *"
-    ]
+    }
   },
   "effortLevel": "high",
   "advisorModel": "opus"
