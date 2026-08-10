@@ -27,6 +27,8 @@
       "Read(~/.docker/config.json)",
       "Read(~/.pgpass)",
       "Read(~/.gem/credentials)",
+      "Read(~/.cargo/credentials)",
+      "Read(~/.cargo/credentials.toml)",
       "Read(**/id_rsa)",
       "Read(**/id_ed25519)",
       "Read(**/id_ecdsa)",
@@ -132,7 +134,9 @@
       ],
       "denyRead": [
         "~/",
-        "~/.config/gh"
+        "~/.config/gh",
+        "~/.cargo/credentials",
+        "~/.cargo/credentials.toml"
       ],
       "allowRead": [
         "~/Codespace",
@@ -148,7 +152,8 @@
         "~/.asdf",
         "~/.mix",
         "~/.nvm",
-        "~/.rvm"
+        "~/.rvm",
+        "~/.cargo"
       ]
     },
     "excludedCommands": [
