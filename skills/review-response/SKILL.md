@@ -232,3 +232,8 @@ When replying to inline review comments on GitHub, reply in the comment thread (
 ---
 
 The reception conventions here follow TableCheck's [code-review-guidelines](https://github.com/TableCheck-Labs/code-review-guidelines) (`submitters.md`): be humble and respectful, keep the response surgical, and show visual proof for visual changes.
+
+## Attribution
+
+- [TableCheck-Labs/code-review-guidelines](https://github.com/TableCheck-Labs/code-review-guidelines/submitters.md) - submitters.md
+- [obra/superpowers](https://github.com/obra/superpowers/tree/main/skills/receiving-code-review) - receiving-code-review, MIT

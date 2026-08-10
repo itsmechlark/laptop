@@ -192,15 +192,16 @@ Good interfaces make testing natural:
 - **Deepening a cluster given its dependencies** — see [DEEPENING.md](references/DEEPENING.md): dependency categories, seam placement, pricing, and replace-don't-layer testing.
 - **Exploring alternative interfaces** — see [DESIGN-IT-TWICE.md](references/DESIGN-IT-TWICE.md): spin up parallel sub-agents to design the interface several radically different ways, then compare on depth, locality, and seam placement.
 
-## Sources
+## Attribution
 
-- David L. Parnas, [*On the Criteria To Be Used in Decomposing Systems into Modules*](https://dl.acm.org/doi/10.1145/361598.361623) (CACM 15:12, 1972) — information hiding; decompose by likely change, not by flowchart; hierarchy and decomposition as independent properties. [PDF](https://wstomv.win.tue.nl/edu/2ip30/references/criteria_for_modularization.pdf)
-- Abelson & Sussman, [*Structure and Interpretation of Computer Programs*](https://web.mit.edu/6.001/6.037/sicp.pdf) — abstraction barriers (2.1.2), the closure property (2.2), data-directed programming and additivity (2.4.3), wishful thinking (2.1.1).
-- Eric Evans, [*Domain-Driven Design*](https://fabiofumarola.github.io/nosql/readingMaterial/Evans03.pdf) — Conceptual Contours, Closure of Operations, Aggregate, Anticorruption Layer, Core Domain.
-- Michael Feathers, *Working Effectively with Legacy Code* — seams.
-- Alistair Cockburn, *Hexagonal Architecture* — ports and adapters.
-- John Ousterhout, *A Philosophy of Software Design* — deep modules, design it twice.
-- Peter Naur, *Programming as Theory Building* (1985) — why rationale must be reconstructed or recorded.
-- Melvin Conway, *How Do Committees Invent?* (1968) — structure follows communication.
-- Richard Rumelt, *Good Strategy Bad Strategy* — diagnosis, guiding policy, coherent action.
-- Forsgren, Humble & Kim, *Accelerate* — loose coupling as the dominant architectural predictor of delivery performance.
+- [mattpocock/skills](https://github.com/mattpocock/skills/tree/main/skills/engineering/codebase-design) - codebase-design, MIT
+- David L. Parnas, *On the Criteria To Be Used in Decomposing Systems into Modules*
+- Abelson & Sussman, *Structure and Interpretation of Computer Programs*
+- Eric Evans, *Domain-Driven Design*
+- Michael Feathers, *Working Effectively with Legacy Code*
+- Alistair Cockburn, *Hexagonal Architecture*
+- John Ousterhout, *A Philosophy of Software Design*
+- Peter Naur, *Programming as Theory Building* (1985)
+- Melvin Conway, *How Do Committees Invent?* (1968)
+- Richard Rumelt, *Good Strategy Bad Strategy*
+- Forsgren, Humble & Kim, *Accelerate*

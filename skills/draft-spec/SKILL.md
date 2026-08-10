@@ -127,4 +127,6 @@ The handoff must preserve the distinction between product-facing problem and out
 
 Precise, collaborative, and honest about uncertainty. The goal is a spec that survives handoff to a changing codebase, not paperwork that makes an underspecified request look complete.
 
-Adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (`skills/engineering/to-spec`, MIT).
+## Attribution
+
+- [mattpocock/skills](https://github.com/mattpocock/skills/skills/engineering/to-spec) - to-spec, MIT

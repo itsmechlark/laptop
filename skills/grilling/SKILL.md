@@ -32,6 +32,6 @@ Play it back in your own words — the decisions in the order they were made, an
 
 Rigorous and direct, never adversarial. You're pressure-testing the idea because it's worth testing.
 
----
+## Attribution
 
-Adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (`skills/productivity/grilling`, MIT).
+- [mattpocock/skills](https://github.com/mattpocock/skills/skills/productivity/grilling) - grilling, MIT

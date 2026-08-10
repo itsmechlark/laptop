@@ -65,6 +65,6 @@ Create files lazily — only when there's something to put in them. No `CONTEXT.
 
 Precise, and willing to be pedantic about words. Two people using the same term for two different things is the failure this skill exists to catch.
 
----
+## Attribution
 
-Adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (`skills/engineering/domain-modeling`, MIT).
+- [mattpocock/skills](https://github.com/mattpocock/skills/skills/engineering/domain-modeling) - domain-modeling, MIT

@@ -189,8 +189,10 @@ spec, and cites anthropics/skills for examples). Every source carries its own
 - `spec` — conforms to an external spec; watch the spec URL/version.
 - `inspired-by` — ideas/terminology only, no `ref`; attribution, not synced.
 
-Keep the human-readable "Adapted from …" footer in each SKILL.md as the reader-
-facing attribution; `skills-provenance.json` is its machine-readable mirror.
+Keep the human-readable `## Attribution` section in each derived SKILL.md as
+the reader-facing attribution; its flat-list format is defined by the
+`agent-skills` skill, and `skills-provenance.json` is its machine-readable
+mirror.
 
 **Update the provenance whenever a first-party skill changes** — it is part of
 the change, not a follow-up:
@@ -205,7 +207,7 @@ the change, not a follow-up:
 
 Run the `update-skills` project skill (see below) to detect upstream drift and
 walk the reconcile per skill; it reads and writes `skills-provenance.json`. When
-you edit provenance by hand, keep this file and the SKILL.md footer in sync.
+you edit provenance by hand, keep this file and the SKILL.md `## Attribution` section in sync.
 
 ### Project-only skills
 

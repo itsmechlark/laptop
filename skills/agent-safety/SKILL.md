@@ -240,5 +240,7 @@ Read as needed, not upfront:
   list and of the companion Agentic (ASI) list, which owns the risks that appear
   once an agent has persistent memory and peer agents
 
-Adapted from [awesome-copilot](https://github.com/github/awesome-copilot)'s
-`agent-safety.instructions.md` (MIT).
+## Attribution
+
+- [github/awesome-copilot](https://github.com/github/awesome-copilot/agent-safety.instructions.md) - agent-safety, MIT
+- [OWASP GenAI Security Project](https://genai.owasp.org/)

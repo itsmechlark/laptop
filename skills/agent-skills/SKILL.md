@@ -1,6 +1,8 @@
 ---
 name: agent-skills
 description: Author, review, and fix Agent Skills against the agentskills.io specification — SKILL.md frontmatter (name, description, license, compatibility, metadata, allowed-tools), body sections, bundled scripts/references/assets, and progressive disclosure. Use when writing a new skill or SKILL.md, converting a prompt or instructions file into a skill, reviewing or validating an existing skill, deciding what belongs in references/ vs assets/ vs scripts/, splitting an oversized SKILL.md, or diagnosing why a skill is never discovered or invoked.
+paths:
+  - "**/skills/**/SKILL.md"
 ---
 
 # Agent Skills
@@ -163,10 +165,16 @@ The body loads once the skill activates. Sections worth having:
 | `## Gotchas` | Proactive warnings — "never do X, because Y" |
 | `## Troubleshooting` | Reactive fixes — "if you see X, try Y" |
 | `## References` | Links to bundled files and external docs |
+| `## Attribution` | Outside material the skill derives from — always the last section |
 
 Not every skill needs every section. Skip `Prerequisites` when there are no
 external dependencies; skip `Workflows` for purely advisory skills. Include
 `Gotchas` whenever external tools, APIs, or non-obvious defaults are involved.
+Include `Attribution` only when the skill has outside lineage — a
+specification it conforms to, material it was forked from, or works it draws
+on — and use the flat-list format in
+[SECTIONS.md](references/SECTIONS.md#attribution); an empty one is worse than
+none.
 
 How to write each one, plus the prose style to write it in:
 [SECTIONS.md](references/SECTIONS.md).
@@ -300,6 +308,8 @@ before believing it. The rest is judgment:
 - [ ] Workflows over ~5 steps moved into `references/` and linked
 - [ ] Scripts document their usage and handle errors with clear messages
 - [ ] All resource references are relative paths, one level deep
+- [ ] `## Attribution`, when present, is the last section, is a flat list, and
+      mirrors the recorded provenance one source per bullet in source order
 - [ ] No credentials, secrets, or machine-specific paths
 
 ## References
@@ -310,7 +320,8 @@ Read these as needed for the task in hand, not all upfront.
   and converting an existing prompt or instructions file into a skill
 - [FRONTMATTER.md](references/FRONTMATTER.md) — every field, with valid and
   invalid examples
-- [SECTIONS.md](references/SECTIONS.md) — how to write each body section
+- [SECTIONS.md](references/SECTIONS.md) — how to write each body section,
+  including the `## Attribution` standard
 - [RESOURCES.md](references/RESOURCES.md) — scripts, references, assets,
   templates
 - [Agent Skills specification](https://agentskills.io/specification) — the
@@ -319,6 +330,8 @@ Read these as needed for the task in hand, not all upfront.
   reference validator library
 - [anthropics/skills](https://github.com/anthropics/skills) — worked examples
 
-Adapted from [awesome-copilot](https://github.com/github/awesome-copilot)'s
-`agent-skills.instructions.md` (MIT), generalized to the Agent Skills
-specification and made host-agnostic.
+## Attribution
+
+- [github/awesome-copilot](https://github.com/github/awesome-copilot/agent-skills.instructions.md) - agent-skills, MIT
+- [Agent Skills specification](https://agentskills.io/specification)
+- [anthropics/skills](https://github.com/anthropics/skills)

@@ -142,6 +142,6 @@ Everything settled during verification and sharpening goes under "established" â
 
 If triage notes already exist, read them, check whether the reporter answered the open questions, and present the updated picture before continuing. Don't re-ask what's already settled.
 
----
+## Attribution
 
-Adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (`skills/engineering/triage`, MIT).
+- [mattpocock/skills](https://github.com/mattpocock/skills/skills/engineering/triage) - triage, MIT

@@ -109,17 +109,92 @@
         }
       ]
     },
+    "tdd": {
+      "sources": [
+        {
+          "origin": "mattpocock/skills",
+          "type": "github",
+          "url": "https://github.com/mattpocock/skills",
+          "path": "skills/engineering/tdd",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+          "reviewed": "2026-08-10"
+        },
+        {
+          "origin": "obra/superpowers",
+          "type": "github",
+          "url": "https://github.com/obra/superpowers",
+          "path": "skills/test-driven-development",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "44c9b2d6e889982ac18c27d05a19fefe335194e1",
+          "reviewed": "2026-08-10"
+        }
+      ]
+    },
+    "review-response": {
+      "sources": [
+        {
+          "origin": "TableCheck-Labs/code-review-guidelines",
+          "type": "github",
+          "url": "https://github.com/TableCheck-Labs/code-review-guidelines",
+          "path": "submitters.md",
+          "relationship": "inspired-by"
+        },
+        {
+          "origin": "obra/superpowers",
+          "type": "github",
+          "url": "https://github.com/obra/superpowers",
+          "path": "skills/receiving-code-review",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "44c9b2d6e889982ac18c27d05a19fefe335194e1",
+          "reviewed": "2026-08-10"
+        }
+      ]
+    },
     "code-review": {
       "sources": [
         {
           "origin": "Martin Fowler, Refactoring (2nd ed.), ch. 3 — code smells",
           "type": "book",
           "relationship": "inspired-by"
+        },
+        {
+          "origin": "obra/superpowers",
+          "type": "github",
+          "url": "https://github.com/obra/superpowers",
+          "path": "skills/requesting-code-review",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "44c9b2d6e889982ac18c27d05a19fefe335194e1",
+          "reviewed": "2026-08-10"
+        },
+        {
+          "origin": "mattpocock/skills",
+          "type": "github",
+          "url": "https://github.com/mattpocock/skills",
+          "path": "skills/engineering/code-review",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+          "reviewed": "2026-08-10"
         }
       ]
     },
     "codebase-design": {
       "sources": [
+        {
+          "origin": "mattpocock/skills",
+          "type": "github",
+          "url": "https://github.com/mattpocock/skills",
+          "path": "skills/engineering/codebase-design",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+          "reviewed": "2026-08-10"
+        },
         { "origin": "David L. Parnas, On the Criteria To Be Used in Decomposing Systems into Modules (1972)", "type": "paper", "relationship": "inspired-by" },
         { "origin": "Abelson & Sussman, Structure and Interpretation of Computer Programs", "type": "book", "relationship": "inspired-by" },
         { "origin": "Eric Evans, Domain-Driven Design", "type": "book", "relationship": "inspired-by" },
@@ -128,7 +203,8 @@
         { "origin": "John Ousterhout, A Philosophy of Software Design", "type": "book", "relationship": "inspired-by" },
         { "origin": "Peter Naur, Programming as Theory Building (1985)", "type": "paper", "relationship": "inspired-by" },
         { "origin": "Melvin Conway, How Do Committees Invent? (1968)", "type": "paper", "relationship": "inspired-by" },
-        { "origin": "Richard Rumelt, Good Strategy Bad Strategy", "type": "book", "relationship": "inspired-by" }
+        { "origin": "Richard Rumelt, Good Strategy Bad Strategy", "type": "book", "relationship": "inspired-by" },
+        { "origin": "Forsgren, Humble & Kim, Accelerate", "type": "book", "relationship": "inspired-by" }
       ]
     }
   }

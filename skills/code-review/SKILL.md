@@ -124,3 +124,9 @@ If your environment offers a deeper multi-agent PR toolkit — for example a `pr
 - Report a defect once, at its root cause, not at every call site.
 - This skill is for *giving* a review. For *receiving* one, see the `review-response` skill.
 - "Is this code safe?" means defects in a diff here — not governing what an AI agent may do at run time (tool allowlists, policy files, approval gates).
+
+## Attribution
+
+- Martin Fowler, *Refactoring* (2nd ed.), ch. 3 — code smells
+- [obra/superpowers](https://github.com/obra/superpowers/tree/main/skills/requesting-code-review) - requesting-code-review, MIT
+- [mattpocock/skills](https://github.com/mattpocock/skills/tree/main/skills/engineering/code-review) - code-review, MIT

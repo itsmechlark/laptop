@@ -146,3 +146,8 @@ Can't check every box? You skipped TDD. Start over.
 Production code → a test exists and failed first
 Otherwise      → not TDD
 ```
+
+## Attribution
+
+- [mattpocock/skills](https://github.com/mattpocock/skills/tree/main/skills/engineering/tdd) - tdd, MIT
+- [obra/superpowers](https://github.com/obra/superpowers/tree/main/skills/test-driven-development) - test-driven-development, MIT

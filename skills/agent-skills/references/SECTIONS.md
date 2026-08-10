@@ -154,6 +154,29 @@ ignores the list or reads all of it.
 Read these as needed for the current task. Do not read them all upfront.
 ```
 
+## `## Attribution`
+
+The last section in the file, present only when the skill derives from outside
+material. It is a flat Markdown bullet list with one bullet per source, in the
+same order as the `sources` array in the machine-readable provenance record.
+Do not add subsections or relationship labels — provenance records whether a
+source is adapted, a specification, or inspiration.
+
+Use the source's kind to choose the plain form:
+
+- Repository: `[mattpocock/skills](https://github.com/mattpocock/skills/skills/engineering/domain-modeling) - domain-modeling, MIT`
+- URL: `[Agent Skills specification](https://agentskills.io/specification)`
+- Book or other literature: `Martin Fowler, *Refactoring* (2nd ed.), ch. 3 — code smells`
+
+For a repository, link to the repository and source path, then give the source
+name and license; omit the path or license when it is not recorded. For a URL,
+link the source title directly. For literature, use a readable citation and an
+optional concise note. Exclude machine metadata such as commit refs, review
+dates, and pinned versions; those belong in the provenance record. Keep the
+section a 1:1 human projection of that record: nothing here that is not
+recorded there, and no recorded source omitted. A skill with no outside lineage
+has no `## Attribution` section at all — never an empty one.
+
 ## Style
 
 - **Imperative mood.** "Run the migration", not "You should run the migration."
