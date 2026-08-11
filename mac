@@ -243,6 +243,14 @@ symlink_path "$AGENTS_GLOBAL_DIR/rules" "$CLAUDE_GLOBAL_DIR/rules"
 symlink_path "$AGENTS_GLOBAL_DIR/skills" "$CLAUDE_GLOBAL_DIR/skills"
 symlink_path "$PROJECT_DIR/.claude/settings.json" "$CLAUDE_GLOBAL_DIR/settings.json"
 
+# Codex
+CODEX_GLOBAL_DIR="$HOME/.codex"
+mkdir -p "$CODEX_GLOBAL_DIR"
+symlink_path "$AGENTS_GLOBAL_DIR/AGENTS.md" "$CODEX_GLOBAL_DIR/AGENTS.md"
+symlink_path "$PROJECT_DIR/.codex/rules" "$CODEX_GLOBAL_DIR/rules"
+symlink_path "$AGENTS_GLOBAL_DIR/skills" "$CODEX_GLOBAL_DIR/skills"
+symlink_path "$PROJECT_DIR/.codex/config.toml" "$CODEX_GLOBAL_DIR/config.toml"
+
 if [ -f "$HOME/.laptop.local" ]; then
   fancy_echo "Running your customizations from ~/.laptop.local ..."
   # shellcheck disable=SC1091

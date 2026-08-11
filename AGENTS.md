@@ -10,10 +10,11 @@ Two things live here:
 1. **`mac`** — a single POSIX `sh` script that installs Homebrew packages, asdf
    language runtimes, and databases. It is idempotent: it installs, upgrades, or
    skips based on what's already on the machine, and is safe to re-run.
-2. **Agent configuration** — `.agents/`, `rules/`, `skills/`, `.claude/`. The
-   `mac` script symlinks these into `~/.agents` and `~/.claude`, so this repo is
-   the single source of truth for how coding agents behave on every machine that
-   has run it.
+2. **Agent configuration** — `.agents/`, `rules/`, `skills/`, `.claude/`,
+   `.codex/`. The `mac` script symlinks these into `~/.agents`, `~/.claude`, and
+   `~/.codex`, so this repo is the single source of truth for how coding agents
+   behave on every machine that has run it. Claude Code and Codex are two
+   front-ends over one shared policy — see "Agent-client configuration parity".
 
 There is no build step, no package manager, and no application code. The only
 language is POSIX shell plus Markdown.
@@ -60,6 +61,9 @@ skills-provenance.json  # source lineage for first-party derived skills (hand-ow
 rules/                  # path-scoped language standards, auto-loaded by glob
 skills/                 # published skills → ~/.agents/skills; first-party dirs + symlinks into .agents/skills
 .claude/settings.json   # Claude Code settings (permissions, sandbox, hooks, plugins)
+.codex/                 # Codex config — mirrors .claude/settings.json
+  config.toml           # permissions, sandbox, env scrub, hooks
+  rules/default.rules   # prefix rules — mirror of the Claude deny/ask lists
 .github/workflows/      # CI
 ```
 
@@ -77,12 +81,52 @@ skills/                 # published skills → ~/.agents/skills; first-party dir
 | `~/.claude/rules` | `~/.agents/rules` |
 | `~/.claude/skills` | `~/.agents/skills` |
 | `~/.claude/settings.json` | `.claude/settings.json` |
+| `~/.codex/AGENTS.md` | `~/.agents/AGENTS.md` |
+| `~/.codex/rules` | `.codex/rules/` |
+| `~/.codex/skills` | `~/.agents/skills` |
+| `~/.codex/config.toml` | `.codex/config.toml` |
 
 **Consequence:** because directories are linked (not copied), editing a rule or
 skill in this repo takes effect immediately — no re-run of `mac` required. Only
 adding a *new top-level* link needs `sh mac` again. `symlink_path` moves any
 pre-existing real file to `<path>.backup` before linking; check for stray
 `.backup` files if a link looks wrong.
+
+## Agent-client configuration parity
+
+Claude Code and Codex are two front-ends over **one** security and behavior
+policy. `.claude/settings.json` is the canonical expression of that policy in
+Claude's schema; `.codex/config.toml` and `.codex/rules/default.rules` are
+translations of the *same* policy into Codex's (their own comments call it "the
+translated Claude policy"). They are mirrors of each other, not independent
+configs.
+
+**The invariant: any change to one client's permission, sandbox, hook, env, or
+network/filesystem policy must be mirrored into every other client's config in
+the same commit.** Tightening a deny in `.claude/settings.json` while leaving
+`.codex/rules/default.rules` open defeats the point — a machine that has run
+`mac` runs both clients off these files. The same obligation extends to any
+future AI tool or agentic client added here: give it a payload under its own
+dotdir, wire it into `mac`'s symlink block, and hold it to this parity.
+
+Use this map to find the counterpart for a change:
+
+| Policy | Claude (`.claude/settings.json`) | Codex (`.codex/…`) |
+| --- | --- | --- |
+| Blocked commands | `permissions.deny` — `Bash(…)` | `rules/default.rules` — `decision = "forbidden"` |
+| Approval-gated commands | `permissions.ask` — `Bash(…)` | `rules/default.rules` — `decision = "prompt"` |
+| Unreadable secret paths | `permissions.deny` — `Read(…)` | `config.toml` filesystem `"deny"` entries |
+| Writable / readable roots | `sandbox.filesystem.allowWrite` / `allowRead` | `config.toml` `[permissions.developer.filesystem]` |
+| Allowed network hosts | `sandbox.network.allowedDomains` | `config.toml` `[permissions.developer.network.domains]` |
+| Unix sockets | `sandbox.network.allowUnixSockets` | `config.toml` `[…network.unix_sockets]` (absolute path) |
+| Env-var scrubbing | `env` (`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`) | `config.toml` `[shell_environment_policy.filters]` |
+| Lifecycle hooks | `hooks.PreToolUse` | `config.toml` `[[hooks.PreToolUse]]` |
+
+Not everything mirrors: model choice, reasoning effort, and Claude's
+`enabledPlugins` are per-client tuning, not shared policy, and need no
+counterpart. When a policy genuinely has no equivalent in a client (e.g. an
+MCP-tool permission Codex can't yet name), note the gap in the commit message
+rather than silently dropping it.
 
 ## Testing instructions
 
@@ -240,8 +284,8 @@ expected to stay in sync with the heredoc.
   with …" footer. `.claude/settings.json` sets `attribution.commit` to empty to
   enforce this.
 - Conventional Commits, imperative mood. Scopes in use here: `mac`, `skills`,
-  `agents`, `ci`, `docs` — e.g. `fix(mac): set up asdf via PATH instead of
-  asdf.sh`, `feat(skills): add create-agentsmd skill`.
+  `agents`, `claude`, `codex`, `ci`, `docs` — e.g. `fix(mac): set up asdf via
+  PATH instead of asdf.sh`, `feat(skills): add create-agentsmd skill`.
 - Keep PRs single-purpose; separate refactors from behavior changes.
 - Required before opening a PR: `shellcheck mac -e SC2039` clean, and a fresh-VM
   run for anything touching `mac`.
@@ -257,11 +301,14 @@ and description templates — use them.
 - No secrets, credentials, tokens, or personal paths in tracked files. Anything
   machine-specific belongs in `.agents/AGENTS.local.md` or `~/.laptop.local`,
   both of which are outside version control.
-- `.claude/settings.json` is a security boundary: its `permissions.deny` list
-  blocks reads of `.env` files, SSH/GPG/cloud credentials, and destructive git
-  commands, and the `sandbox` block constrains filesystem writes and network
-  egress. Widening either is a deliberate act — justify it in the commit message
-  rather than loosening a rule to make a task easier.
+- `.claude/settings.json`, `.codex/config.toml`, and `.codex/rules/default.rules`
+  are a security boundary: the Claude `permissions.deny` list and the Codex
+  `forbidden` rules block reads of `.env` files, SSH/GPG/cloud credentials, and
+  destructive git commands, and the `sandbox` / `[permissions.developer]` blocks
+  constrain filesystem writes and network egress. Widening any of them is a
+  deliberate act — justify it in the commit message, and mirror it across every
+  client (see "Agent-client configuration parity") rather than loosening one
+  client's rule to make a task easier.
 
 [advisory]: https://github.com/itsmechlark/laptop/security/advisories/new
 

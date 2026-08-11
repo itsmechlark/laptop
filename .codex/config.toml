@@ -1,0 +1,215 @@
+model = "gpt-5.6"
+model_reasoning_effort = "high"
+plan_mode_reasoning_effort = "high"
+
+approval_policy = "on-request"
+approvals_reviewer = "user"
+default_permissions = "developer"
+
+allow_login_shell = true
+
+web_search = "cached"
+
+[features]
+hooks = true
+
+# Scrub likely credentials from subprocess environments.
+[shell_environment_policy]
+inherit = "all"
+ignore_default_excludes = false
+experimental_use_profile = false
+
+[shell_environment_policy.filters]
+"DATABASE_URL" = "exclude"
+"REDIS_URL" = "exclude"
+"RAILS_MASTER_KEY" = "exclude"
+"PGPASSWORD" = "exclude"
+"NPM_TOKEN" = "exclude"
+"GEM_HOST_API_KEY" = "exclude"
+"*_PASSWORD" = "exclude"
+"*_SECRET" = "exclude"
+"*_TOKEN" = "exclude"
+"*_PRIVATE_KEY" = "exclude"
+"*_API_KEY" = "exclude"
+"*_KEY" = "exclude"
+"*_CREDENTIALS" = "exclude"
+
+# -----------------------------------------------------------------------------
+# Filesystem + network permission profile
+# -----------------------------------------------------------------------------
+
+[permissions.developer]
+description = "Workspace development with secret isolation and allowlisted network access"
+extends = ":workspace"
+
+[permissions.developer.filesystem]
+# Deny the host by default, then reopen only the runtime/tooling paths required.
+":root" = "deny"
+":minimal" = "read"
+
+glob_scan_max_depth = 8
+
+# Development/worktree area and selected tool/runtime state.
+"~/Codespace" = "write"
+"~/.agents" = "read"
+"~/.claude" = "write"
+# Self-policy guard: the Claude settings files are enforced policy. Keep them
+# readable but never agent-writable (this narrows the ~/.claude write grant
+# above). Repo copies are guarded under [...":workspace_roots"] below; see
+# AGENTS.md "Agent-client configuration parity".
+"~/.claude/settings.json" = "read"
+"~/.claude/settings.local.json" = "read"
+"~/.cache" = "read"
+"~/.cache/rubocop_cache" = "write"
+"~/.hex" = "read"
+"~/.gitconfig" = "read"
+"~/.zshrc" = "read"
+"~/.zprofile" = "read"
+"~/.zshenv" = "read"
+"~/.config" = "read"
+"~/.asdf" = "write"
+"~/.mix" = "read"
+"~/.nvm" = "read"
+"~/.rvm" = "write"
+"~/.cargo" = "read"
+"~/.ssh" = "deny"
+"~/.aws" = "deny"
+"~/.gnupg" = "deny"
+"~/.config/gh" = "deny"
+"~/.config/gcloud" = "deny"
+"~/.azure" = "deny"
+"~/.kube" = "deny"
+"~/.claude/.credentials.json" = "deny"
+"~/.claude.json" = "deny"
+"~/.claude/bash-log.txt" = "deny"
+"~/.codex/bash-log.txt" = "deny"
+"~/.netrc" = "deny"
+"~/.npmrc" = "deny"
+"~/.docker/config.json" = "deny"
+"~/.pgpass" = "deny"
+"~/.gem/credentials" = "deny"
+"~/.cargo/credentials" = "deny"
+"~/.cargo/credentials.toml" = "deny"
+"~/.git-credentials" = "deny"
+"~/.pypirc" = "deny"
+"~/.bash_history" = "deny"
+"~/.zsh_history" = "deny"
+"~/.local/share/fish/fish_history" = "deny"
+"~/.psql_history" = "deny"
+"~/.mysql_history" = "deny"
+"~/.rediscli_history" = "deny"
+"~/.node_repl_history" = "deny"
+"~/.irb_history" = "deny"
+"~/.pry_history" = "deny"
+
+[permissions.developer.filesystem.":workspace_roots"]
+"." = "write"
+"**/.env" = "deny"
+"**/.env.*" = "deny"
+"**/secrets/**" = "deny"
+"**/*.tfstate" = "deny"
+"**/*.tfstate.*" = "deny"
+"**/config/master.key" = "deny"
+"**/config/credentials/*.key" = "deny"
+"**/*.pem" = "deny"
+"**/*.p12" = "deny"
+"**/*.pfx" = "deny"
+"**/.git-credentials" = "deny"
+"**/id_rsa" = "deny"
+"**/id_ed25519" = "deny"
+"**/id_ecdsa" = "deny"
+"**/id_dsa" = "deny"
+
+# Self-policy guard: this repo's own governance files stay readable for review
+# but never agent-writable, so a run steered by untrusted input can't silently
+# rewrite its own policy. .codex/** is the Codex policy; .claude/settings*.json
+# is the Claude policy. See AGENTS.md "Agent-client configuration parity".
+"**/.codex/**" = "read"
+"**/.claude/settings.json" = "read"
+"**/.claude/settings.local.json" = "read"
+
+[permissions.developer.network]
+enabled = true
+mode = "limited"
+# Preserves the supplied Claude setting for local-development workflows.
+# This is broader than the default Codex local/private-network guard.
+allow_local_binding = true
+allow_upstream_proxy = false
+dangerously_allow_non_loopback_proxy = false
+dangerously_allow_all_unix_sockets = false
+
+[permissions.developer.network.domains]
+"github.com" = "allow"
+"*.github.com" = "allow"
+"*.githubusercontent.com" = "allow"
+"*.githubcopilot.com" = "allow"
+"rubygems.org" = "allow"
+"index.rubygems.org" = "allow"
+"cache.ruby-lang.org" = "allow"
+"hex.pm" = "allow"
+"*.hex.pm" = "allow"
+"nodejs.org" = "allow"
+"registry.npmjs.org" = "allow"
+"registry.yarnpkg.com" = "allow"
+"codeartifact.ap-northeast-1.amazonaws.com" = "allow"
+"sts.amazonaws.com" = "allow"
+"sts.ap-northeast-1.amazonaws.com" = "allow"
+"tablesolution.com" = "allow"
+"cdn.playwright.dev" = "allow"
+"playwright.download.prss.microsoft.com" = "allow"
+"download.cypress.io" = "allow"
+"cdn.cypress.io" = "allow"
+"sentry.io" = "allow"
+"mcp.atlassian.com" = "allow"
+"auth.atlassian.com" = "allow"
+"api.atlassian.com" = "allow"
+"tablecheck.atlassian.net" = "allow"
+"slack.com" = "allow"
+"*.slack.com" = "allow"
+"downloads.slack-edge.com" = "allow"
+"bugsnag.mcp.smartbear.com" = "allow"
+"static.rust-lang.org" = "allow"
+"index.crates.io" = "allow"
+"static.crates.io" = "allow"
+"*.mongodb.net" = "allow"
+"localhost" = "allow"
+"127.0.0.1" = "allow"
+"::1" = "allow"
+
+# Codex currently requires an ABSOLUTE path for Unix socket allow rules.
+# Replace YOUR_USERNAME if you need the 1Password SSH agent from the supplied
+# Claude settings, then uncomment these lines:
+# [permissions.developer.network.unix_sockets]
+# "/Users/YOUR_USERNAME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock" = "allow"
+
+# -----------------------------------------------------------------------------
+# Lifecycle hooks
+# -----------------------------------------------------------------------------
+
+[[hooks.PreToolUse]]
+matcher = "^Bash$"
+
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = '''jq -r '(now | todate) + " " + (.tool_input.command | gsub("\\n"; " "))' >> ~/.codex/bash-log.txt 2>/dev/null || true'''
+timeout = 3
+
+# Enforce your worktree convention:
+#   ~/Codespace/<repo>.worktrees/<name>
+[[hooks.PreToolUse]]
+matcher = "^Bash$"
+
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = '''cmd=$(jq -r '.tool_input.command'); case "$cmd" in *'worktree add'*) printf '%s' "$cmd" | grep -qE 'Codespace/[^/ ]+\\.worktrees/' || echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Worktrees must live at ~/Codespace/<repo>.worktrees/<name>, e.g. ~/Codespace/monolith.worktrees/HDR-1234-feat-slug. Re-run with that absolute path."}}';; esac'''
+timeout = 3
+
+# -----------------------------------------------------------------------------
+# Telemetry
+# -----------------------------------------------------------------------------
+
+[otel]
+log_user_prompt = false
+exporter = "none"
+trace_exporter = "none"
+metrics_exporter = "none"
