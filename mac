@@ -259,6 +259,16 @@ symlink_path "$PROJECT_DIR/.cursor/hooks.json" "$CURSOR_GLOBAL_DIR/hooks.json"
 symlink_path "$AGENTS_GLOBAL_DIR/rules" "$CURSOR_GLOBAL_DIR/rules"
 symlink_path "$AGENTS_GLOBAL_DIR/skills" "$CURSOR_GLOBAL_DIR/skills"
 
+# Root context map — optional, machine-local, git-ignored. Linked into ~/.agents
+# and every client only when it exists; copy .agents/references/CONTEXT-FORMAT.md
+# to .agents/CONTEXT.md to create one.
+if [ -e "$AGENTS_DIR/CONTEXT.md" ]; then
+  symlink_path "$AGENTS_DIR/CONTEXT.md" "$AGENTS_GLOBAL_DIR/CONTEXT.md"
+  symlink_path "$AGENTS_GLOBAL_DIR/CONTEXT.md" "$CLAUDE_GLOBAL_DIR/CONTEXT.md"
+  symlink_path "$AGENTS_GLOBAL_DIR/CONTEXT.md" "$CODEX_GLOBAL_DIR/CONTEXT.md"
+  symlink_path "$AGENTS_GLOBAL_DIR/CONTEXT.md" "$CURSOR_GLOBAL_DIR/CONTEXT.md"
+fi
+
 if [ -f "$HOME/.laptop.local" ]; then
   fancy_echo "Running your customizations from ~/.laptop.local ..."
   # shellcheck disable=SC1091

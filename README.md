@@ -193,6 +193,26 @@ can be used in your `~/.laptop.local`.
 See the [wiki](https://github.com/thoughtbot/laptop/wiki)
 for more customization examples.
 
+Machine & fleet context (`.agents/CONTEXT.md`)
+----------------------------------------------
+
+Drop an optional `.agents/CONTEXT.md` to give every agent client a shared,
+machine-local map of this laptop and the repos on it —
+where each repo lives, its deployment URLs,
+and the vocabulary that means the same thing across projects.
+Copy the template to start:
+
+```sh
+cp .agents/references/CONTEXT-FORMAT.md .agents/CONTEXT.md
+```
+
+Fill it in, then run `mac` again.
+The file is git-ignored — it holds names, paths, and URLs, never secrets —
+and `mac` symlinks it into `~/.agents`, `~/.claude`, `~/.codex`, and `~/.cursor`
+so all three clients read the same context.
+Per-repo domain glossaries stay in each repo's own `CONTEXT.md`;
+this one stops at the repo boundary.
+
 Contributing
 ------------
 

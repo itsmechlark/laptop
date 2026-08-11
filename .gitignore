@@ -5,4 +5,5 @@ artifacts
 .agents/**/.claude
 skills/**/.claude
 .agents/*.local.md
+.agents/CONTEXT.md
 .agents/.skills-lock.json

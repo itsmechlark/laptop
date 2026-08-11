@@ -57,7 +57,9 @@ skills-lock.json        # provenance + content hashes for vendored skills (tool-
 skills-provenance.json  # source lineage for first-party derived skills (hand-owned)
 .agents/
   AGENTS.md             # global engineering standards (shipped to ~/.claude/CLAUDE.md)
-  AGENTS.local.md       # machine-local overrides — git-ignored
+  CONTEXT.md            # root context map — machine-local, git-ignored (optional)
+  references/
+    CONTEXT-FORMAT.md   # template for .agents/CONTEXT.md
   skills/               # skill bodies: vendored + project-only (project-only = not linked from skills/)
 rules/                  # path-scoped language standards, auto-loaded by glob
 skills/                 # published skills → ~/.agents/skills; first-party dirs + symlinks into .agents/skills
@@ -81,22 +83,32 @@ skills/                 # published skills → ~/.agents/skills; first-party dir
 | `~/.agents/rules` | `rules/` |
 | `~/.agents/skills` | `skills/` |
 | `~/.agents/.skills-lock.json` | `skills-lock.json` |
+| `~/.agents/CONTEXT.md` | `.agents/CONTEXT.md` (when present) |
 | `~/.claude/CLAUDE.md` | `~/.agents/AGENTS.md` |
 | `~/.claude/rules` | `~/.agents/rules` |
 | `~/.claude/skills` | `~/.agents/skills` |
 | `~/.claude/settings.json` | `.claude/settings.json` |
+| `~/.claude/CONTEXT.md` | `~/.agents/CONTEXT.md` |
 | `~/.codex/AGENTS.md` | `~/.agents/AGENTS.md` |
 | `~/.codex/rules` | `.codex/rules/` |
 | `~/.codex/skills` | `~/.agents/skills` |
 | `~/.codex/config.toml` | `.codex/config.toml` |
+| `~/.codex/CONTEXT.md` | `~/.agents/CONTEXT.md` |
 | `~/.cursor/cli-config.json` | `.cursor/cli-config.json` |
 | `~/.cursor/hooks.json` | `.cursor/hooks.json` |
+| `~/.cursor/CONTEXT.md` | `~/.agents/CONTEXT.md` |
 
 **Consequence:** because directories are linked (not copied), editing a rule or
 skill in this repo takes effect immediately — no re-run of `mac` required. Only
 adding a *new top-level* link needs `sh mac` again. `symlink_path` moves any
 pre-existing real file to `<path>.backup` before linking; check for stray
 `.backup` files if a link looks wrong.
+
+The four `CONTEXT.md` links are the exception: `mac` creates them only when
+`.agents/CONTEXT.md` exists, so `sh mac` is required after you first create that
+file. It's an optional, git-ignored machine-local map of the laptop and its repos
+— copy `.agents/references/CONTEXT-FORMAT.md` to `.agents/CONTEXT.md` to start
+one. A new agent client added here should mirror this link into its own dotdir.
 
 ## Agent-client configuration parity
 
@@ -338,8 +350,10 @@ and description templates — use them.
 - Report vulnerabilities privately via [GitHub Security Advisories][advisory],
   never a public issue. See `SECURITY.md`.
 - No secrets, credentials, tokens, or personal paths in tracked files. Anything
-  machine-specific belongs in `.agents/AGENTS.local.md` or `~/.laptop.local`,
-  both of which are outside version control.
+  machine-specific belongs in `.agents/CONTEXT.md` (the git-ignored root context
+  map, seeded from `.agents/references/CONTEXT-FORMAT.md`) or `~/.laptop.local`,
+  both of which are outside version control. `.agents/CONTEXT.md` holds names,
+  paths, and URLs only — never secrets.
 - `.claude/settings.json`, `.codex/config.toml`, `.codex/rules/default.rules`,
   `.cursor/cli-config.json`, and `.cursor/hooks.json` are a security boundary:
   the Claude `permissions.deny` list, the Codex `forbidden` rules, and the Cursor
@@ -358,8 +372,8 @@ and description templates — use them.
 - `mac` will `sudo chsh` and append to `~/.zshrc`. It is not side-effect free;
   never run it casually to "check something."
 - `.gitignore` excludes `artifacts`, `*.swp`, `.claude/.cc-writes`,
-  `.agents/*.local.md`, `.agents/.skills-lock.json`, and any nested
-  `.claude` directory under `.agents/` or `skills/`.
+  `.agents/*.local.md`, `.agents/CONTEXT.md`, `.agents/.skills-lock.json`, and
+  any nested `.claude` directory under `.agents/` or `skills/`.
 - `skills-lock.json` at the root is the tracked file — edit that one. The
   `.agents/.skills-lock.json` symlink pointing back at it is a leftover from when
   `~/.agents` was itself a link to this repo, and is git-ignored.
