@@ -21,10 +21,14 @@ Bug reports for older versions are welcome.
 Install
 -------
 
-Download the script:
+Clone this repository to a stable location and enter it.
+`mac` symlinks directories out of the checkout
+(`.agents/`, `rules/`, `skills/`, and the client config) into your home,
+so the clone has to stay put:
 
 ```sh
-curl --remote-name https://raw.githubusercontent.com/itsmechlark/laptop/main/mac
+git clone https://github.com/itsmechlark/laptop.git
+cd laptop
 ```
 
 Review the script (avoid running scripts you haven't read!):
@@ -33,7 +37,7 @@ Review the script (avoid running scripts you haven't read!):
 less mac
 ```
 
-Execute the downloaded script:
+Execute the script:
 
 ```sh
 sh mac 2>&1 | tee ~/laptop.log
@@ -44,6 +48,11 @@ Optionally, review the log:
 ```sh
 less ~/laptop.log
 ```
+
+Keep the checkout up to date with `git pull`.
+Because `mac` links it rather than copying,
+edits to linked rules and skills take effect immediately;
+re-run `sh mac` only to pick up new packages or a newly added link.
 
 Optionally, [install thoughtbot/dotfiles][dotfiles].
 
