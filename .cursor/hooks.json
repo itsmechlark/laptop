@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": "jq -r '(now | todate) + \" \" + (.command | gsub(\"\\n\"; \" \"))' >> ~/.cursor/bash-log.txt 2>/dev/null || true"
+      },
+      {
+        "command": "input=$(cat); cmd=$(printf '%s' \"$input\" | jq -r '.command // empty'); deny() { printf '{\"permission\":\"deny\",\"user_message\":\"%s\",\"agent_message\":\"%s\"}' \"$1\" \"$1\"; exit 0; }; case \"$cmd\" in *'rm -rf'*|*'rm -fr'*|*'rm -Rf'*|*'rm -fR'*|*'rm -r -f'*|*'rm -f -r'*|*'rm -R -f'*|*'rm -f -R'*) deny 'Forced recursive rm (rm -rf and its variants) is blocked by policy.';; *'git push --force'*|*'git push -f'*|*'git push --force-with-lease'*) deny 'Force-push is blocked by policy.';; *'git reset --hard'*) deny 'git reset --hard is blocked by policy.';; *'git clean -f'*) deny 'Forced git clean is blocked by policy.';; *'chmod 777'*|*'chmod -R 777'*) deny 'chmod 777 (world-writable) is blocked by policy.';; esac; case \"$cmd\" in *'worktree add'*) printf '%s' \"$cmd\" | grep -qE 'Codespace/[^/ ]+\\.worktrees/' || deny 'Worktrees must live at ~/Codespace/<repo>.worktrees/<name>, e.g. ~/Codespace/example.worktrees/ABC-1234-feat-example. Re-run with that absolute path.';; esac"
+      }
+    ]
+  }
+}

@@ -251,6 +251,14 @@ symlink_path "$PROJECT_DIR/.codex/rules" "$CODEX_GLOBAL_DIR/rules"
 symlink_path "$AGENTS_GLOBAL_DIR/skills" "$CODEX_GLOBAL_DIR/skills"
 symlink_path "$PROJECT_DIR/.codex/config.toml" "$CODEX_GLOBAL_DIR/config.toml"
 
+# Cursor
+CURSOR_GLOBAL_DIR="$HOME/.cursor"
+mkdir -p "$CURSOR_GLOBAL_DIR"
+symlink_path "$PROJECT_DIR/.cursor/cli-config.json" "$CURSOR_GLOBAL_DIR/cli-config.json"
+symlink_path "$PROJECT_DIR/.cursor/hooks.json" "$CURSOR_GLOBAL_DIR/hooks.json"
+symlink_path "$AGENTS_GLOBAL_DIR/rules" "$CURSOR_GLOBAL_DIR/rules"
+symlink_path "$AGENTS_GLOBAL_DIR/skills" "$CURSOR_GLOBAL_DIR/skills"
+
 if [ -f "$HOME/.laptop.local" ]; then
   fancy_echo "Running your customizations from ~/.laptop.local ..."
   # shellcheck disable=SC1091

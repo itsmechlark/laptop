@@ -11,10 +11,11 @@ Two things live here:
    language runtimes, and databases. It is idempotent: it installs, upgrades, or
    skips based on what's already on the machine, and is safe to re-run.
 2. **Agent configuration** — `.agents/`, `rules/`, `skills/`, `.claude/`,
-   `.codex/`. The `mac` script symlinks these into `~/.agents`, `~/.claude`, and
-   `~/.codex`, so this repo is the single source of truth for how coding agents
-   behave on every machine that has run it. Claude Code and Codex are two
-   front-ends over one shared policy — see "Agent-client configuration parity".
+   `.codex/`, `.cursor/`. The `mac` script symlinks these into `~/.agents`,
+   `~/.claude`, `~/.codex`, and `~/.cursor`, so this repo is the single source of
+   truth for how coding agents behave on every machine that has run it. Claude
+   Code, Codex, and Cursor are three front-ends over one shared policy — see
+   "Agent-client configuration parity".
 
 There is no build step, no package manager, and no application code. The only
 language is POSIX shell plus Markdown.
@@ -64,6 +65,9 @@ skills/                 # published skills → ~/.agents/skills; first-party dir
 .codex/                 # Codex config — mirrors .claude/settings.json
   config.toml           # permissions, sandbox, env scrub, hooks
   rules/default.rules   # prefix rules — mirror of the Claude deny/ask lists
+.cursor/                # Cursor CLI config — mirrors the same policy
+  cli-config.json       # permissions.deny lists, approvalMode, attribution-off
+  hooks.json            # beforeShellExecution: command log + destructive-command gate
 .github/workflows/      # CI
 ```
 
@@ -85,6 +89,8 @@ skills/                 # published skills → ~/.agents/skills; first-party dir
 | `~/.codex/rules` | `.codex/rules/` |
 | `~/.codex/skills` | `~/.agents/skills` |
 | `~/.codex/config.toml` | `.codex/config.toml` |
+| `~/.cursor/cli-config.json` | `.cursor/cli-config.json` |
+| `~/.cursor/hooks.json` | `.cursor/hooks.json` |
 
 **Consequence:** because directories are linked (not copied), editing a rule or
 skill in this repo takes effect immediately — no re-run of `mac` required. Only
@@ -94,39 +100,72 @@ pre-existing real file to `<path>.backup` before linking; check for stray
 
 ## Agent-client configuration parity
 
-Claude Code and Codex are two front-ends over **one** security and behavior
-policy. `.claude/settings.json` is the canonical expression of that policy in
-Claude's schema; `.codex/config.toml` and `.codex/rules/default.rules` are
-translations of the *same* policy into Codex's (their own comments call it "the
-translated Claude policy"). They are mirrors of each other, not independent
+Claude Code, Codex, and Cursor are three front-ends over **one** security and
+behavior policy. `.claude/settings.json` is the canonical expression of that
+policy in Claude's schema; `.codex/config.toml` and `.codex/rules/default.rules`
+translate the *same* policy into Codex's (their own comments call it "the
+translated Claude policy"); `.cursor/cli-config.json` and `.cursor/hooks.json`
+translate it into Cursor's. They are mirrors of each other, not independent
 configs.
+
+Claude and Codex are allow-by-default with deny/ask exceptions; Cursor is
+prompt-by-default (`approvalMode: "allowlist"`) with allow exceptions. Identical
+UX across the three is therefore impossible — the shared target is **security**
+parity: the same secret-path and destructive-command denials, the same
+attribution-off default, and the same command log plus worktree-convention gate.
 
 **The invariant: any change to one client's permission, sandbox, hook, env, or
 network/filesystem policy must be mirrored into every other client's config in
 the same commit.** Tightening a deny in `.claude/settings.json` while leaving
 `.codex/rules/default.rules` open defeats the point — a machine that has run
-`mac` runs both clients off these files. The same obligation extends to any
+`mac` runs all three clients off these files. The same obligation extends to any
 future AI tool or agentic client added here: give it a payload under its own
 dotdir, wire it into `mac`'s symlink block, and hold it to this parity.
 
 Use this map to find the counterpart for a change:
 
-| Policy | Claude (`.claude/settings.json`) | Codex (`.codex/…`) |
-| --- | --- | --- |
-| Blocked commands | `permissions.deny` — `Bash(…)` | `rules/default.rules` — `decision = "forbidden"` |
-| Approval-gated commands | `permissions.ask` — `Bash(…)` | `rules/default.rules` — `decision = "prompt"` |
-| Unreadable secret paths | `permissions.deny` — `Read(…)` | `config.toml` filesystem `"deny"` entries |
-| Writable / readable roots | `sandbox.filesystem.allowWrite` / `allowRead` | `config.toml` `[permissions.developer.filesystem]` |
-| Allowed network hosts | `sandbox.network.allowedDomains` | `config.toml` `[permissions.developer.network.domains]` |
-| Unix sockets | `sandbox.network.allowUnixSockets` | `config.toml` `[…network.unix_sockets]` (absolute path) |
-| Env-var scrubbing | `env` (`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`) | `config.toml` `[shell_environment_policy.filters]` |
-| Lifecycle hooks | `hooks.PreToolUse` | `config.toml` `[[hooks.PreToolUse]]` |
+| Policy | Claude (`.claude/settings.json`) | Codex (`.codex/…`) | Cursor (`.cursor/…`) |
+| --- | --- | --- | --- |
+| Blocked commands | `permissions.deny` — `Bash(…)` | `rules/default.rules` — `decision = "forbidden"` | `cli-config.json` `permissions.deny` — `Shell(…)` (wholesale) + `hooks.json` gate (arg-nuanced) |
+| Approval-gated commands | `permissions.ask` — `Bash(…)` | `rules/default.rules` — `decision = "prompt"` | `approvalMode: "allowlist"` — prompts on any unlisted command |
+| Unreadable secret paths | `permissions.deny` — `Read(…)` | `config.toml` filesystem `"deny"` entries | `cli-config.json` `permissions.deny` — `Read(…)` |
+| Writable / readable roots | `sandbox.filesystem.allowWrite` / `allowRead` | `config.toml` `[permissions.developer.filesystem]` | — (no sandbox roots; `permissions.deny` `Write(…)` guards the policy files only) |
+| Allowed network hosts | `sandbox.network.allowedDomains` | `config.toml` `[permissions.developer.network.domains]` | — (no egress allowlist; `WebFetch(domain)` scopes only the agent's fetch tool) |
+| Unix sockets | `sandbox.network.allowUnixSockets` | `config.toml` `[…network.unix_sockets]` (absolute path) | — |
+| Env-var scrubbing | `env` (`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`) | `config.toml` `[shell_environment_policy.filters]` | — |
+| Lifecycle hooks | `hooks.PreToolUse` | `config.toml` `[[hooks.PreToolUse]]` | `hooks.json` `beforeShellExecution` |
 
 Not everything mirrors: model choice, reasoning effort, and Claude's
 `enabledPlugins` are per-client tuning, not shared policy, and need no
-counterpart. When a policy genuinely has no equivalent in a client (e.g. an
-MCP-tool permission Codex can't yet name), note the gap in the commit message
-rather than silently dropping it.
+counterpart. When a policy genuinely has no equivalent in a client, note the gap
+in the commit message rather than silently dropping it. Cursor's gaps, recorded
+here rather than dropped:
+
+- **No sandboxed egress or filesystem roots.** Cursor has no counterpart to
+  Claude's `sandbox.network.allowedDomains` / `filesystem` roots or Codex's
+  `[permissions.developer]`; `WebFetch(domain)` governs only the agent's own
+  fetch tool, not general subprocess egress. Deny-listing secret *paths* is the
+  reachable half of that policy, and it is mirrored.
+- **No env-var scrub.** No counterpart to `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` /
+  Codex `[shell_environment_policy.filters]`.
+- **The ask tier is implicit.** `approvalMode: "allowlist"` prompts on every
+  command not explicitly allowed, so there is no per-command "ask" list to
+  mirror — the empty `permissions.allow` is what realizes it.
+- **Arg-nuanced blocks live in the hook.** Cursor `Shell()` keys on the command
+  base, so wholesale-dangerous commands (`dd`, `sudo`, `mkfs`, …) are declarative
+  `permissions.deny` entries, while forms distinguished by their arguments
+  (`rm -rf`, `git push --force`, `git reset --hard`, `chmod 777`) are enforced by
+  the `beforeShellExecution` gate. The gate is fail-open — a crash lets the
+  command fall through to the normal approval prompt, matching the other clients'
+  fail-open hooks — and the declarative `Shell()` denies are the always-on floor.
+- **`~` home-glob reach is an assumption.** Cursor documents relative/absolute
+  globs but not `~` expansion in `permissions` patterns; the `Read(~/…)` denials
+  are best-effort, while in-workspace secrets are covered by reliable `**/` globs
+  regardless.
+- **No MCP drop-tool denies.** Claude's MongoDB `drop-*` MCP denials have no
+  Cursor counterpart because that MCP is not wired into Cursor.
+- **`sandbox.mode` / `networkAccess` omitted.** Their accepted enum values are
+  undocumented; guessing risks breaking the whole config, so they are left unset.
 
 ## Testing instructions
 
@@ -284,8 +323,8 @@ expected to stay in sync with the heredoc.
   with …" footer. `.claude/settings.json` sets `attribution.commit` to empty to
   enforce this.
 - Conventional Commits, imperative mood. Scopes in use here: `mac`, `skills`,
-  `agents`, `claude`, `codex`, `ci`, `docs` — e.g. `fix(mac): set up asdf via
-  PATH instead of asdf.sh`, `feat(skills): add create-agentsmd skill`.
+  `agents`, `claude`, `codex`, `cursor`, `ci`, `docs` — e.g. `fix(mac): set up
+  asdf via PATH instead of asdf.sh`, `feat(skills): add create-agentsmd skill`.
 - Keep PRs single-purpose; separate refactors from behavior changes.
 - Required before opening a PR: `shellcheck mac -e SC2039` clean, and a fresh-VM
   run for anything touching `mac`.
@@ -301,14 +340,16 @@ and description templates — use them.
 - No secrets, credentials, tokens, or personal paths in tracked files. Anything
   machine-specific belongs in `.agents/AGENTS.local.md` or `~/.laptop.local`,
   both of which are outside version control.
-- `.claude/settings.json`, `.codex/config.toml`, and `.codex/rules/default.rules`
-  are a security boundary: the Claude `permissions.deny` list and the Codex
-  `forbidden` rules block reads of `.env` files, SSH/GPG/cloud credentials, and
-  destructive git commands, and the `sandbox` / `[permissions.developer]` blocks
-  constrain filesystem writes and network egress. Widening any of them is a
-  deliberate act — justify it in the commit message, and mirror it across every
-  client (see "Agent-client configuration parity") rather than loosening one
-  client's rule to make a task easier.
+- `.claude/settings.json`, `.codex/config.toml`, `.codex/rules/default.rules`,
+  `.cursor/cli-config.json`, and `.cursor/hooks.json` are a security boundary:
+  the Claude `permissions.deny` list, the Codex `forbidden` rules, and the Cursor
+  `permissions.deny` list plus `beforeShellExecution` gate block reads of `.env`
+  files, SSH/GPG/cloud credentials, and destructive git commands, and the
+  `sandbox` / `[permissions.developer]` blocks constrain filesystem writes and
+  network egress. Widening any of them is a deliberate act — justify it in the
+  commit message, and mirror it across every client (see "Agent-client
+  configuration parity") rather than loosening one client's rule to make a task
+  easier.
 
 [advisory]: https://github.com/itsmechlark/laptop/security/advisories/new
 
