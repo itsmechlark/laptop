@@ -117,13 +117,13 @@
       "Edit(**/.claude/settings.local.json)",
       "Edit(~/.claude/settings.local.json)"
     ],
+    "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable",
     "additionalDirectories": [
       "~/Codespace",
       "~/.agents",
       "~/.claude"
-    ],
-    "defaultMode": "auto"
+    ]
   },
   "model": "claude-opus-4-8",
   "hooks": {

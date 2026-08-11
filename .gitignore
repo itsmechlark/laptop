@@ -4,6 +4,8 @@ artifacts
 .claude/.cc-writes
 .agents/**/.claude
 skills/**/.claude
+.agents/**/.system
+skills/**/.system
 .agents/*.local.md
 .agents/CONTEXT.md
 .agents/.skills-lock.json
