@@ -203,7 +203,7 @@ matcher = "^Bash$"
 
 [[hooks.PreToolUse.hooks]]
 type = "command"
-command = '''cmd=$(jq -r '.tool_input.command'); case "$cmd" in *'worktree add'*) printf '%s' "$cmd" | grep -qE 'Codespace/[^/ ]+\\.worktrees/' || echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Worktrees must live at ~/Codespace/<repo>.worktrees/<name>, e.g. ~/Codespace/monolith.worktrees/HDR-1234-feat-slug. Re-run with that absolute path."}}';; esac'''
+command = '''cmd=$(jq -r '.tool_input.command'); case "$cmd" in *'worktree add'*) printf '%s' "$cmd" | grep -qE 'Codespace/[^/ ]+\\.worktrees/' || echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Worktrees must live at ~/Codespace/<repo>.worktrees/<name>, e.g. ~/Codespace/example.worktrees/ABC-1234-feat-example. Re-run with that absolute path."}}';; esac'''
 timeout = 3
 
 # -----------------------------------------------------------------------------
