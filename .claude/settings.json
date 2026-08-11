@@ -111,17 +111,11 @@
       "mcp__plugin_atlassian_atlassian__createConfluenceFooterComment",
       "mcp__plugin_atlassian_atlassian__createConfluenceInlineComment",
       "Edit(**/.codex/**)",
-      "Write(**/.codex/**)",
       "Edit(~/.codex/**)",
-      "Write(~/.codex/**)",
       "Edit(**/.claude/settings.json)",
-      "Write(**/.claude/settings.json)",
       "Edit(~/.claude/settings.json)",
-      "Write(~/.claude/settings.json)",
       "Edit(**/.claude/settings.local.json)",
-      "Write(**/.claude/settings.local.json)",
-      "Edit(~/.claude/settings.local.json)",
-      "Write(~/.claude/settings.local.json)"
+      "Edit(~/.claude/settings.local.json)"
     ],
     "disableBypassPermissionsMode": "disable",
     "additionalDirectories": [
