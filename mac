@@ -133,9 +133,6 @@ brew "vim"
 brew "watchman"
 brew "zsh"
 
-# GitHub
-brew "gh"
-
 # Image manipulation
 brew "imagemagick"
 
@@ -151,6 +148,13 @@ cask "gpg-suite-no-mail"
 # Databases
 brew "postgresql@17", restart_service: :changed
 brew "redis", restart_service: :changed
+
+# Development Tools
+brew "gh"
+brew "trivy"
+cask "1password-cli"
+cask "claude-code@latest"
+cask "codex"
 EOF
 
 fancy_echo "Configuring asdf version manager ..."
