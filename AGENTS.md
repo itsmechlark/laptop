@@ -150,6 +150,7 @@ Use this map to find the counterpart for a change:
 | Writable / readable roots | `sandbox.filesystem.allowWrite` / `allowRead` | `config.toml` `[permissions.developer.filesystem]` | — (no sandbox roots; `permissions.deny` `Write(…)` guards the policy files only) |
 | Allowed network hosts | `sandbox.network.allowedDomains` | `config.toml` `[permissions.developer.network.domains]` | — (no egress allowlist; `WebFetch(domain)` scopes only the agent's fetch tool) |
 | Unix sockets | `sandbox.network.allowUnixSockets` | `config.toml` `[…network.unix_sockets]` (absolute path) | — |
+| Unsandboxed command escape | `sandbox.excludedCommands` — `gh *`, `git push/fetch/ls-remote *` | — (no static escape; `approval_policy = "on-request"` escalates per-command) | — (no egress sandbox; commands run unsandboxed, prompt-gated) |
 | Env-var scrubbing | `env` (`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`) | `config.toml` `[shell_environment_policy.filters]` | — |
 | Lifecycle hooks | `hooks.PreToolUse` | `config.toml` `[[hooks.PreToolUse]]` | `hooks.json` `beforeShellExecution` |
 

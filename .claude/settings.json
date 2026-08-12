@@ -177,6 +177,12 @@
     "enabled": true,
     "failIfUnavailable": true,
     "allowUnsandboxedCommands": false,
+    "excludedCommands": [
+      "gh *",
+      "git push *",
+      "git fetch *",
+      "git ls-remote *"
+    ],
     "network": {
       "allowedDomains": [
         "github.com",
