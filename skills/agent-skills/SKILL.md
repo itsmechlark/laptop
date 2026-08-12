@@ -1,8 +1,6 @@
 ---
 name: agent-skills
 description: Author, review, and fix Agent Skills against the agentskills.io specification — SKILL.md frontmatter (name, description, license, compatibility, metadata, allowed-tools), body sections, bundled scripts/references/assets, and progressive disclosure. Use when writing a new skill or SKILL.md, converting a prompt or instructions file into a skill, reviewing or validating an existing skill, deciding what belongs in references/ vs assets/ vs scripts/, splitting an oversized SKILL.md, or diagnosing why a skill is never discovered or invoked.
-paths:
-  - "**/skills/**/SKILL.md"
 ---
 
 # Agent Skills
