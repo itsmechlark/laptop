@@ -17,7 +17,7 @@ A brief says what should be *true when the work is done*. For an issue that mean
 
 **Explicit scope boundaries.** Name what not to touch. Without boundaries, an unattended agent may gold-plate adjacent work that only looked related.
 
-**A brief for a bug or a PR carries its repro.** The artifact from step 3 of triage goes in the brief verbatim — the failing test and the branch it lives on, the exact command and its unedited output, or, for a UI bug, the `agent-browser` click path and the screenshot it produced.
+**A brief for a bug or a PR carries its repro.** The artifact from step 3 of triage goes in the brief verbatim — the failing test and the branch it lives on, the exact command and its unedited output, or, for a UI bug, the exact browser steps (URL, navigation, clicks) and the screenshot they produced — whichever browser-automation tool captured them.
 
 Prose decays. A week later, "confirmed" does not say whether anyone actually ran anything. An artifact gives the implementer its first move, which is TDD's starting point handed over at the moment someone had the repro in hand.
 
@@ -183,9 +183,9 @@ Before moving a ticket to `ready-for-agent`, verify:
 
 **Repro:** *(bugs and PRs; omit for enhancements)*
 The failing test and the branch it lives on, the exact command and its verbatim
-output, or, for a UI bug, the `agent-browser` click path and the screenshot it
-produced. Enough that the reader can see the problem themselves without
-re-deriving it.
+output, or, for a UI bug, the browser steps (URL, navigation, clicks) and the
+screenshot they produced, in whatever browser-automation tool captured them.
+Enough that the reader can see the problem themselves without re-deriving it.
 
 **Current behavior:**
 What happens today. For a bug, the broken behavior. For an enhancement, the
