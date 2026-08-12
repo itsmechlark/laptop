@@ -81,6 +81,7 @@ Work is not "done" until it is verified — never report a task complete on unve
 - **Exercise UI / behavioral changes.** Run the app and use the feature — happy path plus key edge cases — before claiming success. If you cannot run it in this environment, say so explicitly rather than asserting it works.
 - **Self-review the diff** for leftover debug output, secrets, and out-of-scope churn before handing it off.
 - If a check genuinely cannot be run here, state which one and why — don't silently skip it.
+- **Don't trust a search that may have skipped files.** macOS/BSD `find` doesn't follow symlinks by default — use `find -L` when a directory tree mixes real dirs and symlinks, so a "found nothing" isn't just a symlinked subtree it never entered.
 
 ## 5. Safe rollout, feature flags & migrations
 
