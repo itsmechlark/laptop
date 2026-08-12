@@ -65,7 +65,7 @@ rules/                  # path-scoped language standards, auto-loaded by glob
 skills/                 # published skills → ~/.agents/skills; first-party dirs + symlinks into .agents/skills
 .claude/settings.json   # Claude Code settings (permissions, sandbox, hooks, plugins)
 .codex/                 # Codex config — mirrors .claude/settings.json
-  config.toml           # permissions, sandbox, env scrub, hooks
+  config.toml.template  # permissions, sandbox, env scrub, hooks — mac renders git-ignored config.toml
   rules/default.rules   # prefix rules — mirror of the Claude deny/ask lists
 .cursor/                # Cursor CLI config — mirrors the same policy
   cli-config.json       # permissions.deny lists, approvalMode, attribution-off
@@ -92,7 +92,7 @@ skills/                 # published skills → ~/.agents/skills; first-party dir
 | `~/.codex/AGENTS.md` | `~/.agents/AGENTS.md` |
 | `~/.codex/rules` | `.codex/rules/` |
 | `~/.codex/skills` | `~/.agents/skills` |
-| `~/.codex/config.toml` | `.codex/config.toml` |
+| `~/.codex/config.toml` | `.codex/config.toml` (rendered by `mac` from `.codex/config.toml.template`) |
 | `~/.codex/CONTEXT.md` | `~/.agents/CONTEXT.md` |
 | `~/.cursor/cli-config.json` | `.cursor/cli-config.json` |
 | `~/.cursor/hooks.json` | `.cursor/hooks.json` |
@@ -104,6 +104,12 @@ adding a *new top-level* link needs `sh mac` again. `symlink_path` moves any
 pre-existing real file to `<path>.backup` before linking; check for stray
 `.backup` files if a link looks wrong.
 
+`.codex/config.toml` works differently: it is **generated**, not linked to a
+tracked file. `mac` renders it from `.codex/config.toml.template` (the output is
+git-ignored because Codex needs an absolute Unix-socket path — no `~` expansion),
+then links the result. Edit the template and re-run `sh mac` to regenerate and
+relink; edits to the generated file are overwritten on the next run.
+
 The four `CONTEXT.md` links are the exception: `mac` creates them only when
 `.agents/CONTEXT.md` exists, so `sh mac` is required after you first create that
 file. It's an optional, git-ignored machine-local map of the laptop and its repos
@@ -114,7 +120,7 @@ one. A new agent client added here should mirror this link into its own dotdir.
 
 Claude Code, Codex, and Cursor are three front-ends over **one** security and
 behavior policy. `.claude/settings.json` is the canonical expression of that
-policy in Claude's schema; `.codex/config.toml` and `.codex/rules/default.rules`
+policy in Claude's schema; `.codex/config.toml.template` and `.codex/rules/default.rules`
 translate the *same* policy into Codex's (their own comments call it "the
 translated Claude policy"); `.cursor/cli-config.json` and `.cursor/hooks.json`
 translate it into Cursor's. They are mirrors of each other, not independent
@@ -354,7 +360,7 @@ and description templates — use them.
   map, seeded from `.agents/references/CONTEXT-FORMAT.md`) or `~/.laptop.local`,
   both of which are outside version control. `.agents/CONTEXT.md` holds names,
   paths, and URLs only — never secrets.
-- `.claude/settings.json`, `.codex/config.toml`, `.codex/rules/default.rules`,
+- `.claude/settings.json`, `.codex/config.toml.template`, `.codex/rules/default.rules`,
   `.cursor/cli-config.json`, and `.cursor/hooks.json` are a security boundary:
   the Claude `permissions.deny` list, the Codex `forbidden` rules, and the Cursor
   `permissions.deny` list plus `beforeShellExecution` gate block reads of `.env`

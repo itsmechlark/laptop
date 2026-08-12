@@ -255,6 +255,10 @@ mkdir -p "$CODEX_GLOBAL_DIR"
 symlink_path "$AGENTS_GLOBAL_DIR/AGENTS.md" "$CODEX_GLOBAL_DIR/AGENTS.md"
 symlink_path "$PROJECT_DIR/.codex/rules" "$CODEX_GLOBAL_DIR/rules"
 symlink_path "$AGENTS_GLOBAL_DIR/skills" "$CODEX_GLOBAL_DIR/skills"
+# config.toml is git-ignored and machine-local: Codex needs an absolute path for
+# the 1Password Unix-socket rule (no ~ expansion), so generate it from the
+# tracked template, substituting the home-directory placeholder with $HOME.
+sed "s|__HOME__|$HOME|g" "$PROJECT_DIR/.codex/config.toml.template" > "$PROJECT_DIR/.codex/config.toml"
 symlink_path "$PROJECT_DIR/.codex/config.toml" "$CODEX_GLOBAL_DIR/config.toml"
 
 # Cursor

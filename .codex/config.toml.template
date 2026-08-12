@@ -1,4 +1,11 @@
 # $schema: https://developers.openai.com/codex/config-schema.json
+#
+# Codex config. Source of truth: .codex/config.toml.template (git-tracked).
+# `mac` generates the git-ignored .codex/config.toml from it and symlinks that
+# to ~/.codex/config.toml, replacing the home-directory placeholder in the
+# Unix-socket path below with this machine's $HOME — Codex needs an absolute
+# path there (no ~ expansion). Edit the template, not the generated file, then
+# re-run `sh mac`.
 
 model = "gpt-5.6"
 model_reasoning_effort = "high"
@@ -125,10 +132,12 @@ glob_scan_max_depth = 8
 # Self-policy guard: this repo's own governance files stay readable for review
 # but never agent-writable, so a run steered by untrusted input can't silently
 # rewrite its own policy. .codex/** is the Codex policy; .claude/settings*.json
-# is the Claude policy. See AGENTS.md "Agent-client configuration parity".
+# is the Claude policy; .cursor/** is the Cursor policy. See AGENTS.md
+# "Agent-client configuration parity".
 "**/.codex/**" = "read"
 "**/.claude/settings.json" = "read"
 "**/.claude/settings.local.json" = "read"
+"**/.cursor/**" = "read"
 
 [permissions.developer.network]
 enabled = true
@@ -178,11 +187,13 @@ dangerously_allow_all_unix_sockets = false
 "127.0.0.1" = "allow"
 "::1" = "allow"
 
-# Codex currently requires an ABSOLUTE path for Unix socket allow rules.
-# Replace YOUR_USERNAME if you need the 1Password SSH agent from the supplied
-# Claude settings, then uncomment these lines:
-# [permissions.developer.network.unix_sockets]
-# "/Users/YOUR_USERNAME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock" = "allow"
+# Codex requires an ABSOLUTE path here (no ~ expansion), which is why config.toml
+# is generated from this template: the placeholder below is replaced with $HOME
+# at install time. Mirrors Claude's sandbox.network.allowUnixSockets entry (the
+# 1Password SSH agent), so SSH-based git push and SSH commit signing work under
+# the sandbox.
+[permissions.developer.network.unix_sockets]
+"__HOME__/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock" = "allow"
 
 # -----------------------------------------------------------------------------
 # Lifecycle hooks
