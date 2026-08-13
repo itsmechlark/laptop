@@ -296,20 +296,26 @@ the reader-facing attribution; its flat-list format is defined by the
 `agent-skills` skill, and `skills-provenance.json` is its machine-readable
 mirror.
 
-**Update the provenance whenever a first-party skill changes** — it is part of
-the change, not a follow-up:
+**Update both the provenance and the skill's `## Attribution` whenever a
+first-party skill changes** — they are part of the change, not a follow-up:
 
 - Authored a new skill from outside material → add a `skills.<name>` entry with
-  one source per influence.
-- Drew on a new influence for an existing skill → append a source to its list.
+  one source per influence, and list each of those influences in the new
+  skill's `## Attribution`.
+- Drew on a new influence for an existing skill → append a source to its list,
+  and add that same influence to the skill's `## Attribution`. A source that
+  lands in `skills-provenance.json` but not in `## Attribution` is the common
+  miss — the two must move together.
 - Reconciled an upstream change into an `adapted` or `spec` source → bump that
   source's `ref` (and, for `spec`, its version) and its `reviewed` date.
 - Edited a skill with no upstream source, or made a purely local change → no
   `ref` change; `inspired-by` sources never carry one.
 
 Run the `update-skills` project skill (see below) to detect upstream drift and
-walk the reconcile per skill; it reads and writes `skills-provenance.json`. When
-you edit provenance by hand, keep this file and the SKILL.md `## Attribution` section in sync.
+walk the reconcile per skill; it reads and writes `skills-provenance.json`. It
+never edits a SKILL.md, so the `## Attribution` change is always yours to make:
+every source in a skill's provenance list must have a matching entry in its
+`## Attribution`, and the reverse.
 
 ### Project-only skills
 
