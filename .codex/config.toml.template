@@ -183,6 +183,7 @@ dangerously_allow_all_unix_sockets = false
 "index.crates.io" = "allow"
 "static.crates.io" = "allow"
 "*.mongodb.net" = "allow"
+"skills.sh" = "allow"
 "localhost" = "allow"
 "127.0.0.1" = "allow"
 "::1" = "allow"
