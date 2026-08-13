@@ -2,7 +2,6 @@
 name: tdd
 description: Strict red-green-refactor TDD workflow for implementing features, fixing bugs, or changing behavior in any codebase. Enforces writing a failing test before any production code. Agnostic to language, framework, and test runner. Use whenever you want to implement with TDD.
 argument-hint: "[feature, bug, or behavior to implement]"
-disable-model-invocation: true
 ---
 
 # Test-Driven Development
