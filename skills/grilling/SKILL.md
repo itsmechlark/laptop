@@ -8,6 +8,10 @@ argument-hint: "[plan, decision, or idea to grill]"
 
 Interview the user relentlessly about the thing in front of them until you reach a shared understanding. This isn't a review you hand back — it's a conversation you drive, and it ends when they agree the picture is right.
 
+## When to reach for it
+
+Grill anything you're about to commit to, not just big plans — even a small change hides an unhandled case or an unstated assumption, and a couple of minutes of grilling surfaces it before the code does. Grill feedback the same way: when a demo or a reviewer sends you back to iterate, put that feedback through the same questions first, so the next round answers a real problem instead of a vibe.
+
 ## How to grill
 
 **One question at a time.** Ask, wait for the answer, then ask the next. A wall of questions is bewildering, and it gets answered shallowly or not at all.
@@ -35,3 +39,4 @@ Rigorous and direct, never adversarial. You're pressure-testing the idea because
 ## Attribution
 
 - [mattpocock/skills](https://github.com/mattpocock/skills/skills/productivity/grilling) - grilling, MIT
+- [Build Wide, Ship Narrow (Adapt)](https://adapt.com/blog/build-wide-ship-narrow)

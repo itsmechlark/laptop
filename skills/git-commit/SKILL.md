@@ -33,6 +33,7 @@ Aim for **atomic commits**: each commit is one complete, coherent change that st
 - **Separate commits when the work is genuinely independent:** distinct review comments (one each), unrelated cleanups sitting in the tree together, a bug fix made alongside feature work (the fix is its own commit), a dependency bump plus the feature that needed it.
 - **The test:** if someone reverted one part, would the rest still make sense? If yes, they're separate commits. If reverting one would leave the others broken, they belong together.
 - When in doubt, prefer fewer, larger commits over many tiny ones — an over-split history is harder to read.
+- **Cleanup of the old path is its own commit, sequenced last.** When a change adds a new path and retires an old one, don't delete the old code in the same commit that introduces the new — the mix confuses review, makes a rollback ambiguous, and buries the removal. Land the new path first; let the old one die in a separate commit (or its own PR) once the replacement is live.
 
 ## Step 3: Stage each group precisely
 
@@ -130,3 +131,7 @@ Name branches `<type>-<short-slug>`, optionally prefixed with an issue key when 
 - `<short-slug>` — a few lowercase, hyphen-separated words describing the change.
 
 Examples: `feat-getting-started`, `ABC-1234-fix-null-check`. Branch from the repository's default branch unless told otherwise.
+
+## Attribution
+
+- [Build Wide, Ship Narrow (Adapt)](https://adapt.com/blog/build-wide-ship-narrow)

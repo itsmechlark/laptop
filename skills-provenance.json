@@ -78,6 +78,12 @@
           "license": "MIT",
           "ref": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
           "reviewed": "2026-08-10"
+        },
+        {
+          "origin": "Adapt, \"Build Wide, Ship Narrow\"",
+          "type": "web",
+          "url": "https://adapt.com/blog/build-wide-ship-narrow",
+          "relationship": "inspired-by"
         }
       ]
     },
@@ -92,6 +98,12 @@
           "license": "MIT",
           "ref": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
           "reviewed": "2026-08-10"
+        },
+        {
+          "origin": "Adapt, \"Build Wide, Ship Narrow\"",
+          "type": "web",
+          "url": "https://adapt.com/blog/build-wide-ship-narrow",
+          "relationship": "inspired-by"
         }
       ]
     },
@@ -205,6 +217,26 @@
         { "origin": "Melvin Conway, How Do Committees Invent? (1968)", "type": "paper", "relationship": "inspired-by" },
         { "origin": "Richard Rumelt, Good Strategy Bad Strategy", "type": "book", "relationship": "inspired-by" },
         { "origin": "Forsgren, Humble & Kim, Accelerate", "type": "book", "relationship": "inspired-by" }
+      ]
+    },
+    "git-worktree": {
+      "sources": [
+        {
+          "origin": "Adapt, \"Build Wide, Ship Narrow\"",
+          "type": "web",
+          "url": "https://adapt.com/blog/build-wide-ship-narrow",
+          "relationship": "inspired-by"
+        }
+      ]
+    },
+    "git-commit": {
+      "sources": [
+        {
+          "origin": "Adapt, \"Build Wide, Ship Narrow\"",
+          "type": "web",
+          "url": "https://adapt.com/blog/build-wide-ship-narrow",
+          "relationship": "inspired-by"
+        }
       ]
     }
   }

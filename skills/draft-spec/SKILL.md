@@ -123,6 +123,8 @@ Do not assume an issue tracker, tracker API, project key, label name, or workflo
 
 The handoff must preserve the distinction between product-facing problem and outcome language and the short implementation brief an agent needs. Never apply a label or close an item merely because the spec says to do so.
 
+When the design is novel or the trust boundaries are non-obvious, ship the spec itself as the first pull request — merged before any implementation exists — so the team can push back on the approach while changing it is still cheap. Keep one thing out of the spec: a decomposition into PRs. The spec fixes *what* to build and *how* it works, including where the trust boundaries sit; how the work splits into shippable pull requests is settled later, once the code makes the real boundaries visible.
+
 ## Tone
 
 Precise, collaborative, and honest about uncertainty. The goal is a spec that survives handoff to a changing codebase, not paperwork that makes an underspecified request look complete.
@@ -130,3 +132,4 @@ Precise, collaborative, and honest about uncertainty. The goal is a spec that su
 ## Attribution
 
 - [mattpocock/skills](https://github.com/mattpocock/skills/skills/engineering/to-spec) - to-spec, MIT
+- [Build Wide, Ship Narrow (Adapt)](https://adapt.com/blog/build-wide-ship-narrow)
