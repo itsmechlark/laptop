@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review a change along three axes — Defects (security, performance, correctness, reliability bugs), Standards (does it follow this repo's documented conventions and the code-smell baseline?), and Spec (does it do what the originating issue/PRD asked for?). Trigger with a PR URL, a diff, a file path, a fixed point to review since (a branch/tag/SHA, "review since main"), "review this before I merge", "is this code safe?", or when checking a change for N+1 queries, injection risks, missing edge cases, error-handling gaps, or backwards-compatibility breaks.
+description: Review a change along three axes — Defects (security, performance, correctness, reliability bugs), Standards (does it follow this repo's documented conventions and the code-smell baseline?), and Spec (does it do what the originating issue/PRD asked for?). Trigger with a PR URL, a diff, a file path, a fixed point to review since (a branch/tag/SHA, "review since main"), "review this before I merge", "is this code safe?", or when checking a change for N+1 queries, injection risks, missing edge cases, error-handling gaps, or backwards-compatibility breaks. Returns a merge verdict across all three axes — not a standalone, exhaustive security audit of a change you already wrote.
 argument-hint: "<fixed point (branch/tag/SHA) — or PR URL, diff, or file path>"
 ---
 
@@ -140,6 +140,7 @@ If your environment offers a deeper multi-agent PR toolkit — for example a `pr
 - Give context up front — "this is a hot path", "this handles PII", "focus on security" — it sharpens the review.
 - Report a defect once, at its root cause, not at every call site.
 - This skill is for *giving* a review. For *receiving* one, see the `review-response` skill.
+- When the Defects axis needs to go deeper than a merge decision — attack-surface mapping, reachability proofs for each finding, findings with no verdict — hand that off to the `find-bugs` skill.
 - "Is this code safe?" means defects in a diff here — not governing what an AI agent may do at run time (tool allowlists, policy files, approval gates).
 
 ## Attribution

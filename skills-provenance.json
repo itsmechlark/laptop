@@ -202,6 +202,34 @@
         }
       ]
     },
+    "find-bugs": {
+      "sources": [
+        {
+          "origin": "getsentry/skills",
+          "type": "github",
+          "url": "https://github.com/getsentry/skills",
+          "path": "skills/find-bugs/SKILL.md",
+          "relationship": "adapted",
+          "license": "Apache-2.0",
+          "ref": "24fdb833b9e67670a027e3b482189100a69ff7f9",
+          "reviewed": "2026-08-13"
+        },
+        {
+          "origin": "OWASP Top 10",
+          "type": "web",
+          "url": "https://owasp.org/www-project-top-ten/",
+          "relationship": "inspired-by"
+        },
+        {
+          "origin": "ulpi-io/skills",
+          "type": "github",
+          "url": "https://github.com/ulpi-io/skills",
+          "path": "find-bugs/SKILL.md",
+          "relationship": "inspired-by",
+          "note": "No license declared upstream as of 2026-08-13 — no LICENSE file, none stated in the README, none reported by the GitHub API. Ideas only; no text reused. Do not promote to `adapted` unless a license appears."
+        }
+      ]
+    },
     "codebase-design": {
       "sources": [
         {
