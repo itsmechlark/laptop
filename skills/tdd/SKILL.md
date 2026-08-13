@@ -5,15 +5,22 @@ argument-hint: "[feature, bug, or behavior to implement]"
 disable-model-invocation: true
 ---
 
-# Test-Driven Development (TDD)
+# Test-Driven Development
 
-## Overview
-
-Write the test first. Watch it fail. Write minimal code to pass.
+Build a feature or fix a bug by writing a failing test first and then the minimum code that makes it pass, so every line of production code exists because a test demanded it.
 
 **Core principle:** if you didn't watch the test fail, you don't know if it tests the right thing.
 
 **Violating the letter of the rules is violating the spirit of the rules.**
+
+## When to use this skill
+
+- Implementing a new feature or behavior you intend to keep
+- Fixing a bug — start with a test that reproduces it, then make it pass
+- Changing existing behavior where a silent regression would be costly
+- Any language, framework, or test runner: the workflow is agnostic to all three
+
+Not for a throwaway spike you will delete, or a change with no behavior to pin down (a copy tweak, a bumped config value). Once you're keeping the code, it comes in test-first.
 
 ## The Iron Law
 
@@ -92,20 +99,6 @@ After green only: remove duplication, improve names, extract helpers. Keep tests
 
 Pop the stack. Rerun the test one layer up, read its next failure, and let it drive the next move — build inert glue, or push a new failing test for the next layer down. Continue until the top-level test is green and the stack is empty.
 
-## Why order matters
-
-- **"I'll write tests after to verify it works."** Tests written after code pass immediately, and passing immediately proves nothing — you never watched the test catch anything. Test-first forces you to see it fail.
-- **"I already manually tested the edge cases."** Manual testing is ad-hoc: no record, can't re-run, easy to forget under pressure. Automated tests are systematic.
-- **"Deleting hours of work is wasteful."** Sunk cost. The time is gone either way; keeping code you can't trust is the actual waste.
-- **"TDD is dogmatic; being pragmatic means adapting."** TDD *is* pragmatic — it finds bugs before commit, prevents regressions, documents behavior, and makes refactoring safe. "Pragmatic" shortcuts mean debugging in production.
-- **"Tests-after achieve the same goals."** No. Tests-after answer "what does this do?"; tests-first answer "what *should* this do?" Tests-after are biased by your implementation — you verify remembered edge cases, not discovered ones.
-
-## Red flags — stop and start over
-
-Code before test · built a layer with behavior without a failing test at that layer · made several changes then ran once · test written after implementation · test passes immediately · can't explain why the test failed · "I'll add tests later" · "just this once" · "I already manually tested it" · "it's spirit not ritual" · "keep it as reference" · "already spent hours, deleting is wasteful" · "this is different because…"
-
-**All of these mean: delete the code, start over with TDD.**
-
 ## Example: outside-in, in the abstract
 
 **Story:** a guest searches for items by name.
@@ -115,6 +108,28 @@ Code before test · built a layer with behavior without a failing test at that l
 3. **Drop down — unit test for the search.** `search("Widget")` returns only the matching record. Verify RED, implement the minimal filter, verify GREEN, pop it. Rerun the integration test; wire the handler and view until it's green, pop it. Rerun the end-to-end test and drive the remaining UI the same way until it's green and the stack is empty.
 
 **Bug fix** is the same loop: write a failing test that reproduces the bug from the outside, drop to the layer the failure names, fix it under red-green-refactor. Never fix a bug without a test — the test proves the fix and prevents the regression.
+
+## Gotchas
+
+The tempting shortcuts share one property: they all skip watching a test fail, and every one of them is a lie the code tells you later.
+
+- **Never write the test after the code.** A test written against code you already have passes on its first run, and a test that never failed proves nothing — you never saw it catch anything. Worse, tests-after answer "what does this do?" when the question that finds bugs is "what *should* this do?" Only test-first makes you watch it fail for the right reason.
+- **Never keep code you wrote before its test**, not even "as reference." It biases every test you then write toward the implementation you already have, so you pin down the edge cases you remembered instead of the ones the behavior actually has. Delete it and implement fresh.
+- **"I already manually tested it" is not coverage.** Manual testing leaves no record, can't be re-run, and is the first thing to slip under pressure. Only an automated test still defends the behavior next month.
+- **"Deleting hours of work is wasteful" is the sunk-cost trap.** The time is gone either way; keeping code you can't trust is the actual waste.
+- **"Being pragmatic means skipping TDD" is backwards.** TDD is the pragmatic path — it catches bugs before commit, documents behavior, and makes refactoring safe. The shortcut just moves the debugging to production.
+- **Don't assert on the mock.** Checking that a stubbed datastore received `where(name: "Widget")` proves the mock was called, not that the feature works. Assert real behavior through the public interface; mock only collaborators and external services.
+
+**Red flags — every one means stop, delete the code, and start over with TDD:** code before test · a layer with behavior built without a failing test at that layer · several changes then a single run · test written after implementation · test passes on its first run · can't explain why the test failed · "I'll add tests later" · "just this once" · "it's spirit not ritual" · "keep it as reference" · "this is different because…"
+
+## Troubleshooting
+
+| Problem                  | Solution                                                            |
+| ------------------------ | ------------------------------------------------------------------ |
+| Don't know how to test   | Write the wished-for API and the assertion first. Ask your partner.|
+| Test too complicated     | The design is too complicated. Simplify the interface.             |
+| Must mock everything     | The code is too coupled. Use dependency injection.                 |
+| Test setup is huge       | Extract helpers; if still complex, simplify the design.            |
 
 ## Verification checklist
 
@@ -130,22 +145,6 @@ Before marking work complete:
 - [ ] Edge cases and error states covered
 
 Can't check every box? You skipped TDD. Start over.
-
-## When stuck
-
-| Problem                  | Solution                                                            |
-| ------------------------ | ------------------------------------------------------------------ |
-| Don't know how to test   | Write the wished-for API and the assertion first. Ask your partner.|
-| Test too complicated     | The design is too complicated. Simplify the interface.             |
-| Must mock everything     | The code is too coupled. Use dependency injection.                 |
-| Test setup is huge       | Extract helpers; if still complex, simplify the design.            |
-
-## Final rule
-
-```
-Production code → a test exists and failed first
-Otherwise      → not TDD
-```
 
 ## Attribution
 
