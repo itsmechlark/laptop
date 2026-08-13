@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review a change along three axes — Defects (security, performance, correctness, reliability bugs), Standards (does it follow this repo's documented conventions and the code-smell baseline?), and Spec (does it do what the originating issue/PRD asked for?). Trigger with a PR URL, a diff, a file path, a fixed point to review since (a branch/tag/SHA, "review since main"), "review this before I merge", "is this code safe?", or when checking a change for N+1 queries, injection risks, missing edge cases, or error-handling gaps.
+description: Review a change along three axes — Defects (security, performance, correctness, reliability bugs), Standards (does it follow this repo's documented conventions and the code-smell baseline?), and Spec (does it do what the originating issue/PRD asked for?). Trigger with a PR URL, a diff, a file path, a fixed point to review since (a branch/tag/SHA, "review since main"), "review this before I merge", "is this code safe?", or when checking a change for N+1 queries, injection risks, missing edge cases, error-handling gaps, or backwards-compatibility breaks.
 argument-hint: "<fixed point (branch/tag/SHA) — or PR URL, diff, or file path>"
 ---
 
@@ -47,6 +47,8 @@ Real bugs. A genuine defect is blocking on its own merit — none are softened b
 - Race conditions; non-idempotent retries on jobs or mutating endpoints
 - Silent failures: swallowed exceptions, ignored rejected promises, dropped `{:error, _}`
 - Error propagation; off-by-one; type-safety holes
+- Backwards compatibility: a breaking API / contract or schema change with no migration path (expand/contract)
+- Side effects: behaviour of components the change didn't set out to touch (unintended regressions)
 
 ## 3. Standards axis — conformance
 
@@ -86,6 +88,18 @@ Find the originating spec, in this order:
 
 Against the spec, report: (a) requirements missing or only partial; (b) behaviour in the diff nobody asked for (scope creep); (c) requirements that look implemented but wrong. Quote the spec line for each finding.
 
+## Long-term impact — escalate high-blast-radius changes
+
+Some changes are correct on every axis yet carry outsized risk. When the diff touches any of these, flag it for deeper review — a second reviewer, or an ADR recording the decision (context → decision → consequences) — even when nothing else fails:
+
+- Database schema migrations
+- API or provider-facing contract changes
+- A new framework or library dependency
+- Performance-critical code paths
+- Security-sensitive functionality
+
+This is a judgement call surfaced alongside the verdict, not a blocking finding on its own.
+
 ## Running the review
 
 - **Small / single-file diff** — review inline.
@@ -113,6 +127,9 @@ If your environment offers a deeper multi-agent PR toolkit — for example a `pr
 
 ### What looks good
 - [Genuine positives, brief]
+
+### Long-term impact
+[High-blast-radius changes to flag for deeper review / an ADR — or "none".]
 
 ### Verdict
 [Approve / Request changes / Needs discussion] — worst issue per axis; don't rerank across axes.
