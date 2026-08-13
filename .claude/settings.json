@@ -283,6 +283,7 @@
         "~/.claude",
         "~/.hex",
         "~/.gitconfig",
+        "~/.zlogin",
         "~/.zshrc",
         "~/.zprofile",
         "~/.zshenv",

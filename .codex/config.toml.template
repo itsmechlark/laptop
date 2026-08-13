@@ -72,6 +72,7 @@ glob_scan_max_depth = 8
 "~/.cache/rubocop_cache" = "write"
 "~/.hex" = "read"
 "~/.gitconfig" = "read"
+"~/.zlogin" = "read"
 "~/.zshrc" = "read"
 "~/.zprofile" = "read"
 "~/.zshenv" = "read"
