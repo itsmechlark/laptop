@@ -347,9 +347,16 @@ expected to stay in sync with the heredoc.
 - **Never add AI attribution** — no `Co-Authored-By` AI trailer, no "Generated
   with …" footer. `.claude/settings.json` sets `attribution.commit` to empty to
   enforce this.
-- Conventional Commits, imperative mood. Scopes in use here: `mac`, `skills`,
-  `agents`, `claude`, `codex`, `cursor`, `ci`, `docs` — e.g. `fix(mac): set up
-  asdf via PATH instead of asdf.sh`, `feat(skills): add create-agentsmd skill`.
+- Conventional Commits, imperative mood. The agent payload and provisioner —
+  `.agents/`, `.claude/`, `.codex/`, `.cursor/`, `rules/`, `skills/`, `mac`,
+  `skills-lock.json`, and `skills-provenance.json` — are **production code**,
+  not documentation, even where they're written in Markdown. Changes to them
+  take a code type (`feat`, `fix`, `refactor`, `chore`, …), never `docs`.
+  Reserve `docs` for the human-facing docs that describe the repo rather than
+  ship from it: `README.md`, this `AGENTS.md`, `SECURITY.md`. Scopes in use
+  here: `mac`, `skills`, `agents`, `claude`, `codex`, `cursor`, `ci` — e.g.
+  `fix(mac): set up asdf via PATH instead of asdf.sh`, `feat(skills): add
+  create-agentsmd skill`.
 - Keep PRs single-purpose; separate refactors from behavior changes.
 - Required before opening a PR: `shellcheck mac -e SC2039` clean, and a fresh-VM
   run for anything touching `mac`.
