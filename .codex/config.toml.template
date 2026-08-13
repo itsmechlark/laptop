@@ -210,13 +210,13 @@ command = '''jq -r '(now | todate) + " " + (.tool_input.command | gsub("\\n"; " 
 timeout = 3
 
 # Enforce your worktree convention:
-#   ~/Codespace/<repo>.worktrees/<name>
+#   $HOME/Codespace/<repo>.worktrees/<name>
 [[hooks.PreToolUse]]
 matcher = "^Bash$"
 
 [[hooks.PreToolUse.hooks]]
 type = "command"
-command = '''cmd=$(jq -r '.tool_input.command'); case "$cmd" in *'worktree add'*) printf '%s' "$cmd" | grep -qE 'Codespace/[^/ ]+\\.worktrees/' || echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Worktrees must live at ~/Codespace/<repo>.worktrees/<name>, e.g. ~/Codespace/example.worktrees/ABC-1234-feat-example. Re-run with that absolute path."}}';; esac'''
+command = '''cmd=$(jq -r '.tool_input.command'); case "$cmd" in *'worktree add'*) if printf '%s' "$cmd" | grep -qE '~/'; then echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Worktree paths must be absolute, not ~-prefixed: a ~ path does not match git worktree list and does not expand when quoted. Re-run with an absolute path like $HOME/Codespace/<repo>.worktrees/<name>."}}'; elif ! printf '%s' "$cmd" | grep -qE 'Codespace/[^/ ]+\.worktrees/'; then echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Worktrees must live at $HOME/Codespace/<repo>.worktrees/<name>, e.g. $HOME/Codespace/example.worktrees/ABC-1234-feat-example. Re-run with that absolute path."}}'; fi;; esac'''
 timeout = 3
 
 # -----------------------------------------------------------------------------
