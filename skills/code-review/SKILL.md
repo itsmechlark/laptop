@@ -147,3 +147,4 @@ If your environment offers a deeper multi-agent PR toolkit — for example a `pr
 - Martin Fowler, *Refactoring* (2nd ed.), ch. 3 — code smells
 - [obra/superpowers](https://github.com/obra/superpowers/tree/main/skills/requesting-code-review) - requesting-code-review, MIT
 - [mattpocock/skills](https://github.com/mattpocock/skills/tree/main/skills/engineering/code-review) - code-review, MIT
+- [getsentry/skills](https://github.com/getsentry/skills/tree/main/skills/code-review) - review checklist, inspired-by

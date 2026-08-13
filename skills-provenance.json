@@ -192,6 +192,13 @@
           "license": "MIT",
           "ref": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
           "reviewed": "2026-08-10"
+        },
+        {
+          "origin": "getsentry/skills",
+          "type": "github",
+          "url": "https://github.com/getsentry/skills",
+          "path": "skills/code-review/SKILL.md",
+          "relationship": "inspired-by"
         }
       ]
     },
