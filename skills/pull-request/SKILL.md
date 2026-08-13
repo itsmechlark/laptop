@@ -44,9 +44,7 @@ Conventional Commits, same as a commit subject: `<type>[optional scope]: <descri
 ```markdown
 ## Reasoning
 
-Why this change exists: the problem it solves, the risk/impact of the
-status quo, the chosen approach, and any rollout/gating considerations.
-Product context plus engineering rationale.
+Why this change exists: the problem it solves, the risk/impact of the status quo, the chosen approach, and any rollout/gating considerations. Product context plus engineering rationale.
 
 ## Summary
 
@@ -136,6 +134,7 @@ Write like an engineer briefing a teammate, not a language model.
 - No hype or filler adjectives ("comprehensive", "robust", "seamless", "significantly").
 - No throat-clearing ("This PR aims to", "In order to", "It's worth noting that").
 - Plain, direct sentences of varied length; drop the uniformly-hedged cadence. Call out anything surprising, and flag risks and dependencies plainly.
+- Write body prose as ordinary paragraphs. Don't hard-wrap lines or insert manual newlines mid-paragraph — the host soft-wraps Markdown, so hard breaks only waste width.
 
 ## Step 4: Self-check
 

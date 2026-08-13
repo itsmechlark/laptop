@@ -77,7 +77,7 @@ Write each group's message to a file and commit with `git commit -F <file>` (or 
 
 Include a body whenever there's a *why* worth recording — which is most of the time. Skip it only when the subject says everything ("fix typo in README"). When you write one:
 
-- Blank line after the subject; wrap prose at **72 characters** (URLs and footers are exempt).
+- Blank line after the subject, then write the body as ordinary paragraphs. Don't hard-wrap lines or insert manual newlines mid-paragraph — let the reader's tool wrap them.
 - **Explain the why, not the what.** The diff shows what changed — say what problem it solves or what it makes possible.
 - **Be concise.** A few tight sentences beat a wall of text; cut anything that just restates the code.
 - **Call out anything surprising, or alternatives you rejected** and why — that saves a future reader from re-treading it.
@@ -98,20 +98,13 @@ Worked examples (Conventional Commits, no attribution trailer):
 ```
 feat(text): introduce scan
 
-Callers sometimes need to know whether text contains sensitive
-information without filtering it. `scan` answers that and returns the
-mapping it found. `filter` now uses it internally and skips the work
-entirely when the input has nothing sensitive in it.
+Callers sometimes need to know whether text contains sensitive information without filtering it. `scan` answers that and returns the mapping it found. `filter` now uses it internally and skips the work entirely when the input has nothing sensitive in it.
 ```
 
 ```
 fix(ner): cache initialization behind a mutex
 
-Initializing the NER model is expensive, so we cache it behind a Mutex
-to stay thread-safe. Memoizing without a lock breaks when assets are
-precompiled at deploy time: the model file doesn't exist yet, so the
-first cache write fails. The Mutex version was tested in a
-production-like environment — the first request is slow, the rest fast.
+Initializing the NER model is expensive, so we cache it behind a Mutex to stay thread-safe. Memoizing without a lock breaks when assets are precompiled at deploy time: the model file doesn't exist yet, so the first cache write fails. The Mutex version was tested in a production-like environment — the first request is slow, the rest fast.
 ```
 
 ```
