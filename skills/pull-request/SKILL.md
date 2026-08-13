@@ -14,6 +14,17 @@ Once you've been asked to open a PR, work through the steps below and report the
 
 **Convention:** if the repository has a PR template (`.github/pull_request_template.md`, `docs/PULL_REQUEST_TEMPLATE.md`, or similar) or a consistent PR-body convention in its recent merged PRs, follow that — fill its sections, complete its checklist — and use the template below only for what it leaves unspecified. A project's own convention outranks this default.
 
+## Splitting a wide build into narrow PRs
+
+When a feature was built wide — proven end to end on a throwaway branch — don't open one sprawling PR from that branch. Decide the set first: the smallest group of independently reviewable PRs, each safe to merge on its own. Small PRs flow; large ones sit.
+
+- **Cut each PR fresh off the default branch, each in its own worktree** — if a `git-worktree` skill is available, follow it for creating and placing those worktrees. The scratch branch's history is throwaway, so it never becomes the PR; carry over only the slice that PR owns.
+- **Stack only when a dependency is real.** A change that needs code another PR in the set introduces stacks on it; everything independent branches straight off the default branch. Stacking for convenience buys a rebase chain you'll regret once the bottom PR gets review feedback.
+- **Cleanup ships last** — retiring the code a change replaces is its own final PR, opened after the new path is live, for the same reason it's a separate commit: a mixed diff makes the rollback ambiguous.
+- **Show the proposed split before opening anything** — the PRs, what each carries, and which stack — so it can be corrected while it's still a plan.
+
+Each PR in the split then goes through the workflow below.
+
 ## Step 1: Understand what's shipping
 
 Describe the whole branch, not just the last commit. Run these together:
@@ -152,3 +163,7 @@ Only after you've been asked to. Then:
 ## Step 6: Report what you did
 
 Share the PR URL, and if you made a judgment call worth knowing about ("opened as a draft — CI still running", "based on `develop`, not `main`", "dropped three Summary bullets the diff already covers"), say so in a sentence.
+
+## Attribution
+
+- [Build Wide, Ship Narrow (Adapt)](https://adapt.com/blog/build-wide-ship-narrow)

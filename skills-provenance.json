@@ -245,6 +245,16 @@
           "relationship": "inspired-by"
         }
       ]
+    },
+    "pull-request": {
+      "sources": [
+        {
+          "origin": "Adapt, \"Build Wide, Ship Narrow\"",
+          "type": "web",
+          "url": "https://adapt.com/blog/build-wide-ship-narrow",
+          "relationship": "inspired-by"
+        }
+      ]
     }
   }
 }
