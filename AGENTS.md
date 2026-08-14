@@ -151,7 +151,7 @@ Use this map to find the counterpart for a change:
 | Allowed network hosts | `sandbox.network.allowedDomains` | `config.toml` `[permissions.developer.network.domains]` | — (no egress allowlist; `WebFetch(domain)` scopes only the agent's fetch tool) |
 | Unix sockets | `sandbox.network.allowUnixSockets` | `config.toml` `[…network.unix_sockets]` (absolute path) | — |
 | Unsandboxed command escape | `sandbox.excludedCommands` — `gh *`, `git push/fetch/ls-remote *` | — (no static escape; `approval_policy = "on-request"` escalates per-command) | — (no egress sandbox; commands run unsandboxed, prompt-gated) |
-| Env-var scrubbing | `env` (`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`) | `config.toml` `[shell_environment_policy.filters]` | — |
+| Env-var scrubbing | `env` (`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`, cloud/Anthropic creds) + `sandbox.credentials.envVars` (explicit token/secret names) | `config.toml` `[shell_environment_policy.filters]` (glob patterns — `*_TOKEN`, `*_API_KEY`, `*_PASSWORD`, … — subsume the named list) | — |
 | Lifecycle hooks | `hooks.PreToolUse` | `config.toml` `[[hooks.PreToolUse]]` | `hooks.json` `beforeShellExecution` |
 
 Not everything mirrors: model choice, reasoning effort, and Claude's
@@ -165,8 +165,9 @@ here rather than dropped:
   `[permissions.developer]`; `WebFetch(domain)` governs only the agent's own
   fetch tool, not general subprocess egress. Deny-listing secret *paths* is the
   reachable half of that policy, and it is mirrored.
-- **No env-var scrub.** No counterpart to `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` /
-  Codex `[shell_environment_policy.filters]`.
+- **No env-var scrub.** No counterpart to Claude's `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`
+  or `sandbox.credentials.envVars` deny-list, or Codex
+  `[shell_environment_policy.filters]`.
 - **The ask tier is implicit.** `approvalMode: "allowlist"` prompts on every
   command not explicitly allowed, so there is no per-command "ask" list to
   mirror — the empty `permissions.allow` is what realizes it.
