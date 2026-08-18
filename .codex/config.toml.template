@@ -90,7 +90,11 @@ glob_scan_max_depth = 8
 "~/.azure" = "deny"
 "~/.kube" = "deny"
 "~/.claude/.credentials.json" = "deny"
-"~/.claude.json" = "deny"
+# Readable for CLI-config lookups, mirroring Claude's sandbox allowRead. Claude
+# opens this only to sandboxed bash and keeps its Read tool denied; Codex can't
+# split tool from shell, so its read tool can see the file (may hold an OAuth
+# token) too. See AGENTS.md "Agent-client configuration parity".
+"~/.claude.json" = "read"
 "~/.claude/bash-log.txt" = "deny"
 "~/.codex/bash-log.txt" = "deny"
 "~/.netrc" = "deny"
@@ -179,6 +183,7 @@ dangerously_allow_all_unix_sockets = false
 "slack.com" = "allow"
 "*.slack.com" = "allow"
 "downloads.slack-edge.com" = "allow"
+"*.bugsnag.com" = "allow"
 "bugsnag.mcp.smartbear.com" = "allow"
 "static.rust-lang.org" = "allow"
 "index.crates.io" = "allow"
