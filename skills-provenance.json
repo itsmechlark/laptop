@@ -264,6 +264,20 @@
         }
       ]
     },
+    "fan-out": {
+      "sources": [
+        {
+          "origin": "obra/superpowers",
+          "type": "github",
+          "url": "https://github.com/obra/superpowers",
+          "path": "skills/dispatching-parallel-agents",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "b36e0829c6d0140e93cfef2ca599b1b07d4a7797",
+          "reviewed": "2026-08-19"
+        }
+      ]
+    },
     "git-commit": {
       "sources": [
         {
