@@ -218,7 +218,8 @@
         "~/.claude",
         "~/.asdf",
         "~/.rvm",
-        "~/.cache/rubocop_cache"
+        "~/.cache/rubocop_cache",
+        "~/.cache/gem"
       ],
       "denyWrite": [
         "~/.claude/settings.json",

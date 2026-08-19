@@ -70,6 +70,7 @@ glob_scan_max_depth = 8
 "~/.claude/settings.local.json" = "read"
 "~/.cache" = "read"
 "~/.cache/rubocop_cache" = "write"
+"~/.cache/gem" = "write"
 "~/.hex" = "read"
 "~/.gitconfig" = "read"
 "~/.zlogin" = "read"
