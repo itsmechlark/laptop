@@ -104,6 +104,15 @@ adding a *new top-level* link needs `sh mac` again. `symlink_path` moves any
 pre-existing real file to `<path>.backup` before linking; check for stray
 `.backup` files if a link looks wrong.
 
+**Always edit via the repo path, never the home symlink.** The sandbox allows
+writes to this repository but restricts the home dotdirs (`~/.claude/`,
+`~/.agents/`, `~/.codex/`, `~/.cursor/`). Editing `~/.claude/settings.json` or
+`~/.agents/skills/foo/SKILL.md` will hit a permission wall even though the
+symlink resolves here. Use the repo-relative path instead — e.g.
+`.claude/settings.json`, `skills/foo/SKILL.md`, `rules/ruby.md`,
+`.agents/AGENTS.md`. The same applies to `skills-lock.json` and
+`skills-provenance.json` (both at the repo root).
+
 `.codex/config.toml` works differently: it is **generated**, not linked to a
 tracked file. `mac` renders it from `.codex/config.toml.template` (the output is
 git-ignored because Codex needs an absolute Unix-socket path — no `~` expansion),
