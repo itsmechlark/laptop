@@ -1,6 +1,6 @@
 ---
 name: git-worktree
-description: Create, place, set up, and remove git worktrees with a consistent layout. Use when setting up, creating, adding, entering, or cleaning up a git worktree for any repo — covers detecting whether you are already in a worktree, the sibling-folder location and branch-based naming, symlinking git-ignored local agent config (e.g. .claude/settings.local.json), auto-installing dependencies for the worktree's stack, working inside an isolated session, and the absolute-path requirement.
+description: Create, place, set up, and remove git worktrees with a consistent layout. Use before starting code edits to ensure work happens in an isolated worktree — and when setting up, creating, adding, entering, or cleaning up a git worktree for any repo. Covers detecting whether you are already in a worktree, the sibling-folder location and branch-based naming, symlinking git-ignored local agent config (e.g. .claude/settings.local.json), auto-installing dependencies for the worktree's stack, working inside an isolated session, and the absolute-path requirement.
 ---
 
 # Git worktrees
@@ -9,6 +9,7 @@ Create a worktree in a dedicated sibling folder, wire up its local config and de
 
 ## When to use this skill
 
+- **Before making code edits** — check if you're already in a worktree; if not, create one so edits land on an isolated branch, not the main checkout
 - Setting up or creating a worktree to develop a branch in isolation
 - Deciding where a worktree should live and what to name it
 - Getting a fresh worktree ready to run — its local agent config and installed dependencies
@@ -22,6 +23,20 @@ Not for switching branches inside a single checkout — that's a plain `git swit
 Keep worktrees in a dedicated sibling folder next to the repository, never inside the checkout: `<repo-path>.worktrees/<worktree-name>` — e.g. for a repo at `/path/to/repo`, place a worktree at `/path/to/repo.worktrees/feat-getting-started`. Name the worktree after its branch, following the repository's branch-naming convention. Always use an **absolute** path (never `~`-prefixed — it won't match `git worktree list`).
 
 ## Workflows
+
+### Pre-edit guard
+
+Before starting code edits, check whether you're already isolated. Run the detection from step 1 of [Set up a worktree](#set-up-a-worktree):
+
+```sh
+git_dir="$(git rev-parse --path-format=absolute --git-dir)"
+git_common="$(git rev-parse --path-format=absolute --git-common-dir)"
+superproject="$(git rev-parse --show-superproject-working-tree 2>/dev/null)"
+```
+
+- **Already in a worktree** (git-dir ≠ git-common-dir, superproject empty) → proceed with edits.
+- **On the default branch in the main checkout** → create a worktree first, following [Set up a worktree](#set-up-a-worktree), then work there. Name the branch after the task (ask the user if the intent isn't clear enough to pick a name).
+- **On a non-default branch in the main checkout** → the user has already switched branches, so a worktree is optional — proceed with edits unless the user prefers isolation.
 
 ### Set up a worktree
 
