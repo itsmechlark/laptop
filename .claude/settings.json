@@ -106,6 +106,7 @@
       "mcp__plugin_atlassian_atlassian__updateConfluencePage",
       "mcp__plugin_atlassian_atlassian__createConfluenceFooterComment",
       "mcp__plugin_atlassian_atlassian__createConfluenceInlineComment",
+      "mcp__smartbear-bugsnag__bugsnag_update_error",
       "Edit(**/.codex/rules/**)",
       "Edit(~/.codex/rules/**)",
       "Edit(**/.codex/config.toml)",
