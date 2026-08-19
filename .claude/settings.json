@@ -93,7 +93,9 @@
       "mcp__plugin_sem-ai_sem-ai__org_member_remove",
       "mcp__plugin_sem-ai_sem-ai__project_member_remove",
       "mcp__github__delete_file",
-      "mcp__github__delete_repository"
+      "mcp__github__delete_repository",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__evaluate_script",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__upload_file"
     ],
     "ask": [
       "Bash(git clean *)",
@@ -176,7 +178,8 @@
       "mcp__github__fork_repository",
       "mcp__github__push_files",
       "mcp__github__star_repository",
-      "mcp__github__unstar_repository"
+      "mcp__github__unstar_repository",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__new_page"
     ],
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable",
