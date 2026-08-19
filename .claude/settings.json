@@ -91,7 +91,9 @@
       "mcp__plugin_sem-ai_sem-ai__task_delete",
       "mcp__plugin_sem-ai_sem-ai__service-account_delete",
       "mcp__plugin_sem-ai_sem-ai__org_member_remove",
-      "mcp__plugin_sem-ai_sem-ai__project_member_remove"
+      "mcp__plugin_sem-ai_sem-ai__project_member_remove",
+      "mcp__github__delete_file",
+      "mcp__github__delete_repository"
     ],
     "ask": [
       "Bash(git clean *)",
@@ -143,7 +145,38 @@
       "mcp__plugin_sem-ai_sem-ai__org_role_create",
       "mcp__plugin_sem-ai_sem-ai__org_role_update",
       "mcp__plugin_sem-ai_sem-ai__service-account_regenerate-token",
-      "mcp__plugin_sem-ai_sem-ai__project_update"
+      "mcp__plugin_sem-ai_sem-ai__project_update",
+      "mcp__github__actions_run_trigger",
+      "mcp__github__assign_copilot_to_issue",
+      "mcp__github__request_copilot_review",
+      "mcp__github__assign_copilot_to_issue_with_intent",
+      "mcp__github__discussion_comment_write",
+      "mcp__github__create_gist",
+      "mcp__github__update_gist",
+      "mcp__github__add_issue_comment",
+      "mcp__github__issue_write",
+      "mcp__github__sub_issue_write",
+      "mcp__github__label_write",
+      "mcp__github__dismiss_notification",
+      "mcp__github__manage_notification_subscription",
+      "mcp__github__manage_repository_notification_subscription",
+      "mcp__github__mark_all_notifications_read",
+      "mcp__github__projects_write",
+      "mcp__github__add_comment_to_pending_review",
+      "mcp__github__add_reply_to_pull_request_comment",
+      "mcp__github__create_pull_request",
+      "mcp__github__merge_pull_request",
+      "mcp__github__pull_request_review_write",
+      "mcp__github__update_pull_request",
+      "mcp__github__update_pull_request_branch",
+      "mcp__github__create_pull_request_with_copilot",
+      "mcp__github__create_branch",
+      "mcp__github__create_or_update_file",
+      "mcp__github__create_repository",
+      "mcp__github__fork_repository",
+      "mcp__github__push_files",
+      "mcp__github__star_repository",
+      "mcp__github__unstar_repository"
     ],
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable",
@@ -327,6 +360,10 @@
         },
         {
           "name": "GITHUB_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "GITHUB_PERSONAL_ACCESS_TOKEN",
           "mode": "deny"
         },
         {
