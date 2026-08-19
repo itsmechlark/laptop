@@ -80,7 +80,18 @@
       "Bash(reboot *)",
       "Bash(poweroff *)",
       "mcp__plugin_mongodb_mongodb__drop-database",
-      "mcp__plugin_mongodb_mongodb__drop-collection"
+      "mcp__plugin_mongodb_mongodb__drop-collection",
+      "mcp__plugin_sem-ai_sem-ai__project_delete",
+      "mcp__plugin_sem-ai_sem-ai__secret_delete",
+      "mcp__plugin_sem-ai_sem-ai__deploy_delete",
+      "mcp__plugin_sem-ai_sem-ai__agent_delete",
+      "mcp__plugin_sem-ai_sem-ai__group_delete",
+      "mcp__plugin_sem-ai_sem-ai__org_role_delete",
+      "mcp__plugin_sem-ai_sem-ai__notification_delete",
+      "mcp__plugin_sem-ai_sem-ai__task_delete",
+      "mcp__plugin_sem-ai_sem-ai__service-account_delete",
+      "mcp__plugin_sem-ai_sem-ai__org_member_remove",
+      "mcp__plugin_sem-ai_sem-ai__project_member_remove"
     ],
     "ask": [
       "Bash(git clean *)",
@@ -120,7 +131,19 @@
       "Edit(**/.claude/settings.json)",
       "Edit(~/.claude/settings.json)",
       "Edit(**/.claude/settings.local.json)",
-      "Edit(~/.claude/settings.local.json)"
+      "Edit(~/.claude/settings.local.json)",
+      "mcp__plugin_sem-ai_sem-ai__pipeline_promote",
+      "mcp__plugin_sem-ai_sem-ai__deploy_deactivate",
+      "mcp__plugin_sem-ai_sem-ai__service-account_deactivate",
+      "mcp__plugin_sem-ai_sem-ai__secret_update",
+      "mcp__plugin_sem-ai_sem-ai__deploy_update",
+      "mcp__plugin_sem-ai_sem-ai__deploy_create",
+      "mcp__plugin_sem-ai_sem-ai__org_member_set-role",
+      "mcp__plugin_sem-ai_sem-ai__project_member_set-role",
+      "mcp__plugin_sem-ai_sem-ai__org_role_create",
+      "mcp__plugin_sem-ai_sem-ai__org_role_update",
+      "mcp__plugin_sem-ai_sem-ai__service-account_regenerate-token",
+      "mcp__plugin_sem-ai_sem-ai__project_update"
     ],
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable",
@@ -164,6 +187,14 @@
     "chrome-devtools-mcp@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "semaphoreio": {
+      "source": {
+        "source": "github",
+        "repo": "semaphoreio/sem-ai"
+      }
+    }
   },
   "sandbox": {
     "enabled": true,
