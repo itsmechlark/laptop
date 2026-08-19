@@ -12,6 +12,11 @@ prefix_rule(pattern = ["poweroff"], decision = "forbidden", justification = "Hos
 
 prefix_rule(pattern = ["chmod", "777"], decision = "forbidden", justification = "World-writable permissions are not allowed.")
 prefix_rule(pattern = ["chmod", "-R", "777"], decision = "forbidden", justification = "Recursive world-writable permissions are not allowed.")
+prefix_rule(pattern = ["chown", "-R"], decision = "forbidden", justification = "Recursive ownership change is not allowed.")
+
+prefix_rule(pattern = ["eval"], decision = "forbidden", justification = "Shell eval is blocked — arbitrary code execution risk.")
+prefix_rule(pattern = ["diskutil", "eraseDisk"], decision = "forbidden", justification = "Disk erasure is destructive.")
+prefix_rule(pattern = ["csrutil", "disable"], decision = "forbidden", justification = "Disabling System Integrity Protection is not allowed.")
 
 prefix_rule(pattern = ["git", "push", "--force"], decision = "forbidden", justification = "Force-push is blocked. Use a normal push or obtain an explicit manual workflow outside Codex.")
 prefix_rule(pattern = ["git", "push", "-f"], decision = "forbidden", justification = "Force-push is blocked.")
@@ -49,3 +54,7 @@ prefix_rule(pattern = ["terraform", "apply"], decision = "prompt", justification
 prefix_rule(pattern = ["terraform", "destroy"], decision = "prompt", justification = "Infrastructure destruction requires approval.")
 prefix_rule(pattern = ["kubectl", "apply"], decision = "prompt", justification = "Kubernetes mutation requires approval.")
 prefix_rule(pattern = ["kubectl", "delete"], decision = "prompt", justification = "Kubernetes deletion requires approval.")
+
+prefix_rule(pattern = ["curl"], decision = "prompt", justification = "External data fetch requires approval.")
+prefix_rule(pattern = ["wget"], decision = "prompt", justification = "External data fetch requires approval.")
+prefix_rule(pattern = ["ssh"], decision = "prompt", justification = "Remote shell access requires approval.")
