@@ -20,3 +20,5 @@ When working in a Ruby codebase, all specs must follow the [RSpec Style Guide](h
 - Keep example state isolated: avoid `before(:all)`/`before(:context)` for database or mutable state — it leaks across examples; set up per-example with `let`/`before`.
 - Don't chase DRY prematurely — duplication in tests is acceptable when it aids understanding; use shared examples (`it_behaves_like`) for genuine repetition.
 - Use built-in and predicate matchers (`be_published`, `include`, `change(Model, :count).by(1)`); avoid bare `be` and asserting incidental/absolute state.
+- **Spec file paths must mirror the described constant** (`RSpec/SpecFilePathFormat`): `describe MyModule::MyClass` → `spec/**/my_module/my_class_spec.rb`. Non-class descriptions are exempt.
+- **Spec files must end with `_spec.rb`** (`RSpec/SpecFilePathSuffix`): any file under `spec/` that contains examples but doesn't use the `_spec.rb` suffix is an offense.
