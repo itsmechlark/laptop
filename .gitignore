@@ -2,6 +2,7 @@
 *.swp
 artifacts
 .claude/.cc-writes
+.claude/projects
 .agents/**/.claude
 skills/**/.claude
 .agents/**/.system
