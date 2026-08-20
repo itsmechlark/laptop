@@ -303,6 +303,20 @@
         { "origin": "Alistair Cockburn, Crystal Clear — walking skeleton", "type": "book", "relationship": "inspired-by" },
         { "origin": "Alan Klement, Replacing the User Story with the Job Story", "type": "article", "relationship": "inspired-by" }
       ]
+    },
+    "brainstorming": {
+      "sources": [
+        {
+          "origin": "obra/superpowers",
+          "type": "github",
+          "url": "https://github.com/obra/superpowers",
+          "path": "skills/brainstorming",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "b36e0829c6d0140e93cfef2ca599b1b07d4a7797",
+          "reviewed": "2026-08-20"
+        }
+      ]
     }
   }
 }

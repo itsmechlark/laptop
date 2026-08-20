@@ -24,12 +24,17 @@ language is POSIX shell plus Markdown.
 
 | File | Scope | Symlinked to |
 | --- | --- | --- |
-| `AGENTS.md` (this file) | Instructions for working **on this repository** | nowhere |
+| `AGENTS.md` (this file) | Instructions for working **on this repository** | nowhere — but repo-root `CLAUDE.md` is a symlink *to* it |
 | `.agents/AGENTS.md` | The maintainer's **global engineering standards**, shipped to every project | `~/.agents/AGENTS.md` → `~/.claude/CLAUDE.md` |
 
 `.agents/AGENTS.md` is cargo, not configuration for this repo. Editing it
 changes agent behavior in *every* repository on the machine — treat changes to
 it as global blast radius and keep them deliberate.
+
+Claude Code loads `CLAUDE.md`; Codex and Cursor load `AGENTS.md`. The root
+`CLAUDE.md` symlink is the alias that gives all three the same repo
+instructions — it is not a second file. Edit `AGENTS.md`; writing through
+`CLAUDE.md` silently rewrites it.
 
 ## Setup commands
 
