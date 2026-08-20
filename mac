@@ -153,7 +153,7 @@ brew "redis", restart_service: :changed
 brew "gh"
 brew "trivy"
 cask "1password-cli"
-cask "claude-code@latest"
+cask "claude-code"
 cask "codex"
 EOF
 
