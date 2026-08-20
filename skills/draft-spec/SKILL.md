@@ -24,13 +24,13 @@ Explore the repository enough to understand the current state before writing. Lo
 - Existing behavior and similar features; do not describe something as new if the code already provides it.
 - Existing test seams and prior art; prefer the highest existing seam over inventing a new one.
 
-If no glossary, ADR, or prior art exists, say so internally and avoid inventing a project-specific vocabulary or convention.
+If no glossary, ADR, or prior art exists, say so internally and avoid inventing a project-specific vocabulary or convention. When the spec introduces new domain terms or reveals vocabulary conflicts, hand those to the `domain-modeling` skill to settle them in `CONTEXT.md` before drafting.
 
 ### 2. Sketch the test seams, then confirm them
 
 Before drafting the full spec, identify where the behavior should be verified. Prefer one high seam that exercises the user-visible contract, adding lower seams only where they expose an independent behavior or make a failure diagnosable. Name the seam in terms of observable behavior, not implementation files.
 
-Briefly show the user the proposed seams and ask whether they match their expectations. This is the one confirmation gate in the workflow; do not turn it into a wall of requirements questions. If a missing answer genuinely prevents a defensible spec, ask one targeted question and explain what decision it changes.
+Briefly show the user the proposed seams and ask whether they match their expectations. This is the one confirmation gate in the workflow; do not turn it into a wall of requirements questions. If a missing answer genuinely prevents a defensible spec, ask one targeted question and explain what decision it changes. When ambiguity runs deeper than one targeted question — the requirements need sustained pressure-testing — hand off to the `grilling` skill before continuing the draft.
 
 ### 3. Synthesize, do not interview
 
@@ -123,7 +123,7 @@ Do not assume an issue tracker, tracker API, project key, label name, or workflo
 
 The handoff must preserve the distinction between product-facing problem and outcome language and the short implementation brief an agent needs. Never apply a label or close an item merely because the spec says to do so.
 
-When the design is novel or the trust boundaries are non-obvious, ship the spec itself as the first pull request — merged before any implementation exists — so the team can push back on the approach while changing it is still cheap. Keep one thing out of the spec: a decomposition into PRs. The spec fixes *what* to build and *how* it works, including where the trust boundaries sit; how the work splits into shippable pull requests is settled later, once the code makes the real boundaries visible.
+When the design is novel or the trust boundaries are non-obvious, ship the spec itself as the first pull request — merged before any implementation exists — so the team can push back on the approach while changing it is still cheap. Keep one thing out of the spec: a decomposition into PRs. The spec fixes *what* to build and *how* it works, including where the trust boundaries sit; how the work splits into shippable pull requests is settled later, once the code makes the real boundaries visible. When the spec reveals multiple independently shippable pieces, use `slice` to break them into job stories before implementation planning.
 
 ## Tone
 

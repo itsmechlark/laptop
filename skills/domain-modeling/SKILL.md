@@ -61,6 +61,10 @@ Create files lazily — only when there's something to put in them. No `CONTEXT.
 
 **Offer ADRs sparingly.** Only when all three hold — hard to reverse, surprising without context, and the result of a real trade-off. If any is missing, skip it. When one qualifies, write it per [ADR-FORMAT.md](references/ADR-FORMAT.md); that's also the house rule (AGENTS.md §7 — durable decisions belong in an ADR, not buried in a PR description that rots).
 
+## Where the session leads next
+
+Settling the vocabulary regularly exposes work this skill doesn't do. Hand it over rather than absorbing it: module boundaries that turn out to be wrong — a secret sitting behind the wrong interface — go to `codebase-design` to place the seam; a feature the discussion has revealed needs a full specification before anyone implements it goes to `draft-spec`. Leaving with a sharper glossary and a named next step is a complete outcome.
+
 ## Tone
 
 Precise, and willing to be pedantic about words. Two people using the same term for two different things is the failure this skill exists to catch.

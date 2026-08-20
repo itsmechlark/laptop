@@ -16,6 +16,14 @@ Determine the mode from the argument:
 - **If the argument is a file path, class name, or method** — this is a **code explanation**. Follow the Code Explanation section.
 - **If the argument is a user action, feature, or flow description** (e.g. "password reset", "checkout", "authentication") — this is a **flow explanation**. Follow the Flow Explanation section.
 
+## Scope
+
+This skill explains *what* code does and never rules on whether it's any good. It also only reads — so when the explanation turns up something that needs changing, name it and stop there rather than reaching for it:
+
+- A correctness, security, or maintainability judgement on the code → `code-review`
+- A domain term the code uses two ways → `domain-modeling`
+- A question that's really about module structure or where a seam belongs → `codebase-design`
+
 ---
 
 ## Code Explanation

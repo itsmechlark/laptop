@@ -60,7 +60,7 @@ Integration and end-to-end tests use real collaborators (a real datastore, no mo
 
 A few things have no behavior of their own, so they get no test of their own — but you still add them only because a failing test one layer up demanded them: a route/binding line, an empty class or module to clear a "not defined" error, trivial markup an end-to-end test's content check already covers. Everything with behavior gets its own failing test first. When in doubt, drop down and write the test.
 
-**The testing pyramid:** many fast, precise unit tests at the bottom; fewer integration tests in the middle; a few end-to-end tests at the top that prove the system works as a whole.
+**The testing pyramid:** many fast, precise unit tests at the bottom; fewer integration tests in the middle; a few end-to-end tests at the top that prove the system works as a whole. For Ruby projects, the `rspec` skill documents the testing conventions — naming, structure, factories, and matcher usage — that apply on top of this workflow.
 
 ## Red-Green-Refactor
 
@@ -144,6 +144,8 @@ Before marking work complete:
 - [ ] Edge cases and error states covered
 
 Can't check every box? You skipped TDD. Start over.
+
+Every box checked proves the code does what the tests demanded — not that it's safe, simple, or idiomatic. Run `code-review` over the diff for the defects, convention breaches, and spec gaps a passing suite can't see, and on anything security-bearing follow that with `find-bugs` for an adversarial pass.
 
 ## Attribution
 

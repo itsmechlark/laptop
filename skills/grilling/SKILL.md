@@ -30,7 +30,7 @@ Grill anything you're about to commit to, not just big plans — even a small ch
 
 Play it back in your own words — the decisions in the order they were made, and what's still open. Then ask whether that's right.
 
-**Don't act on any of it until the user confirms.** Grilling produces agreement, not code. Implementation is the next skill, not this one.
+**Don't act on any of it until the user confirms.** Grilling produces agreement, not code. Implementation is the next skill, not this one — typically `tdd` to build test-first from the agreed criteria, or `code-review` to evaluate an existing change against them.
 
 ## Tone
 

@@ -15,7 +15,7 @@ The workflow's reason for existing is to resist the pull toward premature code. 
 
 **Leanness discipline:** a small slice does not guarantee a small diff. Slicing controls *what* ships; it does nothing to stop the implementation bloating with speculative abstractions, options nothing uses yet, or defensive branches no test demands. Target a **production-code diff under ~300 lines** (excluding comments, blanks, and tests). Treat it as a design constraint you carry from Phase 3 on, not a gate you discover at the end.
 
-Track the phases (e.g. with `TodoWrite`) so the user can see where they are.
+Track the phases (e.g. with `TodoWrite`) so the user can see where they are. When the work should stay isolated from the main checkout, use the `git-worktree` skill to set up a worktree before entering Phase 1.
 
 ## Phase 1: Frame the work
 
@@ -32,7 +32,7 @@ Then make an explicit call on size: **is this one slice, or an epic hiding sever
 
 ## Phase 2: Explore the codebase
 
-**Goal:** ground the slice in how this codebase actually works, so the acceptance criteria are realistic and the implementation follows existing conventions instead of inventing new ones.
+**Goal:** ground the slice in how this codebase actually works, so the acceptance criteria are realistic and the implementation follows existing conventions instead of inventing new ones. For unfamiliar code, the `explain` skill can produce a working mental model of a file, class, or flow before you start tracing conventions.
 
 This matters most in a mature codebase: the right slice and tests depend on where similar features live, what the testing conventions are, and which abstractions already exist. Skipping it leads to slices that ignore reality and code that fights the grain.
 
@@ -106,7 +106,7 @@ Because the fixes edit code outside the red-green-refactor loop, **re-run the fu
 
 **Invoke the `git-commit` skill** (via the Skill tool). Everything in the working tree is *one coherent slice*, so `git-commit` should land it as a single atomic commit rather than splitting it — the logic, its schema change, the handler, the UI, and the tests all tell one story. The exception is anything genuinely independent that snuck in (an unrelated cleanup, a drive-by fix from the review); let `git-commit` make that call.
 
-Feed it the slice's "ships when" line as context so the message explains *why* the slice exists, not just what changed. If Phase 5 flagged a risk or deliberate trade-off, mention it so it lands in the message too. `git-commit` stops at creating commits — it does not push or open a PR. Leave the branch ready for the user to push and open the PR themselves.
+Feed it the slice's "ships when" line as context so the message explains *why* the slice exists, not just what changed. If Phase 5 flagged a risk or deliberate trade-off, mention it so it lands in the message too. `git-commit` stops at creating commits — it does not push or open a PR. Leave the branch ready for the user to push and open the PR themselves — the `pull-request` skill covers how to write the title and description.
 
 ## Notes on the disciplines
 

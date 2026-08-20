@@ -25,12 +25,15 @@ path-scoped rule) — not a skill.
 Then check the neighbors. List the sibling skills' descriptions and look for
 keyword overlap. Two skills competing for "review" means the host picks close to
 arbitrarily, and the loser is dead weight. Fix it by narrowing both descriptions
-and stating the boundary in each — described by scope, not by name: "Not for
-reviewing feedback you received on a PR."
+and stating the boundary in each — by scope, not by name: "Not for reviewing
+feedback you received on a PR." A sibling's name in a description is one more
+keyword to lose against rather than a pointer, because at discovery time no body
+has loaded yet.
 
-Naming the neighbor instead is a dangling pointer wherever that skill isn't
-installed, and skills install one at a time. If they genuinely ship together and
-a name reads better, ask the user first and add it only if they agree.
+The named handoff belongs in the body, where it routes instead of competing:
+"that's `review-response`". Name freely there when the two skills co-ship — a
+bundle, or a repo that ships both — since the reference can't dangle. When they
+install independently, describe the boundary by scope in the body as well.
 
 ### 2. Frontmatter
 
@@ -117,7 +120,8 @@ quality of its body irrelevant.
 | Is exhaustive detail in `references/`? | Every match pays for the rare case |
 | Do reference chains go more than one hop? | Turns burned, thread lost |
 | Any secrets or machine-specific paths? | Skill can't travel; possible leak |
-| Does it name another skill, unapproved? | Dangling pointer where that one isn't installed |
+| Does it name an independent skill that may not be installed? | Dangling pointer where that one isn't present |
+| Does the `description` name a sibling? | One more keyword to lose against, not a pointer |
 
 The most common real defect is the third row: a body that reads well and changes
 nothing, because it explains what the model already does correctly. Delete

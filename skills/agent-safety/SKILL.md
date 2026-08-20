@@ -21,8 +21,9 @@ about making that decision point enforceable, configurable, and auditable.
 - Building an audit trail for agent actions
 
 Scoped to what an agent is permitted to *do* at run time — not a general defect
-review of a diff or a PR, not a vulnerability sweep of a branch, and not the
-model provider's API surface of parameters, pricing, and caching.
+review of a diff or a PR (that's the `code-review` skill), not a vulnerability
+sweep of a branch (that's `find-bugs`), and not the model provider's API surface
+of parameters, pricing, and caching.
 
 ## Core principles
 

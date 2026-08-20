@@ -18,7 +18,7 @@ Once you've been asked to open a PR, work through the steps below and report the
 
 When a feature was built wide — proven end to end on a throwaway branch — don't open one sprawling PR from that branch. Decide the set first: the smallest group of independently reviewable PRs, each safe to merge on its own. Small PRs flow; large ones sit.
 
-- **Cut each PR fresh off the default branch, each in its own worktree** — if a `git-worktree` skill is available, follow it for creating and placing those worktrees. The scratch branch's history is throwaway, so it never becomes the PR; carry over only the slice that PR owns.
+- **Cut each PR fresh off the default branch, each in its own worktree** — follow the `git-worktree` skill for creating and placing those worktrees. The scratch branch's history is throwaway, so it never becomes the PR; carry over only the slice that PR owns.
 - **Stack only when a dependency is real.** A change that needs code another PR in the set introduces stacks on it; everything independent branches straight off the default branch. Stacking for convenience buys a rebase chain you'll regret once the bottom PR gets review feedback.
 - **Cleanup ships last** — retiring the code a change replaces is its own final PR, opened after the new path is live, for the same reason it's a separate commit: a mixed diff makes the rollback ambiguous.
 - **Show the proposed split before opening anything** — the PRs, what each carries, and which stack — so it can be corrected while it's still a plan.
@@ -37,7 +37,7 @@ Read the commits and diff for the *why*. A description explains a set of changes
 
 ## Step 2: Write the title
 
-Conventional Commits, same as a commit subject: `<type>[optional scope]: <description>`. When the project tracks work in an issue tracker, append the key in square brackets — `<type>[optional scope]: <description> [ISSUE-KEY]` (e.g. `fix(onboarding): validate overlap instead of auto-setting end date [ABC-1234]`). Aim for ≤50 and never exceed the 72-character cap, measuring the `<type>[optional scope]: <description>` portion (a trailing `[ISSUE-KEY]` is exempt) so a PR and its lead commit correlate at a glance.
+Conventional Commits, same as a commit subject: `<type>[optional scope]: <description>` (the `git-commit` skill has the full convention — scope, body, footer, and voice rules — the PR title mirrors the commit subject). When the project tracks work in an issue tracker, append the key in square brackets — `<type>[optional scope]: <description> [ISSUE-KEY]` (e.g. `fix(onboarding): validate overlap instead of auto-setting end date [ABC-1234]`). Aim for ≤50 and never exceed the 72-character cap, measuring the `<type>[optional scope]: <description>` portion (a trailing `[ISSUE-KEY]` is exempt) so a PR and its lead commit correlate at a glance.
 
 ## Step 3: Write the description
 

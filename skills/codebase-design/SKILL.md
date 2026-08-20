@@ -165,6 +165,8 @@ Good interfaces make testing natural:
 
 3. **Small surface area.** Fewer methods = fewer tests needed. Fewer params = simpler test setup.
 
+Once the interface is designed, use the `tdd` skill to drive the implementation — the interface becomes the test surface, and outside-in TDD ensures nothing ships without a failing test demanding it.
+
 ## Relationships
 
 - A **Module** has exactly one **Interface** (the surface it presents to callers and tests).

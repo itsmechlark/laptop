@@ -41,7 +41,7 @@ Then account for every file in the set:
 - **Uncommitted work:** `git diff HEAD` for tracked changes, *plus* `git status --porcelain` — a new file that was never `git add`ed appears in no diff at all, and is the easiest whole file to miss.
 - **Truncated output:** work from `git diff <base>...HEAD --name-status` and read files individually until the number you reviewed matches the number that changed.
 
-Hunt auth, money, and tenancy first; logging and config last. If context runs short, it should run short on the cheap surfaces. A focus supplied with the argument — "the webhook path", "assume a hostile tenant" — reorders that priority; it never narrows the review set.
+Hunt auth, money, and tenancy first; logging and config last. If context runs short, it should run short on the cheap surfaces. A focus supplied with the argument — "the webhook path", "assume a hostile tenant" — reorders that priority; it never narrows the review set. When the threat model itself is ambiguous — the user isn't sure what to worry about — use the `grilling` skill to sharpen it before hunting.
 
 ## 2. Map the attack surface
 
@@ -122,6 +122,8 @@ State the trigger for anything Critical or High. If you can't say who does what 
 ```
 
 Order findings by severity, not by file, and report a defect once at its root cause rather than at every call site. Found nothing significant? Say so plainly — an empty report is a valid result, and a Medium invented to look thorough costs the reader more than it gives.
+
+The report is where this skill stops. Whether to fix anything is the reader's call, not yours — but once they've made it, `tdd` is where the fix belongs: a failing test that reproduces the finding first, then red-green-refactor. An obvious fix is not a mandate to start writing it.
 
 ## Gotchas
 

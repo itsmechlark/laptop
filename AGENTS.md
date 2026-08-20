@@ -262,6 +262,13 @@ The `description` is what an agent matches against, so lead with the capability
 and spell out concrete trigger phrases. Long-form material goes in
 `skills/<name>/references/*.md` rather than bloating `SKILL.md`.
 
+**These skills co-ship, so name each other freely.** `mac` symlinks `skills/`
+as a whole, so a skill here can never point at a sibling that isn't installed —
+prefer "that's `code-review`" over describing the boundary abstractly. Keep the
+reference one hop deep, and keep it useful: a handoff earns its place by routing
+work this skill genuinely shouldn't do, not by listing neighbours. Vendored
+skills are the exception — see [Vendored skills](#vendored-skills).
+
 ### `rules/<lang>.md`
 
 Frontmatter is a glob list controlling when the rule auto-loads:
@@ -281,6 +288,12 @@ Third-party skills live in `.agents/skills/<name>/`, are recorded in
 symlink at `skills/<name>` → `../.agents/skills/<name>`. Don't hand-edit vendored
 content: it desynchronizes the recorded hash. Re-vendor from upstream and update
 `skills-lock.json` instead.
+
+That includes prose you'd otherwise be free to add — a cross-reference into a
+vendored skill is still a hand-edit. Point at it from a first-party skill
+instead, which costs nothing and keeps the hash honest. Genuinely need the
+divergence? Reclassify the skill as `adapted` in `skills-provenance.json` first,
+so the fork is recorded rather than silent.
 
 ### Derived skills
 

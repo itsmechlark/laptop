@@ -7,7 +7,7 @@ description: Use when receiving code review feedback, before implementing sugges
 
 ## Overview
 
-Code review requires technical evaluation, not emotional performance.
+Code review requires technical evaluation, not emotional performance. This skill is for *receiving* review feedback. For *giving* a review, see the `code-review` skill.
 
 **Core principle:** Verify before implementing. Ask before assuming. Technical correctness over social comfort.
 
@@ -133,7 +133,7 @@ FOR multi-item feedback:
 
 ## Keep the Response Surgical
 
-Fix what the comment raises — not the adjacent thing that caught your eye. Unrelated changes folded into a review response expand the diff and force a re-review; keep the change scoped to the comment out of respect for the reviewer's time. Out-of-scope ideas become their own follow-up, not a rider on this one.
+Fix what the comment raises — not the adjacent thing that caught your eye. Unrelated changes folded into a review response expand the diff and force a re-review; keep the change scoped to the comment out of respect for the reviewer's time. Out-of-scope ideas become their own follow-up, not a rider on this one. When committing the fixes, use the `git-commit` skill — each review item is typically one atomic commit.
 
 ## When To Push Back
 
@@ -227,7 +227,7 @@ You understand 1,2,3,6. Unclear on 4,5.
 
 ## GitHub Thread Replies
 
-When replying to inline review comments on GitHub, reply in the comment thread (`gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies`), not as a top-level PR comment.
+When replying to inline review comments on GitHub, reply in the comment thread (`gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies`), not as a top-level PR comment. If the review changes the shape of the work, update the PR description to match — the `pull-request` skill covers how to rewrite in place rather than appending changelog sections.
 
 ---
 

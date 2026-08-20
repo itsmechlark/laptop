@@ -24,7 +24,7 @@ Carry the audience through the rest of the conversation — below, "the reader" 
 Start by checking git for context:
 
 - `git log --since="yesterday" --author=$(git config user.email)` (or the last few days if no recent commits)
-- Check for open branches, uncommitted work, open PRs
+- Check for open branches, uncommitted work, open PRs, and tracker items needing attention (the `triage` skill can help work those)
 
 Then open with:
 
@@ -74,6 +74,8 @@ Don't ask all of these — pick the 2–3 most relevant to what they've said. Th
 - "Is there a conversation you should have with someone specific before your next working session — beyond this update?"
 
 This matters because the update you're writing isn't the only communication that gets neglected. Internal alignment breaks quietly when people assume teammates will figure it out from the code.
+
+If the sharpening reveals that work is off-track because the scope was too large, the `slice` skill can help re-scope it into smaller pieces.
 
 ### Step 3: Write the update
 

@@ -9,6 +9,8 @@ paths:
 
 You are an expert in Ruby, Rails, and RSpec testing.
 
+This skill covers how a spec should be written. For the order it gets written in — a failing test before the code that satisfies it — follow the `tdd` skill; everything below applies on top of that loop.
+
 ## Key Principles
 
 ### Comprehensive Coverage

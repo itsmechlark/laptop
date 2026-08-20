@@ -19,6 +19,8 @@ Decompose a task into independent sub-problems and dispatch one agent per proble
 
 Not for: related failures where fixing one may fix others; exploratory debugging where you don't yet know what's broken; work that requires seeing the full system state; agents that would edit the same files without worktree isolation.
 
+A feature isn't yet a set of independent problems. Run `slice` first to find the pieces, then fan out only over the ones waiting on nothing unshipped — slices are normally *sequenced*, and dispatching a dependent one concurrently breaks the partition rule below before the first agent starts.
+
 ## 1. Identify independent domains
 
 Before dispatching anything, partition the work. Each domain must be:
@@ -145,7 +147,7 @@ git merge fan-out/agent-2
 
 If domains were truly independent, these merge cleanly. A conflict means the partition wasn't clean — resolve it manually rather than trusting either agent's version.
 
-After merging, run the full test suite, linter, and type-checks — not just each agent's slice. Then spot-check the combined diff; agents can make systematic errors.
+After merging, run the full test suite, linter, and type-checks — not just each agent's slice. Then run the `code-review` skill over the combined diff to catch cross-agent issues the individual agents couldn't see; spot-check for systematic errors.
 
 Clean up the worktrees and branches per the `git-worktree` skill. One caveat: you can't remove a worktree your shell is inside — if you're in a worktree yourself, run cleanup with `git -C <main-checkout>` or exit first.
 

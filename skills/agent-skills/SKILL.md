@@ -83,6 +83,12 @@ personal one available everywhere, often scoped under their own config directory
 Wherever it lands: **every skill is its own directory containing at minimum a
 `SKILL.md`**, and the directory name must equal the frontmatter `name`.
 
+Before authoring one, check whether the capability already exists —
+`find-skills` searches the installed set. And check that a skill is even the
+right artifact: a repository-level `AGENTS.md` instructs every agent working in
+one repo rather than packaging a single capability, which makes it a different
+thing entirely — `create-agentsmd` writes those.
+
 ## Frontmatter
 
 `SKILL.md` opens with YAML frontmatter, then Markdown.
@@ -127,28 +133,35 @@ description: Web testing helpers.
 ```
 
 Then check it against the neighbors: if a sibling skill's description competes
-for the same keywords, both lose. Narrow both, and draw the boundary by *scope*
-rather than by naming the neighbor — see
+for the same keywords, both lose. Narrow both and draw the boundary clearly — see
 [Naming another skill](#naming-another-skill).
 
 ## Naming another skill
 
-**Don't name one without asking first.** Every skill is its own directory and
-installs independently, so the sibling you point at may simply not be there — and
-a reference to a skill that doesn't exist sends the agent chasing it at the exact
-moment it was already unsure what to do. Your machine having both installed says
-nothing about the machine that ends up with one.
+**Co-shipped skills should cross-reference freely.** When skills install together
+— a bundle, a repo that vendors both, or a shared discovery path — naming a
+sibling is safe and often clearer than describing the boundary by task scope
+alone. The dangling-pointer risk doesn't apply when they travel as a set.
 
-State the exclusion in terms of the *task* instead:
+**For independently distributed skills, prefer task scope over names.** A
+reference to a skill that isn't installed sends the agent chasing it at the exact
+moment it was already unsure what to do:
 
 ```markdown
 Not for reviewing feedback you received on a PR.   <!-- routes on any host -->
 Not for reviewing PR feedback — that's `review-response`.   <!-- breaks alone -->
 ```
 
-Where two skills genuinely ship as a unit — a bundle installed together, or a
-repo that vendors both — a named reference is fine and often clearer. **Ask the
-user before adding one, and add it only if they agree.** Silence isn't approval.
+**Either way, keep names out of the `description`.** It's matched during
+discovery, before any body loads, so a sibling's name there isn't a pointer
+anyone can follow — it's one more keyword you're competing against, which is the
+collision [The description decides
+everything](#the-description-decides-everything) warns about. Phrase the
+description by scope; put the named handoff in the body, where the agent has
+already chosen this skill and can act on it.
+
+When in doubt about whether two skills are co-shipped, state the boundary by
+scope.
 
 ## Body content
 
@@ -265,9 +278,9 @@ it. 500 lines is the hard ceiling for `SKILL.md`.
   reference that points at a third burns turns and loses the thread.
 - **Never bundle credentials or secrets**, and don't write paths that only exist
   on your machine — skills are meant to travel.
-- **Never name another skill unless the user approved it.** A cross-reference is
-  a dangling pointer everywhere that skill isn't installed. Draw the boundary by
-  scope instead — [Naming another skill](#naming-another-skill).
+- **For independently distributed skills, avoid naming a sibling that may not be
+  installed** — state the boundary by scope instead. Co-shipped skills should
+  cross-reference freely — [Naming another skill](#naming-another-skill).
 
 ## Validation
 
@@ -298,8 +311,8 @@ before believing it. The rest is judgment:
 - [ ] `description` carries WHAT, WHEN, and keywords, and stays concise
 - [ ] The description literally contains the phrases a user would type
 - [ ] No sibling skill competes for the same keywords, or both state the boundary
-      by scope rather than by naming each other
-- [ ] No other skill is named anywhere in the skill without the user's approval
+      clearly — co-shipped skills may name each other; an independently
+      distributed one draws the boundary by scope instead
 - [ ] Body teaches what the agent wouldn't already know
 - [ ] `## Gotchas` present if there's any non-obvious behavior or common trap
 - [ ] `SKILL.md` under 500 lines; split into `references/` at ~200

@@ -82,7 +82,7 @@ Present three buckets, each oldest-first, with counts and a one-line summary per
 2. **`needs-triage`** — evaluation started, not finished.
 3. **`needs-info` with reporter activity since the last triage note** — unblocked, needs another look.
 
-When PRs are in scope, include them and tag each line `[PR]` or `[issue]`. Discovery surfaces **external** PRs only — a colleague's in-flight PR is review work, not triage work. The filter is discovery-only: an explicitly named PR is always triaged, whoever wrote it. Then let the maintainer pick.
+When PRs are in scope, include them and tag each line `[PR]` or `[issue]`. Discovery surfaces **external** PRs only — a colleague's in-flight PR is review work, not triage work. The filter is discovery-only: an explicitly named PR is always triaged, whoever wrote it. When the queue has many independent items, use the `fan-out` skill to dispatch one agent per item. Then let the maintainer pick.
 
 ## Triage one item
 
@@ -101,7 +101,7 @@ When PRs are in scope, include them and tag each line `[PR]` or `[issue]`. Disco
 
    *For a PR*, tier (b) is usually the fit: check the diff out, run the relevant tests or commands, record what you ran and what came back. When the diff changes a UI, running it means driving the app in a real browser — any available browser-automation tool, whether a CLI or Chrome over MCP — and keeping the screenshot and the steps to reach it. A fresh enhancement has nothing to reproduce — skip to step 4. Never soften an unverified claim into a verified one, and never let a confident read of the code stand in for a reproduction.
 
-4. **Sharpen (only if underspecified).** Run `grilling` and `domain-modeling` together: grill the gaps one question at a time — never a wall of questions — while sharpening the domain's terms and writing decisions to `CONTEXT.md` or an ADR inline as they land, rather than burying them in a tracker comment. Aim each question at what would change the implementation: the ambiguous term, the unhandled edge case, the unstated expected behavior, the success criterion. If the request keeps growing, it's an epic — stop and hand it to `slice`.
+4. **Sharpen (only if underspecified).** Run `grilling` and `domain-modeling` together: grill the gaps one question at a time — never a wall of questions — while sharpening the domain's terms and writing decisions to `CONTEXT.md` or an ADR inline as they land, rather than burying them in a tracker comment. Aim each question at what would change the implementation: the ambiguous term, the unhandled edge case, the unstated expected behavior, the success criterion. If the request keeps growing, it's an epic — stop and hand it to `slice`. When the request isn't an epic but needs a fuller specification than a tracker brief can hold, hand off to `draft-spec`.
 
 5. **Apply the outcome.** Draft it, show it, then write:
    - `ready-for-agent` → post an agent brief ([AGENT-BRIEF.md](references/AGENT-BRIEF.md)). A **bug** gets here only on a tier (a) or (b) artifact from step 3; tier (c) is `needs-info` by definition, because without a repro an unattended agent can't tell done from plausibly-done.

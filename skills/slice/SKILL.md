@@ -16,8 +16,8 @@ Turn a feature into slices that can each ship on their own and deliver visible v
 - User wants to decide what to ship first or sequence delivery
 - User asks to write job stories for a feature
 - Not for building a slice once it's defined
-- Not for items already filed on an issue tracker
-- Not for writing the work up as a single spec document
+- Not for items already filed on an issue tracker — use `triage` to work those
+- Not for writing the work up as a single spec document — use `draft-spec` for that
 
 ## Workflow
 
@@ -104,6 +104,10 @@ Risk / learning: [what this slice tests or de-risks, or "low risk"].
 After the list, give a one-paragraph sequencing rationale.
 
 **Always close with:** "Look at your first slice. Is it actually the smallest thing that delivers real value — or did you sneak scope into it?" For multiple slices, wait for their answer, then reflect in one sentence what it reveals about how they scope work.
+
+### Handing a slice off
+
+Once the sequence is settled, `tdd` turns one slice's acceptance criteria into a red-green-refactor cycle — one slice at a time, in the order you just justified. `fan-out` can put a slice per agent, but only across slices that all read `Depends on: none` and touch disjoint files; parallelizing a slice that builds on one still unshipped turns a sequencing decision into a merge conflict.
 
 ## Gotchas
 

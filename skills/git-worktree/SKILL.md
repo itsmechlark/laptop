@@ -20,7 +20,7 @@ Not for switching branches inside a single checkout — that's a plain `git swit
 
 ## Placement and naming
 
-Keep worktrees in a dedicated sibling folder next to the repository, never inside the checkout: `<repo-path>.worktrees/<worktree-name>` — e.g. for a repo at `/path/to/repo`, place a worktree at `/path/to/repo.worktrees/feat-getting-started`. Name the worktree after its branch, following the repository's branch-naming convention. Always use an **absolute** path (never `~`-prefixed — it won't match `git worktree list`).
+Keep worktrees in a dedicated sibling folder next to the repository, never inside the checkout: `<repo-path>.worktrees/<worktree-name>` — e.g. for a repo at `/path/to/repo`, place a worktree at `/path/to/repo.worktrees/feat-getting-started`. Name the worktree after its branch, following the branch-naming convention from the `git-commit` skill. Always use an **absolute** path (never `~`-prefixed — it won't match `git worktree list`).
 
 ## Workflows
 
@@ -102,7 +102,7 @@ Detect the stack by its manifest and run the matching install. Run it **inside t
 
 ## Building wide in a scratch worktree
 
-A worktree is a good place to build a feature wide — the whole thing, end to end, across every file in the way — without disturbing your main checkout. On that branch, commit freely: the commits are save points for you (a proven step, a rope to pull back to), not milestones for anyone else, so don't fuss over messages or hygiene. This branch's history is scratch paper; it never becomes the record. Once the feature works end to end, cut the real, reviewable pull requests fresh off the default branch and throw the scratch branch away.
+A worktree is a good place to build a feature wide — the whole thing, end to end, across every file in the way — without disturbing your main checkout. On that branch, commit freely: the commits are save points for you (a proven step, a rope to pull back to), not milestones for anyone else, so don't fuss over messages or hygiene. This branch's history is scratch paper; it never becomes the record. Once the feature works end to end, cut the real, reviewable pull requests fresh off the default branch — the `pull-request` skill covers how to split and write them — and throw the scratch branch away.
 
 ## Attribution
 
