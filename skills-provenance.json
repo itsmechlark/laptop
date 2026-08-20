@@ -297,6 +297,12 @@
           "relationship": "inspired-by"
         }
       ]
+    },
+    "slice": {
+      "sources": [
+        { "origin": "Alistair Cockburn, Crystal Clear — walking skeleton", "type": "book", "relationship": "inspired-by" },
+        { "origin": "Alan Klement, Replacing the User Story with the Job Story", "type": "article", "relationship": "inspired-by" }
+      ]
     }
   }
 }

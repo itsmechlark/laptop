@@ -28,7 +28,7 @@ If it's unclear, ask what they're building — the problem it solves, who it's f
 Then make an explicit call on size: **is this one slice, or an epic hiding several?** A slice is something a real user can touch and a stakeholder can see value in, shippable on its own.
 
 - **One slice** → confirm your understanding in a sentence or two and move on.
-- **An epic** → say so plainly, help name the pieces briefly, then ask which single slice to build now. If they want the full epic broken down first, that's the `slice` skill's Path B on its own — point them there and stop.
+- **An epic** → say so plainly, help name the pieces briefly, then ask which single slice to build now. If they want the full epic broken down first, that's the `slice` skill's large-feature path on its own — point them there and stop.
 
 ## Phase 2: Explore the codebase
 
@@ -48,7 +48,7 @@ Ask each explorer for the 5–10 files most worth reading, then **read those fil
 
 **Goal:** turn the framed feature into one sharp slice with real acceptance criteria.
 
-**Run the `slice` skill's process** and let it lead the conversation. `slice` is user-invoke-only (`disable-model-invocation: true`), so read its `SKILL.md` and drive its process yourself. Since Phase 1 established this is a single slice, `slice` should sharpen it into one job story (its Path A). Feed it what you learned in Phases 1–2 so the conversation starts warm.
+**Run the `slice` skill's process** and let it lead the conversation. `slice` is user-invoke-only (`disable-model-invocation: true`), so read its `SKILL.md` and drive its process yourself. Since Phase 1 established this is a single slice, `slice` should sharpen it into one job story (its small-feature path). Feed it what you learned in Phases 1–2 so the conversation starts warm.
 
 What you need out of this phase: a job story with a clear **"ships when"** and concrete **acceptance criteria** — happy path, edge cases, error states. Those aren't paperwork; they become the failing tests in Phase 4. Push until each criterion is specific and verifiable ("a user can X and sees Y") — a vague criterion produces a vague test that proves nothing.
 
