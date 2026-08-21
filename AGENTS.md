@@ -44,6 +44,11 @@ Nothing needs installing to work on this repo beyond the linter:
 brew install shellcheck
 ```
 
+`scripts/check-payload` also needs `jq`, which both supported macOS versions ship at
+`/usr/bin/jq` — the `PreToolUse` hooks in `.claude/settings.json` already depend
+on it, and GitHub runners have it preinstalled. `mac` does not install it; if
+support ever extends to a macOS without it, that changes.
+
 To run the provisioner itself (this mutates the machine — installs packages,
 runs `sudo chsh`, and rewrites `~/.zshrc`):
 
@@ -60,6 +65,13 @@ mac                     # the provisioner (POSIX sh, shellcheck-clean)
 README.md               # human-facing docs — update alongside `mac`
 skills-lock.json        # provenance + content hashes for vendored skills (tool-owned)
 skills-provenance.json  # source lineage for first-party derived skills (hand-owned)
+scripts/                # verification tooling; each relocates to the repo root itself
+  check-payload         # static verification of the payload (POSIX sh + jq)
+  run-trigger-evals     # runs spec/trigger-evals; needs a logged-in claude CLI
+spec/                   # fixtures check-payload validates and reads
+  rules-cases.txt       # path -> which rules/ load for it
+  invocability-fixture/ # deliberate violations; proves the check still fires
+  trigger-evals/*.json  # query sets for skill triggering (run by hand, not CI)
 .agents/
   AGENTS.md             # global engineering standards (shipped to ~/.claude/CLAUDE.md)
   CONTEXT.md            # root context map — machine-local, git-ignored (optional)
@@ -203,15 +215,26 @@ here rather than dropped:
 
 ## Testing instructions
 
-There is no unit test suite. Verification is lint plus a real run.
+There is no unit test suite. Verification is lint plus a real run — for the
+provisioner *and* for the payload it ships.
 
 ```sh
 shellcheck mac -e SC2039     # must be clean; SC2039 is excluded deliberately
+shellcheck scripts/check-payload     # must be clean; no exclusions
+sh scripts/check-payload             # static verification of skills/, rules/, clients
+sh scripts/check-payload --collisions  # report: which descriptions share vocabulary
 ```
 
+### The two jobs
+
 CI (`.github/workflows/tests.yml`, on push to `main`, every PR, and
-`workflow_dispatch`) runs a matrix of `macos-26` and `macos-15` with
-`fail-fast: false`, and does:
+`workflow_dispatch`) runs two independent jobs.
+
+**`payload`** — `ubuntu-latest`, seconds, no Homebrew. Shellchecks
+`check-payload` and runs it; on a pull request it passes
+`--since origin/<base>` so the vendored-edit check has a diff to look at.
+
+**`tests`** — the matrix of `macos-26` and `macos-15` with `fail-fast: false`:
 
 1. `brew update`
 2. `brew install shellcheck`
@@ -227,6 +250,113 @@ which is not the same as a clean laptop.
 
 State plainly when you have only linted and not executed the script — do not
 claim a `mac` change works because shellcheck passed.
+
+### What `check-payload` covers, and what it deliberately doesn't
+
+**Scope is the published payload**: `skills/`, `rules/`, and the client configs.
+Bodies under `.agents/skills/` are not scanned directly — what is linked from
+`skills/` gets checked through that symlink, and what isn't linked is
+project-only and off the checker's books. Vendored skills are the one asymmetry:
+they're reachable through `skills/`, but their content isn't ours to edit, so
+shape findings about them are warnings rather than failures. Re-vendor upstream
+instead of splitting a long vendored `SKILL.md` in place.
+
+Within that scope it mechanizes the half of the `agent-skills` review checklist
+a machine can settle, plus the cross-file invariants this document declares and
+nothing previously enforced: handoff invocability (a skill telling the agent to
+invoke a `disable-model-invocation` sibling, or calling an invocable one
+user-invoke-only), `## Attribution` agreement with `skills-provenance.json`,
+vendored-edit discipline, secret-path parity across the three clients,
+frontmatter and size limits, resource-link resolution, and which `rules/` load
+for a given path (cases in `spec/rules-cases.txt`).
+
+The vendored-edit rule is the single check that looks past `skills/`, and only
+at *which paths a commit touches* — never at a body's content. A vendored skill
+edited by either its real or its symlinked path desynchronizes the hash
+recorded in `skills-lock.json`, so the diff has to touch both or neither.
+
+It runs a self-test first, against `spec/invocability-fixture/SKILL.md`, which
+carries one deliberate violation of each invocability kind. If the fixture stops
+producing exactly two detections the run fails — a check that silently stops
+firing is worse than no check. Don't "fix" that fixture; its violations are the
+assertion.
+
+Three things stay human, by design:
+
+- **Prose judgment.** Whether a description carries WHAT and WHEN, whether the
+  body teaches something non-obvious. A linter that scores writing manufactures
+  false confidence.
+- **Rule *applicability*.** It verifies which rules load for a path, never
+  which ought to apply — `rules/ember.md` claims a deliberately broad
+  `**/*.js` and delegates the call to the reading agent.
+- **Trigger behavior.** Whether a description actually fires belongs to the
+  eval sets in `spec/trigger-evals/`, which need `claude -p` and therefore
+  credentials, network, and tokens. Not CI, not sandboxed: run them from a
+  terminal before shipping a description change. `sh scripts/run-trigger-evals` is the
+  wrapper — it discovers the harness, checks `claude auth status` and the
+  resolved project root before spending anything, and writes results to the
+  git-ignored `artifacts/trigger-evals/`. `--collisions` is the cheap neighbour —
+  which model-invocable descriptions share vocabulary — and it is a report, not
+  a gate: word overlap cannot predict a trigger, and generic verbs drive most of
+  what it finds.
+
+### `spec/` — the fixtures, and how they're kept honest
+
+`spec/` holds everything `check-payload` reads rather than derives. Fixtures are
+themselves validated, because a fixture that silently stops asserting is worse
+than no fixture: it reports success.
+
+| Fixture | Asserts | Validated by |
+| --- | --- | --- |
+| `spec/rules-cases.txt` | `<path> <rules that load, comma-separated, or `-`>` | Every named rule must exist as `rules/<name>.md`; a missing case file is a warning |
+| `spec/invocability-fixture/SKILL.md` | One deliberate violation of each invocability kind | Must yield exactly 2 detections, or the run fails |
+| `spec/trigger-evals/<skill>.json` | `[{"query": …, "should_trigger": …}, …]` | Shape, labels, and target skill — see below |
+
+An eval set fails the run when it is not valid JSON or not an array, is empty,
+has an entry with a missing/empty `query` or a non-boolean `should_trigger`,
+repeats a query, has **no** should-trigger queries, has **no** negatives, or is
+named for a skill that doesn't exist or carries `disable-model-invocation`. Each
+of those describes a set that cannot catch anything — an all-positive set can't
+detect a false positive, and a set aimed at a flagged skill measures something
+that can never fire.
+
+Adding a fixture is therefore adding an assertion, and the shape rules are what
+stop it from being decorative. When one of them blocks you, the fixture is
+usually wrong; the exception is documented in the script beside the check.
+
+### Trigger-eval coverage
+
+Coverage is prioritized, not uniform. Only model-invocable skills can misfire,
+and only two things make one worth a query set: it **competes** with a sibling
+for the same requests, or a **wrong trigger is expensive**. `check-payload`
+warns for any first-party invocable skill that has neither a set nor a place on
+the script's `evals_exempt` list.
+
+- **Vendored skills are excluded structurally.** A bad result has no in-repo fix
+  — editing the description desynchronizes the recorded hash — so measuring
+  something you've decided not to change would only produce a report to ignore.
+- **Exempt means deliberately uncovered**, not forgotten: low description
+  overlap, cheap to recover from. Move a name off that list the first time it
+  actually misfires, and let the misfire motivate the query set.
+- **Adjacent skills share one query pool** with labels assigned per skill, so a
+  query proves exactly one of them fires — `git-commit`/`pull-request` and
+  `code-review`/`find-bugs` are the worked examples. Labelling a shared query
+  should-trigger in both makes the pair unfalsifiable, so `check-payload` fails
+  on that rather than trusting it.
+
+Two checks are worth understanding before you change them:
+
+- **Secret-path parity derives its subjects** from Claude's own `Read()`
+  denials rather than a hardcoded list, so adding a deny to
+  `.claude/settings.json` *forces* the Codex and Cursor mirrors instead of
+  relying on a reviewer noticing. A subject with no possible counterpart goes in
+  the script's `parity_exempt` with its reason — never deleted.
+- **The self-test guards the invocability check**, which is the one that catches
+  a real, twice-repeated bug. If `spec/invocability-fixture/SKILL.md` stops
+  yielding exactly two detections, the run fails. Its violations are the
+  assertion; don't tidy them.
+
+Warnings never fail the run. Failures always do.
 
 [UTM]: https://mac.getutm.app
 
@@ -250,6 +380,31 @@ claim a `mac` change works because shellcheck passed.
 - Anything user-specific belongs in `~/.laptop.local`, which is sourced at the
   end of the run — not in `mac`.
 
+### `scripts/` (POSIX shell)
+
+Verification tooling, same shell conventions as `mac` — `#!/bin/sh`, two-space
+indent, `fancy_echo` phase announcements. Both scripts `cd` to the repository
+root themselves, so every path inside them is repo-relative and they run
+correctly from any working directory. Keep that: `scripts/run-trigger-evals`
+depends on it, because the harness it drives resolves the project by walking up
+from the current directory.
+
+`scripts/check-payload` differs from `mac` in two deliberate ways:
+
+- **No `set -e`.** A linter reports every problem in one pass; failures
+  accumulate in a counter and set the exit status at the end. Don't "fix" this.
+- **`jq` is a dependency.** Already required by the `PreToolUse` hooks in
+  `.claude/settings.json`, and preinstalled on GitHub runners, so it adds no new
+  install burden.
+
+`scripts/run-trigger-evals` does the opposite and exits on the first problem,
+because everything it checks is a precondition for spending tokens.
+
+New checks belong in `check-payload` only when they're deterministic and
+file-local. Anything needing a model, a network call, or a judgment about prose
+quality goes in `spec/trigger-evals/` and stays out of CI — see "Testing
+instructions".
+
 ### `skills/<name>/SKILL.md`
 
 YAML frontmatter then Markdown:
@@ -267,12 +422,43 @@ The `description` is what an agent matches against, so lead with the capability
 and spell out concrete trigger phrases. Long-form material goes in
 `skills/<name>/references/*.md` rather than bloating `SKILL.md`.
 
+Two subdirectories, split by whether the agent has to *read* the file:
+
+| Directory | Holds | Enters context |
+| --- | --- | --- |
+| `skills/<name>/references/*.md` | Prose the agent reads to decide | Yes, when linked |
+| `skills/<name>/assets/*` | Files used as-is in output — templates, boilerplate | No |
+
+A file the agent copies and fills in rather than reasons about belongs in
+`assets/`: it stays out of context, so an HTML mockup skeleton or a config
+template costs nothing to keep complete. Reference it by relative path from the
+`references/*.md` that uses it (`../assets/<file>`).
+`skills/brainstorming/assets/mockup-template.html` is the worked example.
+
 **These skills co-ship, so name each other freely.** `mac` symlinks `skills/`
 as a whole, so a skill here can never point at a sibling that isn't installed —
 prefer "that's `code-review`" over describing the boundary abstractly. Keep the
 reference one hop deep, and keep it useful: a handoff earns its place by routing
 work this skill genuinely shouldn't do, not by listing neighbours. Vendored
 skills are the exception — see [Vendored skills](#vendored-skills).
+
+**Say "read its `SKILL.md`", not "invoke", when the sibling is user-invoked.**
+A skill carrying `disable-model-invocation: true` is refused by the Skill tool,
+so "invoke `feature-dev`" is an instruction that cannot execute; the handoff has
+to tell the agent to read and follow the target's `SKILL.md` instead. Note the
+asymmetry — the key is Claude-only, and Codex and Cursor ignore it, so the same
+sibling *is* model-invocable there. `brainstorming` spells this out where it
+hands work off.
+
+**Reserve the flag for skills that seize the interaction or write outward.**
+It is a real cost: a flagged skill can't be reached by a sibling's handoff, and
+the chain has to route around it. Flag a skill when a wrong auto-invocation is
+expensive — it imposes a gate on the user (`brainstorming`), runs a long
+multi-phase workflow that ends in a commit (`feature-dev`), writes to a tracker
+(`triage`), or produces outward-facing text (`standup`). Leave it off the
+mid-chain tools that other skills need to call: `draft-spec`, `slice`, `tdd`,
+`explain`, `grilling`, `code-review`. A missed invocation costs a nudge; a
+wrong one costs the turn — but so does a handoff that can't fire.
 
 ### `rules/<lang>.md`
 
@@ -368,6 +554,11 @@ headings. Keep prose wrapped at roughly the width already in the file.
 corresponding README section in the same commit. The "What it sets up" list is
 expected to stay in sync with the heredoc.
 
+The same applies to verification: if you add a check or a fixture that a
+contributor has to run or satisfy, say so in README's "Testing your changes" in
+the same commit. A gate nobody knows about is enforced by CI and discovered by
+surprise.
+
 ## Commit and pull request guidelines
 
 - **Never commit or push unless explicitly asked.** A one-time approval covers
@@ -385,9 +576,20 @@ expected to stay in sync with the heredoc.
   here: `mac`, `skills`, `agents`, `claude`, `codex`, `cursor`, `ci` — e.g.
   `fix(mac): set up asdf via PATH instead of asdf.sh`, `feat(skills): add
   create-agentsmd skill`.
+- `check-payload` and `spec/` are verification code, so they take a code type
+  under the `ci` scope — `feat(ci): check attribution against provenance`. A new
+  fixture is a new assertion; describe what it now catches, not that a file was
+  added.
 - Keep PRs single-purpose; separate refactors from behavior changes.
-- Required before opening a PR: `shellcheck mac -e SC2039` clean, and a fresh-VM
-  run for anything touching `mac`.
+- Required before opening a PR, and enforced by the two CI jobs:
+  - `shellcheck mac -e SC2039` and `shellcheck scripts/check-payload`, both clean.
+  - `sh scripts/check-payload` exits zero. Warnings are allowed to stand; failures are
+    not, and "it's only the payload" is not an exemption — `skills/`, `rules/`,
+    and the client configs are production code.
+  - A fresh-VM run for anything touching `mac`.
+  - For a changed skill `description`, the trigger eval for that skill if one
+    exists in `spec/trigger-evals/` — it needs a terminal, so CI cannot do it
+    for you. Say so plainly when you have skipped it.
 - `@itsmechlark` owns every path via `CODEOWNERS` and reviews all PRs.
 
 The `git-commit` and `pull-request` skills in `skills/` define the full message

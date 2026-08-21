@@ -1,0 +1,28 @@
+# Which rules load for a given path.
+#
+# One case per line: <path> <comma-separated rule names, or - for none>.
+# Rule names are the basenames in rules/. Order is alphabetical, which is how
+# check-payload builds the actual list.
+#
+# This asserts which rules *load* — a mechanical consequence of the paths:
+# globs. It deliberately does not assert which rules *apply*: rules/ember.md
+# claims a broad **/*.js and tells the reading agent to ignore it outside an
+# Ember app, and that judgment is not testable here.
+
+app/models/reservation.rb        ruby
+lib/tasks/backfill.rake          ruby
+Gemfile                          ruby
+tablecheck.gemspec               ruby
+spec/models/reservation_spec.rb  rspec,ruby
+spec/rails_helper.rb             rspec,ruby
+spec/support/factories.rb        rspec,ruby
+lib/parser.ex                    elixir
+mix.exs                          elixir
+app/components/menu.tsx          react-typescript
+src/hooks/use-cart.ts            react-typescript
+app/routes/checkout.js           ember
+app/templates/checkout.hbs       ember
+app/templates/legacy.emblem      ember
+mac                              -
+README.md                        -
+config/database.yml              -

@@ -1,0 +1,130 @@
+#!/bin/sh
+#
+# run-trigger-evals — run the spec/trigger-evals query sets against the
+# descriptions of the skills they name.
+#
+# This is the one tier of verification that needs a live model: it shells out to
+# `claude -p` once per query per run, so it needs an authenticated CLI, network
+# egress, and tokens. That puts it outside CI and outside the agent sandbox on
+# purpose — the credential denials in .claude/settings.json are what make it a
+# your-terminal job. Run it before shipping a change to a skill `description`.
+#
+# Usage (from anywhere — it relocates to the repository root itself):
+#   sh scripts/run-trigger-evals                 # every set in spec/trigger-evals
+#   sh scripts/run-trigger-evals slice explain   # only the named ones
+#
+# Results land in artifacts/trigger-evals/<skill>.json, which is git-ignored.
+# Override the harness location with SKILL_CREATOR=/path/to/skill-creator.
+
+set -u
+
+# run_eval.py resolves the project by walking up from the current directory, so
+# the repository root is not merely convenient here — it is what makes the
+# temporary command file land in this project rather than in ~/.claude.
+cd "$(dirname "$0")/.." || exit 2
+
+sets_dir=spec/trigger-evals
+out_dir=artifacts/trigger-evals
+runs_per_query=${RUNS_PER_QUERY:-3}
+model=${EVAL_MODEL:-}
+
+fancy_echo() {
+  printf "\n%s\n" "$1"
+}
+
+die() {
+  printf "run-trigger-evals: %s\n" "$1" >&2
+  exit 1
+}
+
+# ------------------------------------------------------------ preflight
+
+command -v python3 >/dev/null || die "python3 not found"
+command -v jq >/dev/null || die "jq not found"
+command -v claude >/dev/null || die "the claude CLI is not on PATH"
+
+# The harness ships inside the skill-creator skill, whose path contains two
+# per-session segments that change between runs — discover it rather than
+# hardcoding, and let the environment win. -L because the tree mixes real
+# directories with symlinks.
+if [ -n "${SKILL_CREATOR:-}" ]; then
+  sc=$SKILL_CREATOR
+else
+  plugins="$HOME/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin"
+  [ -d "$plugins" ] || die "no skills-plugin directory at $plugins"
+  sc=$(find -L "$plugins" -maxdepth 4 -type d -name skill-creator 2>/dev/null |
+    head -1)
+  [ -n "$sc" ] || die "could not find the skill-creator skill under $plugins"
+fi
+[ -f "$sc/scripts/run_eval.py" ] ||
+  die "no scripts/run_eval.py under $sc — set SKILL_CREATOR to the right path"
+
+# `claude -p` inherits this shell's credentials. Check before spending a run:
+# every query would otherwise fail identically and look like a trigger of 0%.
+# jq's `//` treats false as empty, so `.loggedIn // "unknown"` reports a real
+# `false` as unknown. Ask whether the key is there, then stringify it.
+auth=$(claude auth status --json 2>/dev/null |
+  jq -r 'if has("loggedIn") then (.loggedIn | tostring) else "unreadable" end')
+[ "$auth" = true ] ||
+  die "the claude CLI is not logged in (loggedIn: $auth) — run 'claude auth login'"
+
+# run_eval.py writes a temporary command file into the project it finds by
+# walking up from the *current* directory, so the wrong cwd silently tests
+# against the wrong project root.
+root=$(PYTHONPATH="$sc" python3 -c \
+  'from scripts.run_eval import find_project_root; print(find_project_root())')
+[ "$root" = "$PWD" ] ||
+  die "run_eval resolves the project root to '$root', not '$PWD'"
+
+# ------------------------------------------------------------------- run
+
+if [ $# -gt 0 ]; then
+  names=$*
+else
+  names=$(for f in "$sets_dir"/*.json; do
+    [ -f "$f" ] && basename "$f" .json
+  done)
+fi
+[ -n "$names" ] || die "no eval sets found in $sets_dir"
+
+mkdir -p "$out_dir"
+failed=0
+
+for name in $names; do
+  set_file="$sets_dir/$name.json"
+  [ -f "$set_file" ] || die "no eval set at $set_file"
+  [ -f "skills/$name/SKILL.md" ] || die "no skill at skills/$name"
+
+  queries=$(jq length "$set_file")
+  fancy_echo "Evaluating $name — $queries queries x $runs_per_query runs ..."
+
+  cmd_model=""
+  [ -n "$model" ] && cmd_model="--model $model"
+
+  # shellcheck disable=SC2086 # cmd_model is an intentional optional flag pair
+  if PYTHONPATH="$sc" python3 -m scripts.run_eval \
+    --eval-set "$set_file" \
+    --skill-path "skills/$name" \
+    --runs-per-query "$runs_per_query" \
+    $cmd_model \
+    --verbose >"$out_dir/$name.json"; then
+    jq -r '"  \(.summary.passed)/\(.summary.total) queries as labelled"' \
+      "$out_dir/$name.json" 2>/dev/null ||
+      printf "  (could not read a summary from %s)\n" "$out_dir/$name.json"
+  else
+    printf "  FAILED — see %s\n" "$out_dir/$name.json"
+    failed=$((failed + 1))
+  fi
+done
+
+# --------------------------------------------------------------- summary
+
+fancy_echo "----"
+printf "Results in %s/\n" "$out_dir"
+if [ "$failed" -gt 0 ]; then
+  printf "%s set(s) did not complete.\n" "$failed"
+  exit 1
+fi
+printf "A query counted as 'passed' only means it matched its label. When a\n"
+printf "label and a description disagree, decide which one is wrong before\n"
+printf "editing either.\n"

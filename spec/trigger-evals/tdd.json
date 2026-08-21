@@ -1,0 +1,22 @@
+[
+  {"query": "add the no-show fee calculation to the reservation model, test-first please", "should_trigger": true},
+  {"query": "there's a bug where cancelling a booking twice double-refunds. fix it, and i want a failing spec first so it can't come back", "should_trigger": true},
+  {"query": "implement the waitlist promotion job. acceptance criteria are in HDR-2210 and i want each one driven by a test", "should_trigger": true},
+  {"query": "build the deposit-refund endpoint red-green-refactor, don't write the controller before the request spec", "should_trigger": true},
+  {"query": "i want to change how availability caching expires. drive it from the outside in", "should_trigger": true},
+  {"query": "we keep regressing the partial-refund path. add the behaviour properly this time, starting from the failing case", "should_trigger": true},
+  {"query": "backfill specs for app/services/reservation_hold.rb — it has zero coverage and i'm not changing its behaviour", "should_trigger": false},
+  {"query": "why does this spec fail one run in five? it always passes locally", "should_trigger": false},
+  {"query": "our rspec suite takes 14 minutes. speed it up", "should_trigger": false},
+  {"query": "explain what DepositCalculator#apply_policy does before i touch it", "should_trigger": false},
+  {"query": "review the diff on this branch, the tests are already green", "should_trigger": false},
+  {"query": "convert these minitest files to rspec", "should_trigger": false},
+  {"query": "the loyalty epic is too big — what's the smallest piece we could ship first", "should_trigger": false},
+  {"query": "should the fee live on the reservation or on a separate policy object? not sure yet", "should_trigger": false},
+  {"query": "rename apply_policy to apply_fee_policy everywhere and keep the specs passing", "should_trigger": false},
+  {"query": "set up factory_bot traits for the reservation states we keep re-creating in specs", "should_trigger": false},
+  {"query": "add a rubocop rule banning let! in new specs", "should_trigger": false},
+  {"query": "the acceptance criteria on this ticket are vague, sharpen them before i start", "should_trigger": false},
+  {"query": "bump the ruby version in .tool-versions and get the suite green again", "should_trigger": false},
+  {"query": "commit what i've got, the specs pass", "should_trigger": false}
+]

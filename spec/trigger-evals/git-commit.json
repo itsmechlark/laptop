@@ -1,0 +1,22 @@
+[
+  {"query": "i've got a mess of changes in the working tree — the auth refactor plus an unrelated typo fix in the readme. can you split them into sensible commits?", "should_trigger": true},
+  {"query": "write the commit message for what's staged, it's the deposit refund fix", "should_trigger": true},
+  {"query": "specs are green, wrap this up and commit it", "should_trigger": true},
+  {"query": "what should i name the branch for HDR-2210? it's the no-show fee work", "should_trigger": true},
+  {"query": "amend the last commit message, it currently just says 'wip'", "should_trigger": true},
+  {"query": "squash these 4 wip commits into one with a proper conventional-commits subject line", "should_trigger": true},
+  {"query": "i changed the migration, the model and the serializer for one feature. is that one commit or three?", "should_trigger": true},
+  {"query": "open the PR for this branch — base is main, and it closes HDR-2210", "should_trigger": false},
+  {"query": "write the PR description. reviewers need to understand why the flag defaults to off", "should_trigger": false},
+  {"query": "my pull request title got rejected by the semantic-pr check, fix it", "should_trigger": false},
+  {"query": "draft the pull request body: what changed, why, and the rollout notes for the migration", "should_trigger": false},
+  {"query": "edit the description on PR #341, it doesn't mention the schema change at all", "should_trigger": false},
+  {"query": "why is CI failing on this branch? it passed yesterday", "should_trigger": false},
+  {"query": "review the diff before i push it, i want a second pair of eyes on the error handling", "should_trigger": false},
+  {"query": "rebase this onto main and help me work through the conflicts in the serializer", "should_trigger": false},
+  {"query": "what's actually different between my branch and origin/main right now", "should_trigger": false},
+  {"query": "i need to revert the commit that broke the availability cache, it's somewhere in last week's merges", "should_trigger": false},
+  {"query": "push this branch to origin", "should_trigger": false},
+  {"query": "add a changelog entry for the deposit refund fix", "should_trigger": false},
+  {"query": "who last touched app/models/reservation.rb and why", "should_trigger": false}
+]

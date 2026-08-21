@@ -1,0 +1,22 @@
+[
+  {"query": "what does app/services/reservation_hold.rb actually do? i inherited it and there are no tests on it", "should_trigger": true},
+  {"query": "walk me through what happens when a guest cancels a booking from the widget — which services touch it on the way through", "should_trigger": true},
+  {"query": "how does authentication work in this app? i can see devise in the gemfile but there's clearly custom stuff on top", "should_trigger": true},
+  {"query": "i need to change the deposit calc but i don't understand DepositCalculator#apply_policy. explain it before i touch anything", "should_trigger": true},
+  {"query": "trace the password reset flow end to end, i'm writing onboarding docs for a new hire", "should_trigger": true},
+  {"query": "where does the no-show fee actually get charged? i keep finding half of the logic in different places", "should_trigger": true},
+  {"query": "explain lib/tablecheck/webhook_dispatcher.rb to me like i'm new to this codebase", "should_trigger": true},
+  {"query": "whats the deal with the Bookable concern, its included in like 9 models and i cant tell what it actually adds to them", "should_trigger": true},
+  {"query": "we're onboarding a contractor monday — give me a system overview of how the checkout flow hangs together", "should_trigger": true},
+  {"query": "is reservation_hold.rb any good? should i be refactoring it while i'm in there", "should_trigger": false},
+  {"query": "this spec has been failing since friday and i can't work out why. it passes locally", "should_trigger": false},
+  {"query": "explain this stacktrace, it's from the sidekiq worker on staging", "should_trigger": false},
+  {"query": "explain what a postgres advisory lock is and when you'd reach for one", "should_trigger": false},
+  {"query": "rename apply_policy to apply_fee_policy everywhere it's used", "should_trigger": false},
+  {"query": "add yard doc comments to the DepositCalculator class", "should_trigger": false},
+  {"query": "what changed in this PR? give me the highlights before i review it properly", "should_trigger": false},
+  {"query": "add some logging to the webhook dispatcher so i can see what it's doing in prod", "should_trigger": false},
+  {"query": "we use 'hold' and 'lock' interchangeably across the reservation code and it's confusing everyone. sort out the terminology", "should_trigger": false},
+  {"query": "summarize what i worked on today across these two repos, i need to post an update", "should_trigger": false},
+  {"query": "is there an n+1 query in the availability endpoint? it's slow under load", "should_trigger": false}
+]

@@ -1,0 +1,22 @@
+[
+  {"query": "review this branch before i merge it — does it follow the conventions we actually use in this repo?", "should_trigger": true},
+  {"query": "can you look at PR #412 and tell me whether it's safe to merge", "should_trigger": true},
+  {"query": "i just finished the waitlist feature. review the diff against HDR-2210 — did i build what the ticket actually asked for?", "should_trigger": true},
+  {"query": "review since main. i care most about n+1s and whether the error handling is sane", "should_trigger": true},
+  {"query": "is this any good? it's the deposit calculator rewrite, about 200 lines. be honest", "should_trigger": true},
+  {"query": "hunt for security holes in what i just wrote — the webhook receiver is public facing and takes a signature header", "should_trigger": false},
+  {"query": "did i introduce a vulnerability in this branch? it touches the auth middleware", "should_trigger": false},
+  {"query": "audit this before i push, specifically for idor and path traversal in the file download endpoint", "should_trigger": false},
+  {"query": "i'm worried there's a race in the reservation hold code i added — try to prove it's actually exploitable", "should_trigger": false},
+  {"query": "find bugs in the payment-link feature, and assume an attacker controls every query param", "should_trigger": false},
+  {"query": "explain what the deposit calculator does, i inherited it", "should_trigger": false},
+  {"query": "write tests for the webhook receiver, it has none", "should_trigger": false},
+  {"query": "the reviewer says my error handling is wrong but i don't think it is. help me respond", "should_trigger": false},
+  {"query": "sentry is full of NoMethodError on the availability endpoint, work out what to do with it", "should_trigger": false},
+  {"query": "app/models/reservation.rb is 800 lines and everything touches it. help me restructure it", "should_trigger": false},
+  {"query": "is there an n+1 in the availability endpoint? it goes slow under load", "should_trigger": false},
+  {"query": "update the spec doc to match what i actually built, it drifted", "should_trigger": false},
+  {"query": "this spec fails maybe one run in five and passes locally every time. why", "should_trigger": false},
+  {"query": "add rubocop to CI and get the existing offenses down to zero", "should_trigger": false},
+  {"query": "what changed in this PR? just the highlights, i'll read it properly after", "should_trigger": false}
+]

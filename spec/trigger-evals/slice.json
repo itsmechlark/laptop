@@ -1,0 +1,22 @@
+[
+  {"query": "this 'guest profiles' epic is way too big for one sprint. help me cut it into pieces we can ship weekly", "should_trigger": true},
+  {"query": "what's the smallest thing we could actually ship first for the multi-language menu work?", "should_trigger": true},
+  {"query": "turn the loyalty points feature into job stories with proper ships-when criteria", "should_trigger": true},
+  {"query": "i've got 3 weeks and a feature that looks like 3 months of work. what order do we build it in", "should_trigger": true},
+  {"query": "split HDR-1180 into stories. right now it's one ticket that literally says 'implement reporting'", "should_trigger": true},
+  {"query": "sharpen this story for me: 'as a manager i want reports'. it's too vague for anyone to estimate", "should_trigger": true},
+  {"query": "we want to ship the payment-link feature incrementally behind a flag. what are the increments", "should_trigger": true},
+  {"query": "the epic has 14 acceptance criteria on it. which of them are actually slice one and which can wait", "should_trigger": true},
+  {"query": "i want to build the courier tracking feature. it's big — where do we start, and what can go out the door first?", "should_trigger": true},
+  {"query": "build the first slice of the loyalty feature, tests first please", "should_trigger": false},
+  {"query": "the approach for courier tracking isn't settled yet — websockets or polling? talk me through it", "should_trigger": false},
+  {"query": "write the spec for slice one so a contractor can pick it up", "should_trigger": false},
+  {"query": "i've got 14 open tickets assigned to me, which ones actually need my attention today", "should_trigger": false},
+  {"query": "app/models/reservation.rb is 800 lines. help me split it into smaller modules", "should_trigger": false},
+  {"query": "how do i slice this array into chunks of 50 in ruby without loading it all into memory", "should_trigger": false},
+  {"query": "roughly how long do you think the loyalty epic takes, in dev weeks", "should_trigger": false},
+  {"query": "our sprint velocity has dropped two sprints in a row and i need to say something at standup", "should_trigger": false},
+  {"query": "reorder the backlog so the highest business value stuff is at the top", "should_trigger": false},
+  {"query": "the story's done and the tests pass — can you review the diff before i push", "should_trigger": false},
+  {"query": "the slice we shipped last week broke the availability cache. find out why", "should_trigger": false}
+]

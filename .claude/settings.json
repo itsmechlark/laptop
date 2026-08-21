@@ -285,7 +285,9 @@
         "index.crates.io",
         "static.crates.io",
         "*.mongodb.net",
-        "skills.sh"
+        "skills.sh",
+        "anthropic.com",
+        "*.anthropic.com"
       ],
       "allowUnixSockets": [
         "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
@@ -347,6 +349,7 @@
       "allowRead": [
         "~/Codespace",
         "~/.agents",
+        "~/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin",
         "~/.cache",
         "~/.claude",
         "~/.claude.json",

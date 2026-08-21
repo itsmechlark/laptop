@@ -249,12 +249,42 @@ brew install shellcheck
 
 ### Testing your changes
 
-Test your changes by running the script on a fresh install of macOS.
-You can use the free and open source emulator [UTM].
+Two things need verifying, and which one depends on what you touched.
+
+**Changes to `mac`** are tested by running the script on a fresh install of
+macOS. You can use the free and open source emulator [UTM].
 
 Tip: Make a fresh virtual machine with the installation of macOS completed and
 your user created and first launch complete. Then duplicate that machine to test
 the script each time on a fresh install that's ready to go.
+
+**Changes to the agent configuration** — anything under `skills/`, `rules/`, or
+the per-client config directories — are tested by `check-payload`. No VM
+required:
+
+```sh
+shellcheck mac -e SC2039
+shellcheck scripts/check-payload
+sh scripts/check-payload
+```
+
+Both must exit zero before you open a pull request; CI runs them on every PR in
+a job of their own. Warnings are advisory and may stand. Failures may not.
+
+`check-payload` reads its fixtures from `spec/`:
+
+* `spec/rules-cases.txt` — which `rules/` files load for a given path,
+  so a typo in a `paths:` glob fails loudly instead of silently never matching
+* `spec/invocability-fixture/` — deliberate violations that prove the checks
+  still fire. Its contents are assertions, not examples; leave them broken
+* `spec/trigger-evals/*.json` — query sets for whether a skill's description
+  fires on the requests it should. These need a live model, so they are not part
+  of CI — run them with `sh scripts/run-trigger-evals` (all sets) or
+  `sh scripts/run-trigger-evals slice` (one), with a logged-in `claude` CLI
+
+Adding a fixture adds an assertion, and `check-payload` validates the fixtures
+themselves — an eval set with no negatives, duplicate queries, or a name that
+matches no skill is a failure, because it could never catch anything.
 
 [UTM]: https://mac.getutm.app
 

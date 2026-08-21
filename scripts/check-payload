@@ -1,0 +1,666 @@
+#!/bin/sh
+#
+# check-payload — static verification for the agent payload.
+#
+# `mac` is verified by shellcheck plus a real run; the payload it ships
+# (skills/, rules/, and the client configs) had no equivalent. This mechanizes
+# the half of the `agent-skills` review checklist that a machine can settle,
+# plus the cross-file invariants AGENTS.md declares but nothing enforced:
+# handoff invocability, attribution/provenance agreement, vendored-edit
+# discipline, and secret-path parity across the three clients.
+#
+# Scope: the published payload only — `skills/`, `rules/`, and the client
+# configs. Bodies under `.agents/skills/` are not scanned directly. What is
+# linked from `skills/` is reachable through that symlink and does get checked;
+# what isn't linked is project-only and off this script's books.
+#
+# Judgment stays human. Nothing here scores prose, and nothing decides whether
+# a rule *applies* to a file — only which rules load for it.
+#
+# Usage (from anywhere — it relocates to the repository root itself):
+#   sh scripts/check-payload                  # all offline checks
+#   sh scripts/check-payload --since <ref>    # adds the vendored-edit diff check
+#   sh scripts/check-payload --collisions     # report only: description overlap
+#
+# Exits non-zero if any check fails. Warnings never fail the run.
+#
+# Deliberately no `set -e`: a linter reports every problem in one pass rather
+# than stopping at the first. Failures are accumulated in $failures instead.
+
+set -u
+
+failures=0
+warnings=0
+since=""
+collisions_only=no
+
+case "${1:-}" in
+  --since)
+    if [ $# -lt 2 ]; then
+      echo "check-payload: --since needs a git ref" >&2
+      exit 2
+    fi
+    since="$2"
+    ;;
+  --collisions) collisions_only=yes ;;
+  "") ;;
+  *)
+    echo "check-payload: unknown argument '$1'" >&2
+    exit 2
+    ;;
+esac
+
+# Every path below is repo-relative, so run from the repository root regardless
+# of where the script was invoked from.
+cd "$(dirname "$0")/.." || exit 2
+
+# Skill names are written in backticks throughout the payload, and a literal
+# backtick inside a single-quoted pattern reads to shellcheck as an unexpanded
+# command substitution (SC2016). Holding it in a variable keeps the patterns
+# honest without three suppressions.
+tick='`'
+
+fancy_echo() {
+  printf "\n%s\n" "$1"
+}
+
+fail() {
+  printf "  FAIL  %s\n" "$1"
+  failures=$((failures + 1))
+}
+
+warn() {
+  printf "  warn  %s\n" "$1"
+  warnings=$((warnings + 1))
+}
+
+# ---------------------------------------------------------------- helpers
+
+# Frontmatter is the block between the first line (---) and the next ---.
+frontmatter() {
+  awk 'NR == 1 && $0 != "---" { exit } NR == 1 { next } /^---$/ { exit } { print }' "$1"
+}
+
+frontmatter_field() {
+  frontmatter "$1" | sed -n "s/^$2: *//p" | head -1 | sed 's/^["'\'']//; s/["'\'']$//'
+}
+
+# Fenced examples are documentation, not live links or instructions. The
+# agent-skills checklist warns that scanning them produces false MISSes.
+without_fences() {
+  awk '/^[[:space:]]*```/ { fenced = !fenced; next } !fenced' "$1"
+}
+
+skill_names() {
+  for dir in skills/*/; do
+    [ -f "${dir}SKILL.md" ] && basename "$dir"
+  done
+}
+
+is_skill() {
+  [ -f "skills/$1/SKILL.md" ]
+}
+
+# Vendored skills reach skills/ by symlink. Their content is not ours to edit —
+# a hand-edit desynchronizes the recorded hash — so shape findings about them
+# are informational rather than actionable.
+is_vendored() {
+  [ -L "skills/$1" ]
+}
+
+# A skill carrying disable-model-invocation cannot be reached by the Skill
+# tool, which is what makes "invoke `X`" unexecutable for a flagged X.
+is_flagged() {
+  [ -f "skills/$1/SKILL.md" ] &&
+    frontmatter "skills/$1/SKILL.md" | grep -q '^disable-model-invocation: *true'
+}
+
+# glob -> ERE, anchored. `**/` spans directories, `*` does not.
+glob_to_ere() {
+  printf '%s' "$1" | sed '
+    s/[.]/\\./g
+    s#\*\*/#@@ANY@@#g
+    s/\*/[^\/]*/g
+    s#@@ANY@@#(.*/)?#g
+  '
+}
+
+# ------------------------------------------------------- collisions (report)
+
+# Which model-invocable descriptions compete for the same words. A report, not
+# a check: term overlap is a crude proxy for what a model does with a
+# description, so this says "look at this pair" and never passes judgment.
+# Flagged skills are excluded — they never appear in the list Claude picks from,
+# so overlap with them cannot affect a trigger.
+#
+# Whether a description actually fires is a different question, and it belongs
+# to spec/trigger-evals/ — that needs a model, so it stays out of here.
+if [ "$collisions_only" = yes ]; then
+  fancy_echo "Description overlap among model-invocable skills ..."
+
+  visible=""
+  for name in $(skill_names); do
+    is_flagged "$name" || visible="$visible $name"
+  done
+
+  for name in $visible; do
+    frontmatter_field "skills/$name/SKILL.md" description |
+      tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9-' '\n' |
+      awk 'length($0) > 2' |
+      grep -vxE 'a|an|and|or|but|if|then|than|that|this|these|those|of|to|in|for|on|with|by|from|as|at|is|are|was|were|be|been|being|it|its|into|not|no|nor|so|such|use|used|using|when|whenever|what|which|who|whom|where|why|how|do|does|did|doing|done|can|could|should|would|may|might|will|shall|must|about|over|under|before|after|during|while|any|all|each|every|some|most|more|less|you|your|the|skill|skills|claude|agent|agents' |
+      sort -u | sed "s/^/$name /"
+  done >"${TMPDIR:-/tmp}/check-payload-terms.$$"
+
+  awk '
+    { terms[$1 " " $2] = 1; skills[$1] = 1 }
+    END {
+      for (a in skills) for (b in skills) {
+        if (a >= b) continue
+        shared = 0; union = 0
+        for (k in terms) {
+          split(k, p, " ")
+          if (p[1] == a) { union++; if ((b " " p[2]) in terms) shared++ }
+          else if (p[1] == b && !((a " " p[2]) in terms)) union++
+        }
+        if (union > 0) printf "%.3f  %s <-> %s\n", shared / union, a, b
+      }
+    }
+  ' "${TMPDIR:-/tmp}/check-payload-terms.$$" | sort -rn | head -12
+
+  rm -f "${TMPDIR:-/tmp}/check-payload-terms.$$"
+  fancy_echo "Highest overlap first. Generic verbs (write, build, asked) drive"
+  echo "most of it; investigate a pair only if the intents genuinely compete."
+  exit 0
+fi
+
+# ------------------------------------------------- skill frontmatter & size
+
+fancy_echo "Checking skill frontmatter and size ..."
+
+for name in $(skill_names); do
+  md="skills/$name/SKILL.md"
+
+  if ! head -1 "$md" | grep -q '^---$'; then
+    fail "$md: no YAML frontmatter"
+    continue
+  fi
+
+  fm_name=$(frontmatter_field "$md" name)
+  fm_desc=$(frontmatter_field "$md" description)
+
+  [ -n "$fm_name" ] || fail "$md: frontmatter has no name"
+  [ -n "$fm_desc" ] || fail "$md: frontmatter has no description"
+
+  if [ -n "$fm_name" ] && [ "$fm_name" != "$name" ]; then
+    fail "$md: name '$fm_name' does not match directory '$name'"
+  fi
+
+  # The spec's charset: lowercase alnum, single internal hyphens.
+  if [ -n "$fm_name" ] && ! printf '%s' "$fm_name" |
+    grep -qE '^[a-z0-9]+(-[a-z0-9]+)*$'; then
+    fail "$md: name '$fm_name' is not lowercase-kebab-case"
+  fi
+
+  lines=$(wc -l <"$md" | tr -d ' ')
+  if is_vendored "$name"; then
+    # Re-vendor from upstream to change these; splitting them here would be a
+    # hand-edit. Reported once past the hard ceiling, and never as a failure.
+    [ "$lines" -gt 500 ] &&
+      warn "$md: $lines lines (vendored — re-vendor upstream, do not split here)"
+  elif [ "$lines" -gt 500 ]; then
+    fail "$md: $lines lines exceeds the 500-line ceiling"
+  elif [ "$lines" -gt 200 ]; then
+    warn "$md: $lines lines — past the 200-line split point, consider references/"
+  fi
+done
+
+# -------------------------------------------------------- resource linkage
+
+fancy_echo "Checking bundled resource links ..."
+
+for md in skills/*/SKILL.md skills/*/references/*.md; do
+  [ -f "$md" ] || continue
+  dir=$(dirname "$md")
+
+  without_fences "$md" |
+    grep -oE '\((\.\./)?(references|scripts|assets|templates)/[^)]+\)' |
+    tr -d '()' | cut -d'#' -f1 | sort -u |
+    while read -r target; do
+      [ -n "$target" ] || continue
+      if [ ! -e "$dir/$target" ]; then
+        printf "  FAIL  %s: broken resource link -> %s\n" "$md" "$target"
+        printf 'x' >>"${TMPDIR:-/tmp}/check-payload-linkfail.$$"
+      fi
+    done
+done
+
+if [ -f "${TMPDIR:-/tmp}/check-payload-linkfail.$$" ]; then
+  broken=$(wc -c <"${TMPDIR:-/tmp}/check-payload-linkfail.$$" | tr -d ' ')
+  failures=$((failures + broken))
+  rm -f "${TMPDIR:-/tmp}/check-payload-linkfail.$$"
+fi
+
+# A reference may link a sibling reference as long as SKILL.md also links it
+# directly — then it is still one hop from the entry point. Otherwise the
+# agent has to walk a chain to find it.
+for ref in skills/*/references/*.md; do
+  [ -f "$ref" ] || continue
+  skill_dir=$(dirname "$(dirname "$ref")")
+  without_fences "$ref" |
+    grep -oE '\(([A-Za-z0-9_-]+\.md)\)' | tr -d '()' | sort -u |
+    while read -r sibling; do
+      [ -n "$sibling" ] || continue
+      if ! grep -q "references/$sibling" "$skill_dir/SKILL.md" 2>/dev/null; then
+        printf "  warn  %s: links %s, which SKILL.md does not link directly (2 hops)\n" \
+          "$ref" "$sibling"
+      fi
+    done
+done
+
+# ------------------------------------------------------ trigger-eval coverage
+
+fancy_echo "Checking trigger-eval coverage ..."
+
+# Only model-invocable skills can misfire, so only they can benefit from a
+# trigger eval. Vendored skills are excluded structurally: a bad result there
+# has no in-repo fix, since editing the description desynchronizes the recorded
+# hash. Everything else is either covered or exempt on purpose — coverage is
+# prioritized by what a wrong trigger costs, not made uniform.
+#
+# Exempt: low description overlap and cheap to recover from when they misfire.
+# Move a name out of this list the first time it actually triggers wrongly, and
+# let the misfire be what motivates the query set.
+evals_exempt="agent-safety agent-skills codebase-design domain-modeling
+git-worktree grilling review-response rspec"
+
+for name in $(skill_names); do
+  is_flagged "$name" && continue
+  is_vendored "$name" && continue
+  [ -f "spec/trigger-evals/$name.json" ] && continue
+  case " $(echo "$evals_exempt" | tr '\n' ' ') " in
+    *" $name "*) continue ;;
+  esac
+  warn "skills/$name: model-invocable with no spec/trigger-evals/$name.json"
+done
+
+# The fixtures are checked before anything is inferred from them. An eval set
+# that is malformed, undiscriminating (all-true or all-false), or aimed at a
+# skill that no longer exists cannot fail an eval run — it just produces a
+# number nobody should trust.
+for set in spec/trigger-evals/*.json; do
+  [ -f "$set" ] || continue
+  name=$(basename "$set" .json)
+
+  if ! jq -e . "$set" >/dev/null 2>&1; then
+    fail "$set: not valid JSON"
+    continue
+  fi
+
+  shape=$(jq -r '
+    if type != "array" then "not a JSON array"
+    elif length == 0 then "no queries"
+    elif any(.[]; (.query | type) != "string" or (.query | length) == 0)
+      then "an entry has a missing or empty query"
+    elif any(.[]; (.should_trigger | type) != "boolean")
+      then "an entry has a non-boolean should_trigger"
+    elif ([.[].query] | length) != ([.[].query] | unique | length)
+      then "duplicate queries"
+    elif ([.[] | select(.should_trigger)] | length) == 0
+      then "no should-trigger queries — nothing to prove"
+    elif ([.[] | select(.should_trigger == false)] | length) == 0
+      then "no negatives — a set that cannot catch a false positive"
+    else "ok" end' "$set")
+  [ "$shape" = ok ] || fail "$set: $shape"
+
+  if ! is_skill "$name"; then
+    fail "$set: no skills/$name — stale eval set"
+  elif is_flagged "$name"; then
+    fail "$set: skills/$name is user-invoke-only, so it cannot fire on its own"
+  fi
+done
+
+# Adjacent skills are tested against one shared query pool with labels assigned
+# per skill, so a query proves exactly one of them fires. Labelling the same
+# query true for both makes it unfalsifiable — whichever skill wins, the pair
+# scores a pass — so the overlap is checked rather than trusted.
+for set_a in spec/trigger-evals/*.json; do
+  [ -f "$set_a" ] || continue
+  for set_b in spec/trigger-evals/*.json; do
+    [ -f "$set_b" ] || continue
+    # Visit each pair once. POSIX test has no lexicographic operator, so order
+    # the two names through sort instead of `\<`.
+    [ "$set_a" != "$set_b" ] || continue
+    [ "$(printf '%s\n%s\n' "$set_a" "$set_b" | sort | head -1)" = "$set_a" ] ||
+      continue
+    clash=$(jq -s '
+      (.[0] | map(select(.should_trigger) | .query)) as $a |
+      (.[1] | map(select(.should_trigger) | .query)) as $b |
+      [$a[] | select(. as $q | $b | index($q))] | length
+    ' "$set_a" "$set_b")
+    if [ "$clash" -gt 0 ]; then
+      fail "$(basename "$set_a") and $(basename "$set_b"): $clash shared query/queries labelled should-trigger in both"
+    fi
+  done
+done
+
+# ----------------------------------------------------- handoff invocability
+
+# The bug class this exists for: a skill telling the agent to invoke a sibling
+# that the Skill tool refuses, or describing an invocable sibling as
+# user-invoke-only. Both forms read as correct prose, which is why they survived
+# review twice. AGENTS.md is deliberately not scanned — it documents the trap
+# by quoting the broken form.
+scan_invocability() {
+  for md in "$@"; do
+    [ -f "$md" ] || continue
+
+    without_fences "$md" |
+      grep -nE "[Ii]nvoke[^${tick}]{0,24}${tick}[a-z0-9-]+${tick}" |
+      while IFS= read -r hit; do
+        for token in $(printf '%s' "$hit" |
+          grep -oE "${tick}[a-z0-9-]+${tick}" | tr -d "$tick"); do
+          if is_flagged "$token"; then
+            printf "%s:%s: says to invoke '%s', which is user-invoke-only\n" \
+              "$md" "${hit%%:*}" "$token"
+          fi
+        done
+      done
+
+    without_fences "$md" | grep -nE 'user-invoke-only|user-invoked only' |
+      while IFS= read -r hit; do
+        for token in $(printf '%s' "$hit" |
+          grep -oE "${tick}[a-z0-9-]+${tick}" | tr -d "$tick"); do
+          if is_skill "$token" && ! is_flagged "$token"; then
+            printf "%s:%s: calls '%s' user-invoke-only, but it carries no flag\n" \
+              "$md" "${hit%%:*}" "$token"
+          fi
+        done
+      done
+  done
+}
+
+fancy_echo "Self-testing the invocability check ..."
+
+# A check that never fires is worth nothing, so prove it on a fixture carrying
+# one violation of each kind before trusting a clean payload result.
+fixture=spec/invocability-fixture/SKILL.md
+if [ ! -f "$fixture" ]; then
+  fail "$fixture is missing — the invocability check cannot be self-verified"
+else
+  detected=$(scan_invocability "$fixture" | wc -l | tr -d ' ')
+  if [ "$detected" -eq 2 ]; then
+    printf "  ok    fixture: both violation kinds detected\n"
+  else
+    fail "invocability check is broken: fixture yielded $detected of 2 expected detections"
+  fi
+fi
+
+fancy_echo "Checking handoff invocability ..."
+
+invoke_report=$(scan_invocability skills/*/SKILL.md skills/*/references/*.md)
+if [ -n "$invoke_report" ]; then
+  printf '%s\n' "$invoke_report" | while IFS= read -r line; do
+    printf "  FAIL  %s\n" "$line"
+  done
+  failures=$((failures + $(printf '%s\n' "$invoke_report" | wc -l | tr -d ' ')))
+fi
+
+# ------------------------------------------------ attribution vs provenance
+
+fancy_echo "Checking attribution against recorded provenance ..."
+
+provenance=skills-provenance.json
+
+if [ ! -f "$provenance" ]; then
+  fail "$provenance is missing"
+else
+  for name in $(skill_names); do
+    md="skills/$name/SKILL.md"
+    recorded=$(jq -r --arg s "$name" \
+      'if .skills[$s] then (.skills[$s].sources | length) else "none" end' "$provenance")
+    has_section=no
+    grep -q '^## Attribution$' "$md" && has_section=yes
+
+    if [ "$recorded" = "none" ]; then
+      # Vendored skills are recorded in skills-lock.json instead, and are not
+      # ours to annotate.
+      if [ "$has_section" = yes ] && [ ! -L "skills/$name" ]; then
+        fail "$md: has ## Attribution but no entry in $provenance"
+      fi
+      continue
+    fi
+
+    if [ "$has_section" = no ]; then
+      fail "$md: recorded in $provenance but has no ## Attribution section"
+      continue
+    fi
+
+    if grep -A100000 '^## Attribution$' "$md" | tail -n +2 | grep -q '^## '; then
+      fail "$md: ## Attribution is not the last section"
+    fi
+
+    bullets=$(grep -A100000 '^## Attribution$' "$md" | tail -n +2 |
+      grep -c '^- ' || true)
+    if [ "$bullets" -ne "$recorded" ]; then
+      fail "$md: $bullets attribution bullets vs $recorded provenance sources"
+    fi
+
+    # Separator: SECTIONS.md specifies ') - name, LICENSE'. An em dash reads
+    # the same to a human and differs to a diff.
+    if grep -A100000 '^## Attribution$' "$md" | grep -q '^- \[.*) — '; then
+      fail "$md: attribution bullet uses ' — ' where the format is ' - '"
+    fi
+
+    # For github sources the origin string appears verbatim in its bullet, so
+    # order is checkable. Other kinds carry a prose title and are not.
+    i=0
+    while [ "$i" -lt "$recorded" ]; do
+      kind=$(jq -r --arg s "$name" --argjson i "$i" \
+        '.skills[$s].sources[$i].type' "$provenance")
+      origin=$(jq -r --arg s "$name" --argjson i "$i" \
+        '.skills[$s].sources[$i].origin' "$provenance")
+      if [ "$kind" = "github" ]; then
+        bullet=$(grep -A100000 '^## Attribution$' "$md" | tail -n +2 |
+          grep '^- ' | sed -n "$((i + 1))p")
+        case "$bullet" in
+          *"$origin"*) ;;
+          *) fail "$md: attribution bullet $((i + 1)) does not name '$origin'" ;;
+        esac
+      fi
+      i=$((i + 1))
+    done
+  done
+fi
+
+# --------------------------------------------------------- rules frontmatter
+
+fancy_echo "Checking rules frontmatter ..."
+
+for rule in rules/*.md; do
+  [ -f "$rule" ] || continue
+  if ! head -1 "$rule" | grep -q '^---$'; then
+    fail "$rule: no YAML frontmatter — the rule will never auto-load"
+    continue
+  fi
+  globs=$(frontmatter "$rule" | sed -n 's/^  *- *//p' | tr -d '"'"'")
+  if [ -z "$globs" ]; then
+    fail "$rule: frontmatter has no paths: entries"
+    continue
+  fi
+  for glob in $globs; do
+    case "$glob" in
+      *'**'*|*'*'*|/*|*[a-zA-Z]*) ;;
+      *) fail "$rule: '$glob' does not look like a path glob" ;;
+    esac
+  done
+done
+
+# ------------------------------------------------------- rules glob coverage
+
+fancy_echo "Checking which rules load for known paths ..."
+
+cases=spec/rules-cases.txt
+
+if [ ! -f "$cases" ]; then
+  warn "$cases is missing — glob coverage not verified"
+else
+  while IFS= read -r line; do
+    case "$line" in ''|\#*) continue ;; esac
+    path=$(printf '%s' "$line" | awk '{print $1}')
+    expected=$(printf '%s' "$line" | awk '{print $2}')
+
+    # A case naming a rule that doesn't exist can never pass, and reads as a
+    # broken glob rather than a typo in the fixture.
+    if [ "$expected" != "-" ]; then
+      for want in $(printf '%s' "$expected" | tr ',' ' '); do
+        [ -f "rules/$want.md" ] ||
+          fail "$cases: case '$path' expects rules/$want.md, which does not exist"
+      done
+    fi
+
+    actual=""
+    for rule in rules/*.md; do
+      [ -f "$rule" ] || continue
+      rule_name=$(basename "$rule" .md)
+      globs=$(frontmatter "$rule" | sed -n 's/^  *- *//p' | tr -d '"'"'")
+      for glob in $globs; do
+        ere=$(glob_to_ere "$glob")
+        if printf '%s\n' "$path" | grep -qE "^${ere}$"; then
+          case ",$actual," in
+            *",$rule_name,"*) ;;
+            *) actual="${actual:+$actual,}$rule_name" ;;
+          esac
+          break
+        fi
+      done
+    done
+
+    [ -n "$actual" ] || actual="-"
+    if [ "$actual" != "$expected" ]; then
+      fail "$cases: $path loads '$actual', expected '$expected'"
+    fi
+  done <"$cases"
+fi
+
+# ---------------------------------------------------- payload hygiene
+
+fancy_echo "Checking payload hygiene ..."
+
+# Machine-specific paths and credential-shaped strings must not reach a file
+# that ships to every machine.
+hits=$(grep -rlE "/(Users|home)/[a-z][a-z0-9_-]*/" skills rules \
+  2>/dev/null | grep -v '/\.git/' || true)
+for f in $hits; do
+  fail "$f: contains a machine-specific home path"
+done
+
+hits=$(grep -rlE '(sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{16,}|xox[baprs]-[A-Za-z0-9]{8,})' \
+  skills rules 2>/dev/null || true)
+for f in $hits; do
+  fail "$f: contains a credential-shaped string"
+done
+
+# ----------------------------------------------------------- symlink health
+
+fancy_echo "Checking symlinks and vendored linkage ..."
+
+for entry in skills/*; do
+  if [ -L "$entry" ] && [ ! -e "$entry" ]; then
+    fail "$entry: dangling symlink"
+  fi
+done
+
+if [ -f skills-lock.json ]; then
+  for name in $(jq -r '.skills | keys[]' skills-lock.json); do
+    if [ ! -e "skills/$name/SKILL.md" ]; then
+      fail "skills/$name: vendored in skills-lock.json but not linked from skills/"
+    fi
+  done
+else
+  fail "skills-lock.json is missing"
+fi
+
+# --------------------------------------------------- vendored edit discipline
+
+if [ -n "$since" ]; then
+  fancy_echo "Checking vendored-edit discipline since $since ..."
+
+  changed=$(git diff --name-only "$since"...HEAD 2>/dev/null || true)
+  if [ -z "$changed" ]; then
+    warn "no diff against $since — skipping"
+  else
+    lock_touched=no
+    case "$changed" in
+      *skills-lock.json*) lock_touched=yes ;;
+    esac
+    for name in $(jq -r '.skills | keys[]' skills-lock.json); do
+      # This one rule reaches past skills/ on purpose: it is about which paths a
+      # commit touches, not about scanning a body. A vendored skill is editable
+      # by either its real path or its symlinked one, and both desynchronize the
+      # recorded hash.
+      if printf '%s\n' "$changed" |
+        grep -qE "^(\.agents/)?skills/$name/"; then
+        if [ "$lock_touched" = no ]; then
+          fail "vendored skill '$name' was edited without updating skills-lock.json"
+        fi
+      fi
+    done
+  fi
+fi
+
+# ------------------------------------------------------------ client parity
+
+fancy_echo "Checking secret-path parity across clients ..."
+
+claude=.claude/settings.json
+codex=.codex/config.toml.template
+cursor=.cursor/cli-config.json
+
+# AGENTS.md: the same secret paths must be denied in every client. Rather than
+# hardcode a floor that drifts out of date, derive the subjects from Claude's
+# own Read() denials — the canonical expression of the policy — and require each
+# to appear in both siblings. Adding a deny to Claude therefore *forces* the
+# mirror, which is the invariant that was previously kept by memory alone.
+#
+# Cursor's documented gaps are elsewhere (no sandbox roots, no env scrub, no MCP
+# denies); path denials are the half reachable in every client. If a subject
+# ever legitimately has no counterpart, add it to parity_exempt with the reason
+# rather than deleting the check.
+parity_exempt=""
+
+if [ ! -f "$claude" ]; then
+  fail "$claude is missing — client parity cannot be verified"
+else
+  for cfg in "$codex" "$cursor"; do
+    [ -f "$cfg" ] || fail "$cfg is missing — client parity cannot be verified"
+  done
+
+  # Read(~/.ssh/**) -> .ssh, Read(**/*.pem) -> .pem, Read(**/config/master.key)
+  # -> master.key: reduce each glob to its distinctive final segment.
+  subjects=$(jq -r '.permissions.deny[] | select(startswith("Read("))' "$claude" |
+    sed 's/^Read(//; s/)$//' |
+    sed 's#^~/##; s#^/##; s#^\*\*/##; s#/\*\*$##' |
+    awk -F/ '{ print $NF }' | sed 's/^\*//' | sort -u)
+
+  for subject in $subjects; do
+    case " $parity_exempt " in
+      *" $subject "*) continue ;;
+    esac
+    for cfg in "$codex" "$cursor"; do
+      [ -f "$cfg" ] || continue
+      if ! grep -qF "$subject" "$cfg"; then
+        fail "$cfg: nothing denies '$subject', which $claude denies"
+      fi
+    done
+  done
+fi
+
+# ------------------------------------------------------------------ summary
+
+fancy_echo "----"
+if [ "$failures" -eq 0 ]; then
+  printf "check-payload: OK (%s warning(s))\n" "$warnings"
+  exit 0
+fi
+printf "check-payload: %s failure(s), %s warning(s)\n" "$failures" "$warnings"
+exit 1

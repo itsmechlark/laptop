@@ -1,0 +1,22 @@
+[
+  {"query": "we just spent the last hour going back and forth on how the no-show fee refund should work and i think we landed it. can you write it up as a proper ticket description for HDR-2210 so the contractors can pick it up", "should_trigger": true},
+  {"query": "ok the design's agreed — write this up as a spec i can paste into confluence. audience is the two devs who'll build it, not the product folks", "should_trigger": true},
+  {"query": "before anyone writes code i want the reservation-hold change captured properly: problem, user stories, what's explicitly out of scope. use the decisions from this thread", "should_trigger": true},
+  {"query": "can you formalize what we agreed above into something an agent could implement without coming back to ask me questions", "should_trigger": true},
+  {"query": "turn the thread into a spec doc. don't re-litigate the seat-map decision, we settled on option B", "should_trigger": true},
+  {"query": "i need this in writing before i go on leave next week — the whole waitlist promotion flow as we designed it, with acceptance criteria", "should_trigger": true},
+  {"query": "write up the spec for the deposit-refund change and put it in docs/specs/deposit-refund.md", "should_trigger": true},
+  {"query": "my PM wants the auth migration written up with user stories before we estimate it. everything's decided already, i just need the doc", "should_trigger": true},
+  {"query": "we already have an ADR for the multi-tenancy decision. what i need now is the implementable spec that sits under it — not another decision record", "should_trigger": true},
+  {"query": "help me figure out whether we should do soft deletes or a status column for cancelled bookings", "should_trigger": false},
+  {"query": "read docs/specs/waitlist.md and tell me whether the code actually matches it", "should_trigger": false},
+  {"query": "break the waitlist epic into stories i can ship one at a time", "should_trigger": false},
+  {"query": "the spec says we support partial refunds but the code only does full ones. which one is right?", "should_trigger": false},
+  {"query": "write the PR description for this branch, it's the fee-policy work", "should_trigger": false},
+  {"query": "i'm about halfway through implementing the fee change and i've lost track of what's left. write it down for me", "should_trigger": false},
+  {"query": "HDR-2210 already has a description, i just want acceptance criteria added to it", "should_trigger": false},
+  {"query": "can you write the release notes for 4.2", "should_trigger": false},
+  {"query": "summarize this thread into something i can drop in slack for the team", "should_trigger": false},
+  {"query": "we haven't decided between webhooks and polling yet but write the spec anyway so it looks like we have a plan", "should_trigger": false},
+  {"query": "our spec template is inconsistent across the team — can you propose a standard one", "should_trigger": false}
+]

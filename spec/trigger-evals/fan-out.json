@@ -1,0 +1,22 @@
+[
+  {"query": "CI is red with four unrelated failures — a flaky availability spec, a rubocop offense, a failing webhook test and a bundler audit warning. can you work them in parallel?", "should_trigger": true},
+  {"query": "i need to know how three different services handle idempotency: bookings, payments and notifications. investigate each and report back", "should_trigger": true},
+  {"query": "there are 12 deprecation warnings from different gems. split them up and knock them out", "should_trigger": true},
+  {"query": "audit each of our five public endpoints for auth gaps, one agent per endpoint would be faster", "should_trigger": true},
+  {"query": "we're evaluating three caching approaches. explore all three independently so they don't influence each other", "should_trigger": true},
+  {"query": "the migration to the new serializer touches 9 controllers with no shared state. parallelize it", "should_trigger": true},
+  {"query": "fix the flaky availability spec", "should_trigger": false},
+  {"query": "why is CI red? one spec is failing", "should_trigger": false},
+  {"query": "first write the migration, then backfill the data, then switch reads over to the new column", "should_trigger": false},
+  {"query": "review this whole PR, it touches 9 controllers", "should_trigger": false},
+  {"query": "explain how the booking flow works end to end", "should_trigger": false},
+  {"query": "break the loyalty epic into stories i can ship one at a time", "should_trigger": false},
+  {"query": "run the full test suite and tell me what fails", "should_trigger": false},
+  {"query": "set up a worktree for the deposit-refund work so it doesn't collide with my main checkout", "should_trigger": false},
+  {"query": "these two agents you started earlier both edited the serializer and now it conflicts. sort it out", "should_trigger": false},
+  {"query": "search the codebase for every call site of apply_policy", "should_trigger": false},
+  {"query": "the availability endpoint is slow. profile it and tell me where the time goes", "should_trigger": false},
+  {"query": "summarize what changed across the repo this week", "should_trigger": false},
+  {"query": "i have 12 jira tickets assigned to me, which should i pick up first", "should_trigger": false},
+  {"query": "upgrade rails from 7.1 to 7.2 and get the suite green", "should_trigger": false}
+]
