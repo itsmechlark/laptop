@@ -1,7 +1,23 @@
 #!/bin/sh
 #
 # run-trigger-evals — run the spec/trigger-evals query sets against the
-# descriptions of the skills they name.
+# descriptions of the skills they name, measuring whether a description makes
+# Claude auto-invoke the skill.
+#
+# It drives scripts/lib/run_eval_local.py, which for each query installs a real,
+# model-invocable skill at <tmp>/.claude/skills/<unique-name>/SKILL.md, runs
+# `claude -p` from that throwaway project, and records a trigger when the
+# streamed Skill/Read tool_use names that skill. Two properties keep the
+# measurement honest:
+#   * a fresh CLAUDE_CONFIG_DIR per query, so the maintainer's *personal* skills
+#     (~/.claude/skills, symlinked here by `mac`) do not load and steal the
+#     trigger from an identically described skill under test; and
+#   * --disallowedTools on the doing-tools (Bash/Edit/Write/...), so headless
+#     Claude reaches for a skill instead of just performing the task with Bash.
+# The earlier harness (from the skill-creator plugin) instead dropped a
+# .claude/commands/<name>.md *command* file; commands are `/slash`-only, never
+# offered to the Skill tool, so it detected nothing on Claude Code 2.1.x — a
+# universal null result. See git history for the migration.
 #
 # This is the one tier of verification that needs a live model: it shells out to
 # `claude -p` once per query per run, so it needs an authenticated CLI, network
@@ -12,15 +28,21 @@
 # Usage (from anywhere — it relocates to the repository root itself):
 #   sh scripts/run-trigger-evals                 # every set in spec/trigger-evals
 #   sh scripts/run-trigger-evals slice explain   # only the named ones
+# Env: RUNS_PER_QUERY (default 3), EVAL_MODEL (default the CLI's configured model).
 #
-# Results land in artifacts/trigger-evals/<skill>.json, which is git-ignored.
-# Override the harness location with SKILL_CREATOR=/path/to/skill-creator.
+# Results land in artifacts/trigger-evals/<skill>.json (git-ignored); each
+# `claude -p` stderr is appended to artifacts/trigger-evals/<skill>.stderr.log so
+# a run of errors can never masquerade as "0% triggers".
 
 set -u
 
-# run_eval.py resolves the project by walking up from the current directory, so
-# the repository root is not merely convenient here — it is what makes the
-# temporary command file land in this project rather than in ~/.claude.
+# The Python helper lives beside this script under lib/; capture its path before
+# we cd to the repository root.
+helper="$(cd "$(dirname "$0")" && pwd)/lib/run_eval_local.py"
+
+# Run from the repository root: the eval reads spec/trigger-evals and skills/
+# from here. (Each query builds its own disposable temp project, so — unlike the
+# old harness — there is no find_project_root == PWD coupling.)
 cd "$(dirname "$0")/.." || exit 2
 
 sets_dir=spec/trigger-evals
@@ -43,51 +65,17 @@ command -v python3 >/dev/null || die "python3 not found"
 command -v jq >/dev/null || die "jq not found"
 command -v claude >/dev/null || die "the claude CLI is not on PATH"
 
-# The harness ships inside the skill-creator skill's scripts/ directory. Its
-# install location has moved between Claude Code versions (it used to sit under
-# a per-session skills-plugin path; it now ships as a plugin under
-# ~/.claude/plugins), so search the known roots rather than hardcoding one, and
-# let the environment win. Locate run_eval.py directly, not the skill-creator
-# directory: several unrelated skill-creator/ dirs now coexist and only the
-# plugin copy bundles the harness. Finding the file and deriving its skill dir
-# also keeps paths with spaces (Application Support) intact — a single-line
-# command substitution never word-splits. -L because the tree mixes real
-# directories with symlinks.
-if [ -n "${SKILL_CREATOR:-}" ]; then
-  sc=$SKILL_CREATOR
-else
-  found=""
-  for base in \
-    "$HOME/.claude/plugins" \
-    "$HOME/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin"; do
-    [ -d "$base" ] || continue
-    found=$(find -L "$base" -maxdepth 8 -type f -name run_eval.py \
-      -path '*skill-creator*' 2>/dev/null | head -1)
-    [ -n "$found" ] && break
-  done
-  [ -n "$found" ] ||
-    die "could not find the skill-creator eval harness (scripts/run_eval.py) under ~/.claude/plugins — set SKILL_CREATOR to its skill directory"
-  sc=$(dirname "$(dirname "$found")")
-fi
-[ -f "$sc/scripts/run_eval.py" ] ||
-  die "no scripts/run_eval.py under $sc — set SKILL_CREATOR to the right path"
+[ -f "$helper" ] || die "helper not found at $helper"
+[ -d "$sets_dir" ] || die "no $sets_dir here — run from the laptop repo"
+[ -d skills ] || die "no skills/ here — run from the laptop repo"
 
 # `claude -p` inherits this shell's credentials. Check before spending a run:
-# every query would otherwise fail identically and look like a trigger of 0%.
-# jq's `//` treats false as empty, so `.loggedIn // "unknown"` reports a real
-# `false` as unknown. Ask whether the key is there, then stringify it.
+# every query would otherwise fail identically and read as 0% triggers. jq's
+# `//` treats false as empty, so ask whether the key is present, then stringify.
 auth=$(claude auth status --json 2>/dev/null |
   jq -r 'if has("loggedIn") then (.loggedIn | tostring) else "unreadable" end')
 [ "$auth" = true ] ||
   die "the claude CLI is not logged in (loggedIn: $auth) — run 'claude auth login'"
-
-# run_eval.py writes a temporary command file into the project it finds by
-# walking up from the *current* directory, so the wrong cwd silently tests
-# against the wrong project root.
-root=$(PYTHONPATH="$sc" python3 -c \
-  'from scripts.run_eval import find_project_root; print(find_project_root())')
-[ "$root" = "$PWD" ] ||
-  die "run_eval resolves the project root to '$root', not '$PWD'"
 
 # ------------------------------------------------------------------- run
 
@@ -102,6 +90,8 @@ fi
 
 mkdir -p "$out_dir"
 failed=0
+completed=0
+total_fired=0
 
 for name in $names; do
   set_file="$sets_dir/$name.json"
@@ -111,21 +101,30 @@ for name in $names; do
   queries=$(jq length "$set_file")
   fancy_echo "Evaluating $name — $queries queries x $runs_per_query runs ..."
 
+  stderr_log="$out_dir/$name.stderr.log"
+  : >"$stderr_log"
+
   cmd_model=""
   [ -n "$model" ] && cmd_model="--model $model"
 
   # shellcheck disable=SC2086 # cmd_model is an intentional optional flag pair
-  if PYTHONPATH="$sc" python3 -m scripts.run_eval \
+  if python3 "$helper" \
     --eval-set "$set_file" \
     --skill-path "skills/$name" \
     --runs-per-query "$runs_per_query" \
+    --stderr-log "$stderr_log" \
     $cmd_model \
     --verbose >"$out_dir/$name.json"; then
     jq -r '"  \(.summary.passed)/\(.summary.total) queries as labelled"' \
       "$out_dir/$name.json" 2>/dev/null ||
       printf "  (could not read a summary from %s)\n" "$out_dir/$name.json"
+    # Tally triggers to power the null-result guard below.
+    fired=$(jq '[.results[].triggers] | add // 0' "$out_dir/$name.json" 2>/dev/null)
+    case $fired in '' | *[!0-9]*) fired=0 ;; esac
+    total_fired=$((total_fired + fired))
+    completed=$((completed + 1))
   else
-    printf "  FAILED — see %s\n" "$out_dir/$name.json"
+    printf "  FAILED — see %s and %s\n" "$out_dir/$name.json" "$stderr_log"
     failed=$((failed + 1))
   fi
 done
@@ -133,7 +132,23 @@ done
 # --------------------------------------------------------------- summary
 
 fancy_echo "----"
-printf "Results in %s/\n" "$out_dir"
+printf "Results in %s/ (stderr in %s/<skill>.stderr.log)\n" "$out_dir" "$out_dir"
+
+# Null-result guard. A trigger scores only when `claude -p` emits the Skill/Read
+# tool_use on our uniquely named temp skill. If not one query — positive or
+# negative — fired across every set that ran, the measurement is broken, not the
+# descriptions: project .claude/skills discovery, the stream-json shape, or auth
+# has drifted, or every `claude -p` errored (now visible in the stderr logs).
+# Fail loudly rather than let a void run read as description bugs.
+if [ "$completed" -gt 0 ] && [ "$total_fired" -eq 0 ]; then
+  printf "\nNULL RESULT — no query triggered a skill across the %s set(s) that ran.\n" "$completed"
+  printf "This is a broken measurement, not a description problem. Check the\n"
+  printf "stderr logs in %s/, confirm project .claude/skills discovery still\n" "$out_dir"
+  printf "works on this Claude Code version, then re-run. Do not edit any\n"
+  printf "description off these artifacts.\n"
+  exit 1
+fi
+
 if [ "$failed" -gt 0 ]; then
   printf "%s set(s) did not complete.\n" "$failed"
   exit 1

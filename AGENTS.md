@@ -68,6 +68,7 @@ skills-provenance.json  # source lineage for first-party derived skills (hand-ow
 scripts/                # verification tooling; each relocates to the repo root itself
   check-payload         # static verification of the payload (POSIX sh + jq)
   run-trigger-evals     # runs spec/trigger-evals; needs a logged-in claude CLI
+  lib/run_eval_local.py # trigger-eval engine: installs a real temp skill, drives claude -p
 spec/                   # fixtures check-payload validates and reads
   rules-cases.txt       # path -> which rules/ load for it
   invocability-fixture/ # deliberate violations; proves the check still fires
@@ -293,9 +294,11 @@ Three things stay human, by design:
   eval sets in `spec/trigger-evals/`, which need `claude -p` and therefore
   credentials, network, and tokens. Not CI, not sandboxed: run them from a
   terminal before shipping a description change. `sh scripts/run-trigger-evals` is the
-  wrapper — it discovers the harness, checks `claude auth status` and the
-  resolved project root before spending anything, and writes results to the
-  git-ignored `artifacts/trigger-evals/`. `--collisions` is the cheap neighbour —
+  wrapper — it drives `scripts/lib/run_eval_local.py`, which per query installs a
+  real, model-invocable skill in a throwaway project (under a fresh
+  `CLAUDE_CONFIG_DIR` so personal skills don't compete) and detects the `Skill`
+  tool firing on it; the wrapper checks `claude auth status` before spending
+  anything and writes results to the git-ignored `artifacts/trigger-evals/`. `--collisions` is the cheap neighbour —
   which model-invocable descriptions share vocabulary — and it is a report, not
   a gate: word overlap cannot predict a trigger, and generic verbs drive most of
   what it finds.
@@ -383,11 +386,14 @@ Warnings never fail the run. Failures always do.
 ### `scripts/` (POSIX shell)
 
 Verification tooling, same shell conventions as `mac` — `#!/bin/sh`, two-space
-indent, `fancy_echo` phase announcements. Both scripts `cd` to the repository
+indent, `fancy_echo` phase announcements. Both wrappers `cd` to the repository
 root themselves, so every path inside them is repo-relative and they run
 correctly from any working directory. Keep that: `scripts/run-trigger-evals`
-depends on it, because the harness it drives resolves the project by walking up
-from the current directory.
+reads `spec/trigger-evals/` and `skills/` from the root and loads its engine
+from `scripts/lib/`, so it must resolve there wherever it's invoked. That engine,
+`scripts/lib/run_eval_local.py`, is the one non-shell piece of the tooling —
+Python earns its place parsing the `claude -p` stream-json event by event; keep
+it self-contained (stdlib only, no third-party imports).
 
 `scripts/check-payload` differs from `mac` in two deliberate ways:
 
