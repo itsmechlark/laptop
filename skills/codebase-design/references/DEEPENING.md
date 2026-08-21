@@ -91,4 +91,4 @@ Weigh it against where the module sits: Evans' advice is to "apply top talent to
 
 ## Sources
 
-Primary sources for the quotations above are listed in [SKILL.md](../SKILL.md#sources) — principally Parnas (1972) on information hiding and the cost of indirection, and Evans (2003) on AGGREGATE, Conceptual Contours, Anticorruption Layer, and Core Domain.
+Primary sources for the quotations above are listed in [SKILL.md](../SKILL.md#attribution) — principally Parnas (1972) on information hiding and the cost of indirection, and Evans (2003) on AGGREGATE, Conceptual Contours, Anticorruption Layer, and Core Domain.

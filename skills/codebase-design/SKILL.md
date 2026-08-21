@@ -1,6 +1,6 @@
 ---
 name: codebase-design
-description: Shared vocabulary and method for designing deep modules — find the secrets worth hiding, place the seam on a domain contour, and price the change before making it. Use when the user wants to design or improve a module's interface, find deepening opportunities, decide where a seam goes, make code more testable or AI-navigable, or when another skill needs the deep-module vocabulary.
+description: Shared vocabulary and method for designing deep modules — find the secrets worth hiding, place the seam on a domain contour, and price the change before making it. Use when the user wants to design or improve a module's interface, find deepening opportunities, decide where a seam goes, make code more testable or easier to navigate, or when another skill needs the deep-module vocabulary.
 ---
 
 # Codebase Design
@@ -8,6 +8,16 @@ description: Shared vocabulary and method for designing deep modules — find th
 Design **deep modules**: a lot of behaviour behind a small interface, placed at a clean seam, testable through that interface. Use this language and these principles wherever code is being designed or restructured. The aim is leverage for callers, locality for maintainers, and testability for everyone.
 
 Depth is the *shape* of a good module. It is not how you find one — that's **volatility**, and it comes first. A module can be perfectly deep and still hide the wrong thing.
+
+## When to use this skill
+
+- Designing or reworking a module's interface — a function, class, package, or slice
+- Looking for deepening opportunities: a cluster of shallow modules that should be one
+- Deciding where a seam goes, or whether a seam earns its place at all
+- Making code more testable, or more navigable for an agent working with finite context
+- Another skill needs the deep-module vocabulary (**secret**, **seam**, **depth**, **closure**) to name what it's designing
+
+Not for recording a decision once it holds still — hand that to `domain-modeling` for the glossary or an ADR. Not for driving the implementation once the interface exists — that's `tdd`, with the interface as the test surface.
 
 ## Glossary
 
@@ -137,33 +147,7 @@ How to behave when applying this skill — the difference between naming good de
 
 ## Designing for testability
 
-Good interfaces make testing natural:
-
-1. **Accept dependencies, don't create them.**
-
-   ```typescript
-   // Testable
-   function processOrder(order, paymentGateway) {}
-
-   // Hard to test
-   function processOrder(order) {
-     const gateway = new StripeGateway();
-   }
-   ```
-
-2. **Return results, don't produce side effects.**
-
-   ```typescript
-   // Testable
-   function calculateDiscount(cart): Discount {}
-
-   // Hard to test
-   function applyDiscount(cart): void {
-     cart.total -= discount;
-   }
-   ```
-
-3. **Small surface area.** Fewer methods = fewer tests needed. Fewer params = simpler test setup.
+A deep interface is a testable one — the same seam serves callers and tests (see [Principles](#principles)). So the properties that make an interface good for callers make it cheap to test: accept dependencies rather than construct them, return results rather than mutate hidden state, keep the surface small. When a test has to reach *past* the interface to set up or assert, that's the signal the module is the wrong shape, not that the test needs more access.
 
 Once the interface is designed, use the `tdd` skill to drive the implementation — the interface becomes the test surface, and outside-in TDD ensures nothing ships without a failing test demanding it.
 
@@ -186,13 +170,15 @@ Once the interface is designed, use the `tdd` skill to drive the implementation 
 - **"Boundary"**: overloaded with DDD's bounded context. Say **seam** or **interface**.
 - **Decomposition by processing step**: the default, and almost always wrong (Parnas). Decompose by secret.
 
-## Going deeper
+## References
+
+Read these as needed for the task in hand, not all upfront — each is self-contained.
 
 - **What to hide, and where to cut** — this file, [The design loop](#the-design-loop).
-- **Structure across modules** — see [STRUCTURE.md](references/STRUCTURE.md): the `uses` relation, layering, the prune test, and team seams.
-- **Composable interfaces** — see [COMPOSITION.md](references/COMPOSITION.md): closure, additivity, and when composability beats depth.
-- **Deepening a cluster given its dependencies** — see [DEEPENING.md](references/DEEPENING.md): dependency categories, seam placement, pricing, and replace-don't-layer testing.
-- **Exploring alternative interfaces** — see [DESIGN-IT-TWICE.md](references/DESIGN-IT-TWICE.md): spin up parallel sub-agents to design the interface several radically different ways, then compare on depth, locality, and seam placement.
+- [STRUCTURE.md](references/STRUCTURE.md) — structure across modules: the `uses` relation, layering, the prune test, and team seams.
+- [COMPOSITION.md](references/COMPOSITION.md) — composable interfaces: closure, additivity, and when composability beats depth.
+- [DEEPENING.md](references/DEEPENING.md) — deepening a cluster given its dependencies: dependency categories, seam placement, pricing, and replace-don't-layer testing.
+- [DESIGN-IT-TWICE.md](references/DESIGN-IT-TWICE.md) — exploring alternative interfaces: spin up parallel sub-agents to design the interface several radically different ways, then compare on depth, locality, and seam placement.
 
 ## Attribution
 
