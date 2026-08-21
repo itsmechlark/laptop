@@ -1,0 +1,117 @@
+# The spec template
+
+Section order is fixed. Every section appears, even when the honest content is
+one line — a missing section reads as an oversight, and a reader can't tell
+"nothing is out of scope" from "nobody thought about scope".
+
+```markdown
+## Problem Statement
+
+The problem the user is facing, from the user's perspective.
+
+## Solution
+
+The solution to that problem, from the user's perspective.
+
+## User Stories
+
+1. As an <actor>, I want a <feature>, so that <benefit>
+
+## Implementation Decisions
+
+- The modules or boundaries being built or changed
+- The interfaces or contracts that change
+- Architectural decisions, and the ADR constraints they sit under
+- Schema or data changes, and their compatibility requirements
+- API contracts and specific interactions
+- Rollout, observability, security, or idempotency constraints
+
+## Testing Decisions
+
+- Which boundaries get tested, and why those
+- The happy path, edge cases, failure states, authorization boundaries, and
+  compatibility cases that matter
+- Prior art: the test types, helpers, fixtures, or conventions already used here
+
+## Out of Scope
+
+What this spec explicitly does not cover, including adjacent slices that must
+not be pulled into the implementation.
+
+## Further Notes
+
+Assumptions, unresolved questions, dependencies, and rollout notes a future
+implementer needs.
+```
+
+## What each section holds
+
+**Problem Statement / Solution.** Both in the user's terms, both describing a
+visible outcome. "The nightly job is O(n²)" is not a problem statement; "the
+report takes 40 minutes and the manager gives up waiting for it" is. If the
+solution can only be stated as an implementation task, the frame was wrong —
+go back to it before writing the rest.
+
+**User Stories.** Numbered, every one in the `As an <actor>, I want a <feature>,
+so that <benefit>` form, and extensive enough to cover the happy path,
+boundaries, permissions, failure states, and operational consequences that the
+conversation actually supports. Cover, don't pad: a speculative story is an
+invented requirement, and the implementer can't tell it from a real one.
+
+Prefer the actor the glossary names. "As a user" usually means the actor was
+never pinned down — and two different actors hiding inside one word is the
+cheapest requirements bug there is to find at this stage.
+
+**Implementation Decisions.** Boundaries, contracts, data, interactions, and
+rollout constraints — enough that an implementer knows what is already decided,
+without turning into a code plan. Technical clarifications the developer gave
+during the conversation belong here rather than in the narrative, which keeps the
+product-facing sections readable on a tracker (AGENTS.md §3, *Jira vs. Pull
+Requests — audience separation*).
+
+No file paths, no diffs, no code snippets. A compact prototype-derived state
+machine, reducer, schema, or type shape is allowed when it states the decision
+more precisely than prose can — include only the decision-rich part, and say it
+came from a prototype.
+
+**Testing Decisions.** Name what gets verified in terms of external behavior
+through the highest useful seam, not implementation detail. Prior art is the
+half most often skipped and the half that saves the most time: point at the
+existing test type, helper, or fixture the new tests should look like. When there
+genuinely is no prior art, say that — it is a finding, not a blank.
+
+**Out of Scope.** This section is what stops a slice from becoming an epic
+during implementation. It should contain at least one thing the conversation
+raised and deliberately set aside; if nothing comes to mind, the boundary was
+never actually agreed.
+
+**Further Notes.** Everything that is true but unresolved: assumptions you had
+to invent, open questions, dependencies on other work, rollout sequencing. An
+assumption recorded here is cheap to correct; the same assumption stated
+confidently in the Solution is expensive.
+
+## Self-check before showing the draft
+
+- [ ] Problem and Solution both describe a user-visible outcome, not a task
+- [ ] Every story is in the `As an <actor>, I want a <feature>, so that
+      <benefit>` form, and every actor is a real one — not "the user" standing
+      in for two different people
+- [ ] Every story traces to something in the conversation or the repository
+- [ ] Implementation Decisions cover boundaries, contracts, data, interactions,
+      and rollout without becoming a code plan
+- [ ] No file paths, diffs, or code snippets — except a prototype-derived shape,
+      labelled as one
+- [ ] Testing Decisions name observable behavior and identify prior art, or say
+      none exists
+- [ ] Out of Scope names something the conversation actually set aside
+- [ ] Every invented assumption is in Further Notes, labelled — nothing you
+      supplied yourself is presented as decided
+- [ ] The project's own vocabulary is used throughout, no synonyms
+- [ ] No decision here contradicts an existing ADR without saying so
+
+This checks the document's shape. When the spec came out of a design
+conversation, run the other pass too — `brainstorming`'s
+`references/SPEC-REVIEW.md` measures the draft against the conversation that
+produced it and catches what the document lost: a decision that was settled and
+never written down, an internal contradiction, a placeholder. Shape and
+completeness are different failures, and this checklist only finds the first.
