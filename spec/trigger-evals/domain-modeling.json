@@ -1,0 +1,22 @@
+[
+  {"query": "app/models/reservation.rb is 800 lines. help me split it into smaller modules", "should_trigger": false},
+  {"query": "where should the no-show fee logic actually live? right now it's spread across the model and two services", "should_trigger": false},
+  {"query": "i've got ReservationValidator, ReservationPricer and ReservationPersister, and every change touches all three. is that the wrong shape?", "should_trigger": false},
+  {"query": "is this PaymentGateway port worth keeping? there's only ever been one implementation behind it", "should_trigger": false},
+  {"query": "DepositCalculator takes 9 keyword args and half are only used by one caller. what should its interface be?", "should_trigger": false},
+  {"query": "i can't test the availability logic without booting the whole rails stack. how do i reshape it so i can?", "should_trigger": false},
+  {"query": "we have to change six files every time the pricing rules change. what's the underlying problem?", "should_trigger": false},
+  {"query": "should webhook retry logic be its own class, or does it belong on the dispatcher?", "should_trigger": false},
+  {"query": "is adding a repository layer here worth the indirection, or am i just adding hops?", "should_trigger": false},
+  {"query": "we use 'hold' and 'lock' interchangeably across the reservation code and it's confusing everyone. sort out the terminology", "should_trigger": true},
+  {"query": "write an ADR for keeping availability in postgres instead of redis", "should_trigger": true},
+  {"query": "what do we actually mean by 'party size'? it counts infants in one place and not the other", "should_trigger": true},
+  {"query": "add 'walk-in' and 'no-show' to the glossary in CONTEXT.md — new hires keep mixing them up", "should_trigger": true},
+  {"query": "the product team says 'booking', the code says 'reservation', the api says 'appointment'. pick one and write it down", "should_trigger": true},
+  {"query": "we decided on optimistic locking for seat allocation last week — record why before everyone forgets", "should_trigger": true},
+  {"query": "is a 'table' the physical table or the seating assignment? our model treats it as both and it keeps biting us", "should_trigger": true},
+  {"query": "build the deposit refund feature, tests first", "should_trigger": false},
+  {"query": "review the diff on this branch before i merge — especially the error handling", "should_trigger": false},
+  {"query": "cut the guest-profiles epic into slices we can ship weekly", "should_trigger": false},
+  {"query": "the availability endpoint is slow under load, is there an n+1 in there?", "should_trigger": false}
+]

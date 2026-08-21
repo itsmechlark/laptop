@@ -345,10 +345,10 @@ the script's `evals_exempt` list.
   overlap, cheap to recover from. Move a name off that list the first time it
   actually misfires, and let the misfire motivate the query set.
 - **Adjacent skills share one query pool** with labels assigned per skill, so a
-  query proves exactly one of them fires — `git-commit`/`pull-request` and
-  `code-review`/`find-bugs` are the worked examples. Labelling a shared query
-  should-trigger in both makes the pair unfalsifiable, so `check-payload` fails
-  on that rather than trusting it.
+  query proves exactly one of them fires — `git-commit`/`pull-request`,
+  `code-review`/`find-bugs`, and `codebase-design`/`domain-modeling` are the
+  worked examples. Labelling a shared query should-trigger in both makes the
+  pair unfalsifiable, so `check-payload` fails on that rather than trusting it.
 
 Two checks are worth understanding before you change them:
 

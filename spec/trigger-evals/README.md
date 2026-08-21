@@ -13,9 +13,10 @@ module via `PYTHONPATH`, so the two never collide in practice.
 | `git-commit` + `pull-request` | The highest description overlap in the repo (0.188) |
 | `code-review` + `find-bugs` | Second highest (0.118), and the boundary between them — verdict vs evidence — has never been tested |
 | `tdd`, `fan-out` | A wrong trigger is expensive: one hijacks an implementation turn into red-green-refactor, the other spawns parallel agents |
+| `codebase-design` + `domain-modeling` | Both are design-time skills that fire on "this code is the wrong shape" requests, and `domain-modeling` hands work to `codebase-design` explicitly. The boundary — where the seam goes vs. what the words mean — had never been tested |
 
-The two pairs share a single query pool, labelled independently per skill, so a
-query establishes which of the two should win rather than testing each in
+The three pairs share a single query pool, labelled independently per skill, so
+a query establishes which of the two should win rather than testing each in
 isolation. `check-payload` fails if any shared query is labelled should-trigger
 in both — that would make the pair unfalsifiable.
 
@@ -125,6 +126,15 @@ label may be what's wrong:
   to `codebase-design`. The negative most likely to fail.
 - **explain**, "explain this stacktrace" — labelled should-not-trigger.
   Debugging, not code explanation, but it leads with the skill's own verb.
+- **domain-modeling**, "is a 'table' the physical table or the seating
+  assignment? our model treats it as both" — labelled should-trigger for
+  `domain-modeling` and not for `codebase-design`. Genuinely contested: one
+  fuzzy term hiding two concepts is a modelling problem, but "treats it as both"
+  is also a seam in the wrong place. Whichever fires, the other is one handoff
+  away — flip the pair if the eval disagrees.
+- **codebase-design**, "app/models/reservation.rb is 800 lines, split it into
+  smaller modules" — should-trigger here and should-not for `slice`, which is
+  the same query that set already carries as its most likely failing negative.
 
 ## One hypothesis these sets exist to settle
 
