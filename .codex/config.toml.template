@@ -503,3 +503,10 @@ log_user_prompt = false
 exporter = "none"
 trace_exporter = "none"
 metrics_exporter = "none"
+
+# -----------------------------------------------------------------------------
+# Projects
+# -----------------------------------------------------------------------------
+
+[projects."__HOME__/Codespace/laptop"]
+trust_level = "trusted"
