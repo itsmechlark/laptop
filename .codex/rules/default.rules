@@ -1,60 +1,264 @@
-prefix_rule(pattern = ["sudo"], decision = "forbidden", justification = "Privilege escalation is not allowed from Codex.")
-prefix_rule(pattern = ["doas"], decision = "forbidden", justification = "Privilege escalation is not allowed from Codex.")
-prefix_rule(pattern = ["su"], decision = "forbidden", justification = "User switching / privilege escalation is not allowed from Codex.")
-
-prefix_rule(pattern = ["mkfs"], decision = "forbidden", justification = "Filesystem formatting is destructive.")
-prefix_rule(pattern = ["fdisk"], decision = "forbidden", justification = "Disk partition mutation is destructive.")
-prefix_rule(pattern = ["parted"], decision = "forbidden", justification = "Disk partition mutation is destructive.")
-prefix_rule(pattern = ["dd"], decision = "forbidden", justification = "Raw disk/block device writes are destructive.")
-prefix_rule(pattern = ["shutdown"], decision = "forbidden", justification = "Host shutdown is not allowed from Codex.")
-prefix_rule(pattern = ["reboot"], decision = "forbidden", justification = "Host reboot is not allowed from Codex.")
-prefix_rule(pattern = ["poweroff"], decision = "forbidden", justification = "Host poweroff is not allowed from Codex.")
-
-prefix_rule(pattern = ["chmod", "777"], decision = "forbidden", justification = "World-writable permissions are not allowed.")
-prefix_rule(pattern = ["chmod", "-R", "777"], decision = "forbidden", justification = "Recursive world-writable permissions are not allowed.")
-prefix_rule(pattern = ["chown", "-R"], decision = "forbidden", justification = "Recursive ownership change is not allowed.")
-
-prefix_rule(pattern = ["eval"], decision = "forbidden", justification = "Shell eval is blocked — arbitrary code execution risk.")
-prefix_rule(pattern = ["diskutil", "eraseDisk"], decision = "forbidden", justification = "Disk erasure is destructive.")
-prefix_rule(pattern = ["csrutil", "disable"], decision = "forbidden", justification = "Disabling System Integrity Protection is not allowed.")
-
-prefix_rule(pattern = ["git", "push", "--force"], decision = "forbidden", justification = "Force-push is blocked. Use a normal push or obtain an explicit manual workflow outside Codex.")
-prefix_rule(pattern = ["git", "push", "-f"], decision = "forbidden", justification = "Force-push is blocked.")
-prefix_rule(pattern = ["git", "push", "--force-with-lease"], decision = "forbidden", justification = "Force-style pushes are blocked by the translated Claude policy.")
-prefix_rule(pattern = ["git", "reset", "--hard"], decision = "forbidden", justification = "Destructive reset is blocked.")
-
-prefix_rule(pattern = ["git", "clean", "-f"], decision = "forbidden", justification = "Forced git clean is destructive.")
-prefix_rule(pattern = ["git", "clean", "-fd"], decision = "forbidden", justification = "Forced git clean is destructive.")
-prefix_rule(pattern = ["git", "clean", "-df"], decision = "forbidden", justification = "Forced git clean is destructive.")
-prefix_rule(pattern = ["git", "clean", "-fdx"], decision = "forbidden", justification = "Forced git clean is destructive.")
-prefix_rule(pattern = ["git", "clean", "-dfx"], decision = "forbidden", justification = "Forced git clean is destructive.")
-
-prefix_rule(pattern = ["rm", ["-rf", "-fr"]], decision = "forbidden", justification = "Recursive forced deletion is blocked.")
-prefix_rule(pattern = ["rm", "-r", "-f"], decision = "forbidden", justification = "Recursive forced deletion is blocked.")
-prefix_rule(pattern = ["rm", "-f", "-r"], decision = "forbidden", justification = "Recursive forced deletion is blocked.")
-prefix_rule(pattern = ["rm", ["-Rf", "-fR"]], decision = "forbidden", justification = "Recursive forced deletion is blocked (capital -R).")
-prefix_rule(pattern = ["rm", "-R", "-f"], decision = "forbidden", justification = "Recursive forced deletion is blocked (capital -R).")
-prefix_rule(pattern = ["rm", "-f", "-R"], decision = "forbidden", justification = "Recursive forced deletion is blocked (capital -R).")
+# Codex command policy.
+#
+# Keep this file focused on native argv-prefix decisions. Prefix rules are exact
+# prefixes, so hard-deny cases whose dangerous option can legally appear later
+# in argv are duplicated in the PreToolUse Bash guard in config.toml.template.
+# The hook also forces non-canonical mutation forms back into a shape that these
+# approval rules can reliably match.
 
 # -----------------------------------------------------------------------------
-# Require approval
+# Forbidden: privilege escalation / host and disk destruction
 # -----------------------------------------------------------------------------
 
-prefix_rule(pattern = ["git", "push"], decision = "prompt", justification = "Remote Git mutation requires approval.")
-prefix_rule(pattern = ["git", "commit"], decision = "prompt", justification = "Creating a Git commit requires approval.")
-prefix_rule(pattern = ["git", "clean"], decision = "prompt", justification = "Git clean requires approval.")
+prefix_rule(
+    pattern = ["sudo"],
+    decision = "forbidden",
+    justification = "Privilege escalation is not allowed from Codex.",
+    match = ["sudo true"],
+)
 
-prefix_rule(pattern = ["rm", ["-r", "-R"]], decision = "prompt", justification = "Recursive deletion without force requires approval; the forced -rf/-Rf forms are blocked above.")
+prefix_rule(
+    pattern = ["doas"],
+    decision = "forbidden",
+    justification = "Privilege escalation is not allowed from Codex.",
+    match = ["doas true"],
+)
 
-prefix_rule(pattern = ["gh"], decision = "prompt", justification = "GitHub CLI access requires approval under the translated Claude policy.")
-prefix_rule(pattern = ["gem", "push"], decision = "prompt", justification = "Publishing a Ruby gem requires approval.")
-prefix_rule(pattern = ["npm", "publish"], decision = "prompt", justification = "Publishing an npm package requires approval.")
+prefix_rule(
+    pattern = ["su"],
+    decision = "forbidden",
+    justification = "User switching / privilege escalation is not allowed from Codex.",
+    match = ["su root"],
+)
 
-prefix_rule(pattern = ["terraform", "apply"], decision = "prompt", justification = "Infrastructure mutation requires approval.")
-prefix_rule(pattern = ["terraform", "destroy"], decision = "prompt", justification = "Infrastructure destruction requires approval.")
-prefix_rule(pattern = ["kubectl", "apply"], decision = "prompt", justification = "Kubernetes mutation requires approval.")
-prefix_rule(pattern = ["kubectl", "delete"], decision = "prompt", justification = "Kubernetes deletion requires approval.")
+prefix_rule(
+    pattern = [["mkfs", "fdisk", "parted", "dd"]],
+    decision = "forbidden",
+    justification = "Raw disk, filesystem, or partition mutation is destructive.",
+    match = ["mkfs /dev/disk9", "fdisk /dev/disk9", "parted /dev/disk9", "dd if=/dev/zero of=/dev/disk9"],
+)
 
-prefix_rule(pattern = ["curl"], decision = "prompt", justification = "External data fetch requires approval.")
-prefix_rule(pattern = ["wget"], decision = "prompt", justification = "External data fetch requires approval.")
-prefix_rule(pattern = ["ssh"], decision = "prompt", justification = "Remote shell access requires approval.")
+prefix_rule(
+    pattern = [["shutdown", "reboot", "poweroff"]],
+    decision = "forbidden",
+    justification = "Host shutdown or reboot is not allowed from Codex.",
+    match = ["shutdown -h now", "reboot", "poweroff"],
+)
+
+prefix_rule(
+    pattern = ["eval"],
+    decision = "forbidden",
+    justification = "Shell eval is blocked because it can execute dynamically constructed commands.",
+    match = ["eval echo ok"],
+)
+
+prefix_rule(
+    pattern = ["diskutil", "eraseDisk"],
+    decision = "forbidden",
+    justification = "Disk erasure is destructive and is not allowed from Codex.",
+    match = ["diskutil eraseDisk APFS Scratch /dev/disk9"],
+)
+
+prefix_rule(
+    pattern = ["csrutil", "disable"],
+    decision = "forbidden",
+    justification = "Disabling System Integrity Protection is not allowed from Codex.",
+    match = ["csrutil disable"],
+)
+
+# -----------------------------------------------------------------------------
+# Forbidden: destructive Git operations
+# -----------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = ["git", "push", ["--force", "-f", "--force-with-lease", "--force-if-includes"]],
+    decision = "forbidden",
+    justification = "Force-style Git pushes are blocked. Use a normal push or perform the force push manually outside Codex.",
+    match = [
+        "git push --force origin main",
+        "git push -f origin main",
+        "git push --force-with-lease origin main",
+    ],
+    not_match = [
+        # The PreToolUse hook catches this non-prefix placement.
+        "git push origin main --force",
+    ],
+)
+
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "forbidden",
+    justification = "Destructive reset is blocked. Use a non-destructive reset mode or restore selected paths explicitly.",
+    match = ["git reset --hard HEAD~1"],
+    not_match = [
+        # The PreToolUse hook catches this legal alternative placement.
+        "git reset HEAD~1 --hard",
+    ],
+)
+
+prefix_rule(
+    pattern = ["git", "clean", ["-f", "-fd", "-df", "-fdx", "-dfx", "--force"]],
+    decision = "forbidden",
+    justification = "Forced Git clean is destructive and is blocked.",
+    match = ["git clean -f", "git clean -fd", "git clean --force"],
+)
+
+# -----------------------------------------------------------------------------
+# Forbidden: destructive filesystem ownership / permission operations
+# -----------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = ["rm", ["-rf", "-fr", "-Rf", "-fR"]],
+    decision = "forbidden",
+    justification = "Recursive forced deletion is blocked. Remove force and use an approval-gated recursive delete if appropriate.",
+    match = ["rm -rf tmp", "rm -fr tmp", "rm -Rf tmp", "rm -fR tmp"],
+)
+
+prefix_rule(
+    pattern = ["rm", ["-r", "-R"], "-f"],
+    decision = "forbidden",
+    justification = "Recursive forced deletion is blocked. Remove force and use an approval-gated recursive delete if appropriate.",
+    match = ["rm -r -f tmp", "rm -R -f tmp"],
+)
+
+prefix_rule(
+    pattern = ["rm", "-f", ["-r", "-R"]],
+    decision = "forbidden",
+    justification = "Recursive forced deletion is blocked. Remove force and use an approval-gated recursive delete if appropriate.",
+    match = ["rm -f -r tmp", "rm -f -R tmp"],
+)
+
+prefix_rule(
+    pattern = ["rm", "--recursive", "--force"],
+    decision = "forbidden",
+    justification = "Recursive forced deletion is blocked. Remove force and use an approval-gated recursive delete if appropriate.",
+    match = ["rm --recursive --force tmp"],
+)
+
+prefix_rule(
+    pattern = ["rm", "--force", "--recursive"],
+    decision = "forbidden",
+    justification = "Recursive forced deletion is blocked. Remove force and use an approval-gated recursive delete if appropriate.",
+    match = ["rm --force --recursive tmp"],
+)
+
+prefix_rule(
+    pattern = ["chmod", ["777", "0777"]],
+    decision = "forbidden",
+    justification = "World-writable executable permissions are not allowed. Use the narrowest owner/group mode required.",
+    match = ["chmod 777 tmp", "chmod 0777 tmp"],
+)
+
+prefix_rule(
+    pattern = ["chmod", "-R", ["777", "0777"]],
+    decision = "forbidden",
+    justification = "Recursive world-writable executable permissions are not allowed.",
+    match = ["chmod -R 777 tmp", "chmod -R 0777 tmp"],
+)
+
+prefix_rule(
+    pattern = ["chown", ["-R", "--recursive"]],
+    decision = "forbidden",
+    justification = "Recursive ownership changes are not allowed from Codex.",
+    match = ["chown -R user:staff tmp", "chown --recursive user:staff tmp"],
+)
+
+# -----------------------------------------------------------------------------
+# Require approval: external writes / destructive local operations
+# -----------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = ["git", "push"],
+    decision = "prompt",
+    justification = "Remote Git mutation requires approval.",
+    match = ["git push", "git push origin main"],
+)
+
+prefix_rule(
+    pattern = ["git", "commit"],
+    decision = "prompt",
+    justification = "Creating a Git commit requires approval.",
+    match = ["git commit", "git commit -m message"],
+)
+
+prefix_rule(
+    pattern = ["git", "clean"],
+    decision = "prompt",
+    justification = "Git clean requires approval. Forced forms are blocked.",
+    match = ["git clean -n", "git clean -d -n"],
+)
+
+prefix_rule(
+    pattern = ["rm", ["-r", "-R", "--recursive"]],
+    decision = "prompt",
+    justification = "Recursive deletion without force requires approval; forced recursive deletion is blocked.",
+    match = ["rm -r tmp", "rm -R tmp", "rm --recursive tmp"],
+)
+
+prefix_rule(
+    pattern = ["gh"],
+    decision = "prompt",
+    justification = "GitHub CLI access requires approval under this policy.",
+    match = ["gh pr view 123", "gh api user"],
+)
+
+prefix_rule(
+    pattern = ["gem", "push"],
+    decision = "prompt",
+    justification = "Publishing a Ruby gem requires approval.",
+    match = ["gem push pkg/example-1.0.0.gem"],
+)
+
+prefix_rule(
+    pattern = ["npm", "publish"],
+    decision = "prompt",
+    justification = "Publishing an npm package requires approval.",
+    match = ["npm publish"],
+)
+
+prefix_rule(
+    pattern = ["terraform", ["apply", "destroy"]],
+    decision = "prompt",
+    justification = "Terraform infrastructure mutation requires approval.",
+    match = ["terraform apply", "terraform destroy"],
+    not_match = [
+        # The PreToolUse hook rejects this form and asks for `cd infra && terraform apply`.
+        "terraform -chdir=infra apply",
+    ],
+)
+
+prefix_rule(
+    pattern = ["kubectl", ["apply", "delete"]],
+    decision = "prompt",
+    justification = "Kubernetes mutation requires approval.",
+    match = ["kubectl apply -f deployment.yaml", "kubectl delete pod example"],
+    not_match = [
+        # The PreToolUse hook rejects this form and requires the subcommand first.
+        "kubectl --context prod delete pod example",
+    ],
+)
+
+# -----------------------------------------------------------------------------
+# Require approval: outbound / remote command tools
+# -----------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = ["curl"],
+    decision = "prompt",
+    justification = "External data fetch requires approval.",
+    match = ["curl https://example.com"],
+)
+
+prefix_rule(
+    pattern = ["wget"],
+    decision = "prompt",
+    justification = "External data fetch requires approval.",
+    match = ["wget https://example.com/file"],
+)
+
+prefix_rule(
+    pattern = ["ssh"],
+    decision = "prompt",
+    justification = "Remote shell access requires approval.",
+    match = ["ssh example.com"],
+)

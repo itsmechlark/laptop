@@ -21,6 +21,8 @@ web_search = "cached"
 
 [features]
 hooks = true
+# Required for [permissions.developer.network.domains] to be enforced.
+network_proxy = true
 
 # Scrub likely credentials from subprocess environments.
 [shell_environment_policy]
@@ -140,10 +142,12 @@ glob_scan_max_depth = 8
 # rewrite its own policy. .codex/** is the Codex policy; .claude/settings*.json
 # is the Claude policy; .cursor/** is the Cursor policy. See AGENTS.md
 # "Agent-client configuration parity".
-"**/.codex/**" = "read"
-"**/.claude/settings.json" = "read"
-"**/.claude/settings.local.json" = "read"
-"**/.cursor/**" = "read"
+# `read`/`write` rules must be exact paths or simple trailing `/**` subtrees.
+# These paths are relative to every effective workspace root.
+".codex/**" = "read"
+".claude/settings.json" = "read"
+".claude/settings.local.json" = "read"
+".cursor/**" = "read"
 
 [permissions.developer.network]
 enabled = true
@@ -215,14 +219,278 @@ type = "command"
 command = '''jq -r '(now | todate) + " " + (.tool_input.command | gsub("\\n"; " "))' >> ~/.codex/bash-log.txt 2>/dev/null || true'''
 timeout = 3
 
-# Enforce your worktree convention:
-#   $HOME/Codespace/<repo>.worktrees/<name>
+# Defense-in-depth Bash policy guard.
+#
+# Native .rules prefix matching remains the primary approval mechanism. This
+# hook closes gaps that prefix rules cannot express safely, such as `--force`
+# appearing later in argv, Git/Terraform/kubectl global options before a
+# mutation subcommand, grouped rm/chown flags, and worktree destination
+# validation. Hooks are guardrails rather than a complete security boundary.
+#
+# Requires python3 in PATH. If your bootstrap does not guarantee Python, move
+# this body to a repository-controlled executable and point `command` at it.
 [[hooks.PreToolUse]]
 matcher = "^Bash$"
 
 [[hooks.PreToolUse.hooks]]
 type = "command"
-command = '''cmd=$(jq -r '.tool_input.command'); case "$cmd" in *'worktree add'*) if printf '%s' "$cmd" | grep -qE '~/'; then echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Worktree paths must be absolute, not ~-prefixed: a ~ path does not match git worktree list and does not expand when quoted. Re-run with an absolute path like $HOME/Codespace/<repo>.worktrees/<name>."}}'; elif ! printf '%s' "$cmd" | grep -qE 'Codespace/[^/ ]+\.worktrees/'; then echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Worktrees must live at $HOME/Codespace/<repo>.worktrees/<name>, e.g. $HOME/Codespace/example.worktrees/ABC-1234-feat-example. Re-run with that absolute path."}}'; fi;; esac'''
+command = '''python3 -c '
+import json
+import os
+import re
+import shlex
+import sys
+
+payload = json.load(sys.stdin)
+command = payload.get("tool_input", {}).get("command", "")
+home = os.path.expanduser("~")
+
+
+def deny(reason):
+    print(json.dumps({
+        "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "permissionDecision": "deny",
+            "permissionDecisionReason": reason,
+        }
+    }))
+    raise SystemExit(0)
+
+
+def split_commands(script, depth=0):
+    if depth > 3:
+        return []
+
+    try:
+        lexer = shlex.shlex(script, posix=True, punctuation_chars=";&|")
+        lexer.whitespace_split = True
+        lexer.commenters = ""
+        tokens = list(lexer)
+    except ValueError:
+        return []
+
+    segments = []
+    current = []
+    for token in tokens:
+        if token and all(ch in ";&|" for ch in token):
+            if current:
+                segments.append(current)
+                current = []
+        else:
+            current.append(token)
+    if current:
+        segments.append(current)
+
+    result = []
+    for argv in segments:
+        result.append(argv)
+        normalized = normalize_argv(argv)
+        if not normalized:
+            continue
+        exe = os.path.basename(normalized[0])
+        if exe not in {"sh", "bash", "zsh"}:
+            continue
+        for index, token in enumerate(normalized[1:], start=1):
+            if token == "-c" or (token.startswith("-") and not token.startswith("--") and "c" in token[1:]):
+                if index + 1 < len(normalized):
+                    result.extend(split_commands(normalized[index + 1], depth + 1))
+                break
+    return result
+
+
+def normalize_argv(argv):
+    argv = list(argv)
+    index = 0
+    while index < len(argv) and re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", argv[index]):
+        index += 1
+    argv = argv[index:]
+
+    while argv:
+        exe = os.path.basename(argv[0])
+        if exe in {"command", "builtin", "exec", "nohup"}:
+            argv = argv[1:]
+            continue
+        if exe == "env":
+            argv = argv[1:]
+            while argv and (argv[0].startswith("-") or re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", argv[0])):
+                argv = argv[1:]
+            continue
+        break
+    return argv
+
+
+def option_flags(args):
+    short = set()
+    long = set()
+    for token in args:
+        if token == "--":
+            break
+        if token.startswith("--"):
+            long.add(token.split("=", 1)[0])
+        elif token.startswith("-") and token != "-":
+            short.update(token[1:])
+    return short, long
+
+
+def first_subcommand(args, names):
+    for index, token in enumerate(args):
+        if token in names:
+            return index, token
+    return None, None
+
+
+def chmod_world_writable(args):
+    mode = None
+    skip_next = False
+    for token in args:
+        if skip_next:
+            skip_next = False
+            continue
+        if token == "--":
+            continue
+        if token == "--reference":
+            skip_next = True
+            continue
+        if token.startswith("-"):
+            continue
+        mode = token
+        break
+
+    if mode is None:
+        return False
+
+    if re.fullmatch(r"[0-7]+", mode):
+        return bool(int(mode[-1], 8) & 0o2)
+
+    for clause in mode.split(","):
+        match = re.fullmatch(r"([ugoa]*)([+=-])([rwxXstugo]*)", clause)
+        if not match:
+            continue
+        who, operation, permissions = match.groups()
+        targets_other = "a" in who or "o" in who
+        if targets_other and operation in {"+", "="} and "w" in permissions:
+            return True
+    return False
+
+
+def validate_worktree_path(args, worktree_index):
+    tail = args[worktree_index + 2:]
+    path = None
+    index = 0
+    options_with_value = {"-b", "-B", "--reason"}
+    while index < len(tail):
+        token = tail[index]
+        if token == "--":
+            if index + 1 < len(tail):
+                path = tail[index + 1]
+            break
+        if token in options_with_value:
+            index += 2
+            continue
+        if token.startswith("--reason=") or token.startswith("-b") and token != "-b" or token.startswith("-B") and token != "-B":
+            index += 1
+            continue
+        if token.startswith("-"):
+            index += 1
+            continue
+        path = token
+        break
+
+    if path is None:
+        return
+    if path.startswith("~") or not os.path.isabs(path):
+        deny("Worktree paths must be absolute and must not use ~ or shell-variable prefixes. Use $HOME expanded to its absolute path under $HOME/Codespace/<repo>.worktrees/<name>.")
+
+    codespace = os.path.normpath(os.path.join(home, "Codespace"))
+    candidate = os.path.normpath(path)
+    try:
+        relative = os.path.relpath(candidate, codespace)
+    except ValueError:
+        deny("Worktrees must live at $HOME/Codespace/<repo>.worktrees/<name>.")
+
+    parts = relative.split(os.sep)
+    if relative.startswith(".." + os.sep) or relative == ".." or len(parts) != 2 or not parts[0].endswith(".worktrees") or not parts[1]:
+        deny("Worktrees must live at $HOME/Codespace/<repo>.worktrees/<name>, for example $HOME/Codespace/example.worktrees/ABC-1234-feat-example.")
+
+
+for raw_argv in split_commands(command):
+    argv = normalize_argv(raw_argv)
+    if not argv:
+        continue
+
+    exe = os.path.basename(argv[0])
+    args = argv[1:]
+
+    if exe in {"sudo", "doas", "su"}:
+        deny("Privilege escalation or user switching is not allowed from Codex.")
+
+    if exe in {"mkfs", "fdisk", "parted", "dd"}:
+        deny("Raw disk, filesystem, or partition mutation is blocked as destructive.")
+
+    if exe in {"shutdown", "reboot", "poweroff"}:
+        deny("Host shutdown or reboot is not allowed from Codex.")
+
+    if exe == "eval":
+        deny("Shell eval is blocked because it can execute dynamically constructed commands.")
+
+    if exe == "diskutil" and "eraseDisk" in args:
+        deny("Disk erasure is destructive and is not allowed from Codex.")
+
+    if exe == "csrutil" and "disable" in args:
+        deny("Disabling System Integrity Protection is not allowed from Codex.")
+
+    if exe == "git":
+        sub_index, subcommand = first_subcommand(args, {"push", "commit", "clean", "reset", "worktree"})
+        if subcommand == "push":
+            tail = args[sub_index + 1:]
+            short, long = option_flags(tail)
+            if "f" in short or "--force" in long or "--force-with-lease" in long or "--force-if-includes" in long:
+                deny("Force-style Git pushes are blocked. Use a normal push or perform the force push manually outside Codex.")
+            if sub_index != 0:
+                deny("Git push must use canonical `git push ...` form so the native approval rule cannot be bypassed. Change directory first instead of placing Git global options before `push`.")
+        elif subcommand == "commit" and sub_index != 0:
+            deny("Git commit must use canonical `git commit ...` form so the native approval rule cannot be bypassed. Change directory first instead of placing Git global options before `commit`.")
+        elif subcommand == "clean":
+            tail = args[sub_index + 1:]
+            short, long = option_flags(tail)
+            if "f" in short or "--force" in long:
+                deny("Forced Git clean is destructive and is blocked.")
+            if sub_index != 0:
+                deny("Git clean must use canonical `git clean ...` form so the native approval rule cannot be bypassed. Change directory first instead of placing Git global options before `clean`.")
+        elif subcommand == "reset":
+            tail = args[sub_index + 1:]
+            if "--hard" in tail:
+                deny("Destructive `git reset --hard` is blocked.")
+        elif subcommand == "worktree" and sub_index + 1 < len(args) and args[sub_index + 1] == "add":
+            validate_worktree_path(args, sub_index)
+
+    if exe == "rm":
+        short, long = option_flags(args)
+        recursive = "r" in short or "R" in short or "--recursive" in long
+        forced = "f" in short or "--force" in long
+        if recursive and forced:
+            deny("Recursive forced deletion is blocked. Remove `-f`/`--force` and use an approval-gated recursive delete if appropriate.")
+        if recursive and (not args or args[0] not in {"-r", "-R", "--recursive"}):
+            deny("Recursive rm must place `-r`, `-R`, or `--recursive` immediately after `rm` so the native approval rule cannot be bypassed.")
+
+    if exe == "chmod" and chmod_world_writable(args):
+        deny("Making files world-writable is blocked. Use the narrowest owner/group permissions required.")
+
+    if exe == "chown":
+        short, long = option_flags(args)
+        if "R" in short or "--recursive" in long:
+            deny("Recursive ownership changes are blocked.")
+
+    if exe == "terraform":
+        sub_index, subcommand = first_subcommand(args, {"apply", "destroy"})
+        if subcommand is not None and sub_index != 0:
+            deny("Terraform mutation must use canonical `terraform apply` or `terraform destroy` form so the native approval rule cannot be bypassed. Change directory first instead of placing global options before the subcommand.")
+
+    if exe == "kubectl":
+        sub_index, subcommand = first_subcommand(args, {"apply", "delete"})
+        if subcommand is not None and sub_index != 0:
+            deny("kubectl mutation must put `apply` or `delete` immediately after `kubectl` so the native approval rule cannot be bypassed. Move global flags after the subcommand.")
+''''
 timeout = 3
 
 # -----------------------------------------------------------------------------
