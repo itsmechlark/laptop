@@ -1,8 +1,7 @@
 ---
 name: draft-spec
-description: Turn the current conversation into a formal, agent-ready spec document for triage and implementation planning. Use when the user asks to spec something out, write a discussion up as an issue, or capture a feature before coding starts.
+description: Turn an already-settled conversation or approved design into a formal, agent-ready spec document for triage and implementation planning. Use when asked to spec something out, write a discussion up as an issue, or formalize a design that has been agreed — including when `brainstorming` hands over an approved design. Synthesizes what is already decided; not for opening a requirements interview.
 argument-hint: "[feature, decision, or conversation to specify]"
-disable-model-invocation: true
 ---
 
 # Draft Spec
@@ -11,7 +10,10 @@ Convert the current conversation into a spec that another person or agent can im
 
 ## When to use
 
-Use only when explicitly invoked, for example when the user asks to turn a discussion into a specification or issue. Do not invoke this automatically in the middle of implementation.
+Use when the user asks to turn a discussion into a specification or issue, or when an upstream design handoff arrives ready to formalize — `brainstorming`'s architectural path ends here. Two guards, because this skill is cheap to reach for and expensive to reach for early:
+
+- **Not mid-implementation.** A spec written over a half-built change documents the guess rather than the decision. If code is already in flight, say so and stop.
+- **Not as a substitute for the conversation.** This synthesizes what is settled; it does not settle it. If the discussion hasn't converged enough to write down, say what's still open instead of drafting around it.
 
 ## Process
 

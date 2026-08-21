@@ -1,8 +1,7 @@
 ---
 name: explain
-description: Explain what a piece of code does — a specific file, class, or method in close detail, or a user-facing flow as a concise system overview. What it does and why, not whether it's good.
+description: Explain what a piece of code does — a specific file, class, or method in close detail, or a user-facing flow as a concise system overview. Use when asked what something does, how a flow works, where something is handled, or to build a mental model of unfamiliar code before changing it. What it does and why, never whether it's good — no review, no edits.
 argument-hint: "[file path, class name, method, or flow description]"
-disable-model-invocation: true
 context: fork
 agent: Explore
 ---

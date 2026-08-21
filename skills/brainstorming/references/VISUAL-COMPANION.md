@@ -42,7 +42,8 @@ than told — a real mockup, layout, or diagram question, not merely a UI *topic
 The first time that happens, offer it as its own message:
 
 > "This next part might be easier if I show you — I can put together mockups and
-> comparisons in a browser tab. Want me to?"
+> comparisons in a browser tab. It's token-intensive, so only worth it if seeing
+> it would help. Want me to?"
 
 **This offer must be its own message** — no clarifying question or other content.
 Wait for the user's response. If they decline, continue text-only and don't offer
@@ -68,20 +69,27 @@ Use whatever commands the loaded workflow provides for opening a local file URL
 page state. Do not guess at commands — the CLI surface may change between
 versions.
 
-### Using Chrome DevTools MCP
+### Using a browser MCP server
 
-If a Chrome DevTools MCP session is active, use its tools directly:
+If the session has browser tools from an MCP server (Chrome DevTools MCP, or
+whatever the host provides), use them directly: navigate to the mockup's
+`file://` URL, screenshot it, and read the page when you need its structure.
+Check the tool names available in the session rather than assuming them — they
+differ between servers and change between versions.
 
-1. Write the HTML mockup to a file
-2. Open it with `new_page` or `navigate_page` using a `file://` URL
-3. Use `take_screenshot` to capture and show to the user
-4. Use `take_snapshot` to read the page's accessibility tree for interaction
+Two constraints worth knowing before you reach for them:
+
+- **Reuse a page instead of opening one.** Opening a new page can be
+  approval-gated (`new_page` sits in this repo's `permissions.ask` list), so
+  navigating an existing page avoids a prompt on every iteration.
+- **Script evaluation may be denied outright.** Don't design the loop around
+  running JavaScript in the page; put everything the user needs into the HTML.
 
 ## The loop
 
 1. **Write HTML** to a file in `$TMPDIR` — use semantic filenames:
    `layout-options.html`, `wizard-flow.html`, `dashboard-mockup.html`
-2. **Open in browser** via `agent-browser` or Chrome DevTools MCP
+2. **Open in browser** via `agent-browser` or the session's browser MCP tools
 3. **Tell the user what to expect** — brief text summary of what's on screen,
    ask them to respond in the terminal
 4. **Get feedback** — the user's terminal response is the primary input
@@ -94,86 +102,23 @@ If a Chrome DevTools MCP session is active, use its tools directly:
 
 ## Writing mockup HTML
 
-Write self-contained HTML files. Include all styles inline — no external
-dependencies.
+Start from [`assets/mockup-template.html`](../assets/mockup-template.html) —
+copy it to `$TMPDIR`, replace the question and the options, and delete the
+wireframe blocks this question doesn't need. It's a self-contained page: styles
+inline, no external dependencies, and a `prefers-color-scheme` palette so it
+reads in a dark browser as well as a light one.
 
-### Minimal example — A/B choice
+What the template carries:
 
-```html
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>Layout Options</title>
-<style>
-  body { font-family: system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }
-  h2 { margin-bottom: 0.25rem; }
-  .subtitle { color: #666; margin-top: 0; }
-  .options { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
-  .option { border: 2px solid #e0e0e0; border-radius: 8px; padding: 1.5rem; }
-  .option h3 { margin-top: 0; }
-  .letter { font-size: 1.5rem; font-weight: bold; color: #666; margin-bottom: 0.5rem; }
-</style>
-</head>
-<body>
-  <h2>Which layout works better?</h2>
-  <p class="subtitle">Consider readability and visual hierarchy</p>
-  <div class="options">
-    <div class="option">
-      <div class="letter">A</div>
-      <h3>Single Column</h3>
-      <p>Clean, focused reading experience. Content flows top to bottom.</p>
-    </div>
-    <div class="option">
-      <div class="letter">B</div>
-      <h3>Two Column</h3>
-      <p>Sidebar navigation with main content area. Better for complex apps.</p>
-    </div>
-  </div>
-</body>
-</html>
-```
+- An A/B (or A–D) option grid — the shape most design questions take
+- Wireframe blocks as commented-out markup keyed to CSS classes: navbar,
+  sidebar-plus-content split, image placeholder, mock input and button
+- Theme tokens (`--bg`, `--fg`, `--muted`, `--line`, `--panel`, `--accent`) —
+  use these instead of hardcoding colors, or the mockup only works in one theme
 
-### Wireframe building blocks
-
-Use simple CSS to represent UI elements:
-
-```html
-<!-- Navigation bar -->
-<div style="background:#f5f5f5; padding:0.75rem 1rem; border-bottom:1px solid #ddd; display:flex; gap:1rem; align-items:center;">
-  <strong>Logo</strong> <span>Home</span> <span>About</span> <span>Contact</span>
-</div>
-
-<!-- Sidebar + content layout -->
-<div style="display:flex; min-height:400px;">
-  <div style="width:200px; background:#fafafa; border-right:1px solid #eee; padding:1rem;">Sidebar</div>
-  <div style="flex:1; padding:1rem;">Main content area</div>
-</div>
-
-<!-- Placeholder block -->
-<div style="background:#f0f0f0; border:2px dashed #ccc; padding:2rem; text-align:center; color:#999;">
-  Image placeholder (400×300)
-</div>
-
-<!-- Mock form elements -->
-<input style="border:1px solid #ccc; padding:0.5rem; border-radius:4px; width:200px;" placeholder="Input field" disabled>
-<button style="background:#2563eb; color:white; border:none; padding:0.5rem 1rem; border-radius:4px;">Action</button>
-```
-
-### Side-by-side comparison
-
-```html
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem;">
-  <div>
-    <h3>Option A</h3>
-    <!-- mockup content -->
-  </div>
-  <div>
-    <h3>Option B</h3>
-    <!-- mockup content -->
-  </div>
-</div>
-```
+For anything the template doesn't cover, keep writing plain semantic HTML with
+an inline `<style>`. No framework, no CDN — the file has to open from `file://`
+with no network.
 
 ## Design tips
 

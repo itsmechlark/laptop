@@ -257,6 +257,16 @@
     "git-worktree": {
       "sources": [
         {
+          "origin": "obra/superpowers",
+          "type": "github",
+          "url": "https://github.com/obra/superpowers",
+          "path": "skills/using-git-worktrees",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "b36e0829c6d0140e93cfef2ca599b1b07d4a7797",
+          "reviewed": "2026-08-21"
+        },
+        {
           "origin": "Adapt, \"Build Wide, Ship Narrow\"",
           "type": "web",
           "url": "https://adapt.com/blog/build-wide-ship-narrow",

@@ -23,7 +23,7 @@ Track the phases (e.g. with `TodoWrite`) so the user can see where they are. Whe
 
 Initial request: `$ARGUMENTS`
 
-If it's unclear, ask what they're building — the problem it solves, who it's for, what "done" looks like. Keep it short; the `slice` skill interrogates scope properly in Phase 3, so here you only need enough to explore the codebase intelligently.
+If it's unclear, ask what they're building — the problem it solves, who it's for, what "done" looks like. Keep it short; the `slice` skill interrogates scope properly in Phase 3, so here you only need enough to explore the codebase intelligently. If the shape of the thing isn't settled yet — the approach is open, or the design needs working out before anyone slices it — that's `brainstorming`, and it hands the approved design back here.
 
 Then make an explicit call on size: **is this one slice, or an epic hiding several?** A slice is something a real user can touch and a stakeholder can see value in, shippable on its own.
 
@@ -48,7 +48,7 @@ Ask each explorer for the 5–10 files most worth reading, then **read those fil
 
 **Goal:** turn the framed feature into one sharp slice with real acceptance criteria.
 
-**Run the `slice` skill's process** and let it lead the conversation. `slice` is user-invoke-only (`disable-model-invocation: true`), so read its `SKILL.md` and drive its process yourself. Since Phase 1 established this is a single slice, `slice` should sharpen it into one job story (its small-feature path). Feed it what you learned in Phases 1–2 so the conversation starts warm.
+**Invoke the `slice` skill** and let it lead the conversation. Since Phase 1 established this is a single slice, `slice` should sharpen it into one job story (its small-feature path). Feed it what you learned in Phases 1–2 so the conversation starts warm.
 
 What you need out of this phase: a job story with a clear **"ships when"** and concrete **acceptance criteria** — happy path, edge cases, error states. Those aren't paperwork; they become the failing tests in Phase 4. Push until each criterion is specific and verifiable ("a user can X and sees Y") — a vague criterion produces a vague test that proves nothing.
 
@@ -58,7 +58,7 @@ Close with a rough **size budget:** given what Phase 2 revealed, does the slice 
 
 **Goal:** implement the slice with strict, outside-in TDD, driven by the acceptance criteria.
 
-**Run the `tdd` skill's process** without shortcuts (it's also user-invoke-only — read its `SKILL.md` and drive the red-green-refactor loop yourself). Hand it the acceptance criteria as the specification: each criterion is a behavior that needs a failing test before any production code exists.
+**Invoke the `tdd` skill** and run its process without shortcuts. Hand it the acceptance criteria as the specification: each criterion is a behavior that needs a failing test before any production code exists.
 
 The skills fit together: `slice` produced the observable behaviors, and TDD drives them outside-in — start with a high-level test for the "ships when" behavior, let its failure push you down through the layers, write minimal code at each. The slice is done when every criterion is covered by a test you watched fail and then pass, and the suite is green with pristine output. Honor the Iron Law: no production code without a failing test first.
 
@@ -117,4 +117,4 @@ Each piece is rigorous on its own; your job is to run them in sequence and keep 
 - The code review does the reviewing and fixing; your job after it runs is to confirm the suite is still green and that any behavior it changed is covered by a test.
 - `git-commit` makes the atomic-commit call itself. Expect a single commit for one coherent slice — don't pre-split, but hand it the "ships when" context.
 
-`slice` and `tdd` are user-invoke-only, so the Skill tool refuses them — **read and follow their `SKILL.md` directly**. `git-commit` has no such restriction; invoke it through the Skill tool. Whatever the reason a phase's skill can't be invoked, follow its `SKILL.md` rather than skipping the phase. The sequence is the point.
+Every skill this workflow leans on — `slice`, `tdd`, `code-review`, `git-commit`, and `explain` in Phase 2 — invokes normally through the Skill tool. If one ever can't be invoked, follow its `SKILL.md` rather than skipping the phase. The sequence is the point.

@@ -1,8 +1,7 @@
 ---
 name: slice
-description: Break a feature into independently shippable slices — split an epic into stories, sharpen a story into a job story, or scope work for incremental delivery. Use when asked to break down a feature, slice an epic, split work into stories, write job stories, or decide what to ship first.
+description: Break a feature into independently shippable slices — split an epic into stories, sharpen a story into a job story, or scope work for incremental delivery. Use when asked to break down a feature, slice an epic, split work into stories, write job stories, or decide what to ship first. Not for building a slice once it is defined, and not for deciding what to build while the approach is still open.
 argument-hint: "[feature description]"
-disable-model-invocation: true
 ---
 
 # Feature slicing
@@ -18,6 +17,7 @@ Turn a feature into slices that can each ship on their own and deliver visible v
 - Not for building a slice once it's defined
 - Not for items already filed on an issue tracker — use `triage` to work those
 - Not for writing the work up as a single spec document — use `draft-spec` for that
+- Not for deciding *what* to build when the approach is still open — use `brainstorming` first; its architectural path hands the approved design here
 
 ## Workflow
 

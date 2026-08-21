@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design question</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #666666;
+    --line: #e0e0e0;
+    --panel: #fafafa;
+    --chrome: #f5f5f5;
+    --accent: #2563eb;
+    --accent-fg: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181c;
+      --fg: #e8e8e8;
+      --muted: #9aa0a6;
+      --line: #2f333a;
+      --panel: #1e2126;
+      --chrome: #22262c;
+      --accent: #5b8cff;
+      --accent-fg: #10131a;
+    }
+  }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    line-height: 1.5;
+  }
+  h2 { margin-bottom: 0.25rem; }
+  .subtitle { color: var(--muted); margin-top: 0; }
+  .options { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+  .option { border: 2px solid var(--line); border-radius: 8px; padding: 1.5rem; background: var(--panel); }
+  .option h3 { margin-top: 0; }
+  .letter { font-size: 1.5rem; font-weight: bold; color: var(--muted); margin-bottom: 0.5rem; }
+  /* Wireframe building blocks */
+  .navbar { background: var(--chrome); padding: 0.75rem 1rem; border-bottom: 1px solid var(--line); display: flex; gap: 1rem; align-items: center; }
+  .split { display: flex; min-height: 400px; }
+  .split > .sidebar { width: 200px; background: var(--panel); border-right: 1px solid var(--line); padding: 1rem; }
+  .split > .main { flex: 1; padding: 1rem; }
+  .placeholder { background: var(--panel); border: 2px dashed var(--line); padding: 2rem; text-align: center; color: var(--muted); }
+  .field { border: 1px solid var(--line); background: var(--bg); color: var(--fg); padding: 0.5rem; border-radius: 4px; width: 200px; }
+  .button { background: var(--accent); color: var(--accent-fg); border: none; padding: 0.5rem 1rem; border-radius: 4px; }
+  @media (max-width: 700px) { .options { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+  <h2>Which layout works better?</h2>
+  <p class="subtitle">State the question here — never just "pick one".</p>
+
+  <div class="options">
+    <div class="option">
+      <div class="letter">A</div>
+      <h3>Single column</h3>
+      <p>Clean, focused reading experience. Content flows top to bottom.</p>
+    </div>
+    <div class="option">
+      <div class="letter">B</div>
+      <h3>Two column</h3>
+      <p>Sidebar navigation with main content area. Better for complex apps.</p>
+    </div>
+  </div>
+
+  <!-- Wireframe blocks — delete what this question doesn't need.
+
+  <div class="navbar"><strong>Logo</strong> <span>Home</span> <span>About</span></div>
+
+  <div class="split">
+    <div class="sidebar">Sidebar</div>
+    <div class="main">Main content area</div>
+  </div>
+
+  <div class="placeholder">Image placeholder (400×300)</div>
+
+  <input class="field" placeholder="Input field" disabled>
+  <button class="button">Action</button>
+  -->
+</body>
+</html>

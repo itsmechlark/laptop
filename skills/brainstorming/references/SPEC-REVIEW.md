@@ -8,6 +8,11 @@ architectural path. Fix issues inline — no separate review cycle needed.
 After writing the spec (via `draft-spec` or directly) and before asking the user
 to review it. The goal is to catch problems the user shouldn't have to.
 
+`draft-spec` runs its own check of the draft's shape — actors, stories, scope
+boundaries. This checklist is the pass it can't do: measuring the spec against
+the brainstorming conversation that produced it. Don't re-litigate its checks;
+look for what the conversation settled and the document lost.
+
 ## Review checklist
 
 ### 1. Placeholder scan
@@ -86,11 +91,17 @@ but the reasoning wasn't captured, add a brief note on why.
 
 ## Presenting to the user
 
-After the self-review, ask the user to review the written spec:
+After the self-review, ask the user to review the spec. A spec is a Markdown
+draft in the conversation unless the user named a location for it — don't
+promise a file that doesn't exist, and don't invent a path to make the sentence
+read better:
 
-> "Spec written to `<path>`. I've reviewed it for placeholders, consistency,
-> scope, and ambiguity. Please take a look and let me know if you want any
-> changes before we move to implementation planning."
+> "Spec drafted below — I've reviewed it for placeholders, consistency, scope,
+> and ambiguity. Please take a look and let me know if you want any changes
+> before we move to implementation planning."
+
+Swap "drafted below" for "written to `<path>`" only when you actually wrote a
+file there.
 
 Wait for the user's response. If they request changes, make them and re-run the
 relevant review checks. Only proceed to implementation once the user approves.

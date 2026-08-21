@@ -175,4 +175,4 @@ If an agent failed or returned inconclusive results, investigate its domain your
 
 ## Attribution
 
-- [obra/superpowers](https://github.com/obra/superpowers/tree/main/skills/dispatching-parallel-agents) — dispatching-parallel-agents, MIT
+- [obra/superpowers](https://github.com/obra/superpowers/tree/main/skills/dispatching-parallel-agents) - dispatching-parallel-agents, MIT

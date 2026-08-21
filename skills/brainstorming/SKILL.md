@@ -12,6 +12,12 @@ how much process the request needs, work through the matching path — understan
 context, refine the idea, present a design — and get approval before any
 implementation begins.
 
+Initial request: `$ARGUMENTS`
+
+If no idea came with the invocation, open with: **"What are you thinking about
+building? Describe the idea — rough is fine."** Classify only once you have an
+answer; there is nothing to classify before that.
+
 ## When to use this skill
 
 - User has an idea and wants to think it through before coding
@@ -41,7 +47,9 @@ write a spec" — so the user can override it.
 dirty is fine") whose output is an answer, not code you keep. Present the
 question and what you'll try in 2–3 sentences, get a nod, then investigate as
 cheaply as correctness allows. No design doc, no spec. Report findings as a
-recommendation; anything you built stays labeled throwaway.
+recommendation; anything you built stays labeled throwaway. Probe code lives in
+a scratch worktree (`git-worktree`) or `$TMPDIR` — never on the user's branch,
+and never committed.
 
 **Bounded** — a well-scoped change to code that already exists in this repo: a
 new flag, a small endpoint, a one-file fix. Understanding the kind of app is not
@@ -64,6 +72,12 @@ Terminal states are path-bound. Spike: reported recommendation. Bounded:
 approved design, then handoff. Architectural: approved spec, then `slice` or
 `feature-dev`.
 
+`feature-dev` is user-invoke-only, so the Skill tool refuses it — **read and
+follow its `SKILL.md` directly**. Every other handoff here (`draft-spec`,
+`slice`, `tdd`, `domain-modeling`, `codebase-design`, `grilling`) invokes
+normally through the Skill tool. Whatever the reason a handoff's skill can't be
+invoked, follow its `SKILL.md` rather than skipping the handoff.
+
 ## Checklists
 
 Track progress (e.g. with tasks) and complete items in order.
@@ -82,15 +96,17 @@ Track progress (e.g. with tasks) and complete items in order.
 4. Get approval — STOP and wait for an explicit yes; presenting the design and
    starting in the same breath is skipping the gate
 
-After approval, hand off to the normal development workflow (`tdd`, or
-`feature-dev` for the full chain). Brainstorming's job ends at the approved
-design — no spec file, no plan document.
+After approval, hand off to the normal development workflow: `tdd` for the
+change itself, or `feature-dev` when the work wants the full slice → build →
+review → commit chain. Prefer `tdd` for genuinely bounded work — `feature-dev`
+opens by re-framing and re-slicing the thing you just designed. Brainstorming's
+job ends at the approved design — no spec file, no plan document.
 
 **Architectural:** explore context, ask clarifying questions, propose 2–3
 approaches with trade-offs and your recommendation, then present the design in
-sections (getting approval after each), write and self-review the spec, and hand
-off to implementation. The full checklist is in
-[PROCESS.md](references/PROCESS.md).
+sections (getting approval after each), record the decisions that held still,
+write and self-review the spec, and hand off to implementation. The full
+checklist is in [PROCESS.md](references/PROCESS.md).
 
 **Visual companion (architectural only):** at any point during questions or
 design, if a question would genuinely be clearer shown than described — a layout
@@ -103,9 +119,9 @@ own message. If no visual question arises, never offer it. See
 The detailed process for each phase — understanding the idea, exploring
 approaches, presenting the design, working in existing codebases — is in
 [PROCESS.md](references/PROCESS.md). Read it in full on the architectural path.
-The bounded path needs only its "Understanding the idea" and "Working in
-existing codebases" sections; the rest is architectural ceremony. It also links
-to:
+The bounded path needs only its "Understanding the idea", "Design for isolation
+and clarity", and "Working in existing codebases" sections; the rest is
+architectural ceremony. It also links to:
 
 - [SPEC-REVIEW.md](references/SPEC-REVIEW.md) — spec self-review checklist
 - [VISUAL-COMPANION.md](references/VISUAL-COMPANION.md) — browser-based mockups
@@ -131,7 +147,14 @@ Read these as needed during the architectural path, not all upfront.
 - **Scope decomposition comes before design.** If the request describes multiple
   independent subsystems, flag it immediately — don't spend questions refining
   details of a project that needs decomposition first.
+- **A request to skip the questions is not a request to skip the gate.** If the
+  user wants the design without the interview, draft it — then mark every
+  assumption you had to invent and hand it back for correction rather than
+  presenting it as settled. The approval gate still stands.
+- **Some requests don't need a design at all.** A typo, a rename, a one-line
+  config change: say so in a sentence, offer to just make the change, and wait
+  for the go-ahead. Don't manufacture ceremony to justify the invocation.
 
 ## Attribution
 
-- [obra/superpowers](https://github.com/obra/superpowers/tree/main/skills/brainstorming) — brainstorming, MIT
+- [obra/superpowers](https://github.com/obra/superpowers/tree/main/skills/brainstorming) - brainstorming, MIT
