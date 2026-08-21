@@ -268,8 +268,11 @@ nothing previously enforced: handoff invocability (a skill telling the agent to
 invoke a `disable-model-invocation` sibling, or calling an invocable one
 user-invoke-only), `## Attribution` agreement with `skills-provenance.json`,
 vendored-edit discipline, secret-path parity across the three clients,
-frontmatter and size limits, resource-link resolution, and which `rules/` load
-for a given path (cases in `spec/rules-cases.txt`).
+frontmatter and size limits, resource-link resolution, global-standards section
+citations (an `AGENTS.md §N` in a skill must resolve, and must name the section
+correctly where it names it at all — section numbers shift when one is
+inserted), and which `rules/` load for a given path (cases in
+`spec/rules-cases.txt`).
 
 The vendored-edit rule is the single check that looks past `skills/`, and only
 at *which paths a commit touches* — never at a body's content. A vendored skill

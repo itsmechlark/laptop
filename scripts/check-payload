@@ -472,6 +472,58 @@ else
   done
 fi
 
+# --------------------------------------------- AGENTS.md section citations
+
+# A shipped skill may cite the global standards by section number. The number
+# is not stable — inserting a section renumbers every one below it, and nothing
+# in the citation would look wrong afterwards. So each `AGENTS.md §N` must
+# resolve, and where the citation also names the section (the form that makes a
+# renumbering visible to a reader), the name must match the heading.
+fancy_echo "Checking AGENTS.md section citations ..."
+
+standards=.agents/AGENTS.md
+
+# Reports one problem per line rather than calling fail() directly: the scan
+# runs inside a pipeline, and a subshell cannot increment the caller's counter.
+scan_citations() {
+  for md in "$@"; do
+    [ -f "$md" ] || continue
+    is_vendored "$(printf '%s' "$md" | cut -d/ -f2)" && continue
+
+    grep -oE 'AGENTS\.md §[0-9]+(,? \(?\*[^*]+\*\)?)?' "$md" |
+      while IFS= read -r cite; do
+        num=$(printf '%s' "$cite" | sed -E 's/.*§([0-9]+).*/\1/')
+        title=$(printf '%s' "$cite" | sed -n 's/.*\*\(.*\)\*.*/\1/p')
+
+        heading=$(grep -E "^## ${num}\. " "$standards" | head -1)
+        if [ -z "$heading" ]; then
+          printf "%s: cites AGENTS.md §%s, which has no matching section\n" \
+            "$md" "$num"
+          continue
+        fi
+
+        [ -n "$title" ] || continue
+        actual=$(printf '%s' "$heading" | sed -E "s/^## ${num}\. //")
+        if [ "$title" != "$actual" ]; then
+          printf "%s: cites AGENTS.md §%s as '%s', but it is '%s'\n" \
+            "$md" "$num" "$title" "$actual"
+        fi
+      done
+  done
+}
+
+if [ ! -f "$standards" ]; then
+  warn "$standards is missing — section citations not checked"
+else
+  cite_report=$(scan_citations skills/*/SKILL.md skills/*/references/*.md)
+  if [ -n "$cite_report" ]; then
+    printf '%s\n' "$cite_report" | while IFS= read -r line; do
+      printf "  FAIL  %s\n" "$line"
+    done
+    failures=$((failures + $(printf '%s\n' "$cite_report" | wc -l | tr -d ' ')))
+  fi
+fi
+
 # --------------------------------------------------------- rules frontmatter
 
 fancy_echo "Checking rules frontmatter ..."
