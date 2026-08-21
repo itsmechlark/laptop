@@ -28,7 +28,7 @@
 # Usage (from anywhere — it relocates to the repository root itself):
 #   sh scripts/run-trigger-evals                 # every set in spec/trigger-evals
 #   sh scripts/run-trigger-evals slice explain   # only the named ones
-# Env: RUNS_PER_QUERY (default 3), EVAL_MODEL (default the CLI's configured model).
+# Env: RUNS_PER_QUERY (default 3), EVAL_MODEL (default haiku).
 #
 # Results land in artifacts/trigger-evals/<skill>.json (git-ignored); each
 # `claude -p` stderr is appended to artifacts/trigger-evals/<skill>.stderr.log so
@@ -48,7 +48,7 @@ cd "$(dirname "$0")/.." || exit 2
 sets_dir=spec/trigger-evals
 out_dir=artifacts/trigger-evals
 runs_per_query=${RUNS_PER_QUERY:-3}
-model=${EVAL_MODEL:-}
+model=${EVAL_MODEL:-haiku}
 
 fancy_echo() {
   printf "\n%s\n" "$1"
