@@ -1,30 +1,39 @@
 ---
 name: code-review
 description: Review a change along three axes — Defects (security, performance, correctness, reliability bugs), Standards (does it follow this repo's documented conventions and the code-smell baseline?), and Spec (does it do what the originating issue/PRD asked for?). Trigger with a PR URL, a diff, a file path, a fixed point to review since (a branch/tag/SHA, "review since main"), "review this before I merge", "is this code safe?", or when checking a change for N+1 queries, injection risks, missing edge cases, error-handling gaps, or backwards-compatibility breaks. Returns a merge verdict across all three axes — not a standalone, exhaustive security audit of a change you already wrote.
-argument-hint: "<fixed point (branch/tag/SHA) — or PR URL, diff, or file path>"
+argument-hint: "[fixed point (branch/tag/SHA), PR URL, diff, or file path]"
 ---
 
-# /code-review
+# Code review
 
 Review a change along three independent axes:
 
-- **Defects** — is the code wrong or unsafe? Security, performance, correctness, and reliability bugs. **Hard findings:** a real defect is blocking regardless of what the repo documents.
+- **Defects** — is the code wrong or unsafe? Security, performance, correctness, and reliability bugs. A real defect is blocking regardless of what the repo documents.
 - **Standards** — does it follow this repo's documented conventions, plus the smell baseline below? A breach of a documented standard can be a firm finding; a smell from the baseline is always a judgement call, and the repo overrides.
 - **Spec** — does the change implement what the originating issue / PRD asked for? Missing requirements, scope creep, wrong implementation.
 
 Keep the axes separate on purpose. A change can pass one and fail another — clean code that builds the wrong thing (Defects/Standards pass, Spec fail); the right feature built against the conventions (Spec pass, Standards fail). Reporting them together lets one mask the other.
 
-The argument (`$1`) is the review target — interpret it per **Scope the change**. If nothing was supplied, ask what to review; don't guess.
+## When to use this skill
 
-## 1. Scope the change
+- Deciding whether a change is safe to merge — "review this before I merge", "is this code safe?", "is PR #412 good to go?"
+- Checking a diff against the repo's own conventions and the code-smell baseline
+- Checking a change against its originating issue / PRD — "did I build what the ticket actually asked for?"
+- Reviewing a PR URL, a pasted diff, a file, or everything since a fixed point ("review since main", a branch/tag/SHA)
 
-Establish exactly what you're reviewing before reading any code.
+Not for an exhaustive, evidence-first security audit of code you already wrote — attack-surface mapping and per-finding reachability proofs, with no merge verdict attached, are the `find-bugs` skill. This skill returns a verdict; that one returns evidence. For *receiving* a review rather than giving one, see `review-response`.
+
+## Scope the change
+
+Establish exactly what you're reviewing before reading any code. The argument (`$1`) is the review target; if nothing was supplied, ask what to review — don't guess.
 
 - **A fixed point** (branch, tag, SHA, `main`, `HEAD~5`): diff with three dots so the comparison is against the merge-base — `git diff <ref>...HEAD` — and list commits with `git log <ref>..HEAD --oneline`. Confirm the ref resolves (`git rev-parse <ref>`) and the diff is non-empty before going further. A bad ref or empty diff fails here, not inside a sub-agent.
 - **A PR URL**: `gh pr diff <url>` for the diff, `gh pr view <url>` for the description and linked issue.
 - **A file path or pasted diff**: review it directly.
 
-## 2. Defects axis — hard, blocking
+Account for every file in the set — a review that quietly skipped files reads as a pass it didn't earn. On a large diff, `git diff <ref>...HEAD --name-status` is the checklist to reconcile against.
+
+## Defects axis — hard, blocking
 
 Real bugs. A genuine defect is blocking on its own merit — none are softened because the repo happens not to document them.
 
@@ -49,8 +58,17 @@ Real bugs. A genuine defect is blocking on its own merit — none are softened b
 - Error propagation; off-by-one; type-safety holes
 - Backwards compatibility: a breaking API / contract or schema change with no migration path (expand/contract)
 - Side effects: behaviour of components the change didn't set out to touch (unintended regressions)
+- Removed safeguards: a validation, authorization check, bound, or test the diff deletes — deletions ride in the same diff as the additions and are the easiest thing to skim past
 
-## 3. Standards axis — conformance
+**Severity** — orders the findings and drives the verdict:
+- 🔴 **Critical** — exploitable, data loss or corruption, or a guaranteed production break
+- 🟠 **High** — a real bug on a normal path: wrong results, a broken invariant, a silent failure
+- 🟡 **Medium** — needs unusual input or state, or has a ready workaround
+- 🟢 **Low** — bounded: a defensive gap or a noisy failure, not a functional break
+
+When this axis needs to go deeper than a merge decision — attack-surface mapping, a reachability proof for each finding, findings reported as evidence with no verdict — hand it off to the `find-bugs` skill rather than expanding the hunt here.
+
+## Standards axis — conformance
 
 Does the change follow how this repo writes code?
 
@@ -78,7 +96,7 @@ Two rules bind this axis:
 
 Also on this axis: **tests.** Judge new behaviour and bug fixes against how this repo already tests. Missing coverage for new logic is a conformance finding — firm where the repo documents a testing requirement (the repo overrides), a judgement call where it doesn't. When missing coverage is a finding, point to the `tdd` skill for addressing it test-first. For Ruby projects, the `rspec` skill documents the testing conventions this axis measures against.
 
-## 4. Spec axis — the right thing built
+## Spec axis — the right thing built
 
 Find the originating spec, in this order:
 1. Issue references in commit messages or the PR body (`#123`, `Closes PROJ-45`) — fetch it from your issue tracker (`gh issue view`, the Jira tools, etc.).
@@ -103,7 +121,7 @@ This is a judgement call surfaced alongside the verdict, not a blocking finding 
 ## Running the review
 
 - **Small / single-file diff** — review inline.
-- **Larger diff** — run the axes as parallel sub-agents so they don't pollute each other's context: one `general-purpose` agent per axis. Paste the smell baseline into the Standards agent's prompt — it has no other access to it. Give each agent the diff command and commit list; give the Spec agent the spec path or contents. Aggregate their reports; keep the axes separate.
+- **Larger diff** — run the axes as parallel sub-agents so they don't pollute each other's context: one `general-purpose` agent per axis. Give each agent the diff command and commit list. The Standards agent needs the repo's convention docs (`AGENTS.md` / `CLAUDE.md`, `CONTRIBUTING.md`, any style guide) *and* the smell baseline pasted into its prompt — it has no other access to the baseline. Give the Spec agent the spec path or contents. Aggregate their reports; keep the axes separate.
 
 If your environment offers a deeper multi-agent PR toolkit — for example a `pr-review-toolkit` plugin with a `/review-pr` command and specialist agents (silent-failure hunting, test-coverage analysis, type-design review, comment analysis) — reach for it rather than rebuilding that here.
 
@@ -111,6 +129,7 @@ If your environment offers a deeper multi-agent PR toolkit — for example a `pr
 
 ```markdown
 ## Code Review: [PR title / ref range]
+_Reviewed N of N changed files._
 
 ### Defects (blocking)
 | # | File | Line | Issue | Severity |
@@ -135,17 +154,24 @@ If your environment offers a deeper multi-agent PR toolkit — for example a `pr
 [Approve / Request changes / Needs discussion] — worst issue per axis; don't rerank across axes.
 ```
 
-## Tips
+Choosing the verdict:
+- **Request changes** — any blocking Defect, a missing or wrong Spec requirement, or a firm (documented) Standards breach.
+- **Needs discussion** — a high-blast-radius change to escalate, or a judgement-call finding worth a conversation, with nothing outright blocking.
+- **Approve** — none of the above; note smells and nits as non-blocking.
 
-- Give context up front — "this is a hot path", "this handles PII", "focus on security" — it sharpens the review.
-- Report a defect once, at its root cause, not at every call site.
-- This skill is for *giving* a review. For *receiving* one, see the `review-response` skill.
-- When the Defects axis needs to go deeper than a merge decision — attack-surface mapping, reachability proofs for each finding, findings with no verdict — hand that off to the `find-bugs` skill.
-- "Is this code safe?" means defects in a diff here — not governing what an AI agent may do at run time (tool allowlists, policy files, approval gates).
+## Gotchas
+
+- **Confirm the ref resolves and the diff is non-empty before reading anything.** A base that silently resolves to nothing yields a confident "nothing to flag" that reads as a pass — resolve it in **Scope the change**, never report on an empty diff.
+- **Report each defect once, at its root cause** — not at every call site. The same finding repeated per caller buries the fix that actually matters.
+- **Don't rerank findings across axes.** The verdict takes the worst issue *per axis*; a clean Defects pass must not paper over a Spec failure, or the reverse — that masking is exactly what keeping the axes separate prevents.
+- **A larger diff needs sub-agents, not skimming.** Skimming a big diff yields a shallow, falsely-clean review; fan out one agent per axis (see **Running the review**).
+- **"Is this code safe?" means defects in this diff** — not what an AI agent may do at runtime (tool allowlists, policy files, approval gates). That runtime-governance question is a different concern; don't answer it here.
+- **Read beyond the hunk.** Judge each change against its enclosing function and call sites, not the diff lines alone — a diff-shaped view produces diff-shaped misses, especially on error paths and edge cases.
+- **Spend the review budget where the risk is.** Read the flagged hot path, PII handling, or focus area first; a review that burns out on nits before it reaches the auth change has failed at the one thing that mattered.
 
 ## Attribution
 
 - Martin Fowler, *Refactoring* (2nd ed.), ch. 3 — code smells
 - [obra/superpowers](https://github.com/obra/superpowers/tree/main/skills/requesting-code-review) - requesting-code-review, MIT
 - [mattpocock/skills](https://github.com/mattpocock/skills/tree/main/skills/engineering/code-review) - code-review, MIT
-- [getsentry/skills](https://github.com/getsentry/skills/tree/main/skills/code-review) - review checklist, inspired-by
+- [getsentry/skills](https://github.com/getsentry/skills/tree/main/skills/code-review) - code-review
