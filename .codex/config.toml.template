@@ -1,5 +1,5 @@
-# $schema: https://developers.openai.com/codex/config-schema.json
-#
+#:schema https://developers.openai.com/codex/config-schema.json
+
 # Codex config. Source of truth: .codex/config.toml.template (git-tracked).
 # `mac` generates the git-ignored .codex/config.toml from it and symlinks that
 # to ~/.codex/config.toml, replacing the home-directory placeholder in the
