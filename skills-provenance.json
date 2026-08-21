@@ -110,6 +110,19 @@
           "license": "MIT",
           "ref": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
           "reviewed": "2026-08-10"
+        },
+        {
+          "origin": "Eric Evans, Domain-Driven Design",
+          "type": "book",
+          "relationship": "inspired-by",
+          "note": "Ubiquitous language, bounded context, and context map — the vocabulary this skill maintains."
+        },
+        {
+          "origin": "Michael Nygard, Documenting Architecture Decisions (2011)",
+          "type": "article",
+          "url": "https://www.cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
+          "relationship": "inspired-by",
+          "note": "The context/decision/consequences ADR shape, sequential numbering, and supersession over rewriting."
         }
       ]
     },

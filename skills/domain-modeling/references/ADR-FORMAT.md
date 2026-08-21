@@ -24,6 +24,18 @@ Three to four short sections, one to three sentences each — a single paragraph
 
 Drop **Rejected** when there was no real alternative worth remembering. Add `status:` frontmatter (`proposed | accepted | deprecated | superseded by ADR-NNNN`) only in a repo where decisions get revisited often enough to need it.
 
+## Where the file goes
+
+With a single context, one `docs/adr/` at the repo root takes everything. With several, the question is whose decision it is: a choice that binds more than one context — how they integrate, a shared technology, a system-wide constraint — belongs in the root `docs/adr/`; a choice nobody outside one context can observe belongs in that context's own `docs/adr/`. When it's genuinely both, write it at the root; a decision found too high costs a reader one hop, and one found too low is never found at all.
+
+## Reversing a decision
+
+**Never edit an accepted ADR to hold the new decision.** The directory's value is the trail — a reader arrives wanting to know what was believed at the time, and rewriting the file in place deletes exactly that.
+
+Instead: write a new ADR at the next number, state in its **Context** which ADR it replaces and what changed since, and mark the old one superseded. If the repo uses `status:` frontmatter, that's `superseded by ADR-NNNN`; if it doesn't, a one-line note under the old title does the same job. The old file otherwise stays as written, wrong conclusion and all.
+
+Correcting a typo, tightening a sentence, or adding a consequence you'd missed is editing the *record*, not the decision — that's fine, and doesn't need a new number.
+
 ## When a decision earns an ADR
 
 All three must hold:
