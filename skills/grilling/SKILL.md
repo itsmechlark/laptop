@@ -38,5 +38,5 @@ Rigorous and direct, never adversarial. You're pressure-testing the idea because
 
 ## Attribution
 
-- [mattpocock/skills](https://github.com/mattpocock/skills/skills/productivity/grilling) - grilling, MIT
+- [mattpocock/skills](https://github.com/mattpocock/skills/tree/main/skills/productivity/grilling) - grilling, MIT
 - [Build Wide, Ship Narrow (Adapt)](https://adapt.com/blog/build-wide-ship-narrow)

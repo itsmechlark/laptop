@@ -133,5 +133,5 @@ Precise, collaborative, and honest about uncertainty. The goal is a spec that su
 
 ## Attribution
 
-- [mattpocock/skills](https://github.com/mattpocock/skills/skills/engineering/to-spec) - to-spec, MIT
+- [mattpocock/skills](https://github.com/mattpocock/skills/tree/main/skills/engineering/to-spec) - to-spec, MIT
 - [Build Wide, Ship Narrow (Adapt)](https://adapt.com/blog/build-wide-ship-narrow)

@@ -144,4 +144,4 @@ If triage notes already exist, read them, check whether the reporter answered th
 
 ## Attribution
 
-- [mattpocock/skills](https://github.com/mattpocock/skills/skills/engineering/triage) - triage, MIT
+- [mattpocock/skills](https://github.com/mattpocock/skills/tree/main/skills/engineering/triage) - triage, MIT

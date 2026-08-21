@@ -164,7 +164,7 @@ source is adapted, a specification, or inspiration.
 
 Use the source's kind to choose the plain form:
 
-- Repository: `[mattpocock/skills](https://github.com/mattpocock/skills/skills/engineering/domain-modeling) - domain-modeling, MIT`
+- Repository: `[mattpocock/skills](https://github.com/mattpocock/skills/tree/main/skills/engineering/domain-modeling) - domain-modeling, MIT`
 - URL: `[Agent Skills specification](https://agentskills.io/specification)`
 - Book or other literature: `Martin Fowler, *Refactoring* (2nd ed.), ch. 3 — code smells`
 
