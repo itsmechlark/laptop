@@ -1,0 +1,18 @@
+[
+  {"query": "review our .codex/config.toml permission profiles before we roll them out", "should_trigger": true},
+  {"query": "migrate this Codex setup from sandbox_mode to default_permissions without weakening access", "should_trigger": true},
+  {"query": "the domain allowlist in our Codex config is not blocking curl; find the policy gap", "should_trigger": true},
+  {"query": "validate /etc/codex/requirements.toml and make sure the managed default profile is actually allowed", "should_trigger": true},
+  {"query": "codex execpolicy check rejects .codex/rules/default.rules after my prefix_rule change", "should_trigger": true},
+  {"query": "add a PreToolUse hook to Codex that blocks force pushes regardless of flag position", "should_trigger": true},
+  {"query": "render our config.toml.template and verify the installed Codex CLI can load it", "should_trigger": true},
+  {"query": "why does *.example.com behave differently from **.example.com in my Codex network permissions?", "should_trigger": true},
+  {"query": "review this config.toml for my Rust project's cargo aliases", "should_trigger": false},
+  {"query": "write a requirements.txt for this Python service", "should_trigger": false},
+  {"query": "review the codex-config SKILL.md for Agent Skills discovery gaps", "should_trigger": false},
+  {"query": "tighten the Claude Code permission deny list in .claude/settings.json", "should_trigger": false},
+  {"query": "fix the Cursor hooks configuration; destructive commands are getting through", "should_trigger": false},
+  {"query": "find a security bug in the new webhook handler before I push", "should_trigger": false},
+  {"query": "explain what AGENTS.md does in this repository", "should_trigger": false},
+  {"query": "create a GitHub Actions workflow that runs shellcheck", "should_trigger": false}
+]

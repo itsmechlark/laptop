@@ -53,6 +53,52 @@
         }
       ]
     },
+    "codex-config": {
+      "sources": [
+        {
+          "origin": "OpenAI Codex permissions",
+          "type": "spec",
+          "url": "https://developers.openai.com/codex/permissions",
+          "relationship": "spec"
+        },
+        {
+          "origin": "OpenAI Codex configuration reference",
+          "type": "spec",
+          "url": "https://developers.openai.com/codex/config-reference",
+          "relationship": "spec"
+        },
+        {
+          "origin": "OpenAI Codex managed configuration",
+          "type": "spec",
+          "url": "https://learn.chatgpt.com/codex/enterprise/managed-configuration",
+          "relationship": "spec"
+        },
+        {
+          "origin": "OpenAI Codex rules",
+          "type": "spec",
+          "url": "https://developers.openai.com/codex/rules",
+          "relationship": "spec"
+        },
+        {
+          "origin": "OpenAI Codex hooks",
+          "type": "spec",
+          "url": "https://developers.openai.com/codex/hooks",
+          "relationship": "spec"
+        },
+        {
+          "origin": "OpenAI Codex developer commands",
+          "type": "spec",
+          "url": "https://developers.openai.com/codex/developer-commands",
+          "relationship": "spec"
+        },
+        {
+          "origin": "OpenAI Codex configuration schema",
+          "type": "spec",
+          "url": "https://developers.openai.com/codex/config-schema.json",
+          "relationship": "spec"
+        }
+      ]
+    },
     "domain-modeling": {
       "sources": [
         {

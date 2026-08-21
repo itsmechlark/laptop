@@ -1,0 +1,394 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+engine="$script_dir/validate_engine.py"
+
+usage() {
+  cat <<'USAGE'
+Validate Codex config and execpolicy files.
+
+Usage:
+  validate [options]
+
+Options:
+  --config PATH        Validate a config TOML/template. Repeatable.
+  --requirements PATH  Validate managed requirements TOML. Repeatable.
+  --rules PATH         Validate an execpolicy .rules file. Repeatable.
+  --replace TOKEN=VALUE
+                       Render a template token before static/path/runtime checks.
+                       Repeatable.
+  --sandbox MODE       Declare an active Codex CLI --sandbox override.
+  --no-runtime         Skip checks that invoke the installed `codex` CLI.
+  --managed-proxy      Allow domain rules without local features.network_proxy=true
+                       when effective managed requirements cannot be supplied.
+  -h, --help           Show this help.
+
+With no explicit file paths, the script discovers common project locations.
+Passing any --config, --requirements, or --rules flag disables discovery:
+  .codex/config.toml.template
+  .codex/config.toml
+  .codex/rules/*.rules
+
+The script never modifies the source files.
+Supply repeated --requirements paths from lowest to highest precedence.
+USAGE
+}
+
+configs=()
+requirements=()
+rules=()
+replacements=()
+runtime_tmp_dirs=()
+explicit_paths=0
+runtime=1
+managed_proxy=0
+cli_sandbox=""
+
+cleanup_runtime_tmp() {
+  local status="$1"
+  local dir
+
+  if ((${#runtime_tmp_dirs[@]})); then
+    for dir in "${runtime_tmp_dirs[@]}"; do
+      if ! rm -rf -- "$dir"; then
+        printf 'error: could not remove temporary Codex directory: %s\n' "$dir" >&2
+        status=1
+      fi
+    done
+  fi
+
+  return "$status"
+}
+
+trap 'cleanup_runtime_tmp "$?"' EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+while (($#)); do
+  case "$1" in
+    --config)
+      [[ $# -ge 2 ]] || { echo "error: --config requires a path" >&2; exit 2; }
+      configs+=("$2")
+      explicit_paths=1
+      shift 2
+      ;;
+    --rules)
+      [[ $# -ge 2 ]] || { echo "error: --rules requires a path" >&2; exit 2; }
+      rules+=("$2")
+      explicit_paths=1
+      shift 2
+      ;;
+    --requirements)
+      [[ $# -ge 2 ]] || { echo "error: --requirements requires a path" >&2; exit 2; }
+      requirements+=("$2")
+      explicit_paths=1
+      shift 2
+      ;;
+    --replace)
+      [[ $# -ge 2 ]] || { echo "error: --replace requires TOKEN=VALUE" >&2; exit 2; }
+      [[ "$2" == *=* && "$2" != =* ]] || {
+        echo "error: --replace requires a non-empty token in TOKEN=VALUE" >&2
+        exit 2
+      }
+      replacements+=("$2")
+      shift 2
+      ;;
+    --sandbox)
+      [[ $# -ge 2 ]] || { echo "error: --sandbox requires a mode" >&2; exit 2; }
+      [[ -n "$2" ]] || { echo "error: --sandbox requires a mode" >&2; exit 2; }
+      cli_sandbox="$2"
+      shift 2
+      ;;
+    --no-runtime)
+      runtime=0
+      shift
+      ;;
+    --managed-proxy)
+      managed_proxy=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "error: unknown argument: $1" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+done
+
+engine_replacement_args=()
+if ((${#replacements[@]})); then
+  for replacement in "${replacements[@]}"; do
+    engine_replacement_args+=("--replace=$replacement")
+  done
+fi
+
+if (( ! explicit_paths )); then
+  for candidate in \
+    .codex/config.toml.template \
+    .codex/config.toml
+  do
+    [[ -f "$candidate" ]] && configs+=("$candidate")
+  done
+  if [[ -d .codex/rules ]]; then
+    while IFS= read -r file; do
+      rules+=("$file")
+    done < <(find -L .codex/rules -type f -name '*.rules' | sort)
+  fi
+fi
+
+if ((${#configs[@]} == 0 && ${#requirements[@]} == 0 && ${#rules[@]} == 0)); then
+  echo "error: no Codex files found; pass --config, --requirements, and/or --rules" >&2
+  exit 2
+fi
+
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "error: python3 is required for TOML/static validation" >&2
+  exit 2
+fi
+if [[ ! -f "$engine" ]]; then
+  echo "error: Codex validation engine is missing: $engine" >&2
+  exit 2
+fi
+
+errors=0
+warnings=0
+requirements_managed_proxy=0
+
+pass() { printf 'PASS  %s\n' "$*"; }
+warn() { printf 'WARN  %s\n' "$*" >&2; warnings=$((warnings + 1)); }
+fail() { printf 'FAIL  %s\n' "$*" >&2; errors=$((errors + 1)); }
+
+codex_available=0
+codex_detected=0
+codex_version="not installed"
+if (( ! runtime )); then
+  codex_version="not checked (--no-runtime)"
+elif command -v codex >/dev/null 2>&1; then
+  codex_detected=1
+  if codex_output="$(codex --version 2>&1)"; then
+    codex_available=1
+    codex_version="$(printf '%s\n' "$codex_output" | tail -n 1)"
+  else
+    printf '%s\n' "$codex_output" >&2
+    codex_version="unavailable"
+    fail "codex --version failed"
+  fi
+fi
+printf 'Codex: %s\n' "$codex_version"
+
+validate_config_static() {
+  local file="$1"
+  local effective_managed_proxy="$2"
+  local output
+  local static_warnings
+  local engine_args=(config "--file=$file")
+
+  ((effective_managed_proxy)) && engine_args+=(--managed-proxy)
+  [[ -n "$cli_sandbox" ]] && engine_args+=("--sandbox=$cli_sandbox")
+  if ((${#replacements[@]})); then
+    engine_args+=("${engine_replacement_args[@]}")
+  fi
+
+  if output="$(python3 "$engine" "${engine_args[@]}" 2>&1)"; then
+    static_warnings="$(printf '%s\n' "$output" | grep -c '^WARN:' || true)"
+    warnings=$((warnings + static_warnings))
+    printf '%s\n' "$output"
+    pass "$file: TOML + static invariants"
+  else
+    static_warnings="$(printf '%s\n' "$output" | grep -c '^WARN:' || true)"
+    warnings=$((warnings + static_warnings))
+    printf '%s\n' "$output" >&2
+    fail "$file: TOML/static validation"
+  fi
+}
+
+validate_requirements_static() {
+  local file="$1"
+  local output
+
+  if output="$(python3 "$engine" requirements "--file=$file" 2>&1)"; then
+    printf '%s\n' "$output"
+    pass "$file: requirements TOML + static invariants"
+  else
+    printf '%s\n' "$output" >&2
+    fail "$file: requirements TOML/static validation"
+  fi
+}
+
+validate_effective_requirements_stack() {
+  if ((${#requirements[@]} == 0)); then
+    return
+  fi
+
+  local file
+  local output
+  local engine_args=(effective-requirements)
+  if ((${#configs[@]})); then
+    for file in "${configs[@]}"; do
+      engine_args+=("--config=$file")
+    done
+  fi
+  for file in "${requirements[@]}"; do
+    engine_args+=("--requirements=$file")
+  done
+  [[ -n "$cli_sandbox" ]] && engine_args+=("--sandbox=$cli_sandbox")
+  if ((${#replacements[@]})); then
+    engine_args+=("${engine_replacement_args[@]}")
+  fi
+
+  if output="$(python3 "$engine" "${engine_args[@]}" 2>&1)"; then
+    printf '%s\n' "$output" | grep -v '^managed_proxy='
+    if printf '%s\n' "$output" | grep -q '^managed_proxy=true$'; then
+      requirements_managed_proxy=1
+    fi
+    pass "effective requirements stack: static invariants"
+  else
+    printf '%s\n' "$output" >&2
+    fail "effective requirements stack: static validation"
+  fi
+}
+
+validate_effective_config_stack() {
+  if ((${#configs[@]} + ${#requirements[@]} <= 1)); then
+    return
+  fi
+
+  local file
+  local output
+  local engine_args=(effective-config)
+  if ((${#configs[@]})); then
+    for file in "${configs[@]}"; do
+      engine_args+=("--config=$file")
+    done
+  fi
+  if ((${#requirements[@]})); then
+    for file in "${requirements[@]}"; do
+      engine_args+=("--requirements=$file")
+    done
+  fi
+  if ((${#replacements[@]})); then
+    engine_args+=("${engine_replacement_args[@]}")
+  fi
+
+  if output="$(python3 "$engine" "${engine_args[@]}" 2>&1)"; then
+    printf '%s\n' "$output"
+    pass "effective config stack: static invariants"
+  else
+    printf '%s\n' "$output" >&2
+    fail "effective config stack: static validation"
+  fi
+}
+
+validate_config_runtime() {
+  local file="$1"
+
+  if (( ! runtime )); then
+    warn "$file: Codex runtime load skipped (--no-runtime)"
+    return
+  fi
+  if (( ! codex_available )); then
+    if ((codex_detected)); then
+      warn "$file: Codex runtime load not run (codex --version failed)"
+    else
+      warn "$file: Codex runtime load not run (codex is not installed)"
+    fi
+    return
+  fi
+
+  local tmp
+  local output
+  local engine_args
+  tmp="$(mktemp -d "${TMPDIR:-/tmp}/codex-config-validate.XXXXXX")"
+  runtime_tmp_dirs+=("$tmp")
+  engine_args=(render "--source=$file" "--destination=$tmp/config.toml")
+  if ((${#replacements[@]})); then
+    engine_args+=("${engine_replacement_args[@]}")
+  fi
+  if ! python3 "$engine" "${engine_args[@]}"; then
+    fail "$file: could not render temporary config"
+    return
+  fi
+
+  if output="$(cd "$tmp" && CODEX_HOME="$tmp" codex features list 2>&1)"; then
+    pass "$file: installed Codex loads rendered config"
+  else
+    printf '%s\n' "$output" >&2
+    fail "$file: installed Codex rejected rendered config"
+  fi
+}
+
+validate_rules_file() {
+  local file="$1"
+
+  if [[ ! -f "$file" ]]; then
+    fail "$file: rules file does not exist"
+    return
+  fi
+  if (( ! runtime )); then
+    warn "$file: execpolicy validation skipped (--no-runtime)"
+    return
+  fi
+  if (( ! codex_available )); then
+    if ((codex_detected)); then
+      warn "$file: execpolicy validation not run (codex --version failed)"
+    else
+      warn "$file: execpolicy validation not run (codex is not installed)"
+    fi
+    return
+  fi
+
+  local output
+  if output="$(codex execpolicy check --rules "$file" -- true 2>&1)"; then
+    pass "$file: execpolicy loads and inline tests pass"
+  else
+    printf '%s\n' "$output" >&2
+    fail "$file: execpolicy validation"
+  fi
+}
+
+if ((${#requirements[@]})); then
+  for file in "${requirements[@]}"; do
+    if [[ ! -f "$file" ]]; then
+      fail "$file: requirements file does not exist"
+      continue
+    fi
+    validate_requirements_static "$file"
+  done
+fi
+
+validate_effective_requirements_stack
+
+effective_managed_proxy="$managed_proxy"
+if ((requirements_managed_proxy)); then
+  effective_managed_proxy=1
+fi
+
+validate_effective_config_stack
+
+if ((${#configs[@]})); then
+  for file in "${configs[@]}"; do
+    if [[ ! -f "$file" ]]; then
+      fail "$file: config file does not exist"
+      continue
+    fi
+    validate_config_static "$file" "$effective_managed_proxy"
+    validate_config_runtime "$file"
+  done
+fi
+
+if ((${#rules[@]})); then
+  for file in "${rules[@]}"; do
+    validate_rules_file "$file"
+  done
+fi
+
+printf '\nSummary: %d error(s), %d warning(s)\n' "$errors" "$warnings"
+if ((errors > 0)); then
+  exit 1
+fi
