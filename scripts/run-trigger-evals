@@ -43,18 +43,31 @@ command -v python3 >/dev/null || die "python3 not found"
 command -v jq >/dev/null || die "jq not found"
 command -v claude >/dev/null || die "the claude CLI is not on PATH"
 
-# The harness ships inside the skill-creator skill, whose path contains two
-# per-session segments that change between runs — discover it rather than
-# hardcoding, and let the environment win. -L because the tree mixes real
+# The harness ships inside the skill-creator skill's scripts/ directory. Its
+# install location has moved between Claude Code versions (it used to sit under
+# a per-session skills-plugin path; it now ships as a plugin under
+# ~/.claude/plugins), so search the known roots rather than hardcoding one, and
+# let the environment win. Locate run_eval.py directly, not the skill-creator
+# directory: several unrelated skill-creator/ dirs now coexist and only the
+# plugin copy bundles the harness. Finding the file and deriving its skill dir
+# also keeps paths with spaces (Application Support) intact — a single-line
+# command substitution never word-splits. -L because the tree mixes real
 # directories with symlinks.
 if [ -n "${SKILL_CREATOR:-}" ]; then
   sc=$SKILL_CREATOR
 else
-  plugins="$HOME/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin"
-  [ -d "$plugins" ] || die "no skills-plugin directory at $plugins"
-  sc=$(find -L "$plugins" -maxdepth 4 -type d -name skill-creator 2>/dev/null |
-    head -1)
-  [ -n "$sc" ] || die "could not find the skill-creator skill under $plugins"
+  found=""
+  for base in \
+    "$HOME/.claude/plugins" \
+    "$HOME/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin"; do
+    [ -d "$base" ] || continue
+    found=$(find -L "$base" -maxdepth 8 -type f -name run_eval.py \
+      -path '*skill-creator*' 2>/dev/null | head -1)
+    [ -n "$found" ] && break
+  done
+  [ -n "$found" ] ||
+    die "could not find the skill-creator eval harness (scripts/run_eval.py) under ~/.claude/plugins — set SKILL_CREATOR to its skill directory"
+  sc=$(dirname "$(dirname "$found")")
 fi
 [ -f "$sc/scripts/run_eval.py" ] ||
   die "no scripts/run_eval.py under $sc — set SKILL_CREATOR to the right path"
