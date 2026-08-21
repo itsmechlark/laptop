@@ -61,6 +61,7 @@ extends = ":workspace"
 glob_scan_max_depth = 8
 
 # Development/worktree area and selected tool/runtime state.
+"/opt/homebrew" = "read"
 "~/Codespace" = "write"
 "~/.agents" = "read"
 "~/.claude" = "write"
