@@ -82,9 +82,9 @@ pair, or copy `skill-creator` somewhere stable. Reading that tree also requires
 `~/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin`
 in `sandbox.filesystem.allowRead`.
 
-**Budget.** Default is 3 runs per query at 10 workers, so one set is 60
-`claude -p` invocations and all nine are 540. Run one set first and confirm the
-numbers look sane before spending the rest.
+**Budget.** Default is 3 runs per query at 10 workers, so a 20-query set is 60
+`claude -p` invocations and the whole suite is 60 × the number of sets. Run one
+set first and confirm the numbers look sane before spending the rest.
 
 ## Optimize only what scores badly
 
@@ -117,10 +117,12 @@ Three are deliberately contested. If the eval disagrees with the label, the
 label may be what's wrong:
 
 - **draft-spec**, "we haven't decided between webhooks and polling yet but write
-  the spec anyway" — labelled should-not-trigger, because the description now
-  requires an already-settled decision. Defensible either way: the skill's body
-  would take it and report what's unresolved. Flip the label if you'd rather it
-  fire and push back.
+  the spec anyway" — labelled should-not-trigger, because the description
+  requires an already-settled decision. Genuinely contested, and more so since
+  the body gained an explicit readiness test: loading the skill on this query
+  produces the *right* answer — name what's still open, draft only if asked, and
+  label every invented assumption. Flip the label if you'd rather it fire and
+  push back than stay out of the way.
 - **slice**, "app/models/reservation.rb is 800 lines, split it into modules" —
   labelled should-not-trigger. Shares "split" with the description but belongs
   to `codebase-design`. The negative most likely to fail.
