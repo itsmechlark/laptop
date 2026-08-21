@@ -36,7 +36,7 @@ Dependency category tells you *how* to cross a seam. It doesn't tell you *where*
 
 The payoff is information hiding applied to consistency: "Because the root controls access it cannot be blind-sided by changes to the internals. This makes it practical to enforce all invariants." If a rule must hold across several objects, the seam goes around all of them — and everything inside is reached through one root. A seam that cuts through an invariant guarantees the invariant will eventually be violated, because two callers will each hold half of it.
 
-This is also the answer to the concurrency requirements in AGENTS.md §6: the aggregate root is where the lock or the constraint goes.
+This is also the answer to the concurrency requirements in the global standards (AGENTS.md §6, *Error handling, observability & reliability*): the aggregate root is where the lock or the constraint goes.
 
 **2. Domain contours.** Where no invariant decides it, follow the domain rather than the current code:
 
@@ -46,12 +46,11 @@ This is also the answer to the concurrency requirements in AGENTS.md §6: the ag
 
 > When successive refactoring tend to be localized, not shaking multiple broad concepts of the model, it is an indicator of model fit. Encountering a requirement that forces extensive changes in the breakdown of the objects and methods is a message. — Evans
 
-Read the git history for the cluster. If past changes repeatedly touched the same set of files together, that set is a module and the seams inside it are in the wrong place. This turns seam placement from taste into evidence — use it.
+If past changes repeatedly touched the same set of files together, that set is a module and the seams inside it are in the wrong place. The query that produces the evidence is step 0 of the loop ([SKILL.md](../SKILL.md#0-read-the-change-history-first)) — run it before arguing about taste.
 
 ## Seam discipline
 
-- **A seam needs a reason: variation, substitution, or translation.** Don't introduce a port unless one applies. Absent all three, it's indirection.
-- **Internal seams vs external seams.** A deep module can have internal seams (private to its implementation, used by its own tests) as well as the external seam at its interface. Don't expose internal seams through the interface just because tests use them.
+Both rules — *a seam needs a reason*, and *don't expose an internal seam through the interface* — are in [SKILL.md](../SKILL.md#principles). What follows is the exception to the first, which is where it gets argued.
 
 ### When one adapter is enough
 
@@ -60,7 +59,7 @@ The older form of this rule — *"one adapter means a hypothetical seam, two ada
 Use one adapter deliberately when:
 
 - **Translation.** A third party's or legacy system's model would otherwise leak into yours. The adapter exists to stop that, and it earns its keep on day one with no second implementation in sight. (Evans, *Anticorruption Layer*.)
-- **Published contract.** The seam is a commitment to consumers you don't control — a public API, a provider-facing payload. The indirection buys you the freedom to change behind it (AGENTS.md §7).
+- **Published contract.** The seam is a commitment to consumers you don't control — a public API, a provider-facing payload. The indirection buys you the freedom to change behind it (AGENTS.md §7, *Engineering leverage & judgment*).
 
 Everywhere else, hold the line: a port with one production adapter and no test adapter is indirection wearing a pattern's name.
 
@@ -74,12 +73,12 @@ His cost was call overhead. Ours are usually these — name whichever apply:
 
 - **Indirection.** Every seam is a hop a reader must follow. A stack trace that crosses four seams is worse than one that crosses none.
 - **Debugging across the seam.** Behaviour hidden from callers is also hidden from whoever is holding the pager.
-- **Migration.** The cost of moving N call sites, and of the window where both shapes exist. Under AGENTS.md §5, that window is expand/contract and may be long.
+- **Migration.** The cost of moving N call sites, and of the window where both shapes exist. Under AGENTS.md §5 (*Safe rollout, feature flags & migrations*), that window is expand/contract and may be long.
 - **Being wrong.** The cost of unwinding this if the predicted change never arrives. A wrong abstraction is more expensive than the duplication it replaced.
 
 Then state the alternative you're not taking, including **doing nothing**. If the volatility you're designing against is speculative and the migration is large, "leave it, revisit when the second caller appears" is the correct answer and should be said plainly.
 
-Weigh it against where the module sits: Evans' advice is to "apply top talent to the CORE DOMAIN" and "justify investment in any other part by how it supports the distilled CORE." A generic subdomain does not deserve the same design budget as the thing the business competes on.
+Weigh it against where the module sits ([SKILL.md](../SKILL.md#principles), *Not everything deserves depth*): a generic subdomain does not deserve the same design budget as the thing the business competes on.
 
 ## Testing strategy: replace, don't layer
 

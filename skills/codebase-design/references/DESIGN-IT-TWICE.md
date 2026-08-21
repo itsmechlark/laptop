@@ -9,7 +9,7 @@ Uses the vocabulary in [SKILL.md](../SKILL.md) — **module**, **interface**, **
 Designing it twice costs several agents and a round of the user's attention. Spend that where it pays.
 
 - **Does the cluster have a secret?** If you can't name the decision that's likely to change, no interface will be better than another — you're arranging code, not designing. Go back to [SKILL.md](../SKILL.md#1-list-the-secrets-before-drawing-any-line).
-- **Is this core or generic?** Evans: "Apply top talent to the CORE DOMAIN […] Justify investment in any other part by how it supports the distilled CORE." For a generic subdomain, pick the boring interface and move on.
+- **Is this core or generic?** For a generic subdomain, pick the boring interface and move on ([SKILL.md](../SKILL.md#principles), *Not everything deserves depth*).
 - **Is doing nothing on the table?** If the honest recommendation is "leave it," say so instead of generating three ways to restructure it.
 
 ## Process
@@ -27,9 +27,9 @@ Show this to the user, then immediately proceed to Step 2. The user reads and th
 
 ### 2. Spawn sub-agents
 
-Spawn 3+ sub-agents in parallel using the Agent tool. Each must produce a **radically different** interface for the deepened module.
+Dispatching parallel agents is `fan-out`'s job — invoke `fan-out` for the mechanics (prompt crafting, isolation, integrating what comes back) rather than reinventing them here. Three or more agents, one per design constraint, each producing a **radically different** interface for the deepened module.
 
-Prompt each sub-agent with a separate technical brief (file paths, coupling details, dependency category from [DEEPENING.md](DEEPENING.md), what sits behind the seam). The brief is independent of the user-facing problem-space explanation in Step 1. Give each agent a different design constraint:
+What is specific to *this* fan-out, and what `fan-out` can't supply, is the brief. Each agent gets its own technical brief — file paths, coupling details, dependency category from [DEEPENING.md](DEEPENING.md), what sits behind the seam — independent of the user-facing problem-space explanation in Step 1. Then give each a different design constraint:
 
 - Agent 1: "Minimise the interface — aim for 1–3 entry points max. Maximise leverage per entry point."
 - Agent 2: "Design for closure — operations that return their own argument types, so callers compose what you didn't anticipate (see COMPOSITION.md)."

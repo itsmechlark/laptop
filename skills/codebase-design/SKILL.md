@@ -1,6 +1,7 @@
 ---
 name: codebase-design
-description: Shared vocabulary and method for designing deep modules — find the secrets worth hiding, place the seam on a domain contour, and price the change before making it. Use when the user wants to design or improve a module's interface, find deepening opportunities, decide where a seam goes, make code more testable or easier to navigate, or when another skill needs the deep-module vocabulary.
+description: Design deep modules — find the secret worth hiding, place the seam on a domain contour, and price the change before making it. Use when asked where some logic should live, whether a class or module is doing too much, whether to split or merge files, whether an abstraction or a layer of indirection is still earning its keep, how to make code testable without reaching past its interface, or when another skill needs the deep-module vocabulary.
+argument-hint: "[module, file, or cluster to design]"
 ---
 
 # Codebase Design
@@ -29,7 +30,7 @@ Use these terms exactly — don't substitute "component," "service," "API," or "
 
 **Implementation** — what's inside a module, its body of code. Distinct from **Adapter**: a thing can be a small adapter with a large implementation (a Postgres repo) or a large adapter with a small implementation (an in-memory fake). Reach for "adapter" when the seam is the topic; "implementation" otherwise.
 
-**Secret** _(Parnas)_ — the design decision a module hides: the fact that would otherwise have to change in several places at once. A module is named by its secret, not by its step in the processing. _Avoid_: responsibility, concern (too vague to falsify — every module has a "responsibility"; only some have a secret).
+**Secret** _(Parnas)_ — the design decision a module hides: the fact that would otherwise have to change in several places at once. A module is named by its secret, not by its step in the processing. One module, one secret — if you can only describe it as two decisions joined by "and," you are looking at two modules. _Avoid_: responsibility, concern (too vague to falsify — every module has a "responsibility"; only some have a secret).
 
 **Volatility** — how likely a decision is to change, multiplied by how expensive that change would be. Volatility, not size, decides what belongs behind an interface.
 
@@ -47,33 +48,23 @@ Use these terms exactly — don't substitute "component," "service," "API," or "
 
 **Locality** — what maintainers get from depth: change, bugs, knowledge, and verification concentrate in one place rather than spreading across callers. Fix once, fixed everywhere.
 
-## Deep vs shallow
-
-**Deep module** = small interface + lots of implementation:
-
-```
-┌─────────────────────┐
-│   Small Interface   │  ← Few methods, simple params
-├─────────────────────┤
-│                     │
-│  Deep Implementation│  ← Complex logic hidden
-│                     │
-└─────────────────────┘
-```
-
-**Shallow module** = large interface + little implementation (avoid):
-
-```
-┌─────────────────────────────────┐
-│       Large Interface           │  ← Many methods, complex params
-├─────────────────────────────────┤
-│  Thin Implementation            │  ← Just passes through
-└─────────────────────────────────┘
-```
-
 ## The design loop
 
-Run these in order. Steps 1–2 are the ones most often skipped, and skipping them is how you get a tidy decomposition of the wrong thing.
+Run these in order. Steps 0–2 are the ones most often skipped, and skipping them is how you get a tidy decomposition of the wrong thing.
+
+### 0. Read the change history first
+
+Before proposing a shape, find out how this code has actually changed. Files that keep changing together are one module whose seams are in the wrong place — that is Evans' *observed change* criterion, and it is the only one that settles arguments about taste. Ask git which sets recur:
+
+```sh
+git log --format='%h' --since='1 year ago' -- <path> | while read -r c; do
+  git show --format='' --name-only "$c" -- <path> | grep -v '^$' | sort -u | paste -sd' ' -
+done | sort | uniq -c | sort -rn | head -20
+```
+
+A recurring multi-file set is your candidate module. A single file dominating the list is usually the opposite finding: it absorbs every change because it hides nothing.
+
+This is also where the diagnosis comes from — see [Stance](#stance). Read the code too, but read the history first: the source tells you the current shape, and only the history tells you which parts of it move.
 
 ### 1. List the secrets before drawing any line
 
@@ -95,11 +86,7 @@ For every fact the interface reveals, ask: *will I regret guaranteeing this?* Th
 
 ### 4. Place the seam on a contour
 
-Prefer lines that follow the domain over lines that follow the current code's accidents:
-
-> With each decision, ask yourself, Is this an expedient based on a particular set of relationships in the current model and code, or does it echo some contour of the underlying domain? — Evans, *Conceptual Contours*
-
-Invariants are the most reliable contour available — see [DEEPENING.md](references/DEEPENING.md#placing-the-seam).
+Prefer lines that follow the domain over lines that follow the current code's accidents. Evans' *Conceptual Contours* test: is this an expedient based on this week's code, or does it echo a contour of the underlying domain? Invariants are the most reliable contour available — a seam that cuts through an invariant guarantees the invariant will eventually be violated. Three criteria in reliability order, with the quotations: [DEEPENING.md](references/DEEPENING.md#placing-the-seam).
 
 ### 5. Consider composition before depth
 
@@ -107,7 +94,7 @@ If the operations could return their own input type, a small composable interfac
 
 ### 6. Price it, then decide
 
-Depth is not free. Parnas paid in call overhead — "If we are not careful the second decomposition will prove to be much less efficient than the first" — and we pay in indirection, cross-seam debugging, and migration cost. Name the price before recommending the change, and put **doing nothing** on the list of options. See [DEEPENING.md](references/DEEPENING.md#pricing-the-change).
+Depth is not free. Parnas priced his own decomposition in call overhead; we pay in indirection, cross-seam debugging, migration, and the cost of being wrong. Name the price before recommending the change, and put **doing nothing** on the list of options. The four costs, and how to weigh them against where the module sits: [DEEPENING.md](references/DEEPENING.md#pricing-the-change).
 
 ## Anti-patterns
 
@@ -151,24 +138,32 @@ A deep interface is a testable one — the same seam serves callers and tests (s
 
 Once the interface is designed, use the `tdd` skill to drive the implementation — the interface becomes the test surface, and outside-in TDD ensures nothing ships without a failing test demanding it.
 
-## Relationships
+## What to hand back
 
-- A **Module** has exactly one **Interface** (the surface it presents to callers and tests).
-- A **Module** hides exactly one **Secret**; the secret is chosen by **Volatility**.
-- **Depth** is a property of a **Module**, measured against its **Interface**.
-- A **Seam** is where a **Module**'s **Interface** lives.
-- An **Adapter** sits at a **Seam** and satisfies the **Interface**.
-- **Depth** produces **Leverage** for callers and **Locality** for maintainers.
-- **Closure** produces leverage multiplicatively where **Depth** produces it additively.
-- Modules are ordered by a **uses** relation, which must stay acyclic ([STRUCTURE.md](references/STRUCTURE.md)).
+A design recommendation, not an essay. In this order:
+
+1. **Diagnosis** — the failure the current shape causes, with evidence from step 0: the change that touched six files, the test that can't be written, the bug that came back twice. No diagnosis, no recommendation.
+2. **The secret**, named — and why you believe it's volatile.
+3. **The interface** — signatures, plus the invariants, ordering, error modes, and configuration it commits to. Both halves, or you have specified half an interface.
+4. **The price** — indirection, debugging across the seam, migration, and the cost of being wrong.
+5. **What you rejected**, including doing nothing.
+6. **The handoff** — `tdd` to implement it, `domain-modeling` to record the vocabulary or the ADR once it holds still.
+
+**This skill designs interfaces; it does not implement them.** Sketch the interface and the call site, and stop there. If the user asks for the refactor itself, hand over to `tdd` rather than editing production code from here — a restructure with no failing test demanding it is exactly the change nobody can review.
+
+## Gotchas
+
+- **"Deep" is not "big."** A 900-line class with 30 public methods is shallow. Merging modules that share no secret produces a bigger shallow module, and it will read as progress.
+- **Don't rename the user's code to this vocabulary.** **Secret**, **seam**, and **depth** are for the conversation about the design, not identifiers in the codebase. A class called `PricingSecret` helps nobody; the domain word belongs there, and that's `domain-modeling`'s business.
+- **A port with one production adapter and no test adapter is indirection**, whatever the diagram calls it. The exceptions — translation and published contract — are specific and both earn their keep on day one ([DEEPENING.md](references/DEEPENING.md#when-one-adapter-is-enough)).
+- **Don't spend the design budget on a generic subdomain.** Boring and obvious is the right answer away from the core — including for [DESIGN-IT-TWICE.md](references/DESIGN-IT-TWICE.md), which costs several agents and a round of the user's attention.
 
 ## Rejected framings
 
+Vocabulary the glossary rejects is marked _Avoid_ there. These two are about **depth** specifically, and both are common enough to name:
+
 - **Depth as ratio of implementation-lines to interface-lines** (Ousterhout): rewards padding the implementation. We use depth-as-leverage instead.
 - **Depth as method count.** A closed, composable interface of five orthogonal operations looks "shallower" than three bespoke entry points and is far more powerful. Count what a caller must *learn*, not what they may *call* ([COMPOSITION.md](references/COMPOSITION.md)).
-- **"Interface" as the TypeScript `interface` keyword or a class's public methods**: too narrow — interface here includes every fact a caller must know, and every fact they may come to rely on.
-- **"Boundary"**: overloaded with DDD's bounded context. Say **seam** or **interface**.
-- **Decomposition by processing step**: the default, and almost always wrong (Parnas). Decompose by secret.
 
 ## References
 

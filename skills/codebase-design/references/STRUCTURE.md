@@ -51,7 +51,7 @@ Seams are also organisational. Parnas devotes a section to it, contrasting the t
 
 versus the information-hiding version, where "the interfaces are more abstract; they consist primarily in the function names and the numbers and types of the parameters […] the independent development of modules should begin much earlier."
 
-The design question this raises is practical: **for each seam, who owns each side?** A seam whose two sides are owned by the same person is cheap to move and cheap to get wrong. A seam between teams is expensive to move and must be specified more carefully — it is a commitment, and changing it needs the deprecation path that AGENTS.md §7 describes.
+The design question this raises is practical: **for each seam, who owns each side?** A seam whose two sides are owned by the same person is cheap to move and cheap to get wrong. A seam between teams is expensive to move and must be specified more carefully — it is a commitment, and changing it needs the deprecation path that AGENTS.md §7 (*Engineering leverage & judgment*) describes.
 
 Conway's Law is the general statement: system structure tends to mirror the communication structure of the organisation that builds it. Use it in both directions — as a prediction of what you will get by default, and as a constraint on seams you're proposing to introduce. A seam that cuts against the team structure will erode.
 
