@@ -199,8 +199,9 @@
           "path": "skills/productivity/grilling",
           "relationship": "adapted",
           "license": "MIT",
-          "ref": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
-          "reviewed": "2026-08-10"
+          "ref": "85f83d3fde1d3a90d5c9a657f6998c79a6c37308",
+          "reviewed": "2026-08-22",
+          "note": "Upstream moved to round-based questioning (ask the whole dependency frontier per round); this fork keeps one-question-at-a-time deliberately, and `triage` relies on that. Reconciled at 85f83d3: the only SKILL.md changes since 84fdeff were em-dash removal and a horizontal rule in the round template, both house-style conflicts with nothing to port. The failure modes documented in upstream's docs/productivity/grilling.md were drawn on for Gotchas and Troubleshooting."
         },
         {
           "origin": "Adapt, \"Build Wide, Ship Narrow\"",
