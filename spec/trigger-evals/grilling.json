@@ -1,0 +1,22 @@
+[
+  {"query": "grill me on this migration plan before i start", "should_trigger": true},
+  {"query": "poke holes in this — i want to move the availability cache to redis", "should_trigger": true},
+  {"query": "pressure-test my plan for the deposit refactor, i'm about to commit to it", "should_trigger": true},
+  {"query": "play devil's advocate on this: we drop the nightly sync and go event-driven", "should_trigger": true},
+  {"query": "what am i missing here? this is the whole plan for the waitlist feature", "should_trigger": true},
+  {"query": "challenge my assumptions about the tenancy model before i build anything on them", "should_trigger": true},
+  {"query": "the reviewer says my error handling is wrong but i don't think it is. help me respond", "should_trigger": false},
+  {"query": "got 14 comments on PR #412 and some of them contradict each other. work out which ones i should actually act on", "should_trigger": false},
+  {"query": "a reviewer wants me to extract this into a service object and i think it's the wrong call. how do i push back?", "should_trigger": false},
+  {"query": "before i implement these review suggestions, check whether they're actually right", "should_trigger": false},
+  {"query": "the reviewer's comment on the webhook signature check doesn't make sense to me. what are they asking for?", "should_trigger": false},
+  {"query": "review this branch before i merge it — does it follow the conventions we actually use in this repo?", "should_trigger": false},
+  {"query": "explain what app/services/reservation_hold.rb does, i inherited it and there are no tests on it", "should_trigger": false},
+  {"query": "write the failing test first, then make the availability endpoint paginate", "should_trigger": false},
+  {"query": "commit what's in the working tree, group it sensibly", "should_trigger": false},
+  {"query": "help me think through what we should build for group bookings — i don't have an approach yet", "should_trigger": false},
+  {"query": "break the waitlist epic into stories i can ship one at a time", "should_trigger": false},
+  {"query": "write this discussion up as a spec, we settled it yesterday", "should_trigger": false},
+  {"query": "find bugs in the payment-link feature, and assume an attacker controls every query param", "should_trigger": false},
+  {"query": "is a 'table' the physical table or the seating assignment? our model treats it as both", "should_trigger": false}
+]

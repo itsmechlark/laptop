@@ -14,8 +14,9 @@ module via `PYTHONPATH`, so the two never collide in practice.
 | `code-review` + `find-bugs` | Second highest (0.118), and the boundary between them — verdict vs evidence — has never been tested |
 | `tdd`, `fan-out` | A wrong trigger is expensive: one hijacks an implementation turn into red-green-refactor, the other spawns parallel agents |
 | `codebase-design` + `domain-modeling` | Both are design-time skills that fire on "this code is the wrong shape" requests, and `domain-modeling` hands work to `codebase-design` explicitly. The boundary — where the seam goes vs. what the words mean — had never been tested |
+| `grilling` + `review-response` | Both fire on "push back on this technical judgment" requests. `grilling` is also an interview primitive that four siblings route into — `triage`, `find-bugs`, `draft-spec`, and `brainstorming` — which changes what a bad result costs: the expensive failure is a *missed* trigger, where the agent improvises an interview instead of loading this one, and term overlap cannot see that |
 
-The three pairs share a single query pool, labelled independently per skill, so
+The four pairs share a single query pool, labelled independently per skill, so
 a query establishes which of the two should win rather than testing each in
 isolation. `check-payload` fails if any shared query is labelled should-trigger
 in both — that would make the pair unfalsifiable.
@@ -137,6 +138,22 @@ label may be what's wrong:
 - **codebase-design**, "app/models/reservation.rb is 800 lines, split it into
   smaller modules" — should-trigger here and should-not for `slice`, which is
   the same query that set already carries as its most likely failing negative.
+- **grilling**, "help me think through what we should build for group bookings —
+  i don't have an approach yet" — labelled should-not-trigger, and the negative
+  most likely to fail in that set. The description now says "find what a plan is
+  missing", and this query is the case it must repel: there is no plan yet, so
+  the subject of the interview doesn't exist. It belongs to `brainstorming`,
+  which carries `disable-model-invocation` and therefore cannot win it — nothing
+  firing is the correct outcome, which is why the pair is `review-response` and
+  not `brainstorming`.
+- **grilling** / **review-response**, the five reviewer-feedback queries —
+  labelled should-trigger for `review-response` and not for `grilling`.
+  Genuinely contested: `grilling`'s body explicitly says to grill feedback from
+  a demo or a reviewer before iterating on it, so the skill claims the territory
+  even though its description scopes to plans and decisions. The intended line
+  is the artifact — feedback on a *plan* is `grilling`, comments on *code in
+  review* are `review-response`. If the eval disagrees, the fix is in the
+  descriptions, not the labels.
 
 ## One hypothesis these sets exist to settle
 
