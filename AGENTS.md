@@ -466,15 +466,21 @@ asymmetry — the key is Claude-only, and Codex and Cursor ignore it, so the sam
 sibling *is* model-invocable there. `brainstorming` spells this out where it
 hands work off.
 
-**Reserve the flag for skills that seize the interaction or write outward.**
-It is a real cost: a flagged skill can't be reached by a sibling's handoff, and
-the chain has to route around it. Flag a skill when a wrong auto-invocation is
-expensive — it imposes a gate on the user (`brainstorming`), runs a long
-multi-phase workflow that ends in a commit (`feature-dev`), writes to a tracker
-(`triage`), or produces outward-facing text (`standup`). Leave it off the
-mid-chain tools that other skills need to call: `draft-spec`, `slice`, `tdd`,
-`explain`, `grilling`, `code-review`. A missed invocation costs a nudge; a
-wrong one costs the turn — but so does a handoff that can't fire.
+**Use the flag whenever deliberate invocation is what you want.** It is one of
+the Claude-only keys this payload takes leverage of, and it earns its place
+wherever a wrong auto-invocation is expensive: a gate imposed on the user
+(`brainstorming`), a long multi-phase workflow ending in a commit
+(`feature-dev`), a write to a tracker (`triage`), outward-facing text
+(`standup`). Flag a skill for that reason and don't argue yourself out of it.
+
+Its one mechanical consequence is the handoff, not a reason to avoid it: the
+Skill tool refuses a flagged target, so a sibling routing work there says *read
+and follow its `SKILL.md`* rather than "invoke" it — the paragraph above, and
+what `check-payload`'s invocability check exists to catch. That check is what
+makes flagging cheap: mis-worded handoffs fail the build rather than the turn.
+Mid-chain tools other skills call constantly — `draft-spec`, `slice`, `tdd`,
+`explain`, `grilling`, `code-review` — are still better left invocable, because
+every caller pays the indirection, not because the flag is expensive.
 
 ### `rules/<lang>.md`
 

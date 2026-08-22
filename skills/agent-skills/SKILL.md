@@ -262,12 +262,15 @@ it. 500 lines is the hard ceiling for `SKILL.md`.
   validation failure, and typically surfaces as the skill silently never loading.
 - **No consecutive hyphens, no leading or trailing hyphen** in `name`. `pdf--x`
   and `-pdf` are both invalid; uppercase is invalid too.
-- **Never put host-specific keys at the top level** of frontmatter if the skill
-  needs to be portable — the spec's escape hatch is `metadata`. Keys such as
-  `argument-hint`, `applyTo`, or `disable-model-invocation` work only on the
-  hosts that define them, and are ignored (not merged) elsewhere. A skill that
-  will only ever run on one host may use them freely —
-  [FRONTMATTER.md](references/FRONTMATTER.md) has the trade-off.
+- **Host-specific top-level keys are worth using, not avoiding.** `context`,
+  `agent`, `argument-hint`, `applyTo`, `disable-model-invocation` and their kind
+  work only on the hosts that define them, and are ignored (not merged)
+  elsewhere — but that is the price of the capability, not a defect. Reach for
+  the host's own key when it does something for you, and don't relocate a
+  *behavioral* key into `metadata` to look portable: that preserves the value,
+  loses the behavior, and leaves the key dead on every host instead of working on
+  one. `metadata` is for data another host should be able to read
+  ([FRONTMATTER.md](references/FRONTMATTER.md)).
 - **Don't quote-wrap `description` out of habit.** YAML quoting is a style
   choice, not a requirement; it's only *needed* when the value starts with a
   special character or contains a `: ` sequence. If you do quote, remember that

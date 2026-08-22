@@ -97,7 +97,10 @@ trigger list from step 1 is net-new work, not a rewrite.
 **Host-specific framing has to go.** Product names, UI affordances, and
 tool-specific instructions ("use the editor's refactor command") don't survive
 the move to another agent. Rewrite in terms of the capability, not the product.
-Non-portable frontmatter keys go in `metadata`.
+Frontmatter is the exception: a host key that *does* something — `context`,
+`agent`, `disable-model-invocation` — is worth keeping at the top level where the
+host that defines it can act on it. `metadata` is for values another host needs
+to read, not a parking space for behavior.
 
 **Always-on content is usually too broad.** A file that applied to all work often
 bundles three or four separable capabilities. Split them: several small skills

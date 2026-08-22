@@ -117,14 +117,23 @@ safety depends on the host honoring it.
 
 ## Host extensions
 
-Hosts define their own top-level keys — `argument-hint`, `applyTo`,
-`disable-model-invocation`, and similar. They are useful, and they are not
-portable: another agent ignores them rather than translating them.
+Hosts define their own top-level keys — `argument-hint`, `context`, `agent`,
+`applyTo`, `disable-model-invocation`, and similar. They are useful, and they are
+not portable: another agent ignores them rather than translating them.
 
-If a skill is meant to travel, keep host-specific keys out of the top level and
-put anything you need to preserve in `metadata`. If a skill is only ever used on
-one host, top-level extensions are fine — just don't expect them to survive a
-move.
+Use them anyway when they earn their place. A key that makes the host do
+something — fork the skill into a subagent, pick which agent runs it, restrict it
+to user invocation, scope it to a path — buys real capability on the host that
+defines it, and the hosts that don't define it are no worse off than if the key
+were absent. Write the skill so its body still reads correctly where the key is
+inert, and say which host enforces it when the distinction matters.
+
+What *doesn't* work is relocating a behavioral key into `metadata` for the look
+of portability. `metadata` is inert data by definition: moving `context: fork`
+there preserves the string and loses the fork, so the key ends up doing nothing
+everywhere instead of something somewhere. Use `metadata` for values another host
+should be able to *read*, and the host's own top-level key for behavior you want
+it to *run*.
 
 ## Minimal and maximal examples
 
