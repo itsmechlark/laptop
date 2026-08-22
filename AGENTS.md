@@ -348,12 +348,21 @@ the script's `evals_exempt` list.
   something you've decided not to change would only produce a report to ignore.
 - **Exempt means deliberately uncovered**, not forgotten: low description
   overlap, cheap to recover from. Move a name off that list the first time it
-  actually misfires, and let the misfire motivate the query set.
+  actually misfires, and let the misfire motivate the query set. Becoming a
+  skill other skills route into is the same signal arriving early: for a
+  primitive, the expensive failure is the *missed* trigger — the agent
+  improvising the workflow instead of loading it — and overlap cannot see that.
+  `grilling` came off the list for that reason, not for a misfire.
 - **Adjacent skills share one query pool** with labels assigned per skill, so a
   query proves exactly one of them fires — `git-commit`/`pull-request`,
-  `code-review`/`find-bugs`, and `codebase-design`/`domain-modeling` are the
-  worked examples. Labelling a shared query should-trigger in both makes the
-  pair unfalsifiable, so `check-payload` fails on that rather than trusting it.
+  `code-review`/`find-bugs`, `codebase-design`/`domain-modeling`, and
+  `grilling`/`review-response` are the worked examples. Labelling a shared query
+  should-trigger in both makes the pair unfalsifiable, so `check-payload` fails
+  on that rather than trusting it. Pick the partner from the skills that can
+  actually win the query: a flagged skill never fires, so pairing against one
+  measures nothing — `grilling`'s nearest neighbour by scope is `brainstorming`,
+  and `review-response` is its partner precisely because `brainstorming` carries
+  `disable-model-invocation`.
 
 Two checks are worth understanding before you change them:
 
