@@ -120,5 +120,6 @@ Once the sequence is settled, `tdd` turns one slice's acceptance criteria into a
 
 ## Attribution
 
+- [thoughtbot/rails-consultant](https://github.com/thoughtbot/rails-consultant/tree/main/skills/slice) - slice, MIT
 - Alistair Cockburn, *Crystal Clear* — the walking skeleton
 - Alan Klement, "Replacing the User Story with the Job Story" — job stories

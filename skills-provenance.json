@@ -160,6 +160,21 @@
         }
       ]
     },
+    "standup": {
+      "sources": [
+        {
+          "origin": "thoughtbot/rails-consultant",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/rails-consultant",
+          "path": "skills/standup",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "9807306250b2fa86886568be3a6d40cefabe5b4a",
+          "reviewed": "2026-08-22",
+          "note": "Recorded retroactively. Commit 860c1ea states the adaptation and the audience-aware Step 0 that diverged from it, but added no provenance entry. INITIAL PIN — a baseline to watch from, not a verified reconcile."
+        }
+      ]
+    },
     "grilling": {
       "sources": [
         {
@@ -196,6 +211,17 @@
     },
     "tdd": {
       "sources": [
+        {
+          "origin": "thoughtbot/rails-consultant",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/rails-consultant",
+          "path": "skills/test-driven-development",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "9807306250b2fa86886568be3a6d40cefabe5b4a",
+          "reviewed": "2026-08-22",
+          "note": "Recorded retroactively — the origin source. Commit b6c9cd4 added this skill 'adapted from thoughtbot's rails-consultant skills' and made it framework-agnostic; the mattpocock and obra sources below were folded in later by 9e10c0e. INITIAL PIN."
+        },
         {
           "origin": "mattpocock/skills",
           "type": "github",
@@ -383,6 +409,17 @@
     },
     "slice": {
       "sources": [
+        {
+          "origin": "thoughtbot/rails-consultant",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/rails-consultant",
+          "path": "skills/slice",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "9807306250b2fa86886568be3a6d40cefabe5b4a",
+          "reviewed": "2026-08-22",
+          "note": "Recorded retroactively — the origin source, per commit b6c9cd4. Diverged since: 1dc2ea3 rewrote it and dropped upstream's codebase-grounding fan-out step, which is why feature-dev carries no 'stand down' note for it. INITIAL PIN."
+        },
         { "origin": "Alistair Cockburn, Crystal Clear — walking skeleton", "type": "book", "relationship": "inspired-by" },
         { "origin": "Alan Klement, Replacing the User Story with the Job Story", "type": "article", "relationship": "inspired-by" }
       ]

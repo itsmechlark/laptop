@@ -149,5 +149,6 @@ Every box checked proves the code does what the tests demanded — not that it's
 
 ## Attribution
 
+- [thoughtbot/rails-consultant](https://github.com/thoughtbot/rails-consultant/tree/main/skills/test-driven-development) - test-driven-development, MIT
 - [mattpocock/skills](https://github.com/mattpocock/skills/tree/main/skills/engineering/tdd) - tdd, MIT
 - [obra/superpowers](https://github.com/obra/superpowers/tree/main/skills/test-driven-development) - test-driven-development, MIT

@@ -122,3 +122,7 @@ Wait for their answer. If they identify something, help them reword it clearly â
 ## Tone
 
 Efficient and honest. This isn't a ceremony â€” it's a communication tool. Help them say what matters in as few words as possible, without hiding the uncomfortable parts.
+
+## Attribution
+
+- [thoughtbot/rails-consultant](https://github.com/thoughtbot/rails-consultant/tree/main/skills/standup) - standup, MIT
