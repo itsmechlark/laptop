@@ -9,7 +9,7 @@
   {"query": "audit this before i push, specifically for idor and path traversal in the file download endpoint", "should_trigger": false},
   {"query": "i'm worried there's a race in the reservation hold code i added — try to prove it's actually exploitable", "should_trigger": false},
   {"query": "find bugs in the payment-link feature, and assume an attacker controls every query param", "should_trigger": false},
-  {"query": "explain what the deposit calculator does, i inherited it", "should_trigger": false},
+  {"query": "what does app/services/reservation_hold.rb actually do? i inherited it and there are no tests on it", "should_trigger": false},
   {"query": "write tests for the webhook receiver, it has none", "should_trigger": false},
   {"query": "the reviewer says my error handling is wrong but i don't think it is. help me respond", "should_trigger": false},
   {"query": "sentry is full of NoMethodError on the availability endpoint, work out what to do with it", "should_trigger": false},
