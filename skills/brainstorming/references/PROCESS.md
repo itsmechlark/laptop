@@ -60,8 +60,8 @@ reaching for the Skill tool, which refuses it. `draft-spec`, `slice`,
 
 - If the shaky part is the request's premise rather than its details — the
   problem may not be the real problem, or the user's chosen approach may not
-  serve it — say so before proposing approaches, and offer `grilling` to
-  pressure-test it. Refining the details of the wrong idea is the expensive
+  serve it — say so before proposing approaches, and offer to invoke `grilling`
+  to pressure-test it. Refining the details of the wrong idea is the expensive
   failure this path exists to avoid.
 - Propose 2–3 different approaches with trade-offs.
 - Present options conversationally with your recommendation and reasoning.

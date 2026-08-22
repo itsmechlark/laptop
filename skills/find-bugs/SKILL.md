@@ -45,7 +45,7 @@ Then account for every file in the set:
 - **Uncommitted work:** `git diff HEAD` for tracked changes, *plus* `git status --porcelain` — a new file that was never `git add`ed appears in no diff at all, and is the easiest whole file to miss.
 - **Truncated output:** work from `git diff <base>...HEAD --name-status` and read files individually until the number you reviewed matches the number that changed.
 
-Hunt auth, money, and tenancy first; logging and config last. If context runs short, it should run short on the cheap surfaces. A focus supplied with the argument (`$2`) — "the webhook path", "assume a hostile tenant" — reorders that priority; it never narrows the review set. When the threat model itself is ambiguous — the user isn't sure what to worry about — use the `grilling` skill to sharpen it before hunting.
+Hunt auth, money, and tenancy first; logging and config last. If context runs short, it should run short on the cheap surfaces. A focus supplied with the argument (`$2`) — "the webhook path", "assume a hostile tenant" — reorders that priority; it never narrows the review set. When the threat model itself is ambiguous — the user isn't sure what to worry about — invoke `grilling` to sharpen it before hunting, rather than asking the questions yourself.
 
 ### 2. Map the attack surface
 

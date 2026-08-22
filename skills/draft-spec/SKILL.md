@@ -27,7 +27,7 @@ Run this before drafting anything. All three must hold:
 2. **No rival option is still live.** Every "or maybe we could" in the conversation has a resolution you can point at — not a preference you would be supplying yourself.
 3. **The boundary holds.** You can name something adjacent that is *out*, and the user would agree without thinking about it.
 
-When one fails, say which, and name what is open — that sentence is more useful than a spec built over the gap. If the user wants the draft anyway after hearing it, write it, and mark every assumption you had to invent in **Further Notes** rather than letting it read as settled. Deeper ambiguity than one question can close is `grilling`'s to work through first.
+When one fails, say which, and name what is open — that sentence is more useful than a spec built over the gap. If the user wants the draft anyway after hearing it, write it, and mark every assumption you had to invent in **Further Notes** rather than letting it read as settled. Deeper ambiguity than one question can close is `grilling`'s to work through first — invoke it and let it run to a confirmed understanding, rather than opening the interview here.
 
 ## Workflow
 
