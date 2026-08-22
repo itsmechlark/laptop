@@ -109,6 +109,8 @@ After the list, give a one-paragraph sequencing rationale.
 
 Once the sequence is settled, `tdd` turns one slice's acceptance criteria into a red-green-refactor cycle — one slice at a time, in the order you just justified. `fan-out` can put a slice per agent, but only across slices that all read `Depends on: none` and touch disjoint files; parallelizing a slice that builds on one still unshipped turns a sequencing decision into a merge conflict.
 
+For the whole chain rather than the build alone — explore, sharpen, build test-first, review, commit — that's `feature-dev`, which calls this skill as its shaping phase. It is user-invoke-only, so the Skill tool refuses it: read and follow its `SKILL.md`, or tell the user to invoke it themselves.
+
 ## Gotchas
 
 - **Reject horizontal slices.** "Build the database layer" or "set up the API" delivers nothing a user can touch — a layer isn't a slice, however much work it is.

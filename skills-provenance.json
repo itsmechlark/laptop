@@ -160,6 +160,21 @@
         }
       ]
     },
+    "feature-dev": {
+      "sources": [
+        {
+          "origin": "thoughtbot/rails-consultant",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/rails-consultant",
+          "path": "skills/feature-dev",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "9807306250b2fa86886568be3a6d40cefabe5b4a",
+          "reviewed": "2026-08-22",
+          "note": "Recorded retroactively. Commit b6c9cd4 states the adaptation ('Adapted from thoughtbot's rails-consultant skills') and deliberately kept it out of skills-lock.json, but no provenance entry replaced it — the same gap 48e467f found for explain. Reconciled through this ref: upstream's 'what already exists' grounding note and its sharper Socratic warning are ported; its /code-review --fix instruction is deliberately not, since this payload's code-review is a first-party skill that reports rather than fixes."
+        }
+      ]
+    },
     "standup": {
       "sources": [
         {

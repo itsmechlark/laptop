@@ -1,120 +1,94 @@
 ---
 name: feature-dev
-description: Take one new feature slice from idea to reviewed, committed code in a single guided pass — scope it into the smallest shippable slice, build it test-first with strict TDD, review and fix the diff, then commit it. Chains slice → tdd → code review → git-commit. Agnostic to language, framework, and repo. Not for reviewing an existing PR, upgrades, or open-ended design questions.
+description: Take one feature slice from idea to reviewed, committed code in a single guided pass — scope it to the smallest shippable slice, build it test-first, review and fix the diff, then land it as one atomic commit. Use when asked to build, implement, or ship a feature end to end with the full discipline chain rather than by hand. Agnostic to language, framework, and repo. Not for reviewing a change that already exists, dependency upgrades, or open-ended design questions where the approach is still unsettled.
 argument-hint: "[feature or slice to build]"
 disable-model-invocation: true
 ---
 
 # Feature development
 
-You are helping a developer take **one feature slice** from a rough idea to reviewed, committed code. This is not autonomous coding — it's a guided workflow that threads four disciplines: **slicing** to define the work, **TDD** to build it, **code review** to harden it, and a clean **commit** to land it.
+Take one feature slice from a rough idea to reviewed, committed code, threading four disciplines in sequence: slicing defines the work, TDD builds it, review hardens it, a clean commit lands it.
 
-The workflow's reason for existing is to resist the pull toward premature code. Each phase earns the next: you don't slice until you understand the feature, you don't build until the slice is sharp, you don't consider it done until the diff is reviewed, and you don't commit until it's green. Hold that line — the value is in the sequence.
+Feature to build: `$ARGUMENTS`. If nothing came with the invocation, ask what they're building — the problem it solves, who it's for, what "done" looks like — before starting Phase 0.
 
-**Scope discipline:** this refines and builds exactly **one slice**. If the work is an epic — several independently shippable pieces — surface that during framing and help the user pick the single slice to build now. Building more than one slice per pass defeats the point.
+**The sequence is the value.** Each phase earns the next: don't slice until you understand the feature, don't build until the slice is sharp, don't call it done until the diff is reviewed and the project's checks pass, don't commit until it's green. Watering a phase down to reach the code sooner is the exact failure this workflow exists to prevent.
 
-**Leanness discipline:** a small slice does not guarantee a small diff. Slicing controls *what* ships; it does nothing to stop the implementation bloating with speculative abstractions, options nothing uses yet, or defensive branches no test demands. Target a **production-code diff under ~300 lines** (excluding comments, blanks, and tests). Treat it as a design constraint you carry from Phase 3 on, not a gate you discover at the end.
+**One slice per pass.** This refines and builds exactly one slice. An epic — several independently shippable pieces — gets named in Phase 1 and narrowed to the single slice to build now.
 
-Track the phases (e.g. with `TodoWrite`) so the user can see where they are. When the work should stay isolated from the main checkout, use the `git-worktree` skill to set up a worktree before entering Phase 1.
+## When to use this skill
 
-## Phase 1: Frame the work
+- Building a feature end to end: define it, implement it test-first, review it, commit it
+- A slice already scoped but not started, that should be built with the full discipline chain rather than freehand
+- A design that has been agreed and now needs building
+- Not for reviewing a change that already exists — a PR, someone else's diff, a branch you didn't write — that's `code-review`
+- Not for deciding *what* to build while the approach is still open — that's `brainstorming`, whose architectural path hands the approved design back here
+- Not for breaking a whole epic down — that's `slice` on its own; come back with one slice
+- Not for work already filed on an issue tracker — `triage` is the entry point for those
+- Not for dependency upgrades, mechanical refactors, or a one-line fix: eight phases cost more than the work
 
-**Goal:** understand what the user wants, and confirm it's a single slice before investing.
+`brainstorming` and `triage` are both user-invoke-only, so the Skill tool refuses them — route to either by reading and following the target's `SKILL.md`.
 
-Initial request: `$ARGUMENTS`
+## Workflows
 
-If it's unclear, ask what they're building — the problem it solves, who it's for, what "done" looks like. Keep it short; the `slice` skill interrogates scope properly in Phase 3, so here you only need enough to explore the codebase intelligently. If the shape of the thing isn't settled yet — the approach is open, or the design needs working out before anyone slices it — that's `brainstorming`, and it hands the approved design back here.
+### The run
 
-Then make an explicit call on size: **is this one slice, or an epic hiding several?** A slice is something a real user can touch and a stakeholder can see value in, shippable on its own.
+Track the phases with `TodoWrite`, so the user can see where they are and an interrupted run is resumable. Read each phase's detail when you reach it, not all upfront.
 
-- **One slice** → confirm your understanding in a sentence or two and move on.
-- **An epic** → say so plainly, help name the pieces briefly, then ask which single slice to build now. If they want the full epic broken down first, that's the `slice` skill's large-feature path on its own — point them there and stop.
+- [ ] **0. Isolate and baseline** — a worktree when the work should stay off the main checkout, and a known-green suite to measure against — [PHASES.md](references/PHASES.md#phase-0-isolate-and-baseline)
+- [ ] **1. Frame the work** — understand the feature, and rule on one slice vs. an epic — [PHASES.md](references/PHASES.md#phase-1-frame-the-work)
+- [ ] **2. Explore the codebase** — where this lands, what to reuse, how this repo tests — [PHASES.md](references/PHASES.md#phase-2-explore-the-codebase)
+- [ ] **3. Shape the slice** — one job story with a "ships when" and verifiable acceptance criteria — [PHASES.md](references/PHASES.md#phase-3-shape-the-slice)
+- [ ] **4. Build it test-first** — strict red-green-refactor, driven by those criteria — [PHASES.md](references/PHASES.md#phase-4-build-it-test-first)
+- [ ] **5. Review and fix the diff** — findings, then the fixes, then the full Definition of Done — [PHASES.md](references/PHASES.md#phase-5-review-and-fix-the-diff)
+- [ ] **6. Commit the slice** — one atomic commit whose message carries the "ships when" — [PHASES.md](references/PHASES.md#phase-6-commit-the-slice)
+- [ ] **7. Hand it back** — what shipped, what's covered, what's still waiting — [PHASES.md](references/PHASES.md#phase-7-hand-it-back)
 
-## Phase 2: Explore the codebase
+Phases 3, 4, 5, and 6 each run a co-shipped skill — `slice`, `tdd`, `code-review`, `git-commit` — through the Skill tool. Run them in sequence and keep the handoffs clean; each is rigorous on its own and your job is not to water it down. If one can't be invoked, follow its `SKILL.md` rather than skipping the phase.
 
-**Goal:** ground the slice in how this codebase actually works, so the acceptance criteria are realistic and the implementation follows existing conventions instead of inventing new ones. For unfamiliar code, the `explain` skill can produce a working mental model of a file, class, or flow before you start tracing conventions.
+### Keeping the diff lean
 
-This matters most in a mature codebase: the right slice and tests depend on where similar features live, what the testing conventions are, and which abstractions already exist. Skipping it leads to slices that ignore reality and code that fights the grain.
+A small slice does not guarantee a small diff. Slicing controls *what* ships; nothing in it stops the implementation bloating with speculative abstractions, options nothing uses yet, or defensive branches no test demanded. Carry a **production-code budget of ~300 lines** from Phase 3 onward as a design constraint, and measure against it before review: [LEANNESS.md](references/LEANNESS.md).
 
-Match the effort to the feature. For a small, well-understood change, a few targeted reads inline are enough. For anything touching unfamiliar territory or spanning layers, launch 2–3 general-purpose subagents in parallel (via the Task tool) as codebase explorers, each on a different angle:
+## Gotchas
 
-- Find features similar to this one and trace their implementation end to end.
-- Map the architecture and conventions for the area this slice touches (wherever it lands — data, domain logic, endpoints, UI, background work).
-- Identify the testing patterns relevant to this work: the framework, how tests are structured across layers (end-to-end, integration, unit), and what factories/fixtures/helpers exist.
+- **A green suite is not Done.** TDD proves the criteria are met; it says nothing about lint, format, or type-checks. Run all of them before the commit and report what you ran (AGENTS.md §4, *Definition of Done*) — "tests pass" claimed as done, with RuboCop or `tsc` unrun, is the most common way this workflow ships a red branch.
 
-Ask each explorer for the 5–10 files most worth reading, then **read those files yourself** before proceeding — the subagents build the map, you need the detail in context. Close the phase with a short summary of the patterns that will shape the slice: where the code will live, what it should look like, what to reuse.
+- **A new feature that changes existing behavior ships default-off.** Gate it behind a flag and keep the flag-off path behavior-preserving; keep any migration backward-compatible, expanding before it contracts (AGENTS.md §5, *Safe rollout, feature flags & migrations*). This is a Phase 3 acceptance criterion, not a Phase 6 afterthought — retrofitting a flag after the tests are written rewrites both.
 
-## Phase 3: Shape the slice
+- **Never commit before the review's fixes are green.** Phase 5 edits code outside the red-green-refactor loop, so its fixes are the least-tested lines in the diff. Re-run everything after them, and if a fix changed behavior no test covers, add that test — failing first.
 
-**Goal:** turn the framed feature into one sharp slice with real acceptance criteria.
+- **The budget is a design constraint, not a gate you discover at the end.** Noticing a 900-line diff at the Phase 4 checkpoint means the last two hours went into code you're now deleting. Carry it from Phase 3.
 
-**Invoke the `slice` skill** and let it lead the conversation. Since Phase 1 established this is a single slice, `slice` should sharpen it into one job story (its small-feature path). Feed it what you learned in Phases 1–2 so the conversation starts warm.
+- **Establish the baseline before writing anything.** Phase 5 cannot tell a regression from the status quo on a suite that was already red, and neither can Phase 4 — `tdd` records why under *Establish a green baseline before the first red*.
 
-What you need out of this phase: a job story with a clear **"ships when"** and concrete **acceptance criteria** — happy path, edge cases, error states. Those aren't paperwork; they become the failing tests in Phase 4. Push until each criterion is specific and verifiable ("a user can X and sees Y") — a vague criterion produces a vague test that proves nothing.
+- **Don't pre-answer `slice`'s questions.** It is Socratic by design: it leads the user to define the work. Arriving from Phase 2 makes this harder rather than easier — you now know things the user hasn't been told, and the pull is to skip the questions and present a finished slice. Use what you learned to make the questions *specific*, not to answer them; unexamined acceptance criteria become tests that assert your assumptions instead of the user's needs.
 
-Close with a rough **size budget:** given what Phase 2 revealed, does the slice look buildable in under ~300 lines of production code? If it clearly can't — it spans many layers, or every criterion drags in new machinery — that's usually a signal the slice is still too big, not that the budget is wrong. Interrogate it now, while re-slicing is cheap.
+- **A subagent's map is not a substitute for reading the files.** Explorers return the 5–10 files worth reading; the detail has to land in *your* context before you can follow the conventions they found.
 
-## Phase 4: Build it test-first
+- **Don't skip Phase 2 because the change looks small.** In a mature codebase the right slice and the right tests both depend on where similar features live. Skipping it produces code that fights the grain and passes anyway.
 
-**Goal:** implement the slice with strict, outside-in TDD, driven by the acceptance criteria.
+- **One slice per pass, even when the next one is obvious.** Building two defeats the point: the diff stops being reviewable, and the commit stops telling one story.
 
-**Invoke the `tdd` skill** and run its process without shortcuts. Hand it the acceptance criteria as the specification: each criterion is a behavior that needs a failing test before any production code exists.
+- **This workflow stops at the commit.** It does not push and does not open a PR. Leave the branch ready and let the user decide — `pull-request` covers the title and description when they do.
 
-The skills fit together: `slice` produced the observable behaviors, and TDD drives them outside-in — start with a high-level test for the "ships when" behavior, let its failure push you down through the layers, write minimal code at each. The slice is done when every criterion is covered by a test you watched fail and then pass, and the suite is green with pristine output. Honor the Iron Law: no production code without a failing test first.
+## Troubleshooting
 
-**Keep the implementation lean.** Take TDD's "minimal code to pass" literally:
+| Problem | Resolution |
+| --- | --- |
+| The suite is red before you start | Fix or quarantine the failure first, or state explicitly which failures pre-date the slice. Never build on an unknown baseline. |
+| The slice keeps growing during Phase 4 | It was an epic. Stop, return to the Phase 1/3 decision, ship the smaller piece, and defer the rest — see [LEANNESS.md](references/LEANNESS.md). |
+| No seam exists to write the first failing test against | The design, not the test, is the problem. `codebase-design` locates the seam; take the refactor as its own commit before resuming Phase 4. |
+| The review finds a defect that invalidates an acceptance criterion | The slice was wrong, not just the code. Go back to Phase 3, re-sharpen the criterion, and drive the correction test-first. |
+| Unrelated changes are in the working tree at Phase 6 | Don't pre-split them yourself. Hand `git-commit` the full tree and the "ships when"; it makes the atomic-commit call. |
+| The run was interrupted | Resume from the phase checklist, re-reading only that phase's section. Re-establish the baseline first if the tree changed hands. |
 
-- Don't introduce an abstraction (a shared object, a base class, a config option) until a *second* caller needs it. One caller is not a pattern.
-- Don't add error handling, branches, or parameters no failing test demands.
-- Reuse what Phase 2 surfaced instead of building parallel machinery.
+## References
 
-**Size checkpoint before review.** When every criterion is green, measure the production diff against the budget — e.g.:
+Read each when you reach it, not all upfront.
 
-```
-git diff --stat "$(git merge-base HEAD <base>)"...HEAD -- ':(exclude)<test-dirs>'
-```
+- [PHASES.md](references/PHASES.md) — every phase in full: its goal, the skill it hands off to, and the exit condition the next phase depends on
+- [LEANNESS.md](references/LEANNESS.md) — the ~300-line production budget, how to measure the diff against it, the lean-implementation rules, and the three-way call when it runs over
 
-(Use whichever branch the slice was cut from as `<base>`, and exclude this project's test directories. It counts comments and blanks, so discount those by eye.) At or under budget → move to review. Over budget → make an explicit, written call among three options and tell the user which applies:
+## Attribution
 
-- **Accidental complexity** — over-abstraction, dead flexibility, code no criterion demanded. Simplify now. The common case.
-- **Essential complexity** — the slice genuinely spans enough layers that the code can't be smaller without losing behavior. Legitimate, but say *why* in a sentence or two.
-- **The slice was too big** — if the size traces to scope, the honest fix is upstream: return to the Phase 1/3 decision, ship the smaller piece, defer the rest.
-
-This is advisory, not a hard gate — a justified large diff may proceed. What's not allowed is drifting past the budget without noticing.
-
-## Phase 5: Review the diff
-
-**Goal:** catch the bugs, quality issues, and convention violations TDD won't surface, then fix them.
-
-TDD proves the slice does what the criteria demanded; it doesn't prove the code is simple, secure, or idiomatic. Run a code review over the **slice's diff** (the changes since the branch point) and apply the fixes — via your `/code-review` command (e.g. `/code-review high --fix`) or the `code-review` skill. Use a higher effort level for security-sensitive or subtle logic, a lower one for trivial changes. A good review also hunts for simplification and reuse, so treat it as a second pass on leanness after the Phase 4 checkpoint.
-
-Because the fixes edit code outside the red-green-refactor loop, **re-run the full suite** with the project's test command once they finish, to confirm nothing regressed. If a fix changed behavior not yet covered by a test, add the missing test — failing first, per Phase 4 — so the correction can't silently regress. Then summarize what the review changed: what it fixed, anything it flagged but deliberately left, and confirmation the suite is green.
-
-## Phase 6: Summary
-
-**Goal:** close the loop. Mark the todos complete and give a short summary:
-
-- **What shipped** — the slice in one line the user could paste into a PR description.
-- **Acceptance criteria** — confirm each is met and tested.
-- **Key decisions** — anything notable from slicing, testing, or review.
-- **Files changed** — the diff at a glance, with the production-code line count against the ~300 budget (restate the justification if it ran over).
-- **Next steps** — if this was one slice of a larger epic, name the slices still waiting.
-
-## Phase 7: Commit the slice
-
-**Goal:** land the finished, reviewed slice as a clean commit.
-
-**Invoke the `git-commit` skill** (via the Skill tool). Everything in the working tree is *one coherent slice*, so `git-commit` should land it as a single atomic commit rather than splitting it — the logic, its schema change, the handler, the UI, and the tests all tell one story. The exception is anything genuinely independent that snuck in (an unrelated cleanup, a drive-by fix from the review); let `git-commit` make that call.
-
-Feed it the slice's "ships when" line as context so the message explains *why* the slice exists, not just what changed. If Phase 5 flagged a risk or deliberate trade-off, mention it so it lands in the message too. `git-commit` stops at creating commits — it does not push or open a PR. Leave the branch ready for the user to push and open the PR themselves — the `pull-request` skill covers how to write the title and description.
-
-## Notes on the disciplines
-
-Each piece is rigorous on its own; your job is to run them in sequence and keep the handoffs clean, not to water them down.
-
-- `slice` is Socratic — it leads the user to define the work through questions. Let it; don't pre-answer.
-- `tdd` is strict about order. Don't let the momentum of a clear slice tempt you into code before the test.
-- The code review does the reviewing and fixing; your job after it runs is to confirm the suite is still green and that any behavior it changed is covered by a test.
-- `git-commit` makes the atomic-commit call itself. Expect a single commit for one coherent slice — don't pre-split, but hand it the "ships when" context.
-
-Every skill this workflow leans on — `slice`, `tdd`, `code-review`, `git-commit`, and `explain` in Phase 2 — invokes normally through the Skill tool. If one ever can't be invoked, follow its `SKILL.md` rather than skipping the phase. The sequence is the point.
+- [thoughtbot/rails-consultant](https://github.com/thoughtbot/rails-consultant/tree/main/skills/feature-dev) - feature-dev, MIT
