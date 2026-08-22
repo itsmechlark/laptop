@@ -72,6 +72,7 @@ scripts/                # verification tooling; each relocates to the repo root 
 spec/                   # fixtures check-payload validates and reads
   rules-cases.txt       # path -> which rules/ load for it
   invocability-fixture/ # deliberate violations; proves the check still fires
+  orphan-fixture/       # unreachable references; proves the check still fires
   trigger-evals/*.json  # query sets for skill triggering (run by hand, not CI)
 .agents/
   AGENTS.md             # global engineering standards (shipped to ~/.claude/CLAUDE.md)
@@ -268,7 +269,9 @@ nothing previously enforced: handoff invocability (a skill telling the agent to
 invoke a `disable-model-invocation` sibling, or calling an invocable one
 user-invoke-only), `## Attribution` agreement with `skills-provenance.json`,
 vendored-edit discipline, secret-path parity across the three clients,
-frontmatter and size limits, resource-link resolution, global-standards section
+frontmatter and size limits, resource links in both directions (every link
+resolves, and every `references/` file is reachable from its `SKILL.md`),
+global-standards section
 citations (an `AGENTS.md §N` in a skill must resolve, and must name the section
 correctly where it names it at all — section numbers shift when one is
 inserted), and which `rules/` load for a given path (cases in
@@ -279,11 +282,12 @@ at *which paths a commit touches* — never at a body's content. A vendored skil
 edited by either its real or its symlinked path desynchronizes the hash
 recorded in `skills-lock.json`, so the diff has to touch both or neither.
 
-It runs a self-test first, against `spec/invocability-fixture/SKILL.md`, which
-carries one deliberate violation of each invocability kind. If the fixture stops
-producing exactly two detections the run fails — a check that silently stops
-firing is worse than no check. Don't "fix" that fixture; its violations are the
-assertion.
+Two checks self-test before they run, each against a fixture carrying one
+deliberate violation of every kind it recognizes: the invocability check against
+`spec/invocability-fixture/SKILL.md`, and the reference-reachability check
+against `spec/orphan-fixture/`. Either fixture producing a count other than two
+fails the run — a check that silently stops firing is worse than no check. Don't
+"fix" those fixtures; their violations are the assertion.
 
 Three things stay human, by design:
 
@@ -316,6 +320,7 @@ than no fixture: it reports success.
 | --- | --- | --- |
 | `spec/rules-cases.txt` | `<path> <rules that load, comma-separated, or `-`>` | Every named rule must exist as `rules/<name>.md`; a missing case file is a warning |
 | `spec/invocability-fixture/SKILL.md` | One deliberate violation of each invocability kind | Must yield exactly 2 detections, or the run fails |
+| `spec/orphan-fixture/skills/alpha/` | An unlinked reference and a fence-only one, beside a legally one-hop file | Must yield exactly 2 detections, or the run fails |
 | `spec/trigger-evals/<skill>.json` | `[{"query": …, "should_trigger": …}, …]` | Shape, labels, and target skill — see below |
 
 An eval set fails the run when it is not valid JSON or not an array, is empty,
@@ -357,10 +362,12 @@ Two checks are worth understanding before you change them:
   `.claude/settings.json` *forces* the Codex and Cursor mirrors instead of
   relying on a reviewer noticing. A subject with no possible counterpart goes in
   the script's `parity_exempt` with its reason — never deleted.
-- **The self-test guards the invocability check**, which is the one that catches
-  a real, twice-repeated bug. If `spec/invocability-fixture/SKILL.md` stops
-  yielding exactly two detections, the run fails. Its violations are the
-  assertion; don't tidy them.
+- **The self-tests guard the two checks whose clean result is indistinguishable
+  from a broken one.** The invocability check catches a real, twice-repeated bug;
+  reference reachability catches the file a rename left behind, which resolves
+  nothing and breaks nothing. Both are silent when the payload is fine, so both
+  prove themselves on a fixture first. Their violations are the assertion; don't
+  tidy them.
 
 Warnings never fail the run. Failures always do.
 

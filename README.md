@@ -275,8 +275,10 @@ a job of their own. Warnings are advisory and may stand. Failures may not.
 
 * `spec/rules-cases.txt` — which `rules/` files load for a given path,
   so a typo in a `paths:` glob fails loudly instead of silently never matching
-* `spec/invocability-fixture/` — deliberate violations that prove the checks
-  still fire. Its contents are assertions, not examples; leave them broken
+* `spec/invocability-fixture/` and `spec/orphan-fixture/` — deliberate
+  violations that prove the checks still fire, one for cross-skill handoffs and
+  one for `references/` files nothing links. Their contents are assertions, not
+  examples; leave them broken
 * `spec/trigger-evals/*.json` — query sets for whether a skill's description
   fires on the requests it should. These need a live model, so they are not part
   of CI — run them with `sh scripts/run-trigger-evals` (all sets) or

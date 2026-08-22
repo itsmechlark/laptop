@@ -257,6 +257,67 @@ for ref in skills/*/references/*.md; do
     done
 done
 
+# The checks above only run forward, so a reference left behind by a rename
+# resolves nothing, breaks nothing, and stays in the payload — costing the next
+# reader's attention and drifting out of date unread. Reachable means SKILL.md
+# links it, or a reference that SKILL.md links links it (the one hop allowed
+# above). Vendored references are excluded: their linkage is upstream's.
+#
+# Reports one problem per line rather than calling fail() directly — the caller
+# counts, because a subshell cannot increment $failures. Takes the skills root
+# so the fixture below can exercise it against a tree with known answers.
+scan_orphan_references() {
+  root="${1:-skills}"
+  for ref in "$root"/*/references/*.md; do
+    [ -f "$ref" ] || continue
+    name=$(basename "$ref")
+    skill_dir=$(dirname "$(dirname "$ref")")
+    [ "$root" = skills ] && is_vendored "$(basename "$skill_dir")" && continue
+
+    md="$skill_dir/SKILL.md"
+    grep -q "references/$name" "$md" 2>/dev/null && continue
+
+    reached=no
+    for sibling in "$skill_dir/references/"*.md; do
+      [ -f "$sibling" ] || continue
+      [ "$sibling" = "$ref" ] && continue
+      grep -q "references/$(basename "$sibling")" "$md" 2>/dev/null || continue
+      if without_fences "$sibling" | grep -q "($name)"; then
+        reached=yes
+        break
+      fi
+    done
+    [ "$reached" = yes ] && continue
+
+    printf "%s: nothing links this reference — unreachable from %s\n" "$ref" "$md"
+  done
+}
+
+# Same reasoning as the invocability self-test: a reachability check that stops
+# firing looks exactly like a payload with nothing to report. The fixture holds
+# one orphan and one reference mentioned only inside a fence, next to a file
+# reachable through the single hop the rule above allows — so the count also
+# asserts that the legal case stays quiet.
+orphan_fixture=spec/orphan-fixture/skills
+if [ ! -d "$orphan_fixture" ]; then
+  fail "$orphan_fixture is missing — the orphan-reference check cannot be self-verified"
+else
+  detected=$(scan_orphan_references "$orphan_fixture" | wc -l | tr -d ' ')
+  if [ "$detected" -eq 2 ]; then
+    printf "  ok    fixture: orphaned and fence-only references detected\n"
+  else
+    fail "orphan-reference check is broken: fixture yielded $detected of 2 expected detections"
+  fi
+fi
+
+orphan_report=$(scan_orphan_references)
+if [ -n "$orphan_report" ]; then
+  printf '%s\n' "$orphan_report" | while IFS= read -r line; do
+    printf "  FAIL  %s\n" "$line"
+  done
+  failures=$((failures + $(printf '%s\n' "$orphan_report" | wc -l | tr -d ' ')))
+fi
+
 # ------------------------------------------------------ trigger-eval coverage
 
 fancy_echo "Checking trigger-eval coverage ..."
