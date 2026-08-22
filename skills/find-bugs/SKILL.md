@@ -54,11 +54,17 @@ Enumerate before you check. Matching a checklist against a diff finds the bugs t
 Across the review set, list every instance of:
 
 - **Untrusted input** — request params, headers, cookies, body, URL components; webhook and queue payloads; CLI args and env; file contents; third-party API responses
+- **Signed intake** — webhook receivers, provider callbacks, and queue consumers that carry a signature, HMAC, or shared token
+- **Rendered output** — templates, view helpers, serializers, interpolation into HTML, JSON, CSV, or SQL, and anything marked safe
+- **Browser-delivered config** — CORS policy, CSP, `postMessage` handlers, and anything compiled into a frontend bundle
 - **Data access** — queries, ORM calls, raw SQL, cache reads and writes
+- **Migrations and rollout** — schema changes, backfills, and feature flags with their default state
 - **Authentication and authorization** — identity checks, permission checks, tenancy and ownership scoping
 - **Shared mutable state** — read-then-write pairs, counters, balances, inventory, job handlers, anything retried
 - **Outbound and dynamic operations** — HTTP calls, shell execution, filesystem paths, deserialization, template rendering, dynamic eval
+- **Resource consumption** — loops and allocations sized by input, collection endpoints, decompression, retries and concurrency
 - **Secrets and crypto** — key material, randomness, hashing, token generation and comparison, and anything that logs them
+- **Dependencies** — added or bumped packages, lockfile and manifest changes, install hooks
 
 The map is the contract for the rest of the hunt: every surface you list is a check you owe, and every check with no surface behind it is one you may skip — **say you skipped it rather than reporting it clean**. A file that maps to no surface at all is not exempt, only cheaper: it still owes *State and arithmetic* and *Error paths* below, which need no attacker to go wrong.
 
@@ -66,15 +72,22 @@ The map is the contract for the rest of the hunt: every surface you list is a ch
 
 | Surface | Hunt for |
 | --- | --- |
-| Untrusted input | Injection — SQL, NoSQL, command, template, header, log; unvalidated at the boundary; type confusion; missing size or rate bounds; a regex that backtracks catastrophically |
-| Rendered output | XSS via unescaped interpolation, `html_safe` / `dangerouslySetInnerHTML` / `\|safe`; attacker-controlled URL schemes and attributes |
-| Data access | Missing owner or tenant filter (IDOR); N+1; unbounded result set; missing index for a new lookup or foreign key |
+| Untrusted input | Injection — SQL, NoSQL, command, template, header, log; unvalidated at the boundary; type confusion; mass assignment of attributes the caller shouldn't set |
+| Signed intake | No signature verification at all; verification that runs *after* the side effect; a digest compared with `==` instead of a constant-time compare; no timestamp or nonce window, so a captured request replays forever; trusting an id or amount from the payload body rather than from the verified signature's scope |
+| Rendered output | XSS via unescaped interpolation, `html_safe` / `dangerouslySetInnerHTML` / `\|safe`; attacker-controlled URL schemes and attributes; CSV or formula injection in an export |
+| Browser-delivered config | `Access-Control-Allow-Origin` reflecting an arbitrary origin, or `*` alongside credentials; a `postMessage` handler that never checks `event.origin`; a secret, key, or internal hostname compiled into the frontend bundle; a CSP loosened to make something work |
+| Data access | Missing owner or tenant filter (IDOR); a cache key missing its tenant or user component, so one reader's entry serves another's request; a cache populated before the authorization check; N+1; unbounded result set; missing index for a new lookup or foreign key |
+| Migrations and rollout | A migration that isn't backward-compatible with the running code — the expand/contract violation behind a broken deploy; long-locking DDL or an in-migration backfill on a large table; an irreversible migration; behavior-changing work with no flag, or a default-off flag whose *off* path still changes behavior (AGENTS.md §5, *Safe rollout, feature flags & migrations*) |
 | AuthN / AuthZ | Protected operation reachable with no check; authenticated but not authorized; a check that runs after the side effect; identity taken from client input; a state change with no CSRF token; an API path missing the check its UI path has |
 | Shared mutable state | TOCTOU between read and write; non-atomic increment; missing lock or unique constraint; a retried job that isn't idempotent — the shape behind double-booking and double-charging |
 | Outbound / dynamic | SSRF via attacker-controlled host; path traversal (`..`, absolute paths, symlinks); unsafe deserialization; shell metacharacters; missing timeout |
+| Resource consumption | Allocation or iteration sized by a client-controlled count, length, or page size; a collection endpoint with no pagination or hard cap; a decompression bomb (zip, gzip, or a pixel-bomb image); unbounded concurrency or queue fan-out; a retry loop with no ceiling; a regex that backtracks catastrophically |
 | Secrets and crypto | Hardcoded credentials; secrets in logs, errors, or telemetry; non-CSPRNG for anything security-bearing; home-rolled crypto; non-constant-time comparison |
-| Error paths | Swallowed exception, ignored rejected promise, missing `await` on a fallible call, dropped `{:error, _}`; messages leaking internals or PII; partial failure leaving inconsistent state (AGENTS.md §6, *Error handling, observability & reliability*) |
+| Dependencies | A newly added or bumped package carrying a known CVE; an install or postinstall hook that executes on `install`; a typosquatted or unmaintained package; a pin replaced by a floating range; a transitive addition nobody chose (AGENTS.md §2, *Quality attributes (always design for these)*) |
+| Error paths | Swallowed exception, ignored rejected promise, missing `await` on a fallible call, dropped `{:error, _}`; an unexpected error rescued and logged but never reported to the tracker; messages leaking internals or PII; partial failure leaving inconsistent state (AGENTS.md §6, *Error handling, observability & reliability*) |
 | State and arithmetic | Invalid state transitions; numeric overflow or float money; off-by-one; empty, null, and boundary inputs; a branch that falls out with no return; a closure capturing a stale value |
+
+The table is a lookup order, not a priority order. Work the surfaces in the order step 1 ranked them — auth, money, and tenancy before logging and config — and remember that *State and arithmetic* and *Error paths* are owed on every file however far down they sit here.
 
 Two classes sit outside the table, because a diff hides them:
 
@@ -89,6 +102,8 @@ Unverified findings are this skill's failure mode. Every candidate clears all fo
 2. **Look for the guard elsewhere.** Middleware, a base class, a `before_action`, a DB constraint, a validation layer, the caller. The check is often real and simply not in this hunk — but find it. "The framework handles that" is a dismissal, not a guard: confirm the protection is switched on and covers *this* path before dropping a candidate.
 3. **Look for a test.** An existing test pinning the behavior is evidence it's handled.
 4. **Read the whole enclosing function and its call sites**, not the hunk. A diff-shaped view of the code produces diff-shaped mistakes.
+
+**Prove it by running it, where that's cheap and safe.** A `curl` at a local server, a REPL snippet, a timing check on the regex, or a query against a dev database settles candidates a static read can't — and turns "no guard I could find" into a trigger you can write down. The boundaries are not negotiable: local or disposable dev environments only, never production and never a shared or staging system holding real data; read-only or trivially reversible; no destructive command; and no edit to the repository — put a scratch file outside the working tree if you need one. Running a probe is not repairing: it produces evidence, and the code stays as you found it. When a probe would need to cross any of those lines, don't run it — report the finding under "could not verify" and name what proving it would have taken.
 
 **Severity is reachability × impact:**
 
