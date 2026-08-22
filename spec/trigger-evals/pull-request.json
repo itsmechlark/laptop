@@ -11,6 +11,7 @@
   {"query": "my pull request title got rejected by the semantic-pr check, fix it", "should_trigger": true},
   {"query": "draft the pull request body: what changed, why, and the rollout notes for the migration", "should_trigger": true},
   {"query": "edit the description on PR #341, it doesn't mention the schema change at all", "should_trigger": true},
+  {"query": "this branch has the no-show fee feature plus the availability cache fix on it. split it into separate PRs before i raise anything", "should_trigger": true},
   {"query": "why is CI failing on this branch? it passed yesterday", "should_trigger": false},
   {"query": "review the diff before i push it, i want a second pair of eyes on the error handling", "should_trigger": false},
   {"query": "rebase this onto main and help me work through the conflicts in the serializer", "should_trigger": false},
