@@ -112,6 +112,19 @@ Operate for impact beyond the immediate change — optimize for the team, the ne
 - **Steward contracts; deprecate with a path.** Treat published interfaces — APIs, serializers, provider-facing payloads — as commitments to consumers: change additively, version when you must break, and pair any removal with a deprecation window and communication. (DB-level expand/contract lives in §5.)
 - **Make tech debt explicit.** Take on debt deliberately, never silently — record it with a `TODO` plus a tracking ticket and a breadcrumb to the follow-up. Surface trade-offs and risks early, rather than letting them surface in review.
 
+## 8. Writing for a human reader
+
+Commit messages, PR descriptions, ADRs, specs, tracker comments, and status updates are read by people. Write like a careful engineer explaining a decision to a teammate — never like a language model. Strip the tells of AI-generated writing:
+
+- **No hype or filler adjectives** ("comprehensive", "robust", "seamless", "powerful", "significantly").
+- **No throat-clearing** ("It's worth noting that", "In order to", "This change aims to", "This PR aims to").
+- **No restating the diff.** The code is the source of truth — don't narrate it method by method, and don't list the changed files back.
+- **Vary sentence length.** The uniformly-hedged, em-dash-heavy cadence is the giveaway; plain, direct sentences of differing lengths are not.
+- **Say the surprising thing plainly.** Risks, dependencies, and the alternative you rejected are exactly the parts a reader can't reconstruct from the code.
+- **Don't hard-wrap prose you submit through a tool.** Commit bodies, PR descriptions, and tracker comments are soft-wrapped by the host, so manual mid-paragraph newlines only waste width. Markdown files committed to a repository are the exception — match the wrapping already in the file.
+
+Audience sets the vocabulary and the length, never the honesty (§3). `git-commit`, `pull-request`, `draft-spec`, `standup`, and `triage` each apply this to their own artifact.
+
 ---
 
 The first principles above are adapted from TableCheck's [engineering-first-principles](https://github.com/TableCheck-Labs/engineering-first-principles) (MIT).

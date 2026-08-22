@@ -122,12 +122,9 @@ Include a body whenever there's a *why* worth recording — which is most of the
 
 ## Voice and tone
 
-Write like a careful engineer explaining a decision to a teammate — never like a language model. Strip the tells of AI-generated writing:
+A careful engineer explaining a decision to a teammate, never a language model: no hype adjectives, no throat-clearing ("This change aims to"), no summarizing the diff back as a list of file edits, varied sentence length. AGENTS.md §8 (*Writing for a human reader*) is the full standard and applies to every artifact, not just this one.
 
-- No hype or filler adjectives ("comprehensive", "robust", "seamless", "powerful", "significantly").
-- No throat-clearing ("It's worth noting that", "In order to", "This change aims to").
-- No summarizing the diff back as a bulleted list of file edits.
-- No em-dash-heavy, uniformly-hedged cadence — vary sentence length like a person does.
+What's specific to a commit message is the reader — someone skimming history months from now, without the branch, the ticket, or you to ask. That's why the body explains the *why* in plain language.
 
 Worked examples (Conventional Commits, no attribution trailer):
 
