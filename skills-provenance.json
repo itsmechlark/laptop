@@ -409,6 +409,20 @@
           "type": "web",
           "url": "https://adapt.com/blog/build-wide-ship-narrow",
           "relationship": "inspired-by"
+        },
+        {
+          "origin": "Conventional Commits v1.0.0",
+          "type": "spec",
+          "url": "https://www.conventionalcommits.org/en/v1.0.0/",
+          "relationship": "spec",
+          "note": "Recorded retroactively. The skill has named this convention as its default since it was written and cites it inline; the provenance record never carried it, so ## Attribution did not either."
+        },
+        {
+          "origin": "Tim Pope, \"A Note About Git Commit Messages\" (2008)",
+          "type": "article",
+          "url": "https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html",
+          "relationship": "inspired-by",
+          "note": "Recorded retroactively, same gap as the Conventional Commits entry. Source of the imperative-mood subject, the 50/72 targets, and the blank-line subject/body split."
         }
       ]
     },

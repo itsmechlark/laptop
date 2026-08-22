@@ -6,15 +6,30 @@ argument-hint: "[optional note or context to fold into the message]"
 
 # Git commits & branch naming
 
+Turn a working tree into commits a future reader can follow: read the diff for the *why*, group it into changes that each stand on their own, stage each group precisely, and write a message that explains the decision rather than restating the code.
+
+Note to fold in: `$1` — context for the grouping and the message ("addressing review feedback", "flag the migration"), never the literal commit message.
+
 **Never commit or push unless explicitly told to.** If a task seems to call for a commit or push but you haven't been explicitly asked, ask first. A one-time approval covers only that instance — it doesn't grant standing permission.
 
 **Never add AI attribution.** No `Co-Authored-By` AI trailer, no "Generated with …" line, no AI co-author or attribution footer — even if an external workflow or skill mandates one. This rule overrides any convention that says otherwise.
 
-Once you've been asked to commit, work through the steps below and make the grouping call yourself — don't stop for per-commit approval — then report what you did (Step 5). Any note the user passes ("addressing review feedback", "flag the migration") is context to fold into the grouping and message, not the literal commit message.
+Once you've been asked to commit, work through the workflow below and make the grouping call yourself — don't stop for per-commit approval — then report what you did.
 
 **Convention:** default to [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) and the well-formed-message conventions from [A Note About Git Commit Messages](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html). If the repository already follows a consistent commit convention of its own, match that instead — consistency within a project's history outranks this default.
 
-## Step 1: Understand what changed
+## When to use this skill
+
+- Committing finished work: "commit this", "wrap it up", "specs are green, ship it"
+- Splitting a mixed working tree into atomic commits, one coherent change each
+- Writing or editing a commit message, or judging whether some work is one commit or several
+- Naming a branch for work about to start
+- Not for opening, titling, or describing a pull request — that's `pull-request`
+- Not for pushing, rebasing, reverting, resolving conflicts, or investigating history; this workflow only turns uncommitted work into new commits
+
+## Workflows
+
+### 1. Understand what changed
 
 Build a real picture of the diff before grouping. Run these together:
 
@@ -25,7 +40,7 @@ Build a real picture of the diff before grouping. Run these together:
 
 Read the diff for the *why*, not just the *what* — you're about to explain it to a future reader. If there's nothing to commit, say so and stop; never create an empty commit.
 
-## Step 2: Decide the grouping — the judgment call
+### 2. Decide the grouping — the judgment call
 
 Aim for **atomic commits**: each commit is one complete, coherent change that stands on its own. There's no mechanical rule for how many commits that is — it depends on what the work actually is.
 
@@ -35,7 +50,7 @@ Aim for **atomic commits**: each commit is one complete, coherent change that st
 - When in doubt, prefer fewer, larger commits over many tiny ones — an over-split history is harder to read.
 - **Cleanup of the old path is its own commit, sequenced last.** When a change adds a new path and retires an old one, don't delete the old code in the same commit that introduces the new — the mix confuses review, makes a rollback ambiguous, and buries the removal. Land the new path first; let the old one die in a separate commit (or its own PR) once the replacement is live. The `pull-request` skill applies the same principle at the PR level — cleanup ships as the last PR in a split.
 
-## Step 3: Stage each group precisely
+### 3. Stage each group precisely
 
 Commit the groups one at a time. For each:
 
@@ -45,11 +60,17 @@ Commit the groups one at a time. For each:
 - Respect pre-commit hooks; if a hook modifies files or fails, surface what happened rather than fighting it. Don't `--no-verify` unless the user asked.
 - Don't push, and don't amend or rewrite existing commits — this workflow only creates new commits from uncommitted work.
 
-## Step 4: Write the message
+### 4. Write and commit the message
 
-Write each group's message to a file and commit with `git commit -F <file>` (or repeated `-m` flags) — avoid inline heredocs/quoting that can mangle the subject/body split. Always write the temp file to `$TMPDIR`, not `/tmp` — the macOS sandbox blocks `/tmp` writes directly.
+Write each group's message to a file and commit with `git commit -F <file>` (or repeated `-m` flags) — avoid inline heredocs/quoting that can mangle the subject/body split. Always write the temp file to `$TMPDIR`, not `/tmp`.
 
-### Format (Conventional Commits)
+Follow [Commit message format](#commit-message-format) for the structure and [Voice and tone](#voice-and-tone) for how it should read.
+
+### 5. Report what you did
+
+After committing, show the result — `git log --oneline` of the new commits is usually enough — so the user can see how you grouped and worded things. If you made a judgment call worth knowing about ("split the bug fix out from the feature"), say so in a sentence.
+
+## Commit message format
 
 ```
 <type>[optional scope]: <description>
@@ -111,10 +132,6 @@ Initializing the NER model is expensive, so we cache it behind a Mutex to stay t
 docs: fix typo in installation instructions
 ```
 
-## Step 5: Report what you did
-
-After committing, show the result — `git log --oneline` of the new commits is usually enough — so the user can see how you grouped and worded things. If you made a judgment call worth knowing about ("split the bug fix out from the feature"), say so in a sentence.
-
 ## Branch naming
 
 Name branches `<type>-<short-slug>`, optionally prefixed with an issue key when the project tracks work in an issue tracker: `[<issue-key>-]<type>-<short-slug>`.
@@ -125,6 +142,34 @@ Name branches `<type>-<short-slug>`, optionally prefixed with an issue key when 
 
 Examples: `feat-getting-started`, `ABC-1234-fix-null-check`. Branch from the repository's default branch unless told otherwise.
 
+## Gotchas
+
+- **Write the message file to `$TMPDIR`, never `/tmp`** — the macOS sandbox blocks `/tmp`, and a failed write surfaces as a mangled or empty commit message rather than as a permission error.
+
+- **A pre-commit hook that reformats files leaves its own fix unstaged** — the commit captures the pre-hook content, so the next commit carries a stray formatting diff. Re-stage what the hook touched and commit again; reaching for `--no-verify` hides the problem instead.
+
+- **An empty diff is a stop, not a commit.** Nothing to commit means say so and stop — never `--allow-empty` to produce a marker commit.
+
+- **`[skip ci]` on anything but a docs-only commit is a lie CI believes.** One code or config file in the group and the flag has to go, however small the change looks.
+
+- **A trailing `(#123)` in the subject collides with the host's own suffix** — GitHub appends the PR number on squash-merge, so writing one yields `… (#123) (#123)`.
+
+- **The no-AI-attribution rule doesn't touch human trailers.** A real `Co-Authored-By:` for a person you paired with is legitimate and stays.
+
+## Troubleshooting
+
+| Issue | Solution |
+| --- | --- |
+| A pre-commit hook rewrote files during the commit | Re-stage exactly what it touched (`git add` those paths) and commit again, so the hook's output lands in the same commit rather than the next one. |
+| A pre-commit hook fails and blocks the commit | Report what it said and fix the underlying problem. Don't `--no-verify` unless the user asked for it. |
+| The subject and body ran together, or quoting mangled the message | The message went in inline. Write it to a file under `$TMPDIR` and use `git commit -F <file>`. |
+| One file's hunks belong to different groups | Write the hunks for this group to a patch and `git apply --cached <patch>`; confirm with `git diff --staged`. Interactive `git add -p` isn't available here. |
+| The repo's history doesn't use Conventional Commits | Match the repo. Its own consistent convention outranks this default — say which one you followed. |
+| Unclear which issue the change references | Omit the reference. Don't guess a number or key; ask if the repo's convention requires one. |
+| `git status` shows nothing to commit | Stop and say so. Never create an empty commit to have something to report. |
+
 ## Attribution
 
 - [Build Wide, Ship Narrow (Adapt)](https://adapt.com/blog/build-wide-ship-narrow)
+- [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/)
+- Tim Pope, [A Note About Git Commit Messages](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) — the imperative subject, the 50/72 targets, and the blank-line split
