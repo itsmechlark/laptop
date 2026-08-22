@@ -94,7 +94,7 @@ Two rules bind this axis:
 - **Middle Man** — a class that mostly delegates onward → cut it, call the target directly.
 - **Refused Bequest** — a subclass ignoring most of what it inherits → prefer composition.
 
-Also on this axis: **tests.** Judge new behaviour and bug fixes against how this repo already tests. Missing coverage for new logic is a conformance finding — firm where the repo documents a testing requirement (the repo overrides), a judgement call where it doesn't. When missing coverage is a finding, point to the `tdd` skill for addressing it test-first. For Ruby projects, the `rspec` skill documents the testing conventions this axis measures against.
+Also on this axis: **tests.** Judge new behaviour and bug fixes against how this repo already tests. Missing coverage for new logic is a conformance finding — firm where the repo documents a testing requirement (the repo overrides), a judgement call where it doesn't. When missing coverage is a finding, point to the `tdd` skill for addressing it test-first. For Ruby projects, `rules/rspec.md` documents the testing conventions this axis measures against — it auto-loads for spec files.
 
 ## Spec axis — the right thing built
 
