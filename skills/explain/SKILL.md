@@ -6,100 +6,90 @@ context: fork
 agent: Explore
 ---
 
-## Behavior
+# Explain
 
-Explain `$ARGUMENTS`. Do the research and deliver the explanation in one pass.
+Hand someone a working mental model of code they have to navigate — what it does, how it does it, and what would surprise them — without judging it and without touching it.
 
-Determine the mode from the argument:
+Subject: `$ARGUMENTS`. Empty means the subject is whatever the conversation is already looking at; when there is nothing to take, ask which file or flow before researching anything. Otherwise do the research and deliver the whole explanation in one pass — there is no round trip to ask which mode was meant.
 
-- **If the argument is a file path, class name, or method** — this is a **code explanation**. Follow the Code Explanation section.
-- **If the argument is a user action, feature, or flow description** (e.g. "password reset", "checkout", "authentication") — this is a **flow explanation**. Follow the Flow Explanation section.
+## When to use this skill
 
-## Scope
+- Someone asks what a file, class, module, or method does
+- Someone asks how a user-facing flow works end to end, or where a behavior is handled
+- Unfamiliar code has to be understood before it can be changed safely
+- Onboarding: a new joiner, a contractor, or an agent needs the shape of an area
+- Not for judging the code — correctness, security, performance, and maintainability verdicts belong to `code-review`, and an adversarial defect hunt to `find-bugs`
+- Not for changing anything, including the rename or doc comment the explanation makes obvious — that's `tdd`'s work, behind a test
+- Not for a term the code uses two ways (`domain-modeling`) or a question that is really about where a seam belongs (`codebase-design`)
+- Not for explaining a language feature, a library, or a stack trace in the abstract: those need no codebase read and no skill loaded
 
-This skill explains *what* code does and never rules on whether it's any good. It also only reads — so when the explanation turns up something that needs changing, name it and stop there rather than reaching for it:
+## Pick the mode from the subject
 
-- A correctness, security, or maintainability judgement on the code → `code-review`
-- A domain term the code uses two ways → `domain-modeling`
-- A question that's really about module structure or where a seam belongs → `codebase-design`
+| The subject is | Mode | Deliverable |
+| --- | --- | --- |
+| A file path, class, module, or method | **Code explanation** | Four prose sections, in close detail |
+| A user action, feature, or flow — "password reset", "checkout" | **Flow explanation** | A diagram, then a three-part summary |
 
----
+A name that is both a feature and a class is a flow: explain the flow and name the class as its entry point, because the wider answer contains the narrower one.
 
-## Code Explanation
+## Code explanation
 
-Start by checking the git history for the file: `git log --oneline -15 <file>` and `git log -1 -p <file>` for the most recent change. Commit messages often reveal the "why" that the code itself doesn't — a bug that was fixed, a refactor that simplified something, a workaround for an external constraint. Note anything that reframes the code before diving into it.
+**Read the history before the code.** `git log --oneline -15 <file>`, then `git log -1 -p <file>`. Commit messages carry the *why* the code cannot: the bug that forced a guard, the workaround for someone else's API, the refactor that left a seam behind. Anything that reframes the code belongs in the explanation, not just in your head.
 
-Then read the code carefully and explain in this order:
+Then read the code and explain in this order.
 
-### 1. What it does — in one paragraph
+### 1. What it does — one paragraph
 
-Plain English. No jargon, no code. Describe what this code accomplishes from the outside — what goes in, what comes out, what changes as a result. Write it the way you'd explain it to the client who asked for the feature.
+Plain English, no jargon, no code. What goes in, what comes out, what changes as a result — described from outside the implementation, the way you would tell it to whoever asked for the feature.
 
-### 2. How it does it — walking through the logic
+### 2. How it does it — the path through the logic
 
-Narrate the code path in plain English, step by step. For each meaningful chunk:
-
-- What is this step doing?
-- Why is it doing it here, in this order?
-- What would break if it wasn't here?
-
-Don't narrate every line — skip the obvious. Focus on the parts that require interpretation.
+Narrate the meaningful chunks in order. For each: what the step does, why it happens here rather than elsewhere, and what would break without it. Skip the obvious — a reader who needs strong-params or pattern matching explained is not the reader. Spend the words on the parts that need interpretation.
 
 ### 3. Patterns and conventions in use
 
-Name the Rails, Ruby, or design patterns this code is using — and why they appear here. Examples:
-
-- "This is a service object following the thoughtbot pattern — one public `call` method, one responsibility"
-- "This is using `delegate` to avoid Law of Demeter violations"
-- "This callback is doing what's normally done in a service object — worth noting"
-- "This is a query object extracting complex AR logic out of the model"
-
-If the code is using a pattern poorly or unexpectedly, name that too — neutrally. This isn't a review, but understanding requires knowing when something is off-label.
+Name the patterns and say why they show up here: a service object with one public `call`, a query object keeping query logic out of the model, `delegate` avoiding a Law of Demeter violation, a GenServer holding state that a table would hold elsewhere. Where a pattern is used off-label, say so neutrally — understanding requires knowing when something is unusual, and that is still a description, not a verdict.
 
 ### 4. What to watch out for
 
-Any non-obvious behaviour, implicit dependencies, or things that would surprise someone maintaining this code. Not a critique — just "here's what you'd need to know to work safely in this area."
+Non-obvious behavior, implicit dependencies, and what would surprise a maintainer: ordering that matters, a callback with side effects, state that outlives the call, a config value that decides the branch. Not a critique — "here is what you need to know to work safely in this area."
 
----
+## Flow explanation
 
-## Flow Explanation
+Find every entry point first, then trace each one through the codebase — route handlers, service objects, models and callbacks, background jobs, mailers, outbound calls — following the failure paths as well as the one that works. Entry points hide in more places than the route table: scheduled jobs, queue consumers, webhooks, admin actions, rake or mix tasks, console scripts.
 
-Start with the Rails router. Locate the route(s) that correspond to the described flow. From each entry point, trace the execution path through the codebase — controllers, service objects, models, callbacks, jobs, mailers. Follow both success and failure paths.
+Then deliver a **diagram** and a **summary**:
 
-Then deliver the explanation in two parts: a **diagram** and a **summary**.
+1. **Diagram** — states, transitions, decision points, and terminal states, in box-drawing characters. Behavior, not call stacks. Conventions and a worked example: [FLOW-DIAGRAM.md](references/FLOW-DIAGRAM.md).
+2. **Summary** — three sections in plain English:
+   - **Entry points** — every way the flow can start, one sentence each on what triggers it and what it does.
+   - **Branching logic** — the conditions that choose the path: feature flags, state checks, validations, guard clauses, authorization.
+   - **Side effects** — everything with consequences outside the flow: jobs enqueued, mail sent, external APIs called, broadcasts, cache and state writes. This is the section someone reads before touching the code.
 
-### 1. Diagram
+## Gotchas
 
-Render a concise visual flowchart of the system using box-drawing characters. The diagram should show:
+- **Explain the code in front of you, not the library it calls.** The failure is describing what a framework or gem *normally* does and skipping what this code does with it — an overridden callback, a monkey patch, a wrapper that swallows the return, a version whose behavior changed. When the path goes through a dependency, open the installed copy: that is the one that runs.
 
-- **States and transitions** — the lifecycle, not the method calls
-- **Decision points** — where the flow branches
-- **Key actions** — what happens at each step, described in plain English
-- **Terminal states** — where the flow ends
+- **Never edit, not even the one-line fix.** A typo, the rename that would settle the confusion you just described, a doc comment — all out of scope, and the read-only fork this skill runs in enforces it. Name what you found, say which skill owns it, and stop there.
 
-**Conventions:**
+- **"I could not resolve this" beats a plausible mechanism.** Metaprogramming, dynamic dispatch, `method_missing`, and runtime configuration all produce paths that cannot be read off the source. Say which branch you could not settle and what would settle it. An invented explanation is indistinguishable from a verified one to the reader, and they will act on it.
 
-- Box-drawing characters for structure: `┌─┐`, `│`, `├──`, `└──`, `▼`, `◄`
-- Decision points as plain text with branches: `YES` / `NO`
-- Actions as concise descriptions, not method signatures
-- Indent sub-steps under their parent action
+- **Follow the indirection — it is exactly the half the reader cannot follow alone.** Callbacks, concerns and mixins, middleware, decorators, `around` filters, observers, and enqueued jobs all run code that never appears in the file you were pointed at. A file-local explanation of behavior that lives in five includes is worse than none, because it reads as complete.
 
-The goal is to outline the system concisely — show how it behaves, not how the code is structured. A reader should be able to understand the full lifecycle from the diagram alone.
+- **An entry point you did not search for is not an absent one.** "Every way this flow starts" is a completeness claim, so make the search deserve it: the route table, the job and queue definitions, the task files, and the callers of the entry class — with `find -L` wherever the tree mixes real directories and symlinks (AGENTS.md §4, *Definition of Done*). Missing an entry point has consequences: someone changes the flow and breaks the path you never mentioned.
 
-See the example in `references/example.md` for the expected style and level of detail.
-
-### 2. Summary
-
-After the diagram, add three sections in plain English:
-
-**Entry points** — every way this flow can be triggered. For each, one sentence describing what triggers it and what it does.
-
-**Branching logic** — the conditions that shape the flow. Feature flags, state checks, validations, guard clauses — anything that determines which path is taken.
-
-**Side effects** — everything with consequences outside the immediate flow. Jobs, mailers, external API calls, broadcasts, cache writes, state transitions. The things you'd need to know about before touching this code.
-
----
+- **The returned explanation is the entire output.** Running forked means nothing survives but the text you hand back — no follow-up action, no "I'll check that next", no note left in a scratch file. Everything you learned that matters has to be in the answer.
 
 ## Tone
 
-Clear and direct. You're translating, not teaching and not judging. The goal is that they finish with a working mental model of what this code does and how to navigate it. Skip all hedging — if something is unclear in the code itself, say so plainly.
+Clear and direct. You are translating, not teaching and not judging: no hedging, no throat-clearing, no verdicts on the code's quality. The reader should finish able to navigate the area and say what would break if they changed it.
+
+## References
+
+Read this when writing a flow diagram, not upfront.
+
+- [FLOW-DIAGRAM.md](references/FLOW-DIAGRAM.md) — what the diagram shows, the box-drawing conventions, and a worked example of a full flow explanation
+
+## Attribution
+
+- [thoughtbot/rails-consultant](https://github.com/thoughtbot/rails-consultant/tree/main/skills/explain) - explain, MIT

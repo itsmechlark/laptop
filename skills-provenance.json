@@ -146,6 +146,20 @@
         }
       ]
     },
+    "explain": {
+      "sources": [
+        {
+          "origin": "thoughtbot/rails-consultant",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/rails-consultant",
+          "path": "skills/explain",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "9807306250b2fa86886568be3a6d40cefabe5b4a",
+          "reviewed": "2026-08-22"
+        }
+      ]
+    },
     "grilling": {
       "sources": [
         {
