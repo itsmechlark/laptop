@@ -24,8 +24,9 @@ Once you've been asked to commit, work through the workflow below and make the g
 - Splitting a mixed working tree into atomic commits, one coherent change each
 - Writing or editing a commit message, or judging whether some work is one commit or several
 - Naming a branch for work about to start
+- Amending, rewording, squashing, splitting, or dropping a commit that already exists — [REWRITING.md](references/REWRITING.md)
 - Not for opening, titling, or describing a pull request — that's `pull-request`
-- Not for pushing, rebasing, reverting, resolving conflicts, or investigating history; this workflow only turns uncommitted work into new commits
+- Not for pushing, reverting, resolving conflicts, or investigating history
 
 ## Workflows
 
@@ -37,8 +38,13 @@ Build a real picture of the diff before grouping. Run these together:
 - `git diff` — unstaged changes
 - `git diff --staged` — anything already staged
 - `git log --oneline -15` — recent history, to match tone and spot referenced issues/PRs
+- `git branch --show-current` — which branch this would land on
 
 Read the diff for the *why*, not just the *what* — you're about to explain it to a future reader. If there's nothing to commit, say so and stop; never create an empty commit.
+
+**Check the branch before the grouping.** If the current branch is the repository's default branch and the work isn't a deliberate direct commit, say so and offer a branch named by the [Branch naming](#branch-naming) convention below. Ask rather than switching unasked — moving the work is the user's call.
+
+**Read the diff for secrets while you're in it.** Credentials, tokens, key material, a `.env` or keystore that shouldn't be tracked. This is the last cheap moment: once committed, the fix is rotation plus history surgery, not a follow-up commit.
 
 ### 2. Decide the grouping — the judgment call
 
@@ -58,7 +64,7 @@ Commit the groups one at a time. For each:
 - Mixed file (hunks belong to different groups): stage only the relevant hunks — write them to a patch and apply with `git apply --cached <patch>` (interactive `git add -p` isn't available here). Verify with `git diff --staged` before committing.
 - Never `git add .` or `git add -A` blindly — that defeats the grouping.
 - Respect pre-commit hooks; if a hook modifies files or fails, surface what happened rather than fighting it. Don't `--no-verify` unless the user asked.
-- Don't push, and don't amend or rewrite existing commits — this workflow only creates new commits from uncommitted work.
+- Don't push. This workflow only creates new commits from uncommitted work; rewriting a commit that already exists is the separate workflow below.
 
 ### 4. Write and commit the message
 
@@ -66,9 +72,18 @@ Write each group's message to a file and commit with `git commit -F <file>` (or 
 
 Follow [Commit message format](#commit-message-format) for the structure and [Voice and tone](#voice-and-tone) for how it should read.
 
-### 5. Report what you did
+### 5. Verify, then report
 
-After committing, show the result — `git log --oneline` of the new commits is usually enough — so the user can see how you grouped and worded things. If you made a judgment call worth knowing about ("split the bug fix out from the feature"), say so in a sentence.
+Confirm the commits are what you meant before describing them. `git log --oneline` shows subjects, not contents, and a hook can abort a commit you'd otherwise report as made:
+
+- `git show --stat HEAD` (per new commit) — the files that actually went in
+- `git status` — clean, or holding exactly the changes you deliberately left uncommitted
+
+Then show the result — `git log --oneline` of the new commits is usually enough — so the user can see how you grouped and worded things. If you made a judgment call worth knowing about ("split the bug fix out from the feature", "left the vendor bump uncommitted"), say so in a sentence.
+
+### Rewriting an existing commit
+
+Rewriting a commit that already exists can destroy work and breaks every clone that already pulled it. **Only rewrite what you haven't pushed**, unless the user explicitly asks for a force-push and you've told them what it costs. Read [REWRITING.md](references/REWRITING.md) before running anything.
 
 ## Commit message format
 
@@ -156,6 +171,8 @@ Examples: `feat-getting-started`, `ABC-1234-fix-null-check`. Branch from the rep
 
 - **The no-AI-attribution rule doesn't touch human trailers.** A real `Co-Authored-By:` for a person you paired with is legitimate and stays.
 
+- **A secret is unrecoverable the moment it's committed.** Deleting it in a later commit doesn't remove it — the value stays in history and has to be rotated. Staging is the last point where the fix is free, which is why step 1 reads the diff for credentials.
+
 ## Troubleshooting
 
 | Issue | Solution |
@@ -166,7 +183,14 @@ Examples: `feat-getting-started`, `ABC-1234-fix-null-check`. Branch from the rep
 | One file's hunks belong to different groups | Write the hunks for this group to a patch and `git apply --cached <patch>`; confirm with `git diff --staged`. Interactive `git add -p` isn't available here. |
 | The repo's history doesn't use Conventional Commits | Match the repo. Its own consistent convention outranks this default — say which one you followed. |
 | Unclear which issue the change references | Omit the reference. Don't guess a number or key; ask if the repo's convention requires one. |
-| `git status` shows nothing to commit | Stop and say so. Never create an empty commit to have something to report. |
+| You're on the default branch | Stop and ask. Offer a branch name from the convention above rather than switching or committing unasked. |
+| `git branch --show-current` prints nothing | Detached HEAD — the commit becomes unreachable as soon as anything else is checked out. An empty result is not "no branch to worry about". Stop and ask. |
+| The diff contains a credential, token, or key | Don't commit it. Say what you found and where; the fix is removing it from the working tree, not committing and cleaning up after. |
+| Asked to amend, reword, squash, or drop a commit | That's the rewriting workflow — [REWRITING.md](references/REWRITING.md). Check what's already pushed before touching anything. |
+
+## References
+
+- [REWRITING.md](references/REWRITING.md) — rewriting commits that already exist: the pushed/unpushed safe-set check, the undo point, the non-interactive equivalent of every `rebase -i` operation, and the rebase failure modes. Read it when the ask is about an existing commit; the workflow above covers everything else.
 
 ## Attribution
 
