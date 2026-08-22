@@ -4,9 +4,11 @@ description: Adversarial defect hunt over a change — map its attack surface, h
 argument-hint: "[fixed point (branch/tag/SHA) to audit since — omit for uncommitted work] [focus or threat model, e.g. \"the webhook path\"]"
 ---
 
-# Find Bugs
+# Find bugs
 
 Hunt for real, reachable defects in a change: map what the change exposes, hunt each surface for the bug classes that can actually live there, and prove every finding is reachable before reporting it.
+
+Base to audit since: `$1` — empty means uncommitted work. Focus or threat model: `$2`.
 
 **Report, don't repair.** Even when the fix is obvious, write it as a suggestion. The person who asked decides what changes.
 
@@ -16,10 +18,12 @@ Hunt for real, reachable defects in a change: map what the change exposes, hunt 
 - A deep security pass on a change touching auth, money, tenancy, or untrusted input
 - Re-auditing a change that a lighter review already waved through
 - "Find bugs in this branch", "security audit these changes", "did I introduce a vulnerability?"
+- Not for deciding whether a change should merge, checking it against the repo's conventions, or checking it against its originating spec — that three-axis merge gate is `code-review`
+- Not for fixing what you find: this skill produces evidence, not a verdict and not a patch
 
-Not for deciding whether a change should merge, checking it against the repo's conventions or its originating spec, or fixing what you find — that three-axis merge gate is the `code-review` skill. This skill produces evidence: not a verdict, not a patch.
+## Workflows
 
-## 1. Establish the review set
+### 1. Establish the review set
 
 A hunt over the wrong or empty diff reports "no issues found" and looks like success. Pin the set down before reading any code.
 
@@ -41,9 +45,9 @@ Then account for every file in the set:
 - **Uncommitted work:** `git diff HEAD` for tracked changes, *plus* `git status --porcelain` — a new file that was never `git add`ed appears in no diff at all, and is the easiest whole file to miss.
 - **Truncated output:** work from `git diff <base>...HEAD --name-status` and read files individually until the number you reviewed matches the number that changed.
 
-Hunt auth, money, and tenancy first; logging and config last. If context runs short, it should run short on the cheap surfaces. A focus supplied with the argument — "the webhook path", "assume a hostile tenant" — reorders that priority; it never narrows the review set. When the threat model itself is ambiguous — the user isn't sure what to worry about — use the `grilling` skill to sharpen it before hunting.
+Hunt auth, money, and tenancy first; logging and config last. If context runs short, it should run short on the cheap surfaces. A focus supplied with the argument (`$2`) — "the webhook path", "assume a hostile tenant" — reorders that priority; it never narrows the review set. When the threat model itself is ambiguous — the user isn't sure what to worry about — use the `grilling` skill to sharpen it before hunting.
 
-## 2. Map the attack surface
+### 2. Map the attack surface
 
 Enumerate before you check. Matching a checklist against a diff finds the bugs that look like the checklist; building a model of what the code exposes finds the ones that don't.
 
@@ -58,7 +62,7 @@ Across the review set, list every instance of:
 
 The map is the contract for the rest of the hunt: every surface you list is a check you owe, and every check with no surface behind it is one you may skip — **say you skipped it rather than reporting it clean**. A file that maps to no surface at all is not exempt, only cheaper: it still owes *State and arithmetic* and *Error paths* below, which need no attacker to go wrong.
 
-## 3. Hunt each surface
+### 3. Hunt each surface
 
 | Surface | Hunt for |
 | --- | --- |
@@ -69,7 +73,7 @@ The map is the contract for the rest of the hunt: every surface you list is a ch
 | Shared mutable state | TOCTOU between read and write; non-atomic increment; missing lock or unique constraint; a retried job that isn't idempotent — the shape behind double-booking and double-charging |
 | Outbound / dynamic | SSRF via attacker-controlled host; path traversal (`..`, absolute paths, symlinks); unsafe deserialization; shell metacharacters; missing timeout |
 | Secrets and crypto | Hardcoded credentials; secrets in logs, errors, or telemetry; non-CSPRNG for anything security-bearing; home-rolled crypto; non-constant-time comparison |
-| Error paths | Swallowed exception, ignored rejected promise, missing `await` on a fallible call, dropped `{:error, _}`; messages leaking internals or PII; partial failure leaving inconsistent state |
+| Error paths | Swallowed exception, ignored rejected promise, missing `await` on a fallible call, dropped `{:error, _}`; messages leaking internals or PII; partial failure leaving inconsistent state (AGENTS.md §6, *Error handling, observability & reliability*) |
 | State and arithmetic | Invalid state transitions; numeric overflow or float money; off-by-one; empty, null, and boundary inputs; a branch that falls out with no return; a closure capturing a stale value |
 
 Two classes sit outside the table, because a diff hides them:
@@ -77,7 +81,7 @@ Two classes sit outside the table, because a diff hides them:
 - **What the change removed.** A deleted validation, authorization check, bound, or test is a finding. Added lines attract the eye — the deletions are in the same diff, so read them.
 - **What the change never handles.** The missing authz check, the absent CSRF token, the unhandled error branch. An absence occupies no line, so ask what *should* be here, not only what is.
 
-## 4. Verify before reporting
+### 4. Verify before reporting
 
 Unverified findings are this skill's failure mode. Every candidate clears all four:
 
@@ -99,7 +103,7 @@ State the trigger for anything Critical or High. If you can't say who does what 
 
 **Don't report:** issues with no reachable path; defense-in-depth wishes dressed as vulnerabilities; framework behavior you didn't verify; style, formatting, or naming; anything a linter or type-checker already enforces; a risk the repo documents as accepted.
 
-## Output
+### 5. Report the evidence
 
 ```markdown
 ## Bug Hunt: [ref range, or "working tree"]
@@ -127,11 +131,25 @@ The report is where this skill stops. Whether to fix anything is the reader's ca
 
 ## Gotchas
 
-- **An empty diff reads as a clean bill of health.** The classic cause is a base ref that silently resolved to nothing — a missing `gh`, no network, or no `origin`. Verify the diff is non-empty before you hunt, and never report on one that isn't.
+- **Never hunt over a diff you haven't confirmed is non-empty.** An empty diff produces a clean bill of health that reads exactly like a real one — to you as much as to the reader.
+
 - **A secret in the diff is already in git history.** Report the file and line, never the value; the fix is rotation plus history removal, not deleting the line.
-- **Untracked files appear in no diff.** When auditing uncommitted work, reconcile `git status --porcelain` against what you read.
-- **Large changes: fan out, don't skim.** Run one sub-agent per surface group, give each the diff command and its slice of the map, and aggregate. Skimming a 40-file diff yields a confident, empty report — the worst output this skill can produce.
+
+- **Untracked files appear in no diff.** When auditing uncommitted work, reconcile `git status --porcelain` against what you read — an unstaged new file is the whole file you'll otherwise never open.
+
+- **Large changes: fan out, don't skim.** Skimming a 40-file diff yields a confident, empty report — the worst output this skill can produce. Use the `fan-out` skill, one agent per surface group, each given the diff command and its slice of the map.
+
 - **Absence of evidence isn't evidence of absence.** "I didn't see an authz check" and "there is no authz check" are different claims. Put the first under "could not verify".
+
+## Troubleshooting
+
+| Issue | Solution |
+| --- | --- |
+| `git diff <base>...HEAD --stat` comes back empty | The base is wrong, or the work is uncommitted. Re-resolve the base, then audit `git diff HEAD` plus `git status --porcelain`. Never report on the empty diff. |
+| No base resolves — no `origin`, no `main`/`master`/`develop` | Ask which ref to audit against. A failed lookup must not silently expand into an empty ref. |
+| Diff output is truncated | Work from `git diff <base>...HEAD --name-status` and read files individually until the count you reviewed matches the count that changed. |
+| The change is too large to read in one pass | Partition by surface group and dispatch with `fan-out`; aggregate the findings yourself. |
+| A candidate has no traceable caller or input | It isn't a finding yet. Report it under "could not verify" with the gap named, or drop it. |
 
 ## Attribution
 
