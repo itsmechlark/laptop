@@ -26,6 +26,15 @@ on `check-payload`'s `evals_exempt` list — deliberately uncovered because they
 have low overlap and are cheap to recover from. See "Trigger-eval coverage" in
 `AGENTS.md`.
 
+A third group cannot have one at all: `check-payload` *fails* on a set named for
+a skill carrying `disable-model-invocation` — `brainstorming`, `feature-dev`,
+`standup`, `triage`. Note what that does and doesn't mean. The key is Claude-only,
+so those four do trigger on Codex and Cursor and could misfire there; what makes
+the set impossible is the runner, which drives `claude -p` and therefore can only
+ever measure the client that refuses them. Their guard is the skill body, not a
+query set here — and if the other clients ever need measuring, the missing piece
+is a second runner, not a file in this directory.
+
 These are fixtures, so they are tracked. What they measure is not: a trigger
 rate depends on the model answering, which means credentials, network egress,
 and tokens. That is why this tier is deliberately outside CI and outside the

@@ -346,6 +346,20 @@ of those describes a set that cannot catch anything — an all-positive set can'
 detect a false positive, and a set aimed at a flagged skill measures something
 that can never fire.
 
+That last one is narrower than it sounds, and worth knowing before you argue with
+it. A flagged skill cannot fire *on Claude*; Codex and Cursor ignore the key, so
+there it triggers like anything else and could in principle misfire. The check
+still fails, because the runner is `claude -p` — `scripts/lib/run_eval_local.py`
+installs the skill under a temp `.claude/skills/` and watches Claude's `Skill`
+tool — so a set aimed at a flagged skill is not merely unmotivated: no engine in
+this repo can run it. Measuring the other two clients would
+mean a second runner driving `codex` and `cursor-agent`, which is the change to
+propose if this ever matters; adding the query set alone would just park a file
+CI has to keep passing and nobody can execute. The consequence for authors is
+under [`skills/<name>/SKILL.md`](#skillsnameskillmd): on those clients the
+skill's own body is the only guard, so that is where an outward-facing skill's
+never-send rule goes.
+
 Adding a fixture is therefore adding an assertion, and the shape rules are what
 stop it from being decorative. When one of them blocks you, the fixture is
 usually wrong; the exception is documented in the script beside the check.
@@ -374,8 +388,9 @@ the script's `evals_exempt` list.
   `grilling`/`review-response` are the worked examples. Labeling a shared query
   should-trigger in both makes the pair unfalsifiable, so `check-payload` fails
   on that rather than trusting it. Pick the partner from the skills that can
-  actually win the query: a flagged skill never fires, so pairing against one
-  measures nothing — `grilling`'s nearest neighbor by scope is `brainstorming`,
+  actually win the query: a flagged skill never fires on Claude, so pairing
+  against one measures nothing — `grilling`'s nearest neighbor by scope is
+  `brainstorming`,
   and `review-response` is its partner precisely because `brainstorming` carries
   `disable-model-invocation`.
 
@@ -530,6 +545,16 @@ wherever a wrong auto-invocation is expensive: a gate imposed on the user
 (`brainstorming`), a long multi-phase workflow ending in a commit
 (`feature-dev`), a write to a tracker (`triage`), outward-facing text
 (`standup`). Flag a skill for that reason and don't argue yourself out of it.
+
+**Where the expense is a side effect, the flag is not the guard — the body is.**
+Because Codex and Cursor ignore the key, a flagged skill still auto-fires there,
+and the three cases above are flagged precisely because firing has consequences
+outside the conversation: a tracker write, a commit, text sent to a client. So
+the rule that actually holds on every client is the one written into the skill —
+`triage`'s draft-show-then-ask, `standup`'s never-send. Treat the frontmatter key
+as narrowing *when* Claude reaches for the skill, and the body as what stops the
+side effect on the two clients that reach for it anyway. A flagged skill whose
+only protection is the flag is protected on one client in three.
 
 Its one mechanical consequence is the handoff, not a reason to avoid it: the
 Skill tool refuses a flagged target, so a sibling routing work there says *read

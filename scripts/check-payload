@@ -372,10 +372,20 @@ for set in spec/trigger-evals/*.json; do
     else "ok" end' "$set")
   [ "$shape" = ok ] || fail "$set: $shape"
 
+  # The flagged case is narrower than "it can never fire", and the distinction
+  # is why this stays a failure rather than becoming a warning. The key is
+  # Claude-only: Codex and Cursor ignore it, so a flagged skill does trigger
+  # there and could misfire. But the only runner in this repo is
+  # scripts/lib/run_eval_local.py, which drives `claude -p` against a temp
+  # .claude/skills install — so a set aimed at a flagged skill cannot be
+  # executed by anything here. Measuring the other clients needs a second runner
+  # driving codex/cursor-agent; until one exists, the skill's own body is the
+  # cross-client guard (AGENTS.md, "Use the flag whenever deliberate invocation
+  # is what you want"). Don't relax this to admit a set nobody can run.
   if ! is_skill "$name"; then
     fail "$set: no skills/$name — stale eval set"
   elif is_flagged "$name"; then
-    fail "$set: skills/$name is user-invoke-only, so it cannot fire on its own"
+    fail "$set: skills/$name is user-invoke-only on Claude, and the only runner here is claude -p — this set cannot be executed"
   fi
 done
 
