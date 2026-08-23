@@ -277,7 +277,15 @@
           "relationship": "adapted",
           "license": "MIT",
           "ref": "44c9b2d6e889982ac18c27d05a19fefe335194e1",
-          "reviewed": "2026-08-10"
+          "reviewed": "2026-08-10",
+          "note": "Diverged further on 2026-08-23: the rewrite to the agent-skills spec dropped upstream's \"your human partner\" framing and its pseudocode blocks, and replaced its imported partner rules with citations to this payload's own AGENTS.md. Local divergence, not a reconcile — ref unchanged."
+        },
+        {
+          "origin": "Conventional Comments",
+          "type": "web",
+          "url": "https://conventionalcomments.org/",
+          "relationship": "inspired-by",
+          "note": "Source of the nit:/question:/praise:/optional: severity prefixes the triage table reads. Labels only; the skill does not require reviewers to use them."
         }
       ]
     },
