@@ -73,7 +73,7 @@ A relationship that survives a scenario is real; one that doesn't was wishful.
 
 - **`CONTEXT.md` here always means the project's glossary.** The root context map that the global standards have you read at session start — `~/.agents/CONTEXT.md`, symlinked into each client's config directory — is a different file with a different format. It maps the machine and its repos, holds no domain terms, and isn't version-controlled. Never write a term into it, and never write through the home symlink; edit the project's own `CONTEXT.md`, at the repo root or in its context's directory.
 
-- **A term the code doesn't use is fiction.** Settling on a word obliges one of two follow-ups: rename the identifiers to match, or record the code's word under `_Avoid_` and accept the gap deliberately. Renaming is a behavior-preserving change — hand it to `tdd` rather than doing it from here. Silence is the one option that isn't available: a glossary that disagrees with the code teaches the next reader the wrong thing, twice.
+- **A term the code doesn't use is fiction.** Settling on a word obliges one of two follow-ups: rename the identifiers to match, or record the code's word under `_Avoid_` and accept the gap deliberately. Renaming is behavior-preserving work that runs under the existing suite, not from here — and where the identifier has no coverage to run under, the behavior needs characterizing before it is safe to touch, which is `tdd`'s. Silence is the one option that isn't available: a glossary that disagrees with the code teaches the next reader the wrong thing, twice.
 
 - **Delete terms when they die.** A concept that leaves the code leaves the glossary in the same commit. A glossary is trusted in proportion to how current it is, and an entry for something that no longer exists costs more than a missing one.
 
@@ -86,7 +86,7 @@ A relationship that survives a scenario is real; one that doesn't was wishful.
 Settling vocabulary regularly exposes work this skill doesn't do. Hand it over rather than absorbing it:
 
 - A module boundary that turns out to be wrong — a secret sitting behind the wrong interface — goes to `codebase-design` to place the seam.
-- Renaming code to match a settled term goes to `tdd`, which keeps the change behavior-preserving.
+- Renaming code to match a settled term is behavior-preserving work under the existing suite; it needs no skill loaded. Only where the identifier has no coverage does it go to `tdd` first, to characterize the behavior before the rename disturbs it.
 - A feature the discussion reveals needs a full specification before anyone implements it goes to `draft-spec`.
 
 Leaving with a sharper glossary and a named next step is a complete outcome.
