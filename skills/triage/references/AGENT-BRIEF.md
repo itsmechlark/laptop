@@ -17,7 +17,21 @@ A brief says what should be *true when the work is done*. For an issue that mean
 
 **Explicit scope boundaries.** Name what not to touch. Without boundaries, an unattended agent may gold-plate adjacent work that only looked related.
 
-**A brief for a bug or a PR carries its repro.** The artifact from step 3 of triage goes in the brief verbatim — the failing test and the branch it lives on, the exact command and its unedited output, or, for a UI bug, the exact browser steps (URL, navigation, clicks) and the screenshot they produced — whichever browser-automation tool captured them.
+**Every brief carries one line of impact.** It is the only ordering signal `ready-for-agent` has — without it the queue sorts by filing date, which puts a cosmetic label tweak ahead of a data-loss regression.
+
+Write it as three named parts, in this order, so two briefs can be compared without re-reading both:
+
+* **Reach** — who hits it. A named cohort beats a number you don't have: "anyone on a self-hosted install", "admins only", "one reporter".
+* **Frequency** — how often, in the terms the item gives you: "every export", "once per release", "twice reported in six months".
+* **Cost** — what it does to them, and what the workaround costs if there is one: "silent data loss, no workaround", "confusing label, cosmetic".
+
+> **Impact:** anyone on a self-hosted install · every export · silent data loss, no workaround
+
+**Name the missing part rather than filling it.** "Frequency unknown — no reproduction of how often" is a usable impact line and sorts honestly. A guess dressed as a measurement is not, and invented percentages are the failure this frame exists to prevent: the three parts are there to make the evidence visible, not to produce a score. Nothing multiplies into a number, and two lines that genuinely tie stay tied — say so and let the maintainer break it.
+
+**A brief for a bug or a PR carries its repro.** The verification artifact goes in the brief verbatim, whichever tier produced it ([VERIFY.md](VERIFY.md)). Tier (c) never reaches a brief — a bug without a reproduction is `needs-info`.
+
+**The one brief with no repro is a safety hold.** A PR whose diff was never run goes to `ready-for-human` with a brief-shaped write-up, and its `Repro` block says what has to be run and what made running it unsafe here. Its first acceptance criterion is running the diff safely, not re-running an artifact that doesn't exist — everything below about leading with the repro applies once someone has produced one.
 
 Prose decays. A week later, "confirmed" does not say whether anyone actually ran anything. An artifact gives the implementer its first move, which is TDD's starting point handed over at the moment someone had the repro in hand.
 
@@ -165,6 +179,8 @@ Those may be real gates, but they belong in the handoff or the `ready-for-human`
 
 Before moving a ticket to `ready-for-agent`, verify:
 
+* [ ] the `Impact` line names reach, frequency, and cost — with any missing part named as missing, never guessed
+* [ ] the prior-art searches are written down with what they returned, not just asserted
 * [ ] bugs and PRs have a first criterion that re-runs the exact repro artifact
 * [ ] every criterion can fail independently and describes behavior, output, state, or contract — not implementation steps
 * [ ] every claim in `Desired behavior` appears in the criteria or under `Out of scope`
@@ -180,6 +196,8 @@ Before moving a ticket to `ready-for-agent`, verify:
 
 **Category:** bug / enhancement
 **Summary:** one line — what needs to happen
+**Impact:** <reach> · <frequency> · <cost, and the workaround's cost>
+**Prior art checked:** the searches run during triage, and what they returned
 
 **Repro:** *(bugs and PRs; omit for enhancements)*
 The failing test and the branch it lives on, the exact command and its verbatim
@@ -220,6 +238,12 @@ compatibility expectations, and observable side effects.
 
 **Category:** bug
 **Summary:** Long skill descriptions truncate mid-word
+**Impact:** anyone browsing the skill picker · every render of the 3 skills of 21
+whose description exceeds the limit · cosmetic, no data loss, but it is the first
+thing a user sees
+**Prior art checked:** `gh search issues "truncat" --repo <repo> --state all` →
+#18 (closed, unrelated: log truncation). No `.out-of-scope/` match. No
+implementation of word-boundary truncation in the frontmatter reader.
 
 **Repro:**
 `triage/42-repro` — a test asserting that a 1,200-character description is cut
@@ -267,7 +291,8 @@ has the issue.
 - src/triage/handler.ts (line 150)
 ```
 
-No category. "The triage thing is broken" describes nothing. Paths and line numbers that will be stale within a week. No repro, so there is no way to tell whether the bug was ever observed or just believed. No current-vs-desired split, no criteria, no boundaries — so nobody, agent or human, can tell when it is finished.
+No category, no impact, so it cannot be ordered against anything else in the queue. "The triage thing is broken" describes nothing. Paths and line numbers that will be stale within a week. No repro, so there is no way to tell whether the bug was ever observed or just believed. No prior-art record, so the next reader searches again from scratch. No current-vs-desired split, no criteria, no boundaries — so nobody, agent or human, can tell when it is finished.
 
 <!-- cspell:ignore confi -- the mid-word cut the example brief is quoting -->
+<!-- cspell:ignore truncat -- the search stem the example brief's prior-art query uses -->
 

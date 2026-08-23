@@ -38,6 +38,7 @@ Read enough of the code to know what already exists before describing anything a
 - The project's glossary or `CONTEXT.md` — use its vocabulary exactly, not a synonym you prefer
 - Relevant ADRs — respect settled decisions, and surface a conflict rather than quietly overwriting one
 - Existing behavior and similar features — never spec something the code already does
+- The rejection knowledge bases — the repo's `.out-of-scope/` and `~/.agents/out-of-scope/`. A spec for something already declined needs the earlier reasoning answered, not ignored; surface the hit before drafting
 - Test seams and prior art — prefer the highest seam already in use over inventing one
 
 With no glossary, ADR, or prior art to lean on, don't manufacture a project-specific convention. New domain terms, or a vocabulary conflict the spec exposes, go to `domain-modeling` to settle in `CONTEXT.md` before drafting — a spec written in words the project hasn't agreed on gets re-litigated in review.

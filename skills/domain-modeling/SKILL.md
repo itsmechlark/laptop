@@ -79,6 +79,8 @@ A relationship that survives a scenario is real; one that doesn't was wishful.
 
 - **Never rewrite an accepted ADR to hold a new decision.** Write the new one and mark the old superseded — the value of the directory is the trail, and editing in place erases exactly the reasoning a future reader came for.
 
+- **A declined request is not an ADR.** `triage` keeps those in an `.out-of-scope/` knowledge base, where reversing a decision means *deleting* the file — the opposite of the rule above, and correct there, because that KB answers "is this rejected?" today rather than preserving a trail. An ADR records a choice the codebase must live with. When a rejection also settles an architectural question, both get written: the ADR for the choice, the entry for the request.
+
 - **A glossary is not a design.** Settling the word "reservation" does not settle where reservation code lives. Hand the second question over rather than answering it here.
 
 ## Where the session leads next
