@@ -235,8 +235,8 @@
           "relationship": "adapted",
           "license": "MIT",
           "ref": "9807306250b2fa86886568be3a6d40cefabe5b4a",
-          "reviewed": "2026-08-22",
-          "note": "Recorded retroactively — the origin source. Commit b6c9cd4 added this skill 'adapted from thoughtbot's rails-consultant skills' and made it framework-agnostic; the mattpocock and obra sources below were folded in later by 9e10c0e. INITIAL PIN."
+          "reviewed": "2026-08-23",
+          "note": "Recorded retroactively — the origin source. Commit b6c9cd4 added this skill 'adapted from thoughtbot's rails-consultant skills' and made it framework-agnostic; the mattpocock and obra sources below were folded in later by 9e10c0e. Diverged on 2026-08-23: the rewrite to the agent-skills spec restructured the body into ## Workflows, added references/ (RUNNERS, WALKTHROUGH), consumed the $ARGUMENTS the argument-hint had always promised, rewrote the description around the phrases the trigger eval actually uses, scoped the Iron Law to code written in-session and added the characterization-test path for untested legacy code, promoted the green baseline from a gotcha to workflow step 1, added runner discovery and the failure-vs-error distinction that 'one change, one run' depends on, dropped obra's 'ask your partner' framing, and replaced the dangling 'rspec skill' handoff with rules/rspec.md, which is a path-scoped rule and auto-loads. That divergence is local, not a reconcile. Separately, drift-checked the same day: upstream HEAD is still 9807306, so this source has not moved since the pin and the INITIAL PIN caveat no longer applies — nothing to port, ref unchanged, reviewed bumped."
         },
         {
           "origin": "mattpocock/skills",
@@ -245,8 +245,9 @@
           "path": "skills/engineering/tdd",
           "relationship": "adapted",
           "license": "MIT",
-          "ref": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
-          "reviewed": "2026-08-10"
+          "ref": "5b15a47f2d7150f545fbcacbfe381787fc0230dc",
+          "reviewed": "2026-08-23",
+          "note": "Reconciled 84fdeff..5b15a47. The whole delta at this path is house-style: em dashes replaced with colons throughout, and '/codebase-design skill' rephrased as 'call the Skill tool with codebase-design'. Both conflict with conventions this payload holds deliberately — em dashes are house voice, and invocation phrasing is governed by check-payload's handoff-invocability check — so there was nothing to port. Same conclusion grilling reached at 85f83d3 against the same upstream."
         },
         {
           "origin": "obra/superpowers",
@@ -255,8 +256,21 @@
           "path": "skills/test-driven-development",
           "relationship": "adapted",
           "license": "MIT",
-          "ref": "44c9b2d6e889982ac18c27d05a19fefe335194e1",
-          "reviewed": "2026-08-10"
+          "ref": "b36e0829c6d0140e93cfef2ca599b1b07d4a7797",
+          "reviewed": "2026-08-23",
+          "note": "Reconciled 44c9b2d..b36e082. The range touches 40 files upstream but not skills/test-driven-development, so the diff at this path is empty — nothing to port. This pin now matches git-worktree, fan-out, and brainstorming, which were already reconciled through b36e082."
+        },
+        {
+          "origin": "Kent Beck, Test-Driven Development: By Example",
+          "type": "book",
+          "relationship": "inspired-by",
+          "note": "Added 2026-08-23 with the step-size guidance: the fake-it / triangulate / obvious-implementation strategies for reaching green, and reverting to the last green rather than pushing through a step that was too big. The red-green-refactor cycle the skill was already built on originates here too; the record simply never said so."
+        },
+        {
+          "origin": "Michael Feathers, Working Effectively with Legacy Code",
+          "type": "book",
+          "relationship": "inspired-by",
+          "note": "Added 2026-08-23, recording an influence the 2026-08-23 rewrite introduced without attributing: characterization tests — pinning what untested code does today before changing it — are Feathers' technique and term."
         }
       ]
     },

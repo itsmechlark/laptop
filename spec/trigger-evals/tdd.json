@@ -5,6 +5,8 @@
   {"query": "build the deposit-refund endpoint red-green-refactor, don't write the controller before the request spec", "should_trigger": true},
   {"query": "i want to change how availability caching expires. drive it from the outside in", "should_trigger": true},
   {"query": "we keep regressing the partial-refund path. add the behavior properly this time, starting from the failing case", "should_trigger": true},
+  {"query": "the cancellation-window rounding is wrong and that class has no specs at all. change it safely", "should_trigger": true},
+  {"query": "pin what DepositCalculator does today with a test before i touch the fee tiers", "should_trigger": true},
   {"query": "backfill specs for app/services/reservation_hold.rb — it has zero coverage and i'm not changing its behavior", "should_trigger": false},
   {"query": "why does this spec fail one run in five? it always passes locally", "should_trigger": false},
   {"query": "our rspec suite takes 14 minutes. speed it up", "should_trigger": false},

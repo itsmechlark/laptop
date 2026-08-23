@@ -155,6 +155,21 @@ label may be what's wrong:
   which carries `disable-model-invocation` and therefore cannot win it — nothing
   firing is the correct outcome, which is why the pair is `review-response` and
   not `brainstorming`.
+- **tdd**, the two untested-code queries — "that class has no specs at all,
+  change it safely" and "pin what DepositCalculator does today" are labeled
+  should-trigger, while "backfill specs … i'm not changing its behavior" stays
+  should-not. The three are deliberately adjacent: all describe code with no
+  coverage, and only the intent to *change* behavior separates them. That is the
+  boundary the description has to hold, and the pair exists because `tdd` gained
+  an explicit characterization path — pin today's behavior, then drive the
+  change red-green-refactor. If the negative starts firing, the description is
+  claiming coverage work it doesn't do.
+- **tdd**, "rename apply_policy to apply_fee_policy everywhere and keep the specs
+  passing" — labeled should-not-trigger. A pure rename has no red available, so
+  there is nothing for the cycle to drive; `domain-modeling` used to route
+  renames here and no longer does, for that reason. `tdd` still carries a
+  Troubleshooting row for the case, which handles the arrival without claiming
+  the trigger.
 - **grilling** / **review-response**, the five reviewer-feedback queries —
   labeled should-trigger for `review-response` and not for `grilling`.
   Genuinely contested: `grilling`'s body explicitly says to grill feedback from
