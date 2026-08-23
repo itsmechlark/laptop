@@ -122,6 +122,7 @@ Commit messages, PR descriptions, ADRs, specs, tracker comments, and status upda
 - **Vary sentence length.** The uniformly-hedged, em-dash-heavy cadence is the giveaway; plain, direct sentences of differing lengths are not.
 - **Say the surprising thing plainly.** Risks, dependencies, and the alternative you rejected are exactly the parts a reader can't reconstruct from the code.
 - **Don't hard-wrap prose you submit through a tool.** Commit bodies, PR descriptions, and tracker comments are soft-wrapped by the host, so manual mid-paragraph newlines only waste width. Markdown files committed to a repository are the exception — match the wrapping already in the file.
+- **US English.** `behavior`, `license`, `judgment`, `labeled`. This governs prose you write, not identifiers you find — never "correct" a British spelling that is already a field name, a quoted source, or someone else's ticket title. A project that writes British English says so in its own `AGENTS.md`, and that overrides this.
 
 Audience sets the vocabulary and the length, never the honesty (§3). `git-commit`, `pull-request`, `draft-spec`, `standup`, and `triage` each apply this to their own artifact.
 
