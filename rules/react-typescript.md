@@ -17,4 +17,4 @@ Universal standards for React + TypeScript. Where a bullet names a library it's 
 - **Feature flags:** gate risky or behavior-changing UI behind the project's feature-flag system, off by default.
 - **Errors & observability:** surface and report errors to the project's monitoring service (e.g. Sentry); never swallow promise rejections or render silent failures.
 - **Monorepo:** in a monorepo (e.g. Nx, Turborepo), respect project boundaries — put shared code in shared packages and don't reach across app internals.
-- **Testing:** unit/component tests with a fast runner + Testing Library (assert behavior, not implementation details); end-to-end with a browser runner (e.g. Playwright, Cypress).
+- **Testing:** unit/component tests with a fast runner + Testing Library (assert behavior, not implementation details); end-to-end with a browser runner (e.g. Playwright, Cypress). Write the test first for new behavior and bug fixes — the `tdd` skill covers the red-green-refactor cycle.

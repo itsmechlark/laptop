@@ -13,4 +13,4 @@ These apply to **Ember apps**. The `**/*.js` glob is broad, so if a JavaScript f
 - Use **Ember Data** (models/adapters/serializers) for the data layer and the project's established session/auth addon; follow existing patterns rather than bespoke fetch logic.
 - Follow the project's template syntax (Handlebars/HTMLBars, or Emblem where used) and its styling conventions.
 - Lint with `eslint-plugin-ember` + Prettier and keep it clean.
-- Test with the project's Ember test framework (commonly QUnit via ember-qunit) — unit, integration/rendering, and acceptance tests as appropriate.
+- Test with the project's Ember test framework (commonly QUnit via ember-qunit) — unit, integration/rendering, and acceptance tests as appropriate. New behavior and bug fixes come test-first, driven by a failing test; the `tdd` skill covers that cycle.

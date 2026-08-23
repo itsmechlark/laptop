@@ -26,4 +26,4 @@ Operate at a principal-engineer level in this ecosystem: know the idioms, the ca
 - Offload slow or external work to idempotent, retry-safe background jobs (ActiveJob/Sidekiq); apply caching (fragment / Russian-doll) where it measurably helps.
 - Prefer a modular monolith with bounded domains — Rails **engines** or **packwerk** packages — and enforce the boundaries rather than letting domains bleed together.
 
-Specs follow the RSpec standards (see `rspec.md`).
+Specs follow the RSpec standards (see `rspec.md`), and they come first: new behavior and bug fixes are driven by a failing test before the code that satisfies it. The `tdd` skill covers that cycle.
