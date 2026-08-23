@@ -12,5 +12,6 @@ skills/**/.system
 .agents/*.local.md
 .agents/CONTEXT.md
 .agents/standup
+.agents/out-of-scope
 .agents/.skills-lock.json
 .codex/config.toml

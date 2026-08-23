@@ -85,6 +85,8 @@ spec/                   # fixtures check-payload validates and reads
   references/
     CONTEXT-FORMAT.md   # template for .agents/CONTEXT.md
   skills/               # skill bodies: vendored + project-only (project-only = not linked from skills/)
+  standup/              # standup's journal — machine-local, git-ignored (created by mac)
+  out-of-scope/         # cross-repo rejections, shared by triage/slice/draft-spec — git-ignored (created by mac)
 rules/                  # path-scoped language standards, auto-loaded by glob
 skills/                 # published skills → ~/.agents/skills; first-party dirs + symlinks into .agents/skills
 .claude/settings.json   # Claude Code settings (permissions, sandbox, hooks, plugins)
@@ -108,6 +110,7 @@ skills/                 # published skills → ~/.agents/skills; first-party dir
 | `~/.agents/skills` | `skills/` |
 | `~/.agents/.skills-lock.json` | `skills-lock.json` |
 | `~/.agents/standup` | `.agents/standup/` (created by `mac`; git-ignored) |
+| `~/.agents/out-of-scope` | `.agents/out-of-scope/` (created by `mac`; git-ignored) |
 | `~/.agents/CONTEXT.md` | `.agents/CONTEXT.md` (when present) |
 | `~/.claude/CLAUDE.md` | `~/.agents/AGENTS.md` |
 | `~/.claude/rules` | `~/.agents/rules` |
@@ -181,7 +184,7 @@ Use this map to find the counterpart for a change:
 | Blocked commands | `permissions.deny` — `Bash(…)` | `rules/default.rules` — `decision = "forbidden"` | `cli-config.json` `permissions.deny` — `Shell(…)` (wholesale) + `hooks.json` gate (arg-nuanced) |
 | Approval-gated commands | `permissions.ask` — `Bash(…)` | `rules/default.rules` — `decision = "prompt"` | `approvalMode: "allowlist"` — prompts on any unlisted command |
 | Unreadable secret paths | `permissions.deny` — `Read(…)` | `config.toml` filesystem `"deny"` entries | `cli-config.json` `permissions.deny` — `Read(…)` |
-| Writable / readable roots | `sandbox.filesystem.allowWrite` / `allowRead` | `config.toml` `[permissions.developer.filesystem]` | — (no sandbox roots; `permissions.deny` `Write(…)` guards the policy files, and `permissions.allow` carries the one write grant that has a counterpart elsewhere) |
+| Writable / readable roots | `sandbox.filesystem.allowWrite` / `allowRead` | `config.toml` `[permissions.developer.filesystem]` | — (no sandbox roots; `permissions.deny` `Write(…)` guards the policy files, and `permissions.allow` carries only the write grants that have a counterpart elsewhere) |
 | Allowed network hosts | `sandbox.network.allowedDomains` | `config.toml` `[permissions.developer.network.domains]` | — (no egress allowlist; `WebFetch(domain)` scopes only the agent's fetch tool) |
 | Unix sockets | `sandbox.network.allowUnixSockets` | `config.toml` `[…network.unix_sockets]` (absolute path) | — |
 | Unsandboxed command escape | `sandbox.excludedCommands` — `gh *`, `git push/fetch/ls-remote *` | — (no static escape; `approval_policy = "on-request"` escalates per-command) | — (no egress sandbox; commands run unsandboxed, prompt-gated) |
@@ -204,11 +207,13 @@ here rather than dropped:
   `[shell_environment_policy.filters]`.
 - **The ask tier is implicit.** `approvalMode: "allowlist"` prompts on every
   command not explicitly allowed, so there is no per-command "ask" list to
-  mirror — leaving `permissions.allow` all but empty is what realizes it. Its one
-  entry, `Write(~/.agents/standup/**)`, is not an exception to that: it mirrors a
-  write root the other two clients grant in their sandbox blocks, which Cursor
-  has no equivalent of. Keep it that way — a general allowlist here would quietly
-  dismantle the prompt-by-default tier.
+  mirror — leaving `permissions.allow` all but empty is what realizes it. Its two
+  entries, `Write(~/.agents/standup/**)` and
+  `Write(~/.agents/out-of-scope/**)`, are not exceptions to that: each
+  mirrors a machine-local write root the other two clients grant in their sandbox
+  blocks, which Cursor has no equivalent of. Keep the list to that — a general
+  allowlist here would quietly dismantle the prompt-by-default tier, and a new
+  entry earns its place only by mirroring a grant the other two already make.
 - **Arg-nuanced blocks live in the hook.** Cursor `Shell()` keys on the command
   base, so wholesale-dangerous commands (`dd`, `sudo`, `mkfs`, …) are declarative
   `permissions.deny` entries, while forms distinguished by their arguments
@@ -752,14 +757,27 @@ and description templates — use them.
   never run it casually to "check something."
 - `.gitignore` excludes `artifacts`, `*.swp`, `.claude/.cc-writes`,
   `.agents/*.local.md`, `.agents/CONTEXT.md`, `.agents/standup`,
-  `.agents/.skills-lock.json`, and any nested `.claude` directory under
-  `.agents/` or `skills/`.
+  `.agents/out-of-scope`, `.agents/.skills-lock.json`, and any nested `.claude`
+  directory under `.agents/` or `skills/`.
 - `.agents/standup/` is the `standup` skill's journal — one dated Markdown file
   per update, so the next run can see what was promised last time. `mac` creates
   it and links it to `~/.agents/standup`, which is the path all three clients
   grant write to and the reason the skill needs no per-client wiring. **The
   ignore rule is load-bearing**: the entries are client-facing status in
   plaintext, inside a repository that is published. The skill prunes to 14 days.
+- `.agents/out-of-scope/` is the **cross-repo** rejection knowledge base, wired
+  the same way and for the same reason: `mac` creates it and links
+  `~/.agents/out-of-scope`, which is the path all three clients grant write to.
+  It is deliberately **not** namespaced under a skill — `triage` writes it, but
+  `slice` and `draft-spec` both read it before proposing work, so it is shared
+  project memory rather than one skill's state. It holds only rejections that
+  belong to no single project —
+  a standing policy like "no telemetry" that would be re-litigated in every repo
+  otherwise. **A rejection grounded in a particular codebase does not go here**;
+  it goes in that repository's own committed `.out-of-scope/`, where a
+  co-maintainer and a future reporter can read it. Unlike the journal, these
+  entries are not pruned — the whole point is that the reasoning outlives the
+  ticket.
 - `skills-lock.json` at the root is the tracked file — edit that one. The
   `.agents/.skills-lock.json` symlink pointing back at it is a leftover from when
   `~/.agents` was itself a link to this repo, and is git-ignored.

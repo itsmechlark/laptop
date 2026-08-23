@@ -252,6 +252,27 @@ inside a repository that gets pushed.
 All three clients grant write access to that one path,
 which is why the skill needs no per-client configuration.
 
+Cross-repo rejections (`.agents/out-of-scope/`)
+-----------------------------------------------
+
+`mac` creates `.agents/out-of-scope/` and links it to `~/.agents/out-of-scope`,
+wired exactly like the journal above and for the same reason.
+The `triage` skill writes a file here when it rejects a request
+for a reason that belongs to no single project —
+a standing policy such as "no telemetry",
+which would otherwise be argued again in every repository.
+It sits beside `skills` and `standup` rather than under a skill
+because `slice` and `draft-spec` read it too,
+before they propose work that may already have been declined.
+
+Rejections grounded in a particular codebase do not go here.
+Those belong in that repository's own `.out-of-scope/`, committed,
+where a co-maintainer and the next reporter can read them.
+Triage checks both places before deciding anything is new.
+
+Unlike the journal, nothing here is pruned:
+the reasoning is meant to outlive the ticket that prompted it.
+
 Contributing
 ------------
 

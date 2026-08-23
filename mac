@@ -274,6 +274,15 @@ symlink_path "$PROJECT_DIR/skills-lock.json" "$AGENTS_GLOBAL_DIR/.skills-lock.js
 mkdir -p "$AGENTS_DIR/standup"
 symlink_path "$AGENTS_DIR/standup" "$AGENTS_GLOBAL_DIR/standup"
 
+# Cross-repo rejection knowledge base — same shape and the same reasoning as the
+# journal above. Shared rather than owned: triage writes it, and slice and
+# draft-spec read it before proposing work. It holds only the rejections
+# that are not any one project's ("no telemetry in my projects"); a rejection
+# grounded in a particular codebase belongs in that repository's own committed
+# .out-of-scope/, where a co-maintainer can read it.
+mkdir -p "$AGENTS_DIR/out-of-scope"
+symlink_path "$AGENTS_DIR/out-of-scope" "$AGENTS_GLOBAL_DIR/out-of-scope"
+
 # Claude
 CLAUDE_GLOBAL_DIR="$HOME/.claude"
 mkdir -p "$CLAUDE_GLOBAL_DIR"

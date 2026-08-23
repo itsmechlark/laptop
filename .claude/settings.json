@@ -299,6 +299,7 @@
         "~/Codespace",
         "~/.claude",
         "~/.agents/standup",
+        "~/.agents/out-of-scope",
         "~/.asdf",
         "~/.rvm",
         "~/.cache/rubocop_cache",
