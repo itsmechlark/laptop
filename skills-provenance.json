@@ -456,7 +456,7 @@
           "license": "MIT",
           "ref": "9807306250b2fa86886568be3a6d40cefabe5b4a",
           "reviewed": "2026-08-22",
-          "note": "Recorded retroactively — the origin source, per commit b6c9cd4. Diverged since: 1dc2ea3 rewrote it and dropped upstream's codebase-grounding fan-out step, which is why feature-dev carries no 'stand down' note for it. INITIAL PIN."
+          "note": "Recorded retroactively — the origin source, per commit b6c9cd4. Diverged since: 1dc2ea3 rewrote it and dropped upstream's codebase-grounding fan-out step, which is why feature-dev carries no 'stand down' note for it. Diverged further on 2026-08-23: the rewrite to the agent-skills spec added Troubleshooting, a references/EXAMPLES.md, a capture step, a re-slicing entry point, and a rollout-flag gotcha citing this payload's own AGENTS.md, and restored a lightweight (non-fan-out) form of upstream's codebase grounding. Local divergence, not a reconcile — ref unchanged. INITIAL PIN."
         },
         { "origin": "Alistair Cockburn, Crystal Clear — walking skeleton", "type": "book", "relationship": "inspired-by" },
         { "origin": "Alan Klement, Replacing the User Story with the Job Story", "type": "article", "relationship": "inspired-by" }
