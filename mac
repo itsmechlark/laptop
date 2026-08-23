@@ -117,8 +117,28 @@ if brew list | grep -Fq brew-cask; then
   brew uninstall --force brew-cask
 fi
 
+# Homebrew forks its auto-update into the background, so an update started by an
+# earlier `brew` call can still hold the update lock when we get here. Wait it
+# out instead of aborting: the rest of the run works against the taps already on
+# disk, and every `brew` command below auto-updates on its own anyway.
+update_homebrew() {
+  local attempt=1
+
+  while [ "$attempt" -le 5 ]; do
+    if brew update --force; then # https://github.com/Homebrew/brew/issues/1151
+      return 0
+    fi
+
+    fancy_echo "Homebrew update lock is held, retrying in 15s (%d/5) ..." "$attempt"
+    sleep 15
+    attempt=$((attempt + 1))
+  done
+
+  fancy_echo "Skipping Homebrew update: another process still holds the update lock."
+}
+
 fancy_echo "Updating Homebrew formulae ..."
-brew update --force # https://github.com/Homebrew/brew/issues/1151
+update_homebrew
 brew bundle --file=- <<EOF
 # Unix
 brew "universal-ctags"
