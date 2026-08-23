@@ -67,7 +67,12 @@ If you can't name the request that should load it, it isn't a skill.
    is costing context and buying nothing.
 3. **Check the split** — `SKILL.md` under 500 lines, detail in `references/`,
    no reference chains.
-4. **Run the [Validation](#validation) checklist.**
+4. **Read the body and its references as one document**, not as separate files.
+   A rule stated in `SKILL.md` and elaborated in a reference can disagree without
+   either file looking wrong on its own — and a link resolving is no evidence the
+   two agree. Do this whenever a rule changed or the body was restructured; that
+   is when the reference is left behind.
+5. **Run the [Validation](#validation) checklist.**
 
 Both flows in full, plus converting an existing prompt or instructions file into
 a skill: [AUTHORING.md](references/AUTHORING.md).
@@ -279,6 +284,11 @@ it. 500 lines is the hard ceiling for `SKILL.md`.
   PDFs" names a topic, not an occasion. Write the user's words, not yours.
 - **Keep reference chains one level deep.** A reference that points at another
   reference that points at a third burns turns and loses the thread.
+- **A reference drifts from its `SKILL.md` silently.** Change a rule in the body
+  and the reference that elaborates it still resolves, still reads well, and now
+  contradicts it — the agent follows whichever it happens to load. Nothing
+  detects this: the link is intact and both files are individually coherent. When
+  you edit a rule, edit every file that states it, in the same pass.
 - **Never bundle credentials or secrets**, and don't write paths that only exist
   on your machine — skills are meant to travel.
 - **For independently distributed skills, avoid naming a sibling that may not be
@@ -317,6 +327,9 @@ before believing it. The rest is judgment:
       clearly — co-shipped skills may name each other; an independently
       distributed one draws the boundary by scope instead
 - [ ] Body teaches what the agent wouldn't already know
+- [ ] `SKILL.md` and every reference it links state the same rules — read end to
+      end together, because tooling can check that a link resolves but never
+      that the two files agree
 - [ ] `## Gotchas` present if there's any non-obvious behavior or common trap
 - [ ] `SKILL.md` under 500 lines; split into `references/` at ~200
 - [ ] Workflows over ~5 steps moved into `references/` and linked
