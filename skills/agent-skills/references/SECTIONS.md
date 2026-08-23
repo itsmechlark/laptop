@@ -154,6 +154,8 @@ ignores the list or reads all of it.
 Read these as needed for the current task. Do not read them all upfront.
 ```
 
+<a id="attribution"></a>
+
 ## `## Attribution`
 
 The last section in the file, present only when the skill derives from outside

@@ -115,6 +115,46 @@ is_flagged() {
     frontmatter "skills/$1/SKILL.md" | grep -q '^disable-model-invocation: *true'
 }
 
+# Rules and skills are reached by different mechanisms: a rule auto-loads on a
+# path glob and is never invoked, so calling one a skill sends the agent to the
+# Skill tool for something that was already in context.
+is_rule() {
+  [ -f "rules/$1.md" ]
+}
+
+# Every fragment a Markdown link can reach in a file: one per heading, plus any
+# explicit `<a id="…">` the author wrote. Heading slugs are lowercased,
+# punctuation dropped, spaces hyphenated — the slug most renderers derive, and
+# what a `#fragment` in this payload is written against. A heading whose text
+# opens with punctuation slugs to something surprising (`## \`## Attribution\``
+# becomes `-attribution`, the stripped hashes leaving a leading space), which is
+# what the explicit form is for. LC_ALL=C so the ranges stay byte-wise and a
+# multibyte dash is dropped rather than half-kept.
+heading_slugs() {
+  LC_ALL=C awk '
+    /^[[:space:]]*```/ { fenced = !fenced; next }
+    fenced { next }
+    /^#+ / {
+      line = $0
+      sub(/^#+[[:space:]]+/, "", line)
+      line = tolower(line)
+      gsub(/[^a-z0-9 -]/, "", line)
+      gsub(/ /, "-", line)
+      print line
+    }
+    /<a[[:space:]][^>]*(id|name)=/ {
+      rest = $0
+      while (match(rest, /(id|name)="[^"]+"/)) {
+        anchor = substr(rest, RSTART, RLENGTH)
+        sub(/^(id|name)="/, "", anchor)
+        sub(/"$/, "", anchor)
+        print anchor
+        rest = substr(rest, RSTART + RLENGTH)
+      }
+    }
+  ' "$1"
+}
+
 # glob -> ERE, anchored. `**/` spans directories, `*` does not.
 glob_to_ere() {
   printf '%s' "$1" | sed '
@@ -238,6 +278,72 @@ if [ -f "${TMPDIR:-/tmp}/check-payload-linkfail.$$" ]; then
   broken=$(wc -c <"${TMPDIR:-/tmp}/check-payload-linkfail.$$" | tr -d ' ')
   failures=$((failures + broken))
   rm -f "${TMPDIR:-/tmp}/check-payload-linkfail.$$"
+fi
+
+# The link check above resolves the file and discards the `#fragment`, so a
+# link into a section that was renamed away still passes: the file is there, the
+# heading is not, and the reader lands at the top of a page wondering what they
+# were sent to read. This resolves the fragment as well.
+#
+# Reports one problem per line; the caller counts. Takes a root so the fixture
+# below can exercise it against a tree with known answers.
+scan_anchors() {
+  root="${1:-skills}"
+  for md in "$root"/*/SKILL.md "$root"/*/references/*.md; do
+    [ -f "$md" ] || continue
+    [ "$root" = skills ] && is_vendored "$(basename "$(dirname "$md")")" && continue
+    dir=$(dirname "$md")
+
+    without_fences "$md" | grep -oE '\]\([^) ]*#[^) ]+\)' |
+      sed 's/^](//; s/)$//' | sort -u |
+      while IFS= read -r link; do
+        frag=${link#*#}
+        target=${link%%#*}
+
+        # An empty target is a link within the same file.
+        if [ -z "$target" ]; then
+          file="$md"
+        else
+          file="$dir/$target"
+        fi
+
+        # A link out to something that is not a Markdown file in this payload
+        # (an external URL, an asset) has no headings to resolve against.
+        case "$target" in
+          http*|mailto:*) continue ;;
+        esac
+        [ -f "$file" ] || continue  # the resource-link check owns missing files
+
+        if ! heading_slugs "$file" | grep -qxF "$frag"; then
+          printf "%s: link to '#%s' matches no heading in %s\n" \
+            "$md" "$frag" "$(basename "$file")"
+        fi
+      done
+  done
+}
+
+fancy_echo "Self-testing the anchor check ..."
+
+anchor_fixture=spec/orphan-fixture/skills
+if [ ! -d "$anchor_fixture" ]; then
+  fail "$anchor_fixture is missing — the anchor check cannot be self-verified"
+else
+  detected=$(scan_anchors "$anchor_fixture" | wc -l | tr -d ' ')
+  if [ "$detected" -eq 2 ]; then
+    printf "  ok    fixture: stale intra-file and cross-file anchors detected\n"
+  else
+    fail "anchor check is broken: fixture yielded $detected of 2 expected detections"
+  fi
+fi
+
+fancy_echo "Checking anchor links ..."
+
+anchor_report=$(scan_anchors)
+if [ -n "$anchor_report" ]; then
+  printf '%s\n' "$anchor_report" | while IFS= read -r line; do
+    printf "  FAIL  %s\n" "$line"
+  done
+  failures=$((failures + $(printf '%s\n' "$anchor_report" | wc -l | tr -d ' ')))
 fi
 
 # A reference may link a sibling reference as long as SKILL.md also links it
@@ -447,6 +553,28 @@ scan_invocability() {
           fi
         done
       done
+
+    # A handoff naming something that is not a skill at all. The two checks
+    # above both assume the target exists, so a name that resolves to nothing
+    # passed them silently. Only names written as "`X` skill" or "skill `X`"
+    # are read as handoffs — a bare backticked word is far too often a filename
+    # or an identifier.
+    without_fences "$md" |
+      grep -nE "${tick}[a-z0-9-]+${tick}[[:space:]]+skills?\b|\bskills?[[:space:]]+${tick}[a-z0-9-]+${tick}" |
+      while IFS= read -r hit; do
+        for token in $(printf '%s' "$hit" |
+          grep -oE "${tick}[a-z0-9-]+${tick}" | tr -d "$tick"); do
+          if is_skill "$token"; then
+            continue
+          elif is_rule "$token"; then
+            printf "%s:%s: calls '%s' a skill, but it is rules/%s.md — a path-scoped rule that auto-loads and cannot be invoked\n" \
+              "$md" "${hit%%:*}" "$token" "$token"
+          else
+            printf "%s:%s: names the '%s' skill, but there is no skills/%s\n" \
+              "$md" "${hit%%:*}" "$token" "$token"
+          fi
+        done
+      done
   done
 }
 
@@ -459,16 +587,18 @@ if [ ! -f "$fixture" ]; then
   fail "$fixture is missing — the invocability check cannot be self-verified"
 else
   detected=$(scan_invocability "$fixture" | wc -l | tr -d ' ')
-  if [ "$detected" -eq 2 ]; then
-    printf "  ok    fixture: both violation kinds detected\n"
+  if [ "$detected" -eq 4 ]; then
+    printf "  ok    fixture: all four violation kinds detected\n"
   else
-    fail "invocability check is broken: fixture yielded $detected of 2 expected detections"
+    fail "invocability check is broken: fixture yielded $detected of 4 expected detections"
   fi
 fi
 
 fancy_echo "Checking handoff invocability ..."
 
-invoke_report=$(scan_invocability skills/*/SKILL.md skills/*/references/*.md)
+# rules/ is scanned too: a rule can name a skill just as a skill can, and
+# rules/rspec.md does. It is the same bug class reached from the other side.
+invoke_report=$(scan_invocability skills/*/SKILL.md skills/*/references/*.md rules/*.md)
 if [ -n "$invoke_report" ]; then
   printf '%s\n' "$invoke_report" | while IFS= read -r line; do
     printf "  FAIL  %s\n" "$line"

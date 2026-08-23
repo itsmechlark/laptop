@@ -77,7 +77,7 @@ scripts/                # verification tooling; each relocates to the repo root 
 spec/                   # fixtures check-payload validates and reads
   rules-cases.txt       # path -> which rules/ load for it
   invocability-fixture/ # deliberate violations; proves the check still fires
-  orphan-fixture/       # unreachable references; proves the check still fires
+  orphan-fixture/       # unreachable references + stale anchors; proves the checks fire
   trigger-evals/*.json  # query sets for skill triggering (run by hand, not CI)
 .agents/
   AGENTS.md             # global engineering standards (shipped to ~/.claude/CLAUDE.md)
@@ -281,11 +281,14 @@ instead of splitting a long vendored `SKILL.md` in place.
 Within that scope it mechanizes the half of the `agent-skills` review checklist
 a machine can settle, plus the cross-file invariants this document declares and
 nothing previously enforced: handoff invocability (a skill telling the agent to
-invoke a `disable-model-invocation` sibling, or calling an invocable one
-user-invoke-only), `## Attribution` agreement with `skills-provenance.json`,
+invoke a `disable-model-invocation` sibling, calling an invocable one
+user-invoke-only, or naming a "skill" that is really a `rules/` file or nothing
+at all), `## Attribution` agreement with `skills-provenance.json`,
 vendored-edit discipline, secret-path parity across the three clients,
 frontmatter and size limits, resource links in both directions (every link
 resolves, and every `references/` file is reachable from its `SKILL.md`),
+anchor fragments (a `#section` in a link must match a heading, or an explicit
+`<a id>`, in the file it points at),
 global-standards section
 citations (an `AGENTS.md §N` in a skill must resolve, and must name the section
 correctly where it names it at all — section numbers shift when one is
@@ -297,12 +300,27 @@ at *which paths a commit touches* — never at a body's content. A vendored skil
 edited by either its real or its symlinked path desynchronizes the hash
 recorded in `skills-lock.json`, so the diff has to touch both or neither.
 
-Two checks self-test before they run, each against a fixture carrying one
+Handoff invocability is the one check that reads `rules/` as well as `skills/`,
+because a rule can name a skill exactly the way a skill can, and `rules/rspec.md`
+does. It fires only on a name written as `` `X` skill `` or `` skill `X` `` — a
+bare backticked word is too often a filename to read as a handoff.
+
+The anchor check is the resource-link check's other half. That one resolves the
+file and discards the `#fragment`, so a link into a heading that was renamed
+away still passes — the file is there, the section is not, and the reader lands
+at the top of a page wondering what they were sent to read. Fragments resolve
+against heading slugs (lowercased, punctuation dropped, spaces hyphenated) plus
+any explicit `<a id="…">`. Reach for the explicit form when a heading's text
+opens with punctuation: ``## `## Attribution` `` slugs to `-attribution`, not
+`attribution`, because stripping the hashes leaves a leading space.
+
+Three checks self-test before they run, each against a fixture carrying one
 deliberate violation of every kind it recognizes: the invocability check against
-`spec/invocability-fixture/SKILL.md`, and the reference-reachability check
-against `spec/orphan-fixture/`. Either fixture producing a count other than two
-fails the run — a check that silently stops firing is worse than no check. Don't
-"fix" those fixtures; their violations are the assertion.
+`spec/invocability-fixture/SKILL.md` (four kinds), and the reference-reachability
+and anchor checks against `spec/orphan-fixture/` (two each, independently
+counted). Any fixture producing a different count fails the run — a check that
+silently stops firing is worse than no check. Don't "fix" those fixtures; their
+violations are the assertion.
 
 Three things stay human, by design:
 
@@ -334,8 +352,9 @@ than no fixture: it reports success.
 | Fixture | Asserts | Validated by |
 | --- | --- | --- |
 | `spec/rules-cases.txt` | `<path> <rules that load, comma-separated, or `-`>` | Every named rule must exist as `rules/<name>.md`; a missing case file is a warning |
-| `spec/invocability-fixture/SKILL.md` | One deliberate violation of each invocability kind | Must yield exactly 2 detections, or the run fails |
+| `spec/invocability-fixture/SKILL.md` | One deliberate violation of each invocability kind | Must yield exactly 4 detections, or the run fails |
 | `spec/orphan-fixture/skills/alpha/` | An unlinked reference and a fence-only one, beside a legally one-hop file | Must yield exactly 2 detections, or the run fails |
+| `spec/orphan-fixture/skills/alpha/SKILL.md` | A stale intra-file anchor and a stale cross-file one, beside an anchor that resolves | Must yield exactly 2 detections, or the run fails |
 | `spec/trigger-evals/<skill>.json` | `[{"query": …, "should_trigger": …}, …]` | Shape, labels, and target skill — see below |
 
 An eval set fails the run when it is not valid JSON or not an array, is empty,
@@ -402,11 +421,13 @@ Two checks are worth understanding before you change them:
   relying on a reviewer noticing. A subject with no possible counterpart goes in
   the script's `parity_exempt` with its reason — never deleted.
 - **The self-tests guard the two checks whose clean result is indistinguishable
-  from a broken one.** The invocability check catches a real, twice-repeated bug;
-  reference reachability catches the file a rename left behind, which resolves
-  nothing and breaks nothing. Both are silent when the payload is fine, so both
-  prove themselves on a fixture first. Their violations are the assertion; don't
-  tidy them.
+  from a broken one.** The invocability check catches a real, twice-repeated bug,
+  and a third that shipped for months — `skills/tdd/SKILL.md` said "the `rspec`
+  skill" when `rspec` is a rule, and every other check passed. Reference
+  reachability catches the file a rename left behind, which resolves nothing and
+  breaks nothing. Both are silent when the payload is fine, so both prove
+  themselves on a fixture first. Their violations are the assertion; don't tidy
+  them.
 
 Warnings never fail the run. Failures always do.
 

@@ -324,8 +324,13 @@ belongs in a `cspell:ignore` comment beside the line it excuses.
   so a typo in a `paths:` glob fails loudly instead of silently never matching
 * `spec/invocability-fixture/` and `spec/orphan-fixture/` — deliberate
   violations that prove the checks still fire, one for cross-skill handoffs and
-  one for `references/` files nothing links. Their contents are assertions, not
-  examples; leave them broken
+  one for `references/` files nothing links plus links into headings that no
+  longer exist. Their contents are assertions, not examples; leave them broken.
+  The handoff check covers `rules/` too, and reads four kinds of broken handoff:
+  invoking a user-invoke-only skill, calling an invocable one user-invoke-only,
+  and naming a "skill" that is really a `rules/` file or does not exist at all.
+  The anchor check is what catches a `#section` link left behind by a rename —
+  the resource-link check only proves the *file* is there
 * `spec/trigger-evals/*.json` — query sets for whether a skill's description
   fires on the requests it should. These need a live model, so they are not part
   of CI — run them with `sh scripts/run-trigger-evals` (all sets) or
