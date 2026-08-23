@@ -298,6 +298,7 @@
       "allowWrite": [
         "~/Codespace",
         "~/.claude",
+        "~/.agents/standup",
         "~/.asdf",
         "~/.rvm",
         "~/.cache/rubocop_cache",

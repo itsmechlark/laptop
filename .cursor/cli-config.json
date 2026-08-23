@@ -9,7 +9,9 @@
     "attributePRsToAgent": false
   },
   "permissions": {
-    "allow": [],
+    "allow": [
+      "Write(~/.agents/standup/**)"
+    ],
     "deny": [
       "Read(**/.env)",
       "Read(**/.env.*)",

@@ -64,6 +64,10 @@ glob_scan_max_depth = 8
 "/opt/homebrew" = "read"
 "~/Codespace" = "write"
 "~/.agents" = "read"
+# Narrows the read grant above for one directory: the standup skill's journal is
+# the only thing an agent writes under ~/.agents. Machine-local and git-ignored;
+# see AGENTS.md "Agent-client configuration parity".
+"~/.agents/standup" = "write"
 "~/.claude" = "write"
 # Self-policy guard: the Claude settings files are enforced policy. Keep them
 # readable but never agent-writable (this narrows the ~/.claude write grant

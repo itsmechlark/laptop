@@ -266,6 +266,14 @@ symlink_path "$PROJECT_DIR/rules" "$AGENTS_GLOBAL_DIR/rules"
 symlink_path "$PROJECT_DIR/skills" "$AGENTS_GLOBAL_DIR/skills"
 symlink_path "$PROJECT_DIR/skills-lock.json" "$AGENTS_GLOBAL_DIR/.skills-lock.json"
 
+# Standup journal — machine-local and git-ignored, like CONTEXT.md, but created
+# unconditionally so the standup skill always has somewhere to write. One path,
+# ~/.agents/standup, is what makes the skill client-agnostic: it resolves back
+# into this checkout whichever repo the skill runs from, so no client needs its
+# own copy.
+mkdir -p "$AGENTS_DIR/standup"
+symlink_path "$AGENTS_DIR/standup" "$AGENTS_GLOBAL_DIR/standup"
+
 # Claude
 CLAUDE_GLOBAL_DIR="$HOME/.claude"
 mkdir -p "$CLAUDE_GLOBAL_DIR"

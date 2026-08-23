@@ -186,7 +186,7 @@
           "license": "MIT",
           "ref": "9807306250b2fa86886568be3a6d40cefabe5b4a",
           "reviewed": "2026-08-22",
-          "note": "Recorded retroactively. Commit 860c1ea states the adaptation and the audience-aware Step 0 that diverged from it, but added no provenance entry. INITIAL PIN — a baseline to watch from, not a verified reconcile."
+          "note": "Recorded retroactively. Commit 860c1ea states the adaptation and the audience-aware Step 0 that diverged from it, but added no provenance entry. INITIAL PIN — a baseline to watch from, not a verified reconcile. Diverged further on 2026-08-23: the rewrite to the agent-skills spec added Gotchas, Troubleshooting, references/ (FORMATS, QUESTIONS, GATHER), fill-in skeletons under assets/, a draft-never-send rule for outward-facing text, cadence handling (spoken standups and the end-of-week variant the description already promised), multi-repo and tracker gathering keyed off the optional ~/.agents/CONTEXT.md, a citation to this payload's own AGENTS.md §8 for voice, and a per-audience journal at ~/.agents/standup/ that makes each run a continuity check against the last update to the same reader (new: mac creates and links the directory, all three clients grant write to it, and .gitignore keeps the entries out of history). Upstream at this ref is byte-identical to the pinned copy, so there was nothing to port; the local divergence is not a reconcile and the ref is unchanged."
         }
       ]
     },

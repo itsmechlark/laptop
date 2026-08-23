@@ -11,5 +11,6 @@ skills/**/.claude
 skills/**/.system
 .agents/*.local.md
 .agents/CONTEXT.md
+.agents/standup
 .agents/.skills-lock.json
 .codex/config.toml
