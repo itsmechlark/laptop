@@ -8,6 +8,8 @@
   {"query": "we want to ship the payment-link feature incrementally behind a flag. what are the increments", "should_trigger": true},
   {"query": "the epic has 14 acceptance criteria on it. which of them are actually slice one and which can wait", "should_trigger": true},
   {"query": "i want to build the courier tracking feature. it's big — where do we start, and what can go out the door first?", "should_trigger": true},
+  {"query": "we shipped the first loyalty slice last week and half the remaining stories don't make sense any more. re-cut what's left", "should_trigger": true},
+  {"query": "the slice i'm building turned out to be two things. i'll ship the smaller half — redo the rest of the plan around that", "should_trigger": true},
   {"query": "build the first slice of the loyalty feature, tests first please", "should_trigger": false},
   {"query": "the approach for courier tracking isn't settled yet — websockets or polling? talk me through it", "should_trigger": false},
   {"query": "write the spec for slice one so a contractor can pick it up", "should_trigger": false},
