@@ -108,6 +108,19 @@ GitHub tools:
 
 [GitHub CLI]: https://cli.github.com/
 
+Development tools:
+
+* [CSpell] for spell-checking code and prose
+* [Trivy] for scanning dependencies and images for vulnerabilities
+* [1Password CLI] for reading secrets without pasting them
+* [Claude Code] and [Codex] for agentic coding
+
+[CSpell]: https://cspell.org
+[Trivy]: https://trivy.dev/
+[1Password CLI]: https://developer.1password.com/docs/cli/
+[Claude Code]: https://claude.com/product/claude-code
+[Codex]: https://developers.openai.com/codex/cli/
+
 Image tools:
 
 * [ImageMagick] for cropping and resizing images
