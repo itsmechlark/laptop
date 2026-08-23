@@ -88,7 +88,7 @@ TDD proves the slice does what the criteria demanded. It does not prove the code
 `code-review` returns findings and a per-axis verdict; **it does not edit code.** Applying the fixes is yours. Work its findings by axis:
 
 - **Defects** are blocking. Fix them, or state plainly why a finding is a false positive.
-- **Standards** findings are firm where the repo documents the convention and a judgement call where it doesn't.
+- **Standards** findings are firm where the repo documents the convention and a judgment call where it doesn't.
 - **Spec** findings mean the code and the acceptance criteria disagree — decide which one is wrong before touching either.
 
 For a security-bearing slice — anything touching authentication, authorization, payments, untrusted input, or file paths — follow the review with `find-bugs`. It maps the attack surface and proves each finding reachable rather than returning a verdict, which is the pass a merge-focused review isn't trying to be.

@@ -31,13 +31,13 @@ Dispatching parallel agents is `fan-out`'s job — invoke `fan-out` for the mech
 
 What is specific to *this* fan-out, and what `fan-out` can't supply, is the brief. Each agent gets its own technical brief — file paths, coupling details, dependency category from [DEEPENING.md](DEEPENING.md), what sits behind the seam — independent of the user-facing problem-space explanation in Step 1. Then give each a different design constraint:
 
-- Agent 1: "Minimise the interface — aim for 1–3 entry points max. Maximise leverage per entry point."
+- Agent 1: "Minimize the interface — aim for 1–3 entry points max. Maximize leverage per entry point."
 - Agent 2: "Design for closure — operations that return their own argument types, so callers compose what you didn't anticipate (see COMPOSITION.md)."
-- Agent 3: "Optimise for the most common caller — make the default case trivial."
+- Agent 3: "Optimize for the most common caller — make the default case trivial."
 - Agent 4: "Design for additivity — adding the next variant must touch exactly one file."
 - Agent 5 (if applicable): "Design around ports & adapters for cross-seam dependencies."
 
-Agent 2 replaces the older "maximise flexibility" brief, which reliably produced a large configurable interface — a shallow module with options, not a flexible one.
+Agent 2 replaces the older "maximize flexibility" brief, which reliably produced a large configurable interface — a shallow module with options, not a flexible one.
 
 Include both [SKILL.md](../SKILL.md) vocabulary and CONTEXT.md vocabulary in the brief so each sub-agent names things consistently with the architecture language and the project's domain language.
 
@@ -63,7 +63,7 @@ Score each against the same rubric, and say where each one loses:
 | **Contour** | Does the seam echo the domain, or this week's code? | Evans |
 | **Closure** | Can outputs be fed back into the operations? | SICP / Evans |
 | **Additivity** | To add the next variant, how many files change? | SICP §2.4.3 |
-| **Depth** | Behaviour exercised per unit of interface learned | Ousterhout |
+| **Depth** | Behavior exercised per unit of interface learned | Ousterhout |
 | **Locality** | Where does change concentrate? | — |
 | **Structure** | Does it keep the `uses` graph acyclic? Prunable? | Parnas §Hierarchy |
 | **Price** | Indirection, migration, and cost if the prediction is wrong | Parnas §Efficiency |

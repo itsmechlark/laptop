@@ -20,5 +20,5 @@ run of the script that had the problem.
 
 **Additional context**
 Add any other context about the problem here.
-If the problem beieng reported is not on a fresh macOS install,
+If the problem being reported is not on a fresh macOS install,
 please describe what else is already installed.

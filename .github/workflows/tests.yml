@@ -6,7 +6,8 @@ on:
   workflow_dispatch:
 jobs:
   # The agent payload needs neither macOS nor Homebrew, so it gets its own fast
-  # job: seconds on a PR instead of waiting behind a full `sh mac` run.
+  # job: seconds on a PR instead of waiting behind a full `sh mac` run. The
+  # spell check rides along for the same reason — it reads files, nothing else.
   payload:
     runs-on: ubuntu-latest
     steps:
@@ -36,6 +37,14 @@ jobs:
       - name: Check payload
         if: github.event_name != 'pull_request'
         run: sh scripts/check-payload
+
+      - name: Install cspell
+        # Pinned to the major that `mac` installs from Homebrew, so CI and a
+        # provisioned laptop resolve the same bundled dictionaries.
+        run: npm install --global cspell@10
+      - name: Spell check
+        # --dot or the per-client config directories go unchecked.
+        run: cspell lint --no-progress --dot "**/*"
 
   tests:
     strategy:

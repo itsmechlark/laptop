@@ -115,7 +115,7 @@ for name in $names; do
     --stderr-log "$stderr_log" \
     $cmd_model \
     --verbose >"$out_dir/$name.json"; then
-    jq -r '"  \(.summary.passed)/\(.summary.total) queries as labelled"' \
+    jq -r '"  \(.summary.passed)/\(.summary.total) queries as labeled"' \
       "$out_dir/$name.json" 2>/dev/null ||
       printf "  (could not read a summary from %s)\n" "$out_dir/$name.json"
     # Tally triggers to power the null-result guard below.

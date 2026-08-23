@@ -4,7 +4,7 @@ Depth is not the only way to get leverage, and in some designs it's the weaker o
 
 ## The correction
 
-The depth heuristic says: fewer entry points, more behaviour behind each. Taken naively, it scores a composable interface of five orthogonal operations as *worse* than three bespoke ones, because it counts methods.
+The depth heuristic says: fewer entry points, more behavior behind each. Taken naively, it scores a composable interface of five orthogonal operations as *worse* than three bespoke ones, because it counts methods.
 
 That's backwards. Five operations that compose give you the products of their combinations; three bespoke entry points give you three. **Count what a caller must learn, not what they may call.** Five operations sharing one type and one mental model is less to learn than three unrelated ones — and it covers cases you never anticipated.
 
@@ -42,7 +42,7 @@ Both are leverage. They answer different questions.
 
 | | **Depth** | **Closure** |
 |---|---|---|
-| Gives you | Behaviour per entry point | Combinations across entry points |
+| Gives you | Behavior per entry point | Combinations across entry points |
 | Best when | The set of use cases is known and bounded | Callers will want things you can't enumerate |
 | Fails by | Growing a new entry point per use case | Letting callers build things you can't support |
 | Caller needs | To find the right method | To understand one type well |

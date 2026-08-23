@@ -380,7 +380,7 @@ for set in spec/trigger-evals/*.json; do
 done
 
 # Adjacent skills are tested against one shared query pool with labels assigned
-# per skill, so a query proves exactly one of them fires. Labelling the same
+# per skill, so a query proves exactly one of them fires. Labeling the same
 # query true for both makes it unfalsifiable — whichever skill wins, the pair
 # scores a pass — so the overlap is checked rather than trusted.
 for set_a in spec/trigger-evals/*.json; do
@@ -398,7 +398,7 @@ for set_a in spec/trigger-evals/*.json; do
       [$a[] | select(. as $q | $b | index($q))] | length
     ' "$set_a" "$set_b")
     if [ "$clash" -gt 0 ]; then
-      fail "$(basename "$set_a") and $(basename "$set_b"): $clash shared query/queries labelled should-trigger in both"
+      fail "$(basename "$set_a") and $(basename "$set_b"): $clash shared query/queries labeled should-trigger in both"
     fi
   done
 done
@@ -415,6 +415,7 @@ scan_invocability() {
     [ -f "$md" ] || continue
 
     without_fences "$md" |
+      # cspell:ignore nvoke -- the case-insensitive stem of the pattern below
       grep -nE "[Ii]nvoke[^${tick}]{0,24}${tick}[a-z0-9-]+${tick}" |
       while IFS= read -r hit; do
         for token in $(printf '%s' "$hit" |

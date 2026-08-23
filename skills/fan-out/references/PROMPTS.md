@@ -86,7 +86,7 @@ its worktree first and committing before it finishes. Both are in
 | **Too broad** — "fix all the tests" | One problem per agent — "fix the 3 timing failures in `abort.test.ts`" |
 | **No context** — "fix the race condition" | Paste the error output, name the file, describe the symptom |
 | **Referenced context** — "the bug we discussed" | Paste it; the agent was not in that conversation |
-| **No constraints** — the agent refactors the neighbourhood | State the scope, the shared files, and the four prohibitions |
+| **No constraints** — the agent refactors the neighborhood | State the scope, the shared files, and the four prohibitions |
 | **No output spec** — "fix it" | "Return: root cause, what you changed, verification run, open questions" |
 | **Per-agent output shapes** — three reports, three formats | One return contract for the whole fan-out |
 | **A flaky failure taken at its word** — one lucky green run reported as fixed | "Run the spec 10 times and report the pass count", or keep flakes out of the fan-out |

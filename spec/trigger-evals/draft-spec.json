@@ -9,7 +9,7 @@
   {"query": "my PM wants the auth migration written up with user stories before we estimate it. everything's decided already, i just need the doc", "should_trigger": true},
   {"query": "we already have an ADR for the multi-tenancy decision. what i need now is the implementable spec that sits under it — not another decision record", "should_trigger": true},
   {"query": "design review signed off on the seat-hold approach this morning. take the approved design and turn it into the implementation spec the team works from", "should_trigger": true},
-  {"query": "help me figure out whether we should do soft deletes or a status column for cancelled bookings", "should_trigger": false},
+  {"query": "help me figure out whether we should do soft deletes or a status column for canceled bookings", "should_trigger": false},
   {"query": "read docs/specs/waitlist.md and tell me whether the code actually matches it", "should_trigger": false},
   {"query": "break the waitlist epic into stories i can ship one at a time", "should_trigger": false},
   {"query": "the spec says we support partial refunds but the code only does full ones. which one is right?", "should_trigger": false},

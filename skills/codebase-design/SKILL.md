@@ -6,7 +6,7 @@ argument-hint: "[module, file, or cluster to design]"
 
 # Codebase Design
 
-Design **deep modules**: a lot of behaviour behind a small interface, placed at a clean seam, testable through that interface. Use this language and these principles wherever code is being designed or restructured. The aim is leverage for callers, locality for maintainers, and testability for everyone.
+Design **deep modules**: a lot of behavior behind a small interface, placed at a clean seam, testable through that interface. Use this language and these principles wherever code is being designed or restructured. The aim is leverage for callers, locality for maintainers, and testability for everyone.
 
 Depth is the *shape* of a good module. It is not how you find one — that's **volatility**, and it comes first. A module can be perfectly deep and still hide the wrong thing.
 
@@ -34,13 +34,13 @@ Use these terms exactly — don't substitute "component," "service," "API," or "
 
 **Volatility** — how likely a decision is to change, multiplied by how expensive that change would be. Volatility, not size, decides what belongs behind an interface.
 
-**Depth** — leverage at the interface: the amount of behaviour a caller (or test) can exercise per unit of interface they have to learn. A module is **deep** when a large amount of behaviour sits behind a small interface, **shallow** when the interface is nearly as complex as the implementation.
+**Depth** — leverage at the interface: the amount of behavior a caller (or test) can exercise per unit of interface they have to learn. A module is **deep** when a large amount of behavior sits behind a small interface, **shallow** when the interface is nearly as complex as the implementation.
 
 **Over-promise** — a fact the interface guarantees that no caller needed. Every guarantee is a constraint on all future implementations, so an over-promise costs you options without buying anything. See [Anti-patterns](#anti-patterns).
 
 **Closure** _(SICP; Evans)_ — an operation whose result can be fed back into the same operation. Closure multiplies leverage where depth only adds it — see [COMPOSITION.md](references/COMPOSITION.md).
 
-**Seam** _(Michael Feathers)_ — a place where you can alter behaviour without editing in that place; the *location* at which a module's interface lives. Where to put the seam is its own design decision, distinct from what goes behind it. _Avoid_: boundary (overloaded with DDD's bounded context).
+**Seam** _(Michael Feathers)_ — a place where you can alter behavior without editing in that place; the *location* at which a module's interface lives. Where to put the seam is its own design decision, distinct from what goes behind it. _Avoid_: boundary (overloaded with DDD's bounded context).
 
 **Adapter** — a concrete thing that satisfies an interface at a seam. Describes *role* (what slot it fills), not substance (what's inside).
 
@@ -104,7 +104,7 @@ Depth is not free. Parnas priced his own decomposition in call overhead; we pay 
 
 > By prescribing the order for the shifts we have given more information than necessary and so unnecessarily restricted the class of systems that we can build without changing the definitions […] must clearly be classified as a design error.
 
-Hiding the hard part is not enough if you leak an incidental guarantee alongside it. (Modern restatement: Hyrum's Law — with enough callers, every observable behaviour becomes a dependency, whether you promised it or not.)
+Hiding the hard part is not enough if you leak an incidental guarantee alongside it. (Modern restatement: Hyrum's Law — with enough callers, every observable behavior becomes a dependency, whether you promised it or not.)
 
 **Depth by facade.** One entry point in front of N shallow modules, where callers still have to understand all N to use it correctly. The interface got smaller; the thing you must learn didn't. Test: can a caller succeed knowing only the facade?
 

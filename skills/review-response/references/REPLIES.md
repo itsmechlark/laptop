@@ -82,7 +82,7 @@ requests with no timestamp? They're different changes and 5 depends on which.
 ```
 
 Ask before implementing any of it. Items in one review are usually related, and
-a partial reading gets the neighbours wrong too.
+a partial reading gets the neighbors wrong too.
 
 ### Saying you can't verify it
 
@@ -177,5 +177,5 @@ pre-13 support is still in scope.
 No task log, no "addressed feedback" narration, and no restating in full what
 each fix did when its own thread already has it.
 
-<!-- cspell:words pushback neighbours glab -->
+<!-- cspell:words pushback glab -->
 

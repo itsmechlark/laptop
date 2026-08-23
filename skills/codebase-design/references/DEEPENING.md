@@ -72,7 +72,7 @@ Deepening is not free, and a recommendation that omits the price isn't a recomme
 His cost was call overhead. Ours are usually these — name whichever apply:
 
 - **Indirection.** Every seam is a hop a reader must follow. A stack trace that crosses four seams is worse than one that crosses none.
-- **Debugging across the seam.** Behaviour hidden from callers is also hidden from whoever is holding the pager.
+- **Debugging across the seam.** Behavior hidden from callers is also hidden from whoever is holding the pager.
 - **Migration.** The cost of moving N call sites, and of the window where both shapes exist. Under AGENTS.md §5 (*Safe rollout, feature flags & migrations*), that window is expand/contract and may be long.
 - **Being wrong.** The cost of unwinding this if the predicted change never arrives. A wrong abstraction is more expensive than the duplication it replaced.
 
@@ -85,7 +85,7 @@ Weigh it against where the module sits ([SKILL.md](../SKILL.md#principles), *Not
 - Old unit tests on shallow modules become waste once tests at the deepened module's interface exist — delete them.
 - Write new tests at the deepened module's interface. The **interface is the test surface**.
 - Tests assert on observable outcomes through the interface, not internal state.
-- Tests should survive internal refactors — they describe behaviour, not implementation. If a test has to change when the implementation changes, it's testing past the interface.
+- Tests should survive internal refactors — they describe behavior, not implementation. If a test has to change when the implementation changes, it's testing past the interface.
 - **Don't assert on what you didn't promise.** A test that pins an incidental ordering converts an implementation detail into a contract — the exact failure Parnas classified as "a design error" in his own circular shifter ([SKILL.md](../SKILL.md#anti-patterns)). If callers don't need the guarantee, the test shouldn't demand it.
 
 ## Sources

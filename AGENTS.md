@@ -38,11 +38,15 @@ instructions — it is not a second file. Edit `AGENTS.md`; writing through
 
 ## Setup commands
 
-Nothing needs installing to work on this repo beyond the linter:
+Nothing needs installing to work on this repo beyond the two linters:
 
 ```sh
-brew install shellcheck
+brew install shellcheck cspell
 ```
+
+`mac` installs `cspell` itself (the Development Tools group in the `brew bundle`
+heredoc), so a provisioned machine already has it. `shellcheck` it does not
+install — that one is always yours.
 
 `scripts/check-payload` also needs `jq`, which both supported macOS versions ship at
 `/usr/bin/jq` — the `PreToolUse` hooks in `.claude/settings.json` already depend
@@ -65,6 +69,7 @@ mac                     # the provisioner (POSIX sh, shellcheck-clean)
 README.md               # human-facing docs — update alongside `mac`
 skills-lock.json        # provenance + content hashes for vendored skills (tool-owned)
 skills-provenance.json  # source lineage for first-party derived skills (hand-owned)
+cspell.json             # spell check: dictionaries, project words, ignore paths
 scripts/                # verification tooling; each relocates to the repo root itself
   check-payload         # static verification of the payload (POSIX sh + jq)
   run-trigger-evals     # runs spec/trigger-evals; needs a logged-in claude CLI
@@ -217,14 +222,16 @@ here rather than dropped:
 
 ## Testing instructions
 
-There is no unit test suite. Verification is lint plus a real run — for the
-provisioner *and* for the payload it ships.
+There is no unit test suite. Verification is lint, a spell check, and a real run
+— for the provisioner *and* for the payload it ships.
 
 ```sh
 shellcheck mac -e SC2039     # must be clean; SC2039 is excluded deliberately
 shellcheck scripts/check-payload     # must be clean; no exclusions
 sh scripts/check-payload             # static verification of skills/, rules/, clients
 sh scripts/check-payload --collisions  # report: which descriptions share vocabulary
+cspell lint --no-progress --dot "**/*"  # spelling; must be clean, CI enforces it
+
 ```
 
 ### The two jobs
@@ -234,7 +241,10 @@ CI (`.github/workflows/tests.yml`, on push to `main`, every PR, and
 
 **`payload`** — `ubuntu-latest`, seconds, no Homebrew. Shellchecks
 `check-payload` and runs it; on a pull request it passes
-`--since origin/<base>` so the vendored-edit check has a diff to look at.
+`--since origin/<base>` so the vendored-edit check has a diff to look at. It
+closes with the spell check, which needs nothing but the files either — `cspell`
+comes from npm there, pinned to the major `mac` installs from Homebrew so both
+resolve the same bundled dictionaries.
 
 **`tests`** — the matrix of `macos-26` and `macos-15` with `fail-fast: false`:
 
@@ -305,7 +315,7 @@ Three things stay human, by design:
   real, model-invocable skill in a throwaway project (under a fresh
   `CLAUDE_CONFIG_DIR` so personal skills don't compete) and detects the `Skill`
   tool firing on it; the wrapper checks `claude auth status` before spending
-  anything and writes results to the git-ignored `artifacts/trigger-evals/`. `--collisions` is the cheap neighbour —
+  anything and writes results to the git-ignored `artifacts/trigger-evals/`. `--collisions` is the cheap neighbor —
   which model-invocable descriptions share vocabulary — and it is a report, not
   a gate: word overlap cannot predict a trigger, and generic verbs drive most of
   what it finds.
@@ -356,11 +366,11 @@ the script's `evals_exempt` list.
 - **Adjacent skills share one query pool** with labels assigned per skill, so a
   query proves exactly one of them fires — `git-commit`/`pull-request`,
   `code-review`/`find-bugs`, `codebase-design`/`domain-modeling`, and
-  `grilling`/`review-response` are the worked examples. Labelling a shared query
+  `grilling`/`review-response` are the worked examples. Labeling a shared query
   should-trigger in both makes the pair unfalsifiable, so `check-payload` fails
   on that rather than trusting it. Pick the partner from the skills that can
   actually win the query: a flagged skill never fires, so pairing against one
-  measures nothing — `grilling`'s nearest neighbour by scope is `brainstorming`,
+  measures nothing — `grilling`'s nearest neighbor by scope is `brainstorming`,
   and `review-response` is its partner precisely because `brainstorming` carries
   `disable-model-invocation`.
 
@@ -379,6 +389,40 @@ Two checks are worth understanding before you change them:
   tidy them.
 
 Warnings never fail the run. Failures always do.
+
+### Spelling
+
+`cspell` reads `cspell.json` at the root and checks Markdown, shell, JSON, and
+TOML alike. Pass `--dot` or you check almost nothing that matters: without it
+the payload under `.agents/`, `.claude/`, `.codex/`, `.cursor/`, and `.github/`
+is skipped. Git-ignored output stays out via `useGitignore`, and `.git/` itself
+via `ignorePaths`.
+
+The `payload` job runs it on every push and PR, so a misspelling fails the build
+instead of landing. Run it locally first anyway — `mac` installs `cspell`, and
+an editor extension pointed at the same `cspell.json` shows the findings as you
+write.
+
+**American spelling, always.** `language` is `en-US` and stays there. A British
+spelling is prose to fix, never a word to add: `behavior`, `neighbor`,
+`judgment`, `labeled`, `organization`.
+
+An unknown word is one of three things, and each has its own fix:
+
+| It is | Fix |
+| --- | --- |
+| A typo | Fix the prose |
+| Project vocabulary or a recurring identifier | Add to `words` in `cspell.json` — lowercase, alphabetical |
+| A deliberate fragment: a truncated example, a regex stem | A `cspell:ignore` directive in that file, adjacent to the line it excuses |
+
+`ignoreWords` in the config is for fragments with no file to live in —
+`iskov`, `nterface`, and `ependency` fall out of `**L**iskov`-style bold markup
+in `.agents/AGENTS.md`, which ships to every project and shouldn't carry a
+directive comment for a local lint.
+
+Vendored skills invert the middle row: their words go in `cspell.json` however
+one-off they are, because a directive comment inside a vendored body is a
+hand-edit, and a hand-edit desynchronizes the recorded hash.
 
 [UTM]: https://mac.getutm.app
 
@@ -464,7 +508,7 @@ template costs nothing to keep complete. Reference it by relative path from the
 as a whole, so a skill here can never point at a sibling that isn't installed —
 prefer "that's `code-review`" over describing the boundary abstractly. Keep the
 reference one hop deep, and keep it useful: a handoff earns its place by routing
-work this skill genuinely shouldn't do, not by listing neighbours. Vendored
+work this skill genuinely shouldn't do, not by listing neighbors. Vendored
 skills are the exception — see [Vendored skills](#vendored-skills).
 
 **Say "read its `SKILL.md`", not "invoke", when the sibling is user-invoked.**
@@ -576,7 +620,8 @@ with its sources and is scoped to this repo's skill set, so it stays here.
 
 Match the surrounding file. `README.md` uses setext underlined headings and
 reference-style links; the `.agents/` and `skills/` Markdown uses ATX (`##`)
-headings. Keep prose wrapped at roughly the width already in the file.
+headings. Keep prose wrapped at roughly the width already in the file. Spelling
+is `en-US`, checked by `cspell` — see **Spelling** under "Testing instructions".
 
 ## Documentation
 
@@ -617,6 +662,8 @@ surprise.
   - `sh scripts/check-payload` exits zero. Warnings are allowed to stand; failures are
     not, and "it's only the payload" is not an exemption — `skills/`, `rules/`,
     and the client configs are production code.
+  - `cspell lint --no-progress --dot "**/*"` exits zero. The `payload` job runs
+    it too, so check before you push rather than after.
   - A fresh-VM run for anything touching `mac`.
   - For a changed skill `description`, the trigger eval for that skill if one
     exists in `spec/trigger-evals/` — it needs a terminal, so CI cannot do it

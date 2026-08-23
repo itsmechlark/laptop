@@ -268,3 +268,6 @@ has the issue.
 ```
 
 No category. "The triage thing is broken" describes nothing. Paths and line numbers that will be stale within a week. No repro, so there is no way to tell whether the bug was ever observed or just believed. No current-vs-desired split, no criteria, no boundaries — so nobody, agent or human, can tell when it is finished.
+
+<!-- cspell:ignore confi -- the mid-word cut the example brief is quoting -->
+

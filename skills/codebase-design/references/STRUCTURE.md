@@ -45,7 +45,7 @@ Each layer should have its own vocabulary. If the names in the upper layer are t
 
 ## Team seams
 
-Seams are also organisational. Parnas devotes a section to it, contrasting the two KWIC decompositions:
+Seams are also organizational. Parnas devotes a section to it, contrasting the two KWIC decompositions:
 
 > The development of those formats will be a major part of the module development and that part must be a joint effort among the several development groups.
 
@@ -53,7 +53,7 @@ versus the information-hiding version, where "the interfaces are more abstract; 
 
 The design question this raises is practical: **for each seam, who owns each side?** A seam whose two sides are owned by the same person is cheap to move and cheap to get wrong. A seam between teams is expensive to move and must be specified more carefully — it is a commitment, and changing it needs the deprecation path that AGENTS.md §7 (*Engineering leverage & judgment*) describes.
 
-Conway's Law is the general statement: system structure tends to mirror the communication structure of the organisation that builds it. Use it in both directions — as a prediction of what you will get by default, and as a constraint on seams you're proposing to introduce. A seam that cuts against the team structure will erode.
+Conway's Law is the general statement: system structure tends to mirror the communication structure of the organization that builds it. Use it in both directions — as a prediction of what you will get by default, and as a constraint on seams you're proposing to introduce. A seam that cuts against the team structure will erode.
 
 *Accelerate* supplies the empirical backing: loose coupling and independent deployability are the strongest architectural predictors of delivery performance. This is the argument to reach for when someone asks why the structural work is worth doing.
 

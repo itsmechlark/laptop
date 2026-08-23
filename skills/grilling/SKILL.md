@@ -60,7 +60,7 @@ Once they confirm, hand off rather than continuing here:
 
 - **Never answer a decision yourself.** Facts are yours to find; decisions are the user's to make, and a grilling that supplies both has produced your opinion rather than theirs. Bounded, reversible choices (a variable name, a test's shape) don't need a question — anything the user would want a say in does.
 
-- **Running inside another workflow is where this breaks most.** When `triage`, `find-bugs`, or `draft-spec` routes here, the surrounding resolve-this-ticket frame reads as licence to keep moving, and the interview collapses into two questions and a plan. The host workflow's momentum is not consent: the confirmation gate is still the user's.
+- **Running inside another workflow is where this breaks most.** When `triage`, `find-bugs`, or `draft-spec` routes here, the surrounding resolve-this-ticket frame reads as license to keep moving, and the interview collapses into two questions and a plan. The host workflow's momentum is not consent: the confirmation gate is still the user's.
 
 - **There is no question cap, and a long session is a scoping signal, not a length problem.** Some plans need three questions and some need fifty. When a session won't converge, the subject is usually too big — say so and hand it to `slice` rather than grinding through.
 

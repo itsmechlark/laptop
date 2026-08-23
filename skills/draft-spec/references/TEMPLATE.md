@@ -100,11 +100,11 @@ confidently in the Solution is expensive.
 - [ ] Implementation Decisions cover boundaries, contracts, data, interactions,
       and rollout without becoming a code plan
 - [ ] No file paths, diffs, or code snippets — except a prototype-derived shape,
-      labelled as one
+      labeled as one
 - [ ] Testing Decisions name observable behavior and identify prior art, or say
       none exists
 - [ ] Out of Scope names something the conversation actually set aside
-- [ ] Every invented assumption is in Further Notes, labelled — nothing you
+- [ ] Every invented assumption is in Further Notes, labeled — nothing you
       supplied yourself is presented as decided
 - [ ] The project's own vocabulary is used throughout, no synonyms
 - [ ] No decision here contradicts an existing ADR without saying so

@@ -16,9 +16,9 @@ module via `PYTHONPATH`, so the two never collide in practice.
 | `codebase-design` + `domain-modeling` | Both are design-time skills that fire on "this code is the wrong shape" requests, and `domain-modeling` hands work to `codebase-design` explicitly. The boundary — where the seam goes vs. what the words mean — had never been tested |
 | `grilling` + `review-response` | Both fire on "push back on this technical judgment" requests. `grilling` is also an interview primitive that four siblings route into — `triage`, `find-bugs`, `draft-spec`, and `brainstorming` — which changes what a bad result costs: the expensive failure is a *missed* trigger, where the agent improvises an interview instead of loading this one, and term overlap cannot see that |
 
-The four pairs share a single query pool, labelled independently per skill, so
+The four pairs share a single query pool, labeled independently per skill, so
 a query establishes which of the two should win rather than testing each in
-isolation. `check-payload` fails if any shared query is labelled should-trigger
+isolation. `check-payload` fails if any shared query is labeled should-trigger
 in both — that would make the pair unfalsifiable.
 
 Skills with no set here are either vendored (no in-repo fix for a bad result) or
@@ -118,28 +118,28 @@ Three are deliberately contested. If the eval disagrees with the label, the
 label may be what's wrong:
 
 - **draft-spec**, "we haven't decided between webhooks and polling yet but write
-  the spec anyway" — labelled should-not-trigger, because the description
+  the spec anyway" — labeled should-not-trigger, because the description
   requires an already-settled decision. Genuinely contested, and more so since
   the body gained an explicit readiness test: loading the skill on this query
   produces the *right* answer — name what's still open, draft only if asked, and
   label every invented assumption. Flip the label if you'd rather it fire and
   push back than stay out of the way.
 - **slice**, "app/models/reservation.rb is 800 lines, split it into modules" —
-  labelled should-not-trigger. Shares "split" with the description but belongs
+  labeled should-not-trigger. Shares "split" with the description but belongs
   to `codebase-design`. The negative most likely to fail.
-- **explain**, "explain this stacktrace" — labelled should-not-trigger.
+- **explain**, "explain this stacktrace" — labeled should-not-trigger.
   Debugging, not code explanation, but it leads with the skill's own verb.
 - **domain-modeling**, "is a 'table' the physical table or the seating
-  assignment? our model treats it as both" — labelled should-trigger for
+  assignment? our model treats it as both" — labeled should-trigger for
   `domain-modeling` and not for `codebase-design`. Genuinely contested: one
-  fuzzy term hiding two concepts is a modelling problem, but "treats it as both"
+  fuzzy term hiding two concepts is a modeling problem, but "treats it as both"
   is also a seam in the wrong place. Whichever fires, the other is one handoff
   away — flip the pair if the eval disagrees.
 - **codebase-design**, "app/models/reservation.rb is 800 lines, split it into
   smaller modules" — should-trigger here and should-not for `slice`, which is
   the same query that set already carries as its most likely failing negative.
 - **grilling**, "help me think through what we should build for group bookings —
-  i don't have an approach yet" — labelled should-not-trigger, and the negative
+  i don't have an approach yet" — labeled should-not-trigger, and the negative
   most likely to fail in that set. The description now says "find what a plan is
   missing", and this query is the case it must repel: there is no plan yet, so
   the subject of the interview doesn't exist. It belongs to `brainstorming`,
@@ -147,7 +147,7 @@ label may be what's wrong:
   firing is the correct outcome, which is why the pair is `review-response` and
   not `brainstorming`.
 - **grilling** / **review-response**, the five reviewer-feedback queries —
-  labelled should-trigger for `review-response` and not for `grilling`.
+  labeled should-trigger for `review-response` and not for `grilling`.
   Genuinely contested: `grilling`'s body explicitly says to grill feedback from
   a demo or a reviewer before iterating on it, so the skill claims the territory
   even though its description scopes to plans and decisions. The intended line

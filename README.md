@@ -250,9 +250,11 @@ you agree to abide by the thoughtbot [code of conduct].
 Edit the `mac` file.
 Document in the `README.md` file.
 Follow shell style guidelines by using [ShellCheck] and [ALE] or deprecated [Syntastic].
+Prose and config are spell-checked with [CSpell], configured by `cspell.json`.
+`mac` installs CSpell for you; ShellCheck it does not.
 
 ```sh
-brew install shellcheck
+brew install shellcheck cspell
 ```
 
 [ShellCheck]: http://www.shellcheck.net/about.html
@@ -262,7 +264,8 @@ brew install shellcheck
 
 ### Testing your changes
 
-Two things need verifying, and which one depends on what you touched.
+Two things need verifying, and which one depends on what you touched. Spelling
+is checked across both.
 
 **Changes to `mac`** are tested by running the script on a fresh install of
 macOS. You can use the free and open source emulator [UTM].
@@ -283,6 +286,20 @@ sh scripts/check-payload
 
 Both must exit zero before you open a pull request; CI runs them on every PR in
 a job of their own. Warnings are advisory and may stand. Failures may not.
+
+**Spelling** is checked separately, across every file rather than just the
+payload:
+
+```sh
+cspell lint --no-progress --dot "**/*"
+```
+
+`--dot` is what reaches the per-client config directories; leave it off and most
+of the repo goes unchecked. CI runs this in the same job as `check-payload`, so
+a misspelling fails the build. Spelling is US English — fix a British spelling in the
+prose rather than adding it to `cspell.json`. A genuine project word belongs in
+that file's `words` list; a deliberate fragment, like a truncated example,
+belongs in a `cspell:ignore` comment beside the line it excuses.
 
 `check-payload` reads its fixtures from `spec/`:
 

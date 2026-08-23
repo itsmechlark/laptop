@@ -100,7 +100,7 @@ Report before you touch code: every actionable item with what verification found
 
 **When nothing needs action, that is the report.** A review where every thread is resolved, accepted, or awaiting the reviewer is a finished review — say so, list what's outstanding on their side, and stop. Don't manufacture work to fill the table.
 
-**Clarify everything unclear before implementing anything.** Items in one review are usually related, so a partial reading gets the neighbours wrong too. Where an answer could change what you do to a neighbouring item, say so in the report and hold both.
+**Clarify everything unclear before implementing anything.** Items in one review are usually related, so a partial reading gets the neighbors wrong too. Where an answer could change what you do to a neighboring item, say so in the report and hold both.
 
 ### 5. Implement and prove each fix
 
@@ -193,5 +193,5 @@ Read these as needed, not upfront.
 - [obra/superpowers](https://github.com/obra/superpowers/tree/main/skills/receiving-code-review) - receiving-code-review, MIT
 - [Conventional Comments](https://conventionalcomments.org/)
 
-<!-- cspell:words Triaging pushback neighbours neighbouring glab obra -->
+<!-- cspell:words Triaging pushback glab obra -->
 

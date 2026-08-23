@@ -64,7 +64,7 @@ The spec is a draft until the user has seen the exact Markdown and confirmed it.
 
 - **Don't reopen the interview.** The failure mode this skill exists to avoid is answering a request to write things down with a fresh round of requirements questions. If the conversation converged, the questions are already answered; if it didn't, say so (see [Is it settled enough to write?](#is-it-settled-enough-to-write)) instead of drafting around the gap one question at a time.
 
-- **An invented detail is indistinguishable from a decided one once it's in the document.** Actors, edge-case behavior, API shapes, schema fields, rollout plans — a spec is read as authoritative by exactly the people who weren't in the conversation. Anything you supplied yourself belongs in **Further Notes**, labelled.
+- **An invented detail is indistinguishable from a decided one once it's in the document.** Actors, edge-case behavior, API shapes, schema fields, rollout plans — a spec is read as authoritative by exactly the people who weren't in the conversation. Anything you supplied yourself belongs in **Further Notes**, labeled.
 
 - **No file paths, diffs, or code snippets.** They are stale before the first commit and they turn a spec into a plan the implementer can't argue with. The single exception is a compact type, state machine, reducer, or payload shape when the shape *is* the decision — include only the decision-rich part, and say it came from a prototype.
 

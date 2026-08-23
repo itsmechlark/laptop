@@ -36,7 +36,7 @@ Then ask:
 
 **"What's the most important thing the reader should know from today — if they read one sentence and nothing else?"**
 
-Wait. This forces them to prioritise. Most updates bury the lead.
+Wait. This forces them to prioritize. Most updates bury the lead.
 
 Then:
 

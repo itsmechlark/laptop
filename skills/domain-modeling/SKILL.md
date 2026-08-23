@@ -63,7 +63,7 @@ A relationship that survives a scenario is real; one that doesn't was wishful.
 
 **Cross-reference with the code.** When the user states how something works, check whether the code agrees, and surface the contradiction: *"The code cancels whole Orders, but you just said partial cancellation is possible — which is right?"*
 
-**Write a settled term down inline.** A term is settled when all three hold: it has been used twice without hedging, no rival candidate is still in play, and you can state its boundary against its nearest neighbour. Then update `CONTEXT.md` immediately — don't batch, because a batch is a thing you forget. Keep it a glossary: no implementation detail, no spec, no scratch pad ([CONTEXT-FORMAT.md](references/CONTEXT-FORMAT.md)).
+**Write a settled term down inline.** A term is settled when all three hold: it has been used twice without hedging, no rival candidate is still in play, and you can state its boundary against its nearest neighbor. Then update `CONTEXT.md` immediately — don't batch, because a batch is a thing you forget. Keep it a glossary: no implementation detail, no spec, no scratch pad ([CONTEXT-FORMAT.md](references/CONTEXT-FORMAT.md)).
 
 **Offer ADRs sparingly.** Only when all three hold — hard to reverse, surprising without context, and the result of a real trade-off. If any is missing, skip it. When one qualifies, write it per [ADR-FORMAT.md](references/ADR-FORMAT.md); that is also the house rule (AGENTS.md §7 — durable decisions belong in an ADR, not buried in a PR description that rots).
 
