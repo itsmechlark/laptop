@@ -52,10 +52,8 @@ brew install shellcheck cspell
 heredoc), so a provisioned machine already has it. `shellcheck` it does not
 install — that one is always yours.
 
-`scripts/check-payload` also needs `jq`, which both supported macOS versions ship at
-`/usr/bin/jq` — the `PreToolUse` hooks in `.claude/settings.json` already depend
-on it, and GitHub runners have it preinstalled. `mac` does not install it; if
-support ever extends to a macOS without it, that changes.
+`scripts/check-payload` also needs `jq`, which supported macOS versions ship at
+`/usr/bin/jq` and GitHub runners have preinstalled. `mac` does not install it.
 
 To run the provisioner itself (this mutates the machine — installs packages,
 runs `sudo chsh`, and rewrites `~/.zshrc`):
@@ -171,59 +169,52 @@ client added here should mirror that link into its own dotdir.
 ## Agent-client configuration parity
 
 Claude Code, Codex, and Cursor are three front-ends over **one** security and
-behavior policy. `.claude/settings.json` is the canonical expression of that
-policy in Claude's schema; `.codex/config.toml.template` and `.codex/rules/default.rules`
-translate the *same* policy into Codex's (their own comments call it "the
-translated Claude policy"); `.cursor/cli-config.json` and `.cursor/hooks.json`
-translate it into Cursor's. They are mirrors of each other, not independent
-configs.
+behavior policy. `.claude/settings.json` is the canonical expression;
+`.codex/config.toml.template` and `.codex/rules/default.rules` translate it into
+Codex's schema; `.cursor/cli-config.json` and `.cursor/hooks.json` into
+Cursor's. They are mirrors, not independent configs.
 
 Claude and Codex are allow-by-default with deny/ask exceptions; Cursor is
 prompt-by-default (`approvalMode: "allowlist"`) with allow exceptions. Identical
-UX across the three is therefore impossible — the shared target is **security**
-parity: the same secret-path and destructive-command denials, the same
-attribution-off default, and the same command log plus worktree-convention gate.
+UX is impossible — the shared target is **security** parity: the same
+secret-path and destructive-command denials, attribution-off default, and
+command log plus worktree-convention gate.
 
 **The invariant: any change to one client's permission, sandbox, hook, env, or
 network/filesystem policy must be mirrored into every other client's config in
-the same commit.** Tightening a deny in `.claude/settings.json` while leaving
-`.codex/rules/default.rules` open defeats the point — a machine that has run
-`mac` runs all three clients off these files. The same obligation extends to any
-future AI tool or agentic client added here: give it a payload under its own
-dotdir, wire it into `mac`'s symlink block, and hold it to this parity.
+the same commit.** A machine that has run `mac` runs all three clients off these
+files. The same extends to any future agentic client added here.
 
 Use this map to find the counterpart for a change:
 
 | Policy | Claude (`.claude/settings.json`) | Codex (`.codex/…`) | Cursor (`.cursor/…`) |
 | --- | --- | --- | --- |
-| Blocked commands | `permissions.deny` — `Bash(…)` | `rules/default.rules` — `decision = "forbidden"` | `cli-config.json` `permissions.deny` — `Shell(…)` (wholesale) + `hooks.json` gate (arg-nuanced) |
-| Approval-gated commands | `permissions.ask` — `Bash(…)` | `rules/default.rules` — `decision = "prompt"` | `approvalMode: "allowlist"` — prompts on any unlisted command |
-| Unreadable secret paths | `permissions.deny` — `Read(…)` | `config.toml` filesystem `"deny"` entries | `cli-config.json` `permissions.deny` — `Read(…)` |
-| Writable / readable roots | `sandbox.filesystem.allowWrite` / `allowRead` | `config.toml` `[permissions.developer.filesystem]` | — (no sandbox roots; `permissions.deny` `Write(…)` guards the policy files, and `permissions.allow` carries only the write grants that have a counterpart elsewhere) |
-| Allowed network hosts | `sandbox.network.allowedDomains` | `config.toml` `[permissions.developer.network.domains]` | — (no egress allowlist; `WebFetch(domain)` scopes only the agent's fetch tool) |
-| Unix sockets | `sandbox.network.allowUnixSockets` | `config.toml` `[…network.unix_sockets]` (absolute path) | — |
-| Unsandboxed command escape | `sandbox.excludedCommands` — `gh *`, `git push/fetch/ls-remote *` | — (no static escape; `approval_policy = "on-request"` escalates per-command) | — (no egress sandbox; commands run unsandboxed, prompt-gated) |
-| Env-var scrubbing | `env` (`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`, cloud/Anthropic creds) + `sandbox.credentials.envVars` (explicit token/secret names) | `config.toml` `[shell_environment_policy.filters]` (glob patterns — `*_TOKEN`, `*_API_KEY`, `*_PASSWORD`, … — subsume the named list) | — |
+| Blocked commands | `permissions.deny` — `Bash(…)` | `rules/default.rules` — `"forbidden"` | `cli-config.json` `permissions.deny` — `Shell(…)` + `hooks.json` gate |
+| Approval-gated commands | `permissions.ask` — `Bash(…)` | `rules/default.rules` — `"prompt"` | `approvalMode: "allowlist"` prompts on unlisted |
+| Unreadable secret paths | `permissions.deny` — `Read(…)` | `config.toml` filesystem `"deny"` | `cli-config.json` `permissions.deny` — `Read(…)` |
+| Writable / readable roots | `sandbox.filesystem.allowWrite` / `allowRead` | `config.toml` `[permissions.developer.filesystem]` | — (no sandbox roots; `permissions.deny` `Write(…)` guards policy files) |
+| Allowed network hosts | `sandbox.network.allowedDomains` | `config.toml` `[…network.domains]` | — (no egress allowlist) |
+| Unix sockets | `sandbox.network.allowUnixSockets` | `config.toml` `[…network.unix_sockets]` | — |
+| Unsandboxed command escape | `sandbox.excludedCommands` | — (`approval_policy = "on-request"`) | — (commands run unsandboxed, prompt-gated) |
+| Env-var scrubbing | `env` + `sandbox.credentials.envVars` | `config.toml` `[shell_environment_policy.filters]` | — |
 | Lifecycle hooks | `hooks.PreToolUse` | `config.toml` `[[hooks.PreToolUse]]` | `hooks.json` `beforeShellExecution` |
 
-Not everything mirrors: model choice, reasoning effort, and Claude's
-`enabledPlugins` are per-client tuning, not shared policy, and need no
-counterpart. When a policy genuinely has no equivalent in a client, note the gap
-in the commit message rather than silently dropping it. Why the three are
-mirrored by hand rather than generated from one source:
+Model choice, reasoning effort, and `enabledPlugins` are per-client tuning, not
+shared policy. When a policy has no equivalent in a client, note the gap in the
+commit message. Why mirrored by hand:
 [ADR 0002](docs/adr/0002-one-policy-three-clients.md).
 
 Cursor's gaps, recorded here rather than dropped:
 
 | Gap | What follows from it |
 | --- | --- |
-| No sandboxed egress or filesystem roots | No counterpart to Claude's `sandbox.network.allowedDomains` / `filesystem` roots or Codex's `[permissions.developer]`. `WebFetch(domain)` governs only the agent's own fetch tool, not general subprocess egress. Deny-listing secret *paths* is the reachable half of that policy, and it is mirrored |
-| No env-var scrub | No counterpart to `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`, `sandbox.credentials.envVars`, or Codex `[shell_environment_policy.filters]` |
-| The ask tier is implicit | `approvalMode: "allowlist"` prompts on every unlisted command, so an all-but-empty `permissions.allow` is what realizes the tier. Its two entries — `Write(~/.agents/standup/**)`, `Write(~/.agents/out-of-scope/**)` — mirror machine-local write roots the other two grant in their sandbox blocks. Keep the list to that: a new entry earns its place only by mirroring a grant the other two already make, and a general allowlist would quietly dismantle prompt-by-default |
-| Arg-nuanced blocks live in the hook | `Shell()` keys on the command base, so wholesale-dangerous commands (`dd`, `sudo`, `mkfs`, …) are declarative `permissions.deny` entries and the always-on floor; forms distinguished by their arguments (`rm -rf`, `git push --force`, `git reset --hard`, `chmod 777`) are enforced by the `beforeShellExecution` gate. That gate is fail-open — a crash lets the command fall through to the normal approval prompt, matching the other clients' hooks |
-| `~` home-glob reach is an assumption | Cursor documents relative/absolute globs but not `~` expansion in `permissions` patterns, so the `Read(~/…)` denials are best-effort; in-workspace secrets are covered by reliable `**/` globs regardless |
-| No MCP drop-tool denies | Claude's MongoDB `drop-*` MCP denials have no counterpart — that MCP is not wired into Cursor |
-| `sandbox.mode` / `networkAccess` omitted | Their accepted enum values are undocumented; guessing risks breaking the whole config, so they are left unset |
+| No sandboxed egress or filesystem roots | No counterpart to Claude/Codex sandbox roots. Secret-path denials are the reachable half, and they are mirrored |
+| No env-var scrub | No counterpart to `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` / `sandbox.credentials.envVars` / Codex filters |
+| The ask tier is implicit | `approvalMode: "allowlist"` prompts on every unlisted command. Its two `permissions.allow` entries mirror machine-local write roots the other two grant. Keep the list to that — a general allowlist dismantles prompt-by-default |
+| Arg-nuanced blocks live in the hook | Wholesale-dangerous commands (`dd`, `sudo`, `mkfs`) are `permissions.deny`; arg-distinguished forms (`rm -rf`, `git push --force`) are enforced by `beforeShellExecution` (fail-open — crash falls through to normal prompt) |
+| `~` home-glob reach is an assumption | `~` expansion in `permissions` patterns is undocumented; `Read(~/…)` denials are best-effort, `**/` globs cover in-workspace secrets |
+| No MCP drop-tool denies | Claude's MongoDB `drop-*` denials have no counterpart — that MCP is not wired into Cursor |
+| `sandbox.mode` / `networkAccess` omitted | Accepted enum values are undocumented; left unset to avoid breaking the config |
 
 ## Testing instructions
 
@@ -244,11 +235,9 @@ CI (`.github/workflows/tests.yml`, on push to `main`, every PR, and
 `workflow_dispatch`) runs two independent jobs.
 
 **`payload`** — `ubuntu-latest`, seconds, no Homebrew. Shellchecks
-`check-payload` and runs it; on a pull request it passes
-`--since origin/<base>` so the vendored-edit check has a diff to look at. It
-closes with the spell check, which needs nothing but the files either — `cspell`
-comes from npm there, pinned to the major `mac` installs from Homebrew so both
-resolve the same bundled dictionaries.
+`check-payload` and runs it (on PRs with `--since origin/<base>` for the
+vendored-edit check). Closes with the spell check — `cspell` comes from npm,
+pinned to the major `mac` installs from Homebrew.
 
 **`tests`** — the matrix of `macos-26` and `macos-15` with `fail-fast: false`:
 
@@ -278,21 +267,13 @@ shape findings about them are warnings rather than failures. Re-vendor upstream
 instead of splitting a long vendored `SKILL.md` in place.
 
 Within that scope it mechanizes the half of the `agent-skills` review checklist
-a machine can settle, plus the cross-file invariants this document declares and
-nothing previously enforced: handoff invocability (a skill telling the agent to
-invoke a `disable-model-invocation` sibling, calling an invocable one
-user-invoke-only, or naming a "skill" that is really a `rules/` file or nothing
-at all), `## Attribution` agreement with `skills-provenance.json`,
-vendored-edit discipline, secret-path parity across the three clients,
-frontmatter and size limits, resource links in both directions (every link
-resolves, and every `references/` file is reachable from its `SKILL.md`),
-anchor fragments (a `#section` in a link must match a heading, or an explicit
-`<a id>`, in the file it points at),
-global-standards section
-citations (an `AGENTS.md §N` in a skill must resolve, and must name the section
-correctly where it names it at all — section numbers shift when one is
-inserted), and which `rules/` load for a given path (cases in
-`spec/rules-cases.txt`).
+a machine can settle, plus cross-file invariants this document declares:
+handoff invocability, `## Attribution` ↔ `skills-provenance.json` agreement,
+vendored-edit discipline, secret-path parity across clients, frontmatter and
+size limits, resource links in both directions, anchor fragments (`#section`
+must match a heading or `<a id>`), global-standards section citations
+(`AGENTS.md §N` must resolve and name the section correctly), and which
+`rules/` load for a given path (`spec/rules-cases.txt`).
 
 The vendored-edit rule is the single check that looks past `skills/`, and only
 at *which paths a commit touches* — never at a body's content. A vendored skill
@@ -304,22 +285,17 @@ because a rule can name a skill exactly the way a skill can, and `rules/rspec.md
 does. It fires only on a name written as `` `X` skill `` or `` skill `X` `` — a
 bare backticked word is too often a filename to read as a handoff.
 
-The anchor check is the resource-link check's other half. That one resolves the
-file and discards the `#fragment`, so a link into a heading that was renamed
-away still passes — the file is there, the section is not, and the reader lands
-at the top of a page wondering what they were sent to read. Fragments resolve
-against heading slugs (lowercased, punctuation dropped, spaces hyphenated) plus
-any explicit `<a id="…">`. Reach for the explicit form when a heading's text
-opens with punctuation: ``## `## Attribution` `` slugs to `-attribution`, not
-`attribution`, because stripping the hashes leaves a leading space.
+The anchor check complements the resource-link check, which resolves the file
+but discards the `#fragment`. Fragments resolve against heading slugs
+(lowercased, punctuation dropped, spaces hyphenated) plus any explicit
+`<a id="…">`. Use the explicit form when a heading opens with punctuation —
+``## `## Attribution` `` slugs to `-attribution`, not `attribution`.
 
-Three checks self-test before they run, each against a fixture carrying one
-deliberate violation of every kind it recognizes: the invocability check against
-`spec/invocability-fixture/SKILL.md` (four kinds), and the reference-reachability
-and anchor checks against `spec/orphan-fixture/` (two each, independently
-counted). Any fixture producing a different count fails the run — a check that
-silently stops firing is worse than no check. Don't "fix" those fixtures; their
-violations are the assertion.
+Three checks self-test against fixtures carrying deliberate violations:
+invocability against `spec/invocability-fixture/SKILL.md` (four kinds),
+reference-reachability and anchors against `spec/orphan-fixture/` (two each). A
+different count fails the run. Don't "fix" those fixtures; their violations are
+the assertion.
 
 Three things stay human by design: **prose judgment** (whether a description
 carries WHAT and WHEN, whether a body teaches something non-obvious), **rule
@@ -329,16 +305,13 @@ the reading agent), and **trigger behavior**. Why the line sits there:
 [ADR 0005](docs/adr/0005-verification-stops-where-judgment-starts.md).
 
 Trigger behavior belongs to the eval sets in `spec/trigger-evals/`, which need
-`claude -p` and therefore credentials, network, and tokens — so run them from a
-terminal before shipping a description change, never in CI.
-`sh scripts/run-trigger-evals` is the wrapper: it checks `claude auth status`
-before spending anything, drives `scripts/lib/run_eval_local.py` — which per
-query installs a real, model-invocable skill in a throwaway project under a
-fresh `CLAUDE_CONFIG_DIR` so personal skills don't compete, and detects the
-`Skill` tool firing on it — and writes to the git-ignored
-`artifacts/trigger-evals/`. `check-payload --collisions` is the cheap neighbor:
-a report of which model-invocable descriptions share vocabulary, and it stays a
-report — word overlap cannot predict a trigger.
+`claude -p` (credentials, network, tokens) — run from a terminal before
+shipping a description change, never in CI. `sh scripts/run-trigger-evals`
+checks `claude auth status` first, drives `scripts/lib/run_eval_local.py`
+(installs a real temp skill under a fresh `CLAUDE_CONFIG_DIR`, detects `Skill`
+tool firing), and writes to git-ignored `artifacts/trigger-evals/`.
+`check-payload --collisions` is the cheap neighbor: a vocabulary-overlap report,
+not a trigger prediction.
 
 ### `spec/` — the fixtures, and how they're kept honest
 
@@ -354,25 +327,17 @@ than no fixture: it reports success.
 | `spec/orphan-fixture/skills/alpha/SKILL.md` | A stale intra-file anchor and a stale cross-file one, beside an anchor that resolves | Must yield exactly 2 detections, or the run fails |
 | `spec/trigger-evals/<skill>.json` | `[{"query": …, "should_trigger": …}, …]` | Shape, labels, and target skill — see below |
 
-An eval set fails the run when it is not valid JSON or not an array, is empty,
-has an entry with a missing/empty `query` or a non-boolean `should_trigger`,
-repeats a query, has **no** should-trigger queries, has **no** negatives, or is
-named for a skill that doesn't exist or carries `disable-model-invocation`. Each
-of those describes a set that cannot catch anything — an all-positive set can't
-detect a false positive, and a set aimed at a flagged skill measures something
-that can never fire.
+An eval set fails when it is invalid JSON, empty, has missing/empty `query` or
+non-boolean `should_trigger`, repeats a query, has no positives, has no
+negatives, or targets a nonexistent or flagged skill. Each describes a set that
+cannot catch anything. The flagged-skill rule is narrower than it sounds: such
+a set is *unrunnable* because the runner is `claude -p`
+([ADR 0005](docs/adr/0005-verification-stops-where-judgment-starts.md)); on
+Codex and Cursor the skill's own body is the only guard
+([`skills/<name>/SKILL.md`](#skillsnameskillmd)).
 
-The flagged-skill rule is narrower than it sounds: such a set is *unrunnable*
-here, not merely unmotivated, because the runner is `claude -p`. The reasoning,
-and what measuring Codex and Cursor would take, is in
-[ADR 0005](docs/adr/0005-verification-stops-where-judgment-starts.md); the
-consequence for authors — on those clients the skill's own body is the only
-guard — is under
-[`skills/<name>/SKILL.md`](#skillsnameskillmd).
-
-Adding a fixture is therefore adding an assertion, and the shape rules are what
-stop it from being decorative. When one of them blocks you, the fixture is
-usually wrong; the exception is documented in the script beside the check.
+Adding a fixture is adding an assertion; the shape rules stop it from being
+decorative. When one blocks you, the fixture is usually wrong.
 
 ### Trigger-eval coverage
 
@@ -384,14 +349,12 @@ are excluded structurally. The rationale, and what moves a name off the exempt
 list, is in
 [ADR 0007](docs/adr/0007-trigger-eval-coverage-is-prioritized.md).
 
-**Adjacent skills share one query pool** with labels assigned per skill, so a
-query proves exactly one of them fires — `git-commit`/`pull-request`,
-`code-review`/`find-bugs`, `codebase-design`/`domain-modeling`, and
-`grilling`/`review-response` are the worked examples. Labeling a shared query
-should-trigger in both makes the pair unfalsifiable, so `check-payload` fails on
-that. Pick a partner that can actually win the query: pairing against a flagged
-skill measures nothing on Claude, which is why `grilling`'s partner is
-`review-response` and not `brainstorming`.
+**Adjacent skills share one query pool** with labels per skill, so a query
+proves exactly one fires — `git-commit`/`pull-request`,
+`code-review`/`find-bugs`, `codebase-design`/`domain-modeling`,
+`grilling`/`review-response`. Labeling a shared query should-trigger in both is
+unfalsifiable, so `check-payload` fails on it. Pick a partner that can win the
+query — pairing against a flagged skill measures nothing on Claude.
 
 Two checks are worth understanding before you change them:
 
@@ -467,15 +430,10 @@ hand-edit, and a hand-edit desynchronizes the recorded hash.
 
 ### `scripts/` (POSIX shell)
 
-Verification tooling, same shell conventions as `mac` — `#!/bin/sh`, two-space
-indent, `fancy_echo` phase announcements. Both wrappers `cd` to the repository
-root themselves, so every path inside them is repo-relative and they run
-correctly from any working directory. Keep that: `scripts/run-trigger-evals`
-reads `spec/trigger-evals/` and `skills/` from the root and loads its engine
-from `scripts/lib/`, so it must resolve there wherever it's invoked. That engine,
-`scripts/lib/run_eval_local.py`, is the one non-shell piece of the tooling —
-Python earns its place parsing the `claude -p` stream-json event by event; keep
-it self-contained (stdlib only, no third-party imports).
+Same shell conventions as `mac` — `#!/bin/sh`, two-space indent, `fancy_echo`.
+Both wrappers `cd` to the repo root, so paths are repo-relative from any
+working directory. `scripts/lib/run_eval_local.py` is the one non-shell piece —
+Python parsing `claude -p` stream-json; keep it self-contained (stdlib only).
 
 `scripts/check-payload` differs from `mac` in two deliberate ways:
 
@@ -524,33 +482,24 @@ template costs nothing to keep complete. Reference it by relative path from the
 `skills/brainstorming/assets/mockup-template.html` is the worked example.
 
 **These skills co-ship, so name each other freely.** `mac` symlinks `skills/`
-as a whole, so a skill here can never point at a sibling that isn't installed —
-prefer "that's `code-review`" over describing the boundary abstractly. Keep the
-reference one hop deep, and keep it useful: a handoff earns its place by routing
-work this skill genuinely shouldn't do, not by listing neighbors. Vendored
-skills are the exception — see [Vendored skills](#vendored-skills).
+as a whole — prefer "that's `code-review`" over describing the boundary
+abstractly. Keep references one hop deep and useful: a handoff routes work this
+skill shouldn't do, not lists neighbors. Vendored skills are the exception —
+see [Vendored skills](#vendored-skills).
 
 **Say "read its `SKILL.md`", not "invoke", when the sibling is user-invoked.**
-A skill carrying `disable-model-invocation: true` is refused by the Skill tool,
-so "invoke `feature-dev`" is an instruction that cannot execute; the handoff has
-to tell the agent to read and follow the target's `SKILL.md` instead. Note the
-asymmetry — the key is Claude-only, and Codex and Cursor ignore it, so the same
-sibling *is* model-invocable there. `brainstorming` spells this out where it
-hands work off.
+`disable-model-invocation: true` makes the Skill tool refuse it, so "invoke
+`feature-dev`" cannot execute — the handoff must say to read and follow the
+`SKILL.md`. The key is Claude-only; Codex and Cursor ignore it.
 
-**Use the flag whenever deliberate invocation is what you want.** It earns its
-place wherever a wrong auto-invocation is expensive: a gate imposed on the user
-(`brainstorming`), a long multi-phase workflow ending in a commit
-(`feature-dev`), a write to a tracker (`triage`), outward-facing text
-(`standup`). Don't argue yourself out of it — the invocability check makes
-flagging cheap by failing mis-worded handoffs at build time rather than at the
-turn.
+**Use the flag wherever a wrong auto-invocation is expensive**: a gate
+(`brainstorming`), a multi-phase workflow ending in a commit (`feature-dev`), a
+tracker write (`triage`), outward-facing text (`standup`). The invocability
+check makes flagging cheap by catching mis-worded handoffs at build time.
 
-**Where the expense is a side effect, the flag is not the guard — the body is.**
-Codex and Cursor ignore the key, so the rule that holds on every client is the
-one written into the skill: `triage`'s draft-show-then-ask, `standup`'s
-never-send. A flagged skill whose only protection is the flag is protected on
-one client in three
+**Where the expense is a side effect, the body is the guard, not the flag.**
+Codex and Cursor ignore the key, so the rule that holds on every client is
+written into the skill: `triage`'s draft-show-then-ask, `standup`'s never-send
 ([ADR 0003](docs/adr/0003-model-invocation-flag-is-claude-only.md)).
 
 Mid-chain skills that others call constantly — `draft-spec`, `slice`, `tdd`,
@@ -585,16 +534,11 @@ so the fork is recorded rather than silent.
 
 ### Derived skills
 
-First-party skills we authored by adapting or drawing on outside material are
-tracked in `skills-provenance.json` (hand-owned; the `npx skills` tool never
-touches it). Vendored vs. derived is one record per skill, in the file whose
-owner won't clobber it: verbatim copies → `skills-lock.json`; things we wrote
-ourselves from a source → `skills-provenance.json`.
-
-Each skill maps to a **list** of sources, because one skill can draw on several
-(e.g. `agent-skills` adapts awesome-copilot, conforms to the agentskills.io
-spec, and cites anthropics/skills for examples). Every source carries its own
-`relationship`, which decides how it syncs:
+First-party skills authored from outside material are tracked in
+`skills-provenance.json` (hand-owned; `npx skills` never touches it). Verbatim
+copies → `skills-lock.json`; our own work from a source →
+`skills-provenance.json`. Each skill maps to a **list** of sources (one skill
+can draw on several). Every source carries a `relationship`:
 
 - `adapted` — forked then diverged; pinned to a `ref`. Update = 3-way reconcile
   (`git diff <ref>..HEAD -- <path>`, port the non-conflicting upstream changes),
@@ -610,17 +554,12 @@ mirror.
 **Update both the provenance and the skill's `## Attribution` whenever a
 first-party skill changes** — they are part of the change, not a follow-up:
 
-- Authored a new skill from outside material → add a `skills.<name>` entry with
-  one source per influence, and list each of those influences in the new
-  skill's `## Attribution`.
-- Drew on a new influence for an existing skill → append a source to its list,
-  and add that same influence to the skill's `## Attribution`. A source that
-  lands in `skills-provenance.json` but not in `## Attribution` is the common
-  miss — the two must move together.
-- Reconciled an upstream change into an `adapted` or `spec` source → bump that
-  source's `ref` (and, for `spec`, its version) and its `reviewed` date.
-- Edited a skill with no upstream source, or made a purely local change → no
-  `ref` change; `inspired-by` sources never carry one.
+- New skill from outside material → add `skills.<name>` entry + `## Attribution`.
+- New influence on existing skill → append source + add to `## Attribution`.
+  A source in `skills-provenance.json` without a matching `## Attribution` entry
+  is the common miss.
+- Reconciled upstream (`adapted`/`spec`) → bump `ref`/`version` + `reviewed`.
+- Purely local change → no `ref` change; `inspired-by` sources never carry one.
 
 Run the `update-skills` project skill (see below) to detect upstream drift and
 walk the reconcile per skill; it reads and writes `skills-provenance.json`. It
@@ -630,14 +569,11 @@ every source in a skill's provenance list must have a matching entry in its
 
 ### Project-only skills
 
-Some skills exist only to maintain *this* repo and must not ship to every
-machine. Their bodies live in `.agents/skills/<name>/` alongside the vendored
-ones, but — unlike every skill that ships — they are deliberately **not** linked
-from `skills/`, so `mac`'s `skills/` → `~/.agents/skills` chain never carries
-them off this repo. They are available only when working inside this repository.
-They are still first-party: that word says who wrote a skill, not whether it
-ships. `update-skills` is one: it keeps `skills-provenance.json` in sync
-with its sources and is scoped to this repo's skill set, so it stays here.
+Some skills exist only to maintain *this* repo and must not ship. Their bodies
+live in `.agents/skills/<name>/` but are deliberately **not** linked from
+`skills/`, so `mac`'s chain never carries them off this repo. They are still
+first-party — that word says who wrote a skill, not whether it ships.
+`update-skills` is one: scoped to this repo's skill set.
 
 ### Markdown
 
@@ -658,17 +594,12 @@ contributor has to run or satisfy, say so in README's "Testing your changes" in
 the same commit. A gate nobody knows about is enforced by CI and discovered by
 surprise.
 
-`CONTEXT.md` at the root is this repo's glossary, and it is opinionated: where
-two words compete for one concept, the loser is recorded under `_Avoid_` rather
-than left in play. A term that leaves the repo leaves the glossary in the same
-commit, because a stale definition is read with the same authority as a current
-one.
+`CONTEXT.md` at the root is this repo's glossary. A term that leaves the repo
+leaves the glossary in the same commit.
 
-`docs/adr/` holds the decisions a reader would otherwise arrive wanting to
-argue with, numbered sequentially. Never rewrite an accepted ADR to hold a new
-decision: write the next number, say in its **Context** which record it
-replaces, and mark the old one superseded. The trail is the whole value. Both
-formats belong to the `domain-modeling` skill under `skills/`.
+`docs/adr/` holds decisions numbered sequentially. Never rewrite an accepted
+ADR — write the next number, reference the superseded one, and mark it so. Both
+formats belong to the `domain-modeling` skill.
 
 ## Commit and pull request guidelines
 
@@ -718,16 +649,12 @@ and description templates — use them.
   map, seeded from `.agents/references/CONTEXT-FORMAT.md`) or `~/.laptop.local`,
   both of which are outside version control. `.agents/CONTEXT.md` holds names,
   paths, and URLs only — never secrets.
-- `.claude/settings.json`, `.codex/config.toml.template`, `.codex/rules/default.rules`,
-  `.cursor/cli-config.json`, and `.cursor/hooks.json` are a security boundary:
-  the Claude `permissions.deny` list, the Codex `forbidden` rules, and the Cursor
-  `permissions.deny` list plus `beforeShellExecution` gate block reads of `.env`
-  files, SSH/GPG/cloud credentials, and destructive git commands, and the
-  `sandbox` / `[permissions.developer]` blocks constrain filesystem writes and
-  network egress. Widening any of them is a deliberate act — justify it in the
-  commit message, and mirror it across every client (see "Agent-client
-  configuration parity") rather than loosening one client's rule to make a task
-  easier.
+- The client configs (`.claude/settings.json`, `.codex/config.toml.template`,
+  `.codex/rules/default.rules`, `.cursor/cli-config.json`, `.cursor/hooks.json`)
+  are a security boundary: they block reads of `.env` files, SSH/GPG/cloud
+  credentials, and destructive git commands, and constrain filesystem writes and
+  network egress. Widening any is a deliberate act — justify in the commit
+  message and mirror across every client ("Agent-client configuration parity").
 
 [advisory]: https://github.com/itsmechlark/laptop/security/advisories/new
 
@@ -741,24 +668,17 @@ and description templates — use them.
   directory under `.agents/` or `skills/`.
 - `.agents/standup/` is the `standup` journal and `.agents/out-of-scope/` the
   **cross-repo** rejection knowledge base. `mac` creates both and links them
-  under `~/.agents`, which all three clients grant write to, so neither needs
-  per-client wiring. `out-of-scope` is deliberately **not** namespaced under a
-  skill: `triage` writes it, `slice` and `draft-spec` read it before proposing
-  work. **The ignore rules are load-bearing** — the journal is client-facing
-  status in plaintext inside a repository that is published. The journal prunes
-  to 14 days; the rejections never do. It holds only rejections belonging to no
-  single project — a standing policy like "no telemetry" that would otherwise be
-  re-litigated in every repo. **A rejection grounded in a particular codebase
-  does not go here**; it goes in that repository's own committed
-  `.out-of-scope/`
+  under `~/.agents`. `out-of-scope` is not namespaced under a skill: `triage`
+  writes it, `slice` and `draft-spec` read it. **The ignore rules are
+  load-bearing** — the journal is client-facing status in a published repo. The
+  journal prunes to 14 days; rejections never do, and hold only cross-project
+  standing policies. **A codebase-specific rejection goes in that repo's own
+  `.out-of-scope/`**
   ([ADR 0004](docs/adr/0004-machine-local-agent-state-in-repo.md)).
-- **`CONTEXT.md` names two unrelated files.** The root one is this repo's
-  committed glossary. `.agents/CONTEXT.md` is the git-ignored machine map, and it
-  is what the four `CONTEXT.md` symlinks point at — so every client sees the
-  *map*, never the glossary. Two files named `CONTEXT-FORMAT.md` document them:
-  `.agents/references/` for the map, `skills/domain-modeling/references/` for
-  the glossary. Never write a domain term into the map, or a machine path into
-  the glossary.
+- **`CONTEXT.md` names two unrelated files.** The root is this repo's committed
+  glossary. `.agents/CONTEXT.md` is the git-ignored machine map — what the four
+  symlinks point at. Never write a domain term into the map, or a machine path
+  into the glossary.
 - `skills-lock.json` at the root is the tracked file — edit that one. The
   `.agents/.skills-lock.json` symlink pointing back at it is a leftover from when
   `~/.agents` was itself a link to this repo, and is git-ignored.
