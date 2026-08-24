@@ -88,13 +88,13 @@ def parse_skill_md(skill_path: Path) -> tuple[str, str, str]:
     return name, description, content
 
 
-def _write_temp_skill(root: Path, clean_name: str, description: str) -> Path:
-    """Install a real project skill under <root>/.claude/skills/<clean_name>/.
+def _write_probe_skill(root: Path, probe_name: str, description: str) -> Path:
+    """Install a probe skill under <root>/.claude/skills/<probe_name>/.
 
     A YAML block scalar carries the description verbatim so quotes, colons, and
     newlines in it can never break the frontmatter.
     """
-    skill_dir = root / ".claude" / "skills" / clean_name
+    skill_dir = root / ".claude" / "skills" / probe_name
     skill_dir.mkdir(parents=True, exist_ok=True)
 
     # An empty settings.json marks the folder as a project and is where a live
@@ -105,11 +105,11 @@ def _write_temp_skill(root: Path, clean_name: str, description: str) -> Path:
     indented = "\n  ".join(description.split("\n"))
     (skill_dir / "SKILL.md").write_text(
         "---\n"
-        f"name: {clean_name}\n"
+        f"name: {probe_name}\n"
         "description: |\n"
         f"  {indented}\n"
         "---\n\n"
-        f"# {clean_name}\n\n"
+        f"# {probe_name}\n\n"
         "Probe skill installed by run_eval_local.py to measure whether the "
         "description above causes autonomous invocation. Body intentionally "
         "inert.\n"
@@ -155,7 +155,7 @@ def run_single_query(
     try:
         if use_probe:
             target_name = f"{skill_name}-eval-{uuid.uuid4().hex[:8]}"
-            _write_temp_skill(project_root, target_name, skill_description)
+            _write_probe_skill(project_root, target_name, skill_description)
         else:
             # Neutral cwd: an empty project so the *repo's* CLAUDE.md and
             # settings cannot color the run. The skill itself comes from
