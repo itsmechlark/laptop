@@ -19,6 +19,16 @@ allow_login_shell = true
 
 web_search = "cached"
 
+# Byte budget for AGENTS.md content, counted across the global and project files
+# together. The 32 KiB default truncates mid-file with no notice in the TUI — only
+# a tracing warning — and the payload here already exceeds it: ~13.8 KB of global
+# standards plus a ~37.6 KB repo AGENTS.md. Under the default, this repo's own
+# instructions get cut around "Testing instructions" and Codex never sees the
+# verification rules or commit conventions. 64 KiB leaves headroom for both files
+# to grow. Claude Code has no equivalent knob (it warns at 40k chars and skips
+# only past 4 MiB), so this is per-client tuning, not shared policy.
+project_doc_max_bytes = 65536
+
 [features]
 hooks = true
 # Required for [permissions.developer.network.domains] to be enforced.
