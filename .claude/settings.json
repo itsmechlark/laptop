@@ -202,7 +202,7 @@
       "~/.claude"
     ]
   },
-  "model": "claude-opus-4-6",
+  "model": "claude-opus-4-6[1m]",
   "hooks": {
     "PreToolUse": [
       {
@@ -413,5 +413,6 @@
       "git ls-remote *"
     ]
   },
-  "effortLevel": "high"
+  "effortLevel": "high",
+  "tui": "fullscreen"
 }
