@@ -23,6 +23,11 @@ src/hooks/use-cart.ts            react-typescript
 app/routes/checkout.js           ember
 app/templates/checkout.hbs       ember
 app/templates/legacy.emblem      ember
+AGENTS.md                        agent-instructions
+CLAUDE.md                        agent-instructions
+.claude/CLAUDE.md                agent-instructions
+docs/nested/AGENTS.md            agent-instructions
 mac                              -
 README.md                        -
 config/database.yml              -
+AGENTS.md.bak                    -
