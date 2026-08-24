@@ -1,11 +1,14 @@
 # Trigger-accuracy eval sets
 
-20-query eval sets in the format the `skill-creator` skill's `run_eval.py` and
-`run_loop.py` expect: `[{"query": "...", "should_trigger": true}, …]`.
+20-query eval sets, one JSON array per skill:
+`[{"query": "...", "should_trigger": true}, …]`.
 
-Those live in *skill-creator's* own `scripts/` directory, which is not this
-repo's `scripts/` — the commands below invoke them as the `scripts.run_eval`
-module via `PYTHONPATH`, so the two never collide in practice.
+The engine that reads them is this repo's own `scripts/lib/run_eval_local.py`,
+driven by `scripts/run-trigger-evals`. It replaced the `skill-creator` skill's
+`run_eval.py`, which measured triggering by dropping a `/slash` *command* file
+into `.claude/commands/`. Commands are never offered to the `Skill` tool, so on
+Claude Code 2.1.236+ that harness reported 0 triggers for everything. Nothing
+here depends on skill-creator any more.
 
 | Set | Why it exists |
 | --- | --- |
@@ -42,77 +45,86 @@ agent sandbox — see "Testing instructions" in `AGENTS.md`.
 
 ## Measure first
 
-`run_eval.py` scores a description as it stands, which answers "does this fire
-on the right requests?" without rewriting anything. Each query runs 3× for a
-stable rate.
+The runner scores a description as it stands, which answers "does this fire on
+the right requests?" without rewriting anything. Each query runs 3× for a stable
+rate.
+
+It measures each skill *where it is already installed*. `skills/` is
+`~/.claude/skills` — mac symlinks it — so the shipped description is live and
+its adjacent siblings load and compete exactly as they do in real use. That is
+what makes the shared query pools above mean anything: a pool proves which of
+the pair wins only if both are loaded to compete for it.
 
 ## The runner
 
-`sh scripts/run-trigger-evals` does all of the below with the preflight already wired
-in — harness discovery, the auth check, the project-root check — and writes
-results to the git-ignored `artifacts/trigger-evals/`:
+`sh scripts/run-trigger-evals` is the way in. Its preflight covers everything
+that would otherwise waste a run — `python3` 3.10+ (an asdf shim with no version
+selected satisfies `command -v` and then dies), `jq`, the CLI, and one cheap
+live call, because `loggedIn: true` only proves a credential parsed and a
+revoked grant 401s every query while reading as 0% triggers. Results land in the
+git-ignored `artifacts/trigger-evals/`:
 
 ```sh
 sh scripts/run-trigger-evals            # every set
 sh scripts/run-trigger-evals slice      # just one
 ```
 
-`RUNS_PER_QUERY` (default 3), `EVAL_MODEL`, and `SKILL_CREATOR` override the
-defaults. The rest of this file is what the runner does, for when you need to
-drive `run_eval.py` directly.
+`RUNS_PER_QUERY` (default 3), `EVAL_MODEL` (default `sonnet`), and
+`QUERY_TIMEOUT` (default 120s per query) override the defaults.
 
-## Driving run_eval.py by hand
+## Driving the engine by hand
 
-**Run it from the repository root**, not from the skill-creator directory.
-`run_eval.py` locates the project by walking up from the *current directory*
-looking for `.claude/`, and writes a temporary command file there so the skill
-appears in Claude's `available_skills`. Started from anywhere else, that lands
-in `~/.claude/commands/` instead of this repo's — wrong project root, and it
-litters your global commands directory. Set `PYTHONPATH` so the package still
-imports:
+`scripts/lib/run_eval_local.py` takes a set and a skill directly. It is
+stdlib-only and builds a disposable temp project per query, so there is no
+project-root rule to satisfy and nothing to put on `PYTHONPATH`:
 
 ```sh
-SC="$HOME/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin/<session>/<run>/skills/skill-creator"
-cd ~/Codespace/laptop
-PYTHONPATH="$SC" python3 -m scripts.run_eval \
+python3 scripts/lib/run_eval_local.py \
   --eval-set spec/trigger-evals/slice.json \
   --skill-path skills/slice \
-  --model claude-opus-5 --verbose
+  --model sonnet --verbose
 ```
 
-Check `find_project_root()` agrees before trusting a result:
+**Do not reach for `CLAUDE_CONFIG_DIR` to keep your installed skills out of a
+run.** Credential discovery is scoped to the config dir: `claude -p` under a
+fresh one exits `Not logged in · Please run /login` even with a valid keychain
+grant, and every query then returns a silent miss that looks like a description
+failure. Seeding the throwaway dir with the account state from `~/.claude.json`
+does not fix it; only copying the live OAuth token into every temp dir would,
+which is not worth doing. The engine's `run_single_query` docstring carries the
+longer version.
+
+**Testing a description you have not shipped.** `--description` overrides the
+text and installs a temporary probe skill carrying it, so a candidate is
+measured against the incumbent rather than in place of it:
 
 ```sh
-PYTHONPATH="$SC" python3 -c "from scripts.run_eval import find_project_root; print(find_project_root())"
+python3 scripts/lib/run_eval_local.py \
+  --eval-set spec/trigger-evals/slice.json \
+  --skill-path skills/slice \
+  --description "$(cat candidate.txt)" --verbose
 ```
 
-It must print the repo path. The two segments under `skills-plugin/` are
-per-session and change between runs — list the directory to find the current
-pair, or copy `skill-creator` somewhere stable. Reading that tree also requires
-`~/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin`
-in `sandbox.filesystem.allowRead`.
+Each artifact records which way it ran, as `mechanism`: `installed-skill` for
+the shipped text, `probe-skill` for an override.
 
 **Budget.** Default is 3 runs per query at 10 workers, so a 20-query set is 60
-`claude -p` invocations and the whole suite is 60 × the number of sets. Run one
-set first and confirm the numbers look sane before spending the rest.
+`claude -p` invocations and the whole suite is 60 × the number of sets — on
+`sonnet`. Run one set first and confirm the numbers look sane before spending
+the rest. `EVAL_MODEL=haiku` is a cheaper smoke pass, but do not read a
+description failure off it: haiku answers a fair share of these queries directly
+instead of reaching for a skill, and scores them as misses that `sonnet` passes.
 
 ## Optimize only what scores badly
 
-`run_loop.py` proposes and tests replacement descriptions (60/40 train/held-out
-split, up to 5 iterations, selected on the held-out score). It rewrites a
-shipped file, so it earns its run only when the measured rate is poor:
+There is no automated rewrite loop here. `skill-creator`'s `run_loop.py`
+proposed and tested replacement descriptions, but it drives the same command-file
+evaluator `run_eval.py` used — so it would optimize against a measurement that
+reports nothing, and confidently rewrite a shipped file on the strength of it.
 
-```sh
-cd ~/Codespace/laptop
-PYTHONPATH="$SC" python3 -m scripts.run_loop \
-  --eval-set spec/trigger-evals/slice.json \
-  --skill-path skills/slice \
-  --model claude-opus-5 --max-iterations 5 --verbose
-```
-
-Same cwd rule as above — `run_loop.py` calls the same evaluator, so starting it
-from the skill-creator directory misplaces the project root in exactly the same
-way.
+Rewrite by hand and measure the candidate with `--description` above, leaving
+the shipped text in place until a candidate beats it. A description that already
+scores well earns no rewrite.
 
 ## The cheap screen, for comparison
 
