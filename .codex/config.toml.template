@@ -70,6 +70,9 @@ extends = ":workspace"
 
 glob_scan_max_depth = 8
 
+# Codex Specific
+"/System/Library/OpenSSL/openssl.cnf" = "read"
+
 # Development/worktree area and selected tool/runtime state.
 "/opt/homebrew" = "read"
 "~/Codespace" = "write"
