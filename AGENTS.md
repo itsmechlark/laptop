@@ -77,7 +77,7 @@ cspell.json             # spell check: dictionaries, project words, ignore paths
 scripts/                # verification tooling; each relocates to the repo root itself
   check-payload         # static verification of the payload (POSIX sh + jq)
   run-trigger-evals     # runs spec/trigger-evals; needs a logged-in claude CLI
-  lib/run_eval_local.py # trigger-eval engine: installs a real temp skill, drives claude -p
+  lib/run_eval_local.py # trigger-eval engine: drives claude -p against installed skills
 spec/                   # fixtures check-payload validates and reads
   rules-cases.txt       # path -> which rules/ load for it
   invocability-fixture/ # deliberate violations; proves the check still fires

@@ -97,7 +97,14 @@ count that changes fails the run.
 **Trigger eval**:
 A query set at `spec/trigger-evals/<skill>.json` measuring whether a skill's
 description fires on the queries it should and stays quiet on the rest. Run from
-a terminal, never in CI.
+a terminal, never in CI. Measures the skill as installed (ADR 0008).
+
+**Probe skill**:
+A throwaway skill carrying a candidate description, written into a temp project
+so an unshipped rewrite can be measured against the incumbent. Only
+`--description` creates one; each artifact records which way it ran under
+`mechanism`, as `probe-skill` or `installed-skill`.
+_Avoid_: temp skill.
 
 **Exempt**:
 Named on `evals_exempt` or `parity_exempt` in `check-payload` — deliberately
