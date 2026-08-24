@@ -75,9 +75,9 @@ glob_scan_max_depth = 8
 "~/Codespace" = "write"
 "~/.agents" = "read"
 # Narrows the read grant above for the two directories an agent writes under
-# ~/.agents: the standup skill's journal, and the cross-repo rejection knowledge
-# base that triage writes and slice and draft-spec read. Both machine-local and
-# git-ignored; see AGENTS.md "Agent-client configuration parity".
+# ~/.agents: the standup skill's journal and the cross-repo rejection knowledge
+# base. Provisioned by mac as real directories (not symlinks) so Codex's
+# Seatbelt sandbox accepts them as writable roots (ADR 0008).
 "~/.agents/standup" = "write"
 "~/.agents/out-of-scope" = "write"
 "~/.claude" = "write"

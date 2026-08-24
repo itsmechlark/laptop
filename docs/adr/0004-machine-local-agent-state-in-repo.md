@@ -1,5 +1,8 @@
 # Machine-local agent state lives in the repo, git-ignored
 
+Location decision superseded by
+[ADR 0008](0008-provision-agent-state-as-real-directories.md).
+
 **Context:** Two workflows need state that outlives a session: `standup` has to
 see what it promised last time, and rejections that belong to no single codebase
 would otherwise be re-argued in every repo. All three clients sandbox writes, so

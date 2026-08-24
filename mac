@@ -266,22 +266,27 @@ symlink_path "$PROJECT_DIR/rules" "$AGENTS_GLOBAL_DIR/rules"
 symlink_path "$PROJECT_DIR/skills" "$AGENTS_GLOBAL_DIR/skills"
 symlink_path "$PROJECT_DIR/skills-lock.json" "$AGENTS_GLOBAL_DIR/.skills-lock.json"
 
-# Standup journal — machine-local and git-ignored, like CONTEXT.md, but created
-# unconditionally so the standup skill always has somewhere to write. One path,
-# ~/.agents/standup, is what makes the skill client-agnostic: it resolves back
-# into this checkout whichever repo the skill runs from, so no client needs its
-# own copy.
-mkdir -p "$AGENTS_DIR/standup"
-symlink_path "$AGENTS_DIR/standup" "$AGENTS_GLOBAL_DIR/standup"
-
-# Cross-repo rejection knowledge base — same shape and the same reasoning as the
-# journal above. Shared rather than owned: triage writes it, and slice and
-# draft-spec read it before proposing work. It holds only the rejections
-# that are not any one project's ("no telemetry in my projects"); a rejection
-# grounded in a particular codebase belongs in that repository's own committed
-# .out-of-scope/, where a co-maintainer can read it.
-mkdir -p "$AGENTS_DIR/out-of-scope"
-symlink_path "$AGENTS_DIR/out-of-scope" "$AGENTS_GLOBAL_DIR/out-of-scope"
+# Standup journal and cross-repo rejection knowledge base — machine-local state
+# that outlives a session. Provisioned directly under ~/.agents rather than
+# symlinked from the repo, because Codex's Seatbelt sandbox rejects symlinked
+# writable roots (ADR 0008). Both directories are already under ~, so they
+# persist across checkouts and need no gitignore discipline to stay unpublished.
+#
+# Migrate existing symlinks from the old provisioning (ADR 0004): remove the
+# symlink, create a real directory, and move any existing content over.
+for dir in standup out-of-scope; do
+  path="$AGENTS_GLOBAL_DIR/$dir"
+  if [ -L "$path" ]; then
+    old="$(readlink "$path")"
+    rm "$path"
+    mkdir -p "$path"
+    if [ -d "$old" ]; then
+      cp -a "$old/." "$path/" 2>/dev/null || true
+    fi
+  else
+    mkdir -p "$path"
+  fi
+done
 
 # Claude
 CLAUDE_GLOBAL_DIR="$HOME/.claude"
