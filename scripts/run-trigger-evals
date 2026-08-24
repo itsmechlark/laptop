@@ -28,7 +28,8 @@
 # Usage (from anywhere — it relocates to the repository root itself):
 #   sh scripts/run-trigger-evals                 # every set in spec/trigger-evals
 #   sh scripts/run-trigger-evals slice explain   # only the named ones
-# Env: RUNS_PER_QUERY (default 3), EVAL_MODEL (default haiku).
+# Env: RUNS_PER_QUERY (default 3), EVAL_MODEL (default sonnet),
+#      QUERY_TIMEOUT (default 120s per query).
 #
 # Results land in artifacts/trigger-evals/<skill>.json (git-ignored); each
 # `claude -p` stderr is appended to artifacts/trigger-evals/<skill>.stderr.log so
@@ -48,7 +49,18 @@ cd "$(dirname "$0")/.." || exit 2
 sets_dir=spec/trigger-evals
 out_dir=artifacts/trigger-evals
 runs_per_query=${RUNS_PER_QUERY:-3}
-model=${EVAL_MODEL:-haiku}
+model=${EVAL_MODEL:-sonnet}
+
+# Measure with the model the maintainer actually works in. Haiku answers a
+# surprising share of these queries directly instead of reaching for a skill,
+# which reads as a description failure when it is really a model difference.
+#
+# The timeout has to move with the model, and generously: a query that runs long
+# returns a silent False, indistinguishable from "did not trigger". Sonnet
+# settles in ~6s from the eval's empty temp project, so 120s is slack for a
+# stall, not a budget — the stream loop exits the moment `message_stop` arrives,
+# so a high ceiling costs nothing on queries that behave.
+query_timeout=${QUERY_TIMEOUT:-120}
 
 fancy_echo() {
   printf "\n%s\n" "$1"
@@ -61,7 +73,13 @@ die() {
 
 # ------------------------------------------------------------ preflight
 
+# Check the version, not just the name: an asdf shim with no version selected
+# satisfies `command -v` and then dies on use, and macOS's own /usr/bin/python3
+# is 3.9 — too old for the helper's `str | None` annotations. Ask python itself,
+# so a shim that cannot resolve fails here rather than mid-eval.
 command -v python3 >/dev/null || die "python3 not found"
+python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)' 2>/dev/null ||
+  die "python3 must be 3.10+ and resolvable (got: $(python3 --version 2>&1 | tr '\n' ' '))"
 command -v jq >/dev/null || die "jq not found"
 command -v claude >/dev/null || die "the claude CLI is not on PATH"
 
@@ -76,6 +94,17 @@ auth=$(claude auth status --json 2>/dev/null |
   jq -r 'if has("loggedIn") then (.loggedIn | tostring) else "unreadable" end')
 [ "$auth" = true ] ||
   die "the claude CLI is not logged in (loggedIn: $auth) — run 'claude auth login'"
+
+# `loggedIn` only proves a credential was found and parsed, not that the server
+# still honors it: a revoked grant reports true here and then 401s on every
+# query, which reads as a null result rather than as the auth failure it is. One
+# cheap call settles it.
+probe=$(claude -p "reply with exactly: OK" --output-format json --model "$model" \
+  </dev/null 2>/dev/null | jq -r '.result // "no result"')
+case $probe in
+  *OK*) ;;
+  *) die "the claude CLI is logged in but cannot call the API: $probe" ;;
+esac
 
 # ------------------------------------------------------------------- run
 
@@ -112,6 +141,7 @@ for name in $names; do
     --eval-set "$set_file" \
     --skill-path "skills/$name" \
     --runs-per-query "$runs_per_query" \
+    --timeout "$query_timeout" \
     --stderr-log "$stderr_log" \
     $cmd_model \
     --verbose >"$out_dir/$name.json"; then
