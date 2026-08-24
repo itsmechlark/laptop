@@ -352,7 +352,6 @@
         "/opt/homebrew",
         "~/Codespace",
         "~/.agents",
-        "~/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin",
         "~/.cache",
         "~/.claude",
         "~/.claude.json",
