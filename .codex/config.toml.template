@@ -55,6 +55,9 @@ experimental_use_profile = false
 "*_KEY" = "exclude"
 "*_CREDENTIALS" = "exclude"
 
+[shell_environment_policy.set]
+WRANGLER_LOG_PATH = "/tmp/wrangler"
+
 # -----------------------------------------------------------------------------
 # Filesystem + network permission profile
 # -----------------------------------------------------------------------------
