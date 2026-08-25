@@ -76,6 +76,7 @@ A small slice does not guarantee a small diff. Slicing controls *what* ships; no
 | Problem | Resolution |
 | --- | --- |
 | The suite is red before you start | Fix or quarantine the failure first, or state explicitly which failures pre-date the slice. Never build on an unknown baseline. |
+| `slice` surfaces more than one slice in Phase 3 | Expected — interrogating the criteria exposed scope Phase 1's size call missed. Let it finish the breakdown, capture the list, build the first slice in its sequence, and defer the rest to Phase 7. Don't force it back to one story. |
 | The slice keeps growing during Phase 4 | It was an epic. Stop, return to the Phase 1/3 decision, ship the smaller piece, and defer the rest — see [LEANNESS.md](references/LEANNESS.md). |
 | No seam exists to write the first failing test against | The design, not the test, is the problem. `codebase-design` locates the seam; take the refactor as its own commit before resuming Phase 4. |
 | The review finds a defect that invalidates an acceptance criterion | The slice was wrong, not just the code. Go back to Phase 3, re-sharpen the criterion, and drive the correction test-first. |

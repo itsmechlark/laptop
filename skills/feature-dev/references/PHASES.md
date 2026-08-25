@@ -65,7 +65,9 @@ Two criteria are easy to forget here and expensive to retrofit once tests exist:
 
 Close with a rough **size budget**: given what Phase 2 revealed, does this look buildable in under ~300 lines of production code? If it clearly can't, that is usually a signal the slice is still too big rather than that the budget is wrong — interrogate it now, while re-slicing is cheap. See [LEANNESS.md](LEANNESS.md).
 
-**Exit:** one job story, a "ships when", verifiable criteria including rollout and migration shape, and a size call.
+**If `slice` surfaces more than one slice, don't force it back to one story.** It takes Phase 1's size call rather than re-opening it, but pushing on the acceptance criteria can still expose scope that call missed — and then it switches to its large-feature path. Let it finish the breakdown and capture the list, then carry only the first slice in its sequence into Phase 4. The rest are Phase 7's to hand back.
+
+**Exit:** one job story to build now — a "ships when", verifiable criteria including rollout and migration shape, and a size call — plus any wider breakdown captured and its other slices deferred.
 
 ## Phase 4: Build it test-first
 
