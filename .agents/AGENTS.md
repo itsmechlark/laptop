@@ -116,8 +116,10 @@ Operate for impact beyond the immediate change — optimize for the team, the ne
 
 Commit messages, PR descriptions, ADRs, specs, tracker comments, and status updates are read by people. Write like a careful engineer explaining a decision to a teammate — never like a language model. Strip the tells of AI-generated writing:
 
+- **Lead with the point.** The first two or three sentences say what you are trying to achieve and why it matters. Detail only some readers need goes below that — an appendix section, or its own document. Draft, then read it back once and cut: a reader who stops after the opening should still have the decision.
 - **No hype or filler adjectives** ("comprehensive", "robust", "seamless", "powerful", "significantly").
 - **No throat-clearing** ("It's worth noting that", "In order to", "This change aims to", "This PR aims to").
+- **No invented subsection labels.** A bolded "**Why the database is critical:**" ahead of a sentence is the model organizing its own output, not structure the reader asked for. Use the artifact's real sections; if a bolded lead-in is the only thing making a paragraph scannable, the paragraph is the problem.
 - **No restating the diff.** The code is the source of truth — don't narrate it method by method, and don't list the changed files back.
 - **Vary sentence length.** The uniformly-hedged, em-dash-heavy cadence is the giveaway; plain, direct sentences of differing lengths are not.
 - **Say the surprising thing plainly.** Risks, dependencies, and the alternative you rejected are exactly the parts a reader can't reconstruct from the code.
@@ -125,6 +127,8 @@ Commit messages, PR descriptions, ADRs, specs, tracker comments, and status upda
 - **US English.** `behavior`, `license`, `judgment`, `labeled`. This governs prose you write, not identifiers you find — never "correct" a British spelling that is already a field name, a quoted source, or someone else's ticket title. A project that writes British English says so in its own `AGENTS.md`, and that overrides this.
 
 Audience sets the vocabulary and the length, never the honesty (§3). `git-commit`, `pull-request`, `draft-spec`, `standup`, and `triage` each apply this to their own artifact.
+
+This section governs prose a person reads. Files written for a model to read — skill bodies, `rules/`, instruction files like this one — are exempt, and a word that would look like a tell in a PR description is not a defect to fix in one of them.
 
 ---
 
