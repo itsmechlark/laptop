@@ -26,6 +26,11 @@ The solution to that problem, from the user's perspective.
 - API contracts and specific interactions
 - Rollout, observability, security, or idempotency constraints
 
+## Alternatives Considered
+
+Options the conversation raised and declined, one line each, with the reason:
+cost, technical complexity, or extensibility for a phase already anticipated.
+
 ## Testing Decisions
 
 - Which boundaries get tested, and why those
@@ -74,6 +79,16 @@ machine, reducer, schema, or type shape is allowed when it states the decision
 more precisely than prose can — include only the decision-rich part, and say it
 came from a prototype.
 
+**Alternatives Considered.** Only options the conversation actually weighed. An
+invented alternative is padding, and the reader can't tell it from a real one.
+Give the option and which of cost, technical complexity, or future-phase
+extensibility ruled it out — "it felt wrong" is not a reason; find the one
+underneath it or leave the option out. When nothing was weighed, say so: "the
+approach was the only one considered" tells a reviewer the design was never
+compared, which is worth knowing. A rejection that is hard to reverse and
+surprising without context outgrows this section — that's an ADR
+(`domain-modeling`), and the spec cites it rather than restating it.
+
 **Testing Decisions.** Name what gets verified in terms of external behavior
 through the highest useful seam, not implementation detail. Prior art is the
 half most often skipped and the half that saves the most time: point at the
@@ -101,6 +116,8 @@ confidently in the Solution is expensive.
       and rollout without becoming a code plan
 - [ ] No file paths, diffs, or code snippets — except a prototype-derived shape,
       labeled as one
+- [ ] Alternatives Considered names only options the conversation raised, each
+      with a reason a reviewer could argue with — or says none were weighed
 - [ ] Testing Decisions name observable behavior and identify prior art, or say
       none exists
 - [ ] Out of Scope names something the conversation actually set aside
