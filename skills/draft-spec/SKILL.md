@@ -61,6 +61,8 @@ Use the fixed template and keep its section order: [TEMPLATE.md](references/TEMP
 
 The spec is a draft until the user has seen the exact Markdown and confirmed it. Where it goes after that — conversation, a file at a path the user named, an existing tracker item, a new one — is [PUBLISHING.md](references/PUBLISHING.md). Assume no tracker, no project key, and no label vocabulary until you have read the real ones.
 
+A user who wants the draft challenged rather than confirmed goes to `grilling`, which interviews a document claim by claim — what each one implies, where it is weak, what was weighed against it. Only when they ask for it. This is not the reopened interview [Gotchas](#gotchas) warns about: that one asks requirements questions instead of writing the spec, where this one questions a document that already exists. Running it unprompted turns synthesis back into an interview, just at the end rather than the start.
+
 ## Gotchas
 
 - **Don't reopen the interview.** The failure mode this skill exists to avoid is answering a request to write things down with a fresh round of requirements questions. If the conversation converged, the questions are already answered; if it didn't, say so (see [Is it settled enough to write?](#is-it-settled-enough-to-write)) instead of drafting around the gap one question at a time.
