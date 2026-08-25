@@ -6,7 +6,7 @@ Each phase has a goal and an exit condition. Read the phase you are entering; do
 
 **Goal:** a place to work that can be thrown away, and a suite whose result means something.
 
-When the work should stay off the main checkout — a long slice, a dirty tree, or parallel work already in flight — use `git-worktree` to set one up before Phase 1. It handles placement, branch naming, linking git-ignored local agent config, and installing the stack's dependencies.
+**Invoke `git-worktree` and take its pre-edit guard's ruling** — don't decide isolation by feel. The guard reads where you actually are; on the default branch in the main checkout it rules for a worktree, which is the ordinary outcome here rather than an exception earned by a long slice or a dirty tree. `git-worktree` then handles placement, branch naming, linking git-ignored local agent config, and installing the stack's dependencies.
 
 Then **run the test suite once, before touching anything.** Note the result:
 
@@ -15,7 +15,7 @@ Then **run the test suite once, before touching anything.** Note the result:
 
 Run the linter and type-checker too if they're fast. Knowing the repo was already clean is what lets you claim Definition of Done honestly at Phase 5.
 
-**Exit:** an isolated branch or checkout, and a written baseline.
+**Exit:** isolation resolved by the pre-edit guard — a worktree, or a branch chosen deliberately — and a written baseline.
 
 ## Phase 1: Frame the work
 

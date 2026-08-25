@@ -34,7 +34,7 @@ Feature to build: `$ARGUMENTS`. If nothing came with the invocation, ask what th
 
 Track the phases with `TodoWrite`, so the user can see where they are and an interrupted run is resumable. Read each phase's detail when you reach it, not all upfront.
 
-- [ ] **0. Isolate and baseline** — a worktree when the work should stay off the main checkout, and a known-green suite to measure against — [PHASES.md](references/PHASES.md#phase-0-isolate-and-baseline)
+- [ ] **0. Isolate and baseline** — run `git-worktree`'s pre-edit guard, and a known-green suite to measure against — [PHASES.md](references/PHASES.md#phase-0-isolate-and-baseline)
 - [ ] **1. Frame the work** — understand the feature, and rule on one slice vs. an epic — [PHASES.md](references/PHASES.md#phase-1-frame-the-work)
 - [ ] **2. Explore the codebase** — where this lands, what to reuse, how this repo tests — [PHASES.md](references/PHASES.md#phase-2-explore-the-codebase)
 - [ ] **3. Shape the slice** — one job story with a "ships when" and verifiable acceptance criteria — [PHASES.md](references/PHASES.md#phase-3-shape-the-slice)
