@@ -31,7 +31,7 @@ Establish exactly what you're reviewing before reading any code. The argument (`
 - **A PR URL**: `gh pr diff <url>` for the diff, `gh pr view <url>` for the description and linked issue.
 - **A file path or pasted diff**: review it directly.
 
-Account for every file in the set — a review that quietly skipped files reads as a pass it didn't earn. On a large diff, `git diff <ref>...HEAD --name-status` is the checklist to reconcile against.
+Account for every file in the set — a review that quietly skipped files reads as a pass it didn't earn. On a large diff, `git diff <ref>...HEAD --numstat` is the checklist to reconcile against, and it carries two facts worth reading off it: which files hold the most changed lines, and how much of the diff is tests versus production. Both set reading order, not a grade — they feed **Spend the review budget where the risk is**. A large production change with no test churn is also the shape the Standards axis asks about under tests. Swap in `--name-status` when you want the add/modify/delete letters instead of the counts — a wholesale deletion is the finding at *Removed safeguards*, and it's easiest to see there.
 
 ## Defects axis — hard, blocking
 
@@ -79,19 +79,20 @@ Does the change follow how this repo writes code?
 Two rules bind this axis:
 - **The repo overrides.** A documented standard always wins; where it endorses something the baseline would flag, drop the smell.
 - **Weight follows the source.** A breach of a *documented* standard can be a firm finding; a **smell** from the baseline is always a judgment call — label it ("possible Feature Envy"), never a hard violation. Either way, skip anything a linter, formatter, or type-checker already enforces.
+- **Count what's countable.** Some smells are defined by a number — extent, ratio, length, scatter — and the list below marks each with the count to report. Give the figure: "possible Message Chains (4 hops)" is falsifiable where "possible Message Chains" is an opinion. A count is evidence for a judgment call, never what promotes one to firm; only a documented limit does that, and a linter usually owns the limit already.
 
 **Smell baseline** (Fowler, _Refactoring_ ch.3) — name → fix:
 - **Mysterious Name** — name doesn't reveal intent → rename; if no honest name comes, the design is murky.
-- **Duplicated Code** — same shape in more than one hunk → extract, call from both.
-- **Feature Envy** — a method reaches into another object's data more than its own → move it onto that data.
+- **Duplicated Code** — same shape in more than one hunk → extract, call from both. *Count: duplicated lines, and how many sites.*
+- **Feature Envy** — a method reaches into another object's data more than its own → move it onto that data. *Count: foreign accesses against own.*
 - **Data Clumps** — the same fields keep traveling together → bundle into one type.
 - **Primitive Obsession** — a primitive standing in for a domain concept → give the concept a small type.
 - **Repeated Switches** — the same `switch`/`if`-cascade on one type recurs → polymorphism, or one shared map.
-- **Shotgun Surgery** — one logical change forces scattered edits → gather what changes together.
+- **Shotgun Surgery** — one logical change forces scattered edits → gather what changes together. *Count: files the one change touched.*
 - **Divergent Change** — one module edited for unrelated reasons → split so each changes for one reason.
 - **Speculative Generality** — abstraction for needs the spec doesn't have → delete, inline back.
-- **Message Chains** — long `a.b().c().d()` navigation → hide the walk behind one method.
-- **Middle Man** — a class that mostly delegates onward → cut it, call the target directly.
+- **Message Chains** — long `a.b().c().d()` navigation → hide the walk behind one method. *Count: hops.*
+- **Middle Man** — a class that mostly delegates onward → cut it, call the target directly. *Count: delegating methods against total.*
 - **Refused Bequest** — a subclass ignoring most of what it inherits → prefer composition.
 
 Also on this axis: **tests.** Judge new behavior and bug fixes against how this repo already tests. Missing coverage for new logic is a conformance finding — firm where the repo documents a testing requirement (the repo overrides), a judgment call where it doesn't. When missing coverage is a finding, point to the `tdd` skill for addressing it test-first. For Ruby projects, `rules/rspec.md` documents the testing conventions this axis measures against — it auto-loads for spec files.
@@ -129,7 +130,7 @@ If your environment offers a deeper multi-agent PR toolkit — for example a `pr
 
 ```markdown
 ## Code Review: [PR title / ref range]
-_Reviewed N of N changed files._
+_Reviewed N of N changed files — M lines changed, T of them in tests._
 
 ### Defects (blocking)
 | # | File | Line | Issue | Severity |
@@ -139,7 +140,7 @@ _Reviewed N of N changed files._
 ### Standards (conformance)
 | # | File | Line | Finding | Weight |
 |---|------|------|---------|--------|
-| 1 | [file] | [line] | [cited standard / possible <smell>] | firm (documented) / judgment |
+| 1 | [file] | [line] | [cited standard / possible <smell> (count)] | firm (documented) / judgment |
 
 ### Spec
 [Missing / partial / scope-creep / wrong — spec line quoted. Or "no spec available".]
@@ -167,7 +168,7 @@ Choosing the verdict:
 - **A larger diff needs sub-agents, not skimming.** Skimming a big diff yields a shallow, falsely-clean review; fan out one agent per axis (see **Running the review**).
 - **"Is this code safe?" means defects in this diff** — not what an AI agent may do at runtime (tool allowlists, policy files, approval gates). That runtime-governance question is a different concern; don't answer it here.
 - **Read beyond the hunk.** Judge each change against its enclosing function and call sites, not the diff lines alone — a diff-shaped view produces diff-shaped misses, especially on error paths and edge cases.
-- **Spend the review budget where the risk is.** Read the flagged hot path, PII handling, or focus area first; a review that burns out on nits before it reaches the auth change has failed at the one thing that mattered.
+- **Spend the review budget where the risk is.** Read the flagged hot path, PII handling, or focus area first; a review that burns out on nits before it reaches the auth change has failed at the one thing that mattered. Where nothing flags a priority, the `--numstat` ranking from **Scope the change** is a reasonable default order — but line count is not risk. A one-line change to an authorization check outranks a four-hundred-line rename.
 
 ## Attribution
 
