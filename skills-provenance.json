@@ -489,6 +489,21 @@
           "reviewed": "2026-08-20"
         }
       ]
+    },
+    "claude-handoff": {
+      "sources": [
+        {
+          "origin": "mattpocock/skills",
+          "type": "github",
+          "url": "https://github.com/mattpocock/skills",
+          "path": "skills/in-progress/claude-handoff",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76",
+          "reviewed": "2026-08-26",
+          "note": "INITIAL PIN. Source is in-progress upstream. Adapted into a full skill: added structured summary format, when-to-use boundaries (vs fan-out), gotchas for background-agent limitations, and the report step."
+        }
+      ]
     }
   }
 }

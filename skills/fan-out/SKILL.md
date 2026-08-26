@@ -23,6 +23,7 @@ Work to decompose: `$ARGUMENTS`. Empty means whatever workload the conversation 
 - Not for work that needs the whole system state held in one head
 - Not for small work: writing the prompt, integrating the result, and verifying it is a fixed cost per agent, so a handful of five-minute fixes lands sooner done serially
 - Not for a feature that hasn't been broken down yet — `slice` finds the pieces, and slices are normally *sequenced*; fan out only over the ones waiting on nothing unshipped
+- Not for handing the current conversation off to a single background agent to finish — that's `claude-handoff`; fan-out is for splitting *new* work across several
 
 ## Workflows
 
