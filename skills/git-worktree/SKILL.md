@@ -52,6 +52,8 @@ superproject="$(git rev-parse --show-superproject-working-tree 2>/dev/null)"
    - Existing branch: `git worktree add <repo>.worktrees/<name> <branch>`
    - New branch: `git worktree add -b <branch> <repo>.worktrees/<name> [<start-point>]`, basing `<start-point>` on the default branch unless told otherwise.
 
+   **Mind the start-point when the current branch is a stack layer.** That default is what bites: a worktree created from inside a stack starts a branch that knows nothing about the layers below it. Base it on the current branch, or stay in the checkout — `gh-stack` moves between layers with `checkout`, `up`, and `down`, and a stack is not a thing to spread across worktrees.
+
    A native worktree tool works too — Claude Code's `EnterWorktree` takes an absolute `path`, manages its own placement, and enters an isolated session; mind its command vetting under [Gotchas](#gotchas).
 
 3. **Link git-ignored local config** so the agent behaves as it does in the main checkout. A fresh worktree has only tracked files, so machine-local config (e.g. `.claude/settings.local.json`) is missing. Symlink each such file from the main checkout by absolute target — but only when it's git-ignored, so the link never shadows a tracked file or dirties `git status`. Run this from a normal shell (it targets the worktree explicitly, so cwd doesn't matter); inside an isolated session, issue the individual `ln -sfn` links instead — the loop won't pass command vetting:

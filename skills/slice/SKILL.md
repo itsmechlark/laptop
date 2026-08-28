@@ -158,6 +158,8 @@ The common case is not a blank page. A slice shipped, or a build ran over its sc
 
 - **Every slice depending on the one before it is the same tell.** Real slices fan out from the skeleton; a single chain is a plan of work wearing job-story clothes.
 
+- **A stack's layers are horizontal slices, and that's fine — for a stack.** `gh-stack` teaches `models <- api <- frontend`, precisely the cut this skill rejects, because a stack orders *review* within one shippable thing and nothing mid-stack ships. So neither direction converts: a stack's layer names are not a slice list, and this sequence is not a stack — `Depends on:` means the earlier slice is already live, so the next one is a fresh PR off the default branch, not a branch layered on an open one.
+
 - **Don't confuse technical risk with user value.** The riskiest assumption should often ship first even when it isn't the most valuable, because it de-risks everything that follows.
 
 - **A default-off flag is what makes an unfinished feature shippable, but flipping it isn't a slice.** Behavior-changing work ships dark and is enabled incrementally (AGENTS.md §5, *Safe rollout, feature flags & migrations*), so an early slice's visible value is often visible-with-the-flag-on, to a pilot group. Say which in `Ships when:`, or nobody can verify it.

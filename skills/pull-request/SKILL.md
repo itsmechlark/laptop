@@ -213,6 +213,7 @@ What's specific to a PR body is the reader's position: they have the diff and do
 | The repo has several templates under `.github/PULL_REQUEST_TEMPLATE/` | Pick the one matching the kind of change and say which you used. If none fits, use the format here and say that. |
 | The diff contains commits you didn't write | Stale base. `git fetch`, then three-dot against `origin/<base>`. |
 | The branch carries two unrelated changes | It's two PRs. Show the proposed split before opening anything — [SPLITTING.md](references/SPLITTING.md). |
+| The PRs already exist because `gh stack submit` opened them | Their titles and bodies are auto-generated — treat them as unwritten. Run each through steps 1–4 against its own diff and replace the text with `gh pr edit`, bottom of the stack first ([SPLITTING.md](references/SPLITTING.md)). |
 | A required check couldn't run in this environment | Name it and why in Testing. Never let the body imply a green run you didn't get. |
 | Review changed the work after the PR was opened | Rewrite the affected bullets in place, drop the ones that no longer apply, and tell the reviewer in a reply — body edits raise no notification. |
 

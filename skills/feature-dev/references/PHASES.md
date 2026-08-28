@@ -129,4 +129,4 @@ Mark the todos complete and give a short summary:
 - **Verification** — the checks you ran and their results; name anything you could not run here.
 - **The commit** — subject line and SHA, and the branch it's on.
 - **Key decisions** — anything notable from slicing, testing, or review, including findings deliberately left and the production-line count against the ~300 budget (restate the justification if it ran over).
-- **Next steps** — the branch is unpushed with no PR open; say so. If this was one slice of a larger epic, name the slices still waiting. `pull-request` covers the title and description when the user is ready.
+- **Next steps** — the branch is unpushed with no PR open; say so. If this was one slice of a larger epic, name the slices still waiting, and that the clean path is to merge this one before cutting the next off the default branch — building the next slice on this unmerged branch stacks them. `pull-request` covers the title and description when the user is ready, and its SPLITTING.md covers the stack.
