@@ -148,7 +148,7 @@ If you were wrong, say so once and move on. No apology paragraph, no defense of 
 
 - **A `suggestion` block is a patch, not a verdict.** GitHub renders them as one-click commits and offers to batch them, which is blind implementation with better ergonomics. Each one goes through step 3 like any other comment; batch-applying a review's suggestions skips the only thing this skill does.
 
-- **Don't amend or force-push while a review is open.** Rewriting the branch detaches every inline comment from its line and clears the reviewer's per-file "viewed" state, so they re-read the whole diff to find your two-line fix. Push follow-up commits and squash at merge.
+- **Don't amend or force-push while a review is open.** Rewriting the branch detaches every inline comment from its line and clears the reviewer's per-file "viewed" state, so they re-read the whole diff to find your two-line fix. Push follow-up commits and squash at merge. **A stack is the exception, and not an optional one** — fixing a lower layer forces every branch above it to be replayed and force-pushed, so the cost lands on reviewers who asked for nothing. It becomes something to batch, gate, and tell them about: [STACKS.md](references/STACKS.md).
 
 - **Never resolve a thread the reviewer hasn't approved or resolved themselves.** Resolving hides it, so resolving one the reviewer hasn't signed off ends the conversation by fiat rather than by agreement — and a reviewer who finds their open question collapsed stops trusting the thread list. Your own reply is not assent, however obviously right it is, and neither is a green build. Plenty of teams do run the opposite convention, where the author resolves each thread as they address it; if this repo documents that, or a reviewer asks you to, put it to the user rather than switching on your own.
 
@@ -169,6 +169,7 @@ If you were wrong, say so once and move on. No apology paragraph, no defense of 
 | `gh pr view` shows review bodies but not the inline comments | They're a separate endpoint: `gh api repos/{owner}/{repo}/pulls/<n>/comments --paginate`. |
 | A reply posts as a new top-level comment instead of in-thread | You used the issue-comment endpoint. Reply through `pulls/<n>/comments/<id>/replies` — [REPLIES.md](references/REPLIES.md). |
 | The comment references a file or symbol that doesn't exist | Check the base: the reviewer may be reading an older push, or the branch was rebased under them. Say which commit you're on. |
+| The PR has other PRs stacked on it, or sits on one | Feedback stops being local — the fix may belong to a different layer, and landing it replays every branch above. Work the set bottom-up: [STACKS.md](references/STACKS.md). |
 | Two reviewers ask for opposite things | Don't pick silently. Name the conflict in one thread and let them settle it. |
 | A suggestion is right but out of scope for this PR | Say so, open the follow-up, and link it in the reply. Don't widen the diff. |
 | A required check can't run in this environment | Name the check and why, in the verification report and again in the reply. Never let it read as verified. |
@@ -186,6 +187,7 @@ Read these as needed, not upfront.
 - [THREADS.md](references/THREADS.md) — assembling threads from the flat comment list, fetching review state and resolution state, deciding which state a thread is in, and the resolve mutation. Read it at step 1.
 - [REPORTS.md](references/REPORTS.md) — both report templates, one worked PR carried through the pair, and what each must carry. Read it at step 4 and again at step 6.
 - [REPLIES.md](references/REPLIES.md) — drafting the reply for each situation, and posting it in the right thread once approved. Read it at step 6, when you're writing the drafts.
+- [STACKS.md](references/STACKS.md) — what changes when the PR has branches stacked on it: collecting the set, working bottom-up, deciding which layer owns a fix, and the reviewer state a replay costs. Read it at step 1 if the PR is part of a stack.
 
 ## Attribution
 
