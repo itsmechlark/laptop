@@ -18,7 +18,7 @@ Read these first; the rest of this document elaborates. None may be violated wit
 This file holds cross-cutting, always-on standards. Stack-specific standards and task workflows live beside it and load when relevant — apply them without being reminded:
 
 - **Machine & fleet context** → `~/.agents/CONTEXT.md` — when present, read it at the start of every session; it maps this machine and its repos (locations, deployment URLs, shared vocabulary). Per-repo domain glossaries live in each repo's own `CONTEXT.md` (the `domain-modeling` skill), not here.
-- **Language / framework standards** → `~/.agents/rules/` (auto-load when a matching file is opened): `testing.md` (framework-agnostic test discipline), `ruby.md` (the language), `rails.md` plus the layer rules `rails-model.md`, `rails-controller.md`, `rails-view.md`, and `rails-migration.md`, `bundler.md` (dependency declaration and pinning), `gem.md` (authoring and releasing a gem), `rspec.md`, `elixir.md`, `react-typescript.md`, `ember.md`, plus `agent-instructions.md` for the size budgets on `AGENTS.md` and `CLAUDE.md` themselves.
+- **Language / framework standards** → `~/.agents/rules/` (auto-load when a matching file is opened): `testing.md` (framework-agnostic test discipline) and `test-levels.md` (unit vs integration vs end to end), `ruby.md` (the language), `rails.md` plus the layer rules `rails-model.md`, `rails-controller.md`, `rails-view.md`, and `rails-migration.md`, `bundler.md` (dependency declaration and pinning), `gem.md` (authoring and releasing a gem), `rspec.md`, `elixir.md`, `react-typescript.md`, `ember.md`, plus `agent-instructions.md` for the size budgets on `AGENTS.md` and `CLAUDE.md` themselves.
 - **Task workflows** → `~/.agents/skills/` (invoke when doing the task): `git-commit` (commit messages & branch naming), `pull-request` (PR title & description), `git-worktree` (worktree setup).
 
 ## First principles
@@ -54,6 +54,7 @@ Every change must consider:
   - Treat all external input (user input, APIs, files, env) as untrusted; validate and sanitize at boundaries.
   - Avoid the OWASP Top 10 classes of bugs: injection (SQL/command/XSS), broken auth, sensitive-data exposure, SSRF, insecure deserialization, etc.
   - Never hardcode secrets/credentials; never log them. Use parameterized queries, safe output encoding, and least-privilege access.
+  - A client-public environment variable (`NEXT_PUBLIC_*`, `VITE_*`, anything a bundle ships to the browser) is published, not configured. API base URLs and public feature flags belong there; database URLs, credentials, and signing secrets never do.
   - Prefer maintained libraries with no known CVEs; flag any dependency with a known vulnerability rather than introducing it.
   - If you write insecure code, fix it immediately upon noticing.
 - **Maintainability**
@@ -115,6 +116,7 @@ Operate for impact beyond the immediate change — optimize for the team, the ne
 - **Keep PRs small and single-purpose.** One logical change per PR; separate pure refactors from behavior changes. Optimize for the reviewer's time and a clean revert.
 - **Be conservative with dependencies and complexity.** Prefer boring, proven technology and the stdlib / existing libraries over net-new dependencies; weigh each addition's maintenance, license, and CVE surface. Spend novelty deliberately, not by default.
 - **Steward contracts; deprecate with a path.** Treat published interfaces — APIs, serializers, provider-facing payloads — as commitments to consumers: change additively, version when you must break, and pair any removal with a deprecation window and communication. (DB-level expand/contract lives in §5.)
+- **Documentation your change makes wrong is part of your change.** When a README, a comment, or a context file disagrees with the implementation, the implementation is the current behavior. Fix what your work invalidated, in the same commit. Contradictions you merely stumble across are worth reporting, not silently rewriting — that widens the diff past the task.
 - **Make tech debt explicit.** Take on debt deliberately, never silently — record it with a `TODO` plus a tracking ticket and a breadcrumb to the follow-up. Surface trade-offs and risks early, rather than letting them surface in review.
 
 ## 8. Writing for a human reader
@@ -125,6 +127,7 @@ Commit messages, PR descriptions, ADRs, specs, tracker comments, and status upda
 - **No hype or filler adjectives** ("comprehensive", "robust", "seamless", "powerful", "significantly").
 - **No throat-clearing** ("It's worth noting that", "In order to", "This change aims to", "This PR aims to").
 - **No invented subsection labels.** A bolded "**Why the database is critical:**" ahead of a sentence is the model organizing its own output, not structure the reader asked for. Use the artifact's real sections; if a bolded lead-in is the only thing making a paragraph scannable, the paragraph is the problem.
+- **Don't fill a template's empty sections.** A heading with nothing under it costs the reader a stop and teaches them to skim. Write `None` only where the absence is itself the news — no open questions, no migration — and otherwise leave the section out.
 - **No restating the diff.** The code is the source of truth — don't narrate it method by method, and don't list the changed files back.
 - **Vary sentence length.** The uniformly-hedged, em-dash-heavy cadence is the giveaway; plain, direct sentences of differing lengths are not.
 - **Say the surprising thing plainly.** Risks, dependencies, and the alternative you rejected are exactly the parts a reader can't reconstruct from the code.
