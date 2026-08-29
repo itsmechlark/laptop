@@ -120,6 +120,7 @@
         "rlength",
         "rstart",
         "rubocop",
+        "rubystyle",
         "rumelt",
         "semaphoreio",
         "setext",
