@@ -16,4 +16,6 @@ Templates, partials, helpers, and view components. Application-wide conventions 
 - Use `link_to` for GET and `button_to` for every other verb, so the request doesn't depend on JavaScript that may not have loaded.
 - Use `_url` for named routes in mailer views; `_path` in ordinary templates.
 
-Adapted from thoughtbot's [Rails guide](https://github.com/thoughtbot/guides/tree/main/rails) (MIT).
+## Attribution
+
+- [thoughtbot/guides](https://github.com/thoughtbot/guides/tree/main/rails) - rails, MIT

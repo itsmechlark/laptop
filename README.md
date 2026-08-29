@@ -325,6 +325,12 @@ sh scripts/check-payload
 Both must exit zero before you open a pull request; CI runs them on every PR in
 a job of their own. Warnings are advisory and may stand. Failures may not.
 
+A skill or rule adapted from someone else's work has to carry both halves of its
+provenance: an entry in `skills-provenance.json` or `rules-provenance.json`, and
+a matching `## Attribution` section last in the file, one bullet per recorded
+source in the recorded order. `check-payload` fails when the two disagree, so
+write them together rather than leaving one as a follow-up.
+
 **Spelling** is checked separately, across every file rather than just the
 payload:
 

@@ -66,11 +66,17 @@ A first-party skill authored from outside material, its sources listed in
 `skills-provenance.json` and mirrored in the skill's own `## Attribution`. A
 subset of first-party, not an alternative to it.
 
+**Derived rule**:
+The same for a rule, recorded in `rules-provenance.json` and mirrored in the
+rule's own `## Attribution`. There is no vendored tier for rules, so a rule is
+either derived or written from scratch — never a verbatim copy under a lock
+file.
+
 **Relationship**:
-How a derived skill tracks one of its sources in `skills-provenance.json`:
+How a derived skill or rule tracks one of its sources in its provenance record:
 `adapted` (forked then diverged, pinned to a `ref`, updated by 3-way reconcile),
 `spec` (conforms to an external spec, watch its version), or `inspired-by`
-(ideas and terminology only, never synced). One per source, not one per skill.
+(ideas and terminology only, never synced). One per source, not one per subject.
 
 **Project-only skill**:
 A skill that maintains this repo and is deliberately not linked from `skills/`,

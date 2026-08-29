@@ -28,4 +28,6 @@ How a Ruby project declares, pins, and audits what it depends on. Authoring and 
 - Group development and test dependencies so a production install pulls only what production runs.
 - Adding a dependency is a decision, not a convenience: prefer the stdlib or a gem already in the bundle, and weigh maintenance, license, and CVE surface before adding another.
 
-Pinning guidance adapted from thoughtbot's [Ruby guide](https://github.com/thoughtbot/guides/tree/main/ruby) (MIT).
+## Attribution
+
+- [thoughtbot/guides](https://github.com/thoughtbot/guides/tree/main/ruby) - ruby, MIT

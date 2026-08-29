@@ -15,4 +15,7 @@ For a project that *is* a gem. Pinning dependencies in an application is in `bun
 - Never monkey-patch from a library. A gem that reopens its consumers' classes makes their bugs yours, and the breakage surfaces in their code, not the gem's.
 - **Release the same way every time:** bump the version constant → `bundle install` so the lockfile follows → run the full suite → update `CHANGELOG`/`NEWS`/`README` if the change is user-facing → commit with the version as the message (`v2.1.0`) → `rake release`, which tags the release, pushes the tag, and pushes the gem to RubyGems.
 
-Adapted from thoughtbot's [Ruby guide](https://github.com/thoughtbot/guides/tree/main/ruby) and its [gem release how-to](https://github.com/thoughtbot/guides/blob/main/ruby/how-to/release_a_ruby_gem.md) (MIT).
+## Attribution
+
+- [thoughtbot/guides](https://github.com/thoughtbot/guides/tree/main/ruby) - ruby, MIT
+- [thoughtbot/guides](https://github.com/thoughtbot/guides/blob/main/ruby/how-to/release_a_ruby_gem.md) - release a Ruby gem, MIT

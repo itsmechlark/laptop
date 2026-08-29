@@ -73,6 +73,7 @@ CONTEXT.md              # this repo's glossary — what its own words mean
 docs/adr/               # architecture decision records, numbered sequentially
 skills-lock.json        # provenance + content hashes for vendored skills (tool-owned)
 skills-provenance.json  # source lineage for first-party derived skills (hand-owned)
+rules-provenance.json   # source lineage for derived rules (hand-owned)
 cspell.json             # spell check: dictionaries, project words, ignore paths
 scripts/                # verification tooling; each relocates to the repo root itself
   check-payload         # static verification of the payload (POSIX sh + jq)
@@ -151,7 +152,7 @@ writes to this repository but restricts the home dotdirs (`~/.claude/`,
 symlink resolves here. Use the repo-relative path instead — e.g.
 `.claude/settings.json`, `skills/foo/SKILL.md`, `rules/ruby.md`,
 `.agents/AGENTS.md`. The same applies to `skills-lock.json` and
-`skills-provenance.json` (both at the repo root).
+`skills-provenance.json` and `rules-provenance.json` (all at the repo root).
 
 **`.codex/config.toml` is generated, not linked to a tracked file.** `mac`
 renders it from `.codex/config.toml.template`, then links the result; the output
@@ -266,7 +267,8 @@ instead of splitting a long vendored `SKILL.md` in place.
 
 Within that scope it mechanizes the half of the `agent-skills` review checklist
 a machine can settle, plus cross-file invariants this document declares:
-handoff invocability, `## Attribution` ↔ `skills-provenance.json` agreement,
+handoff invocability, `## Attribution` ↔ provenance-record agreement for both
+skills and rules,
 vendored-edit discipline, secret-path parity across clients, frontmatter and
 size limits, resource links in both directions, anchor fragments (`#section`
 must match a heading or `<a id>`), global-standards section citations
@@ -516,6 +518,11 @@ paths:
 ---
 ```
 
+A rule drawn from outside material ends with the same `## Attribution` section
+a derived skill carries, mirroring `rules-provenance.json` — see "Derived
+skills and rules". A rule loads on every matching path, so keep the body terse
+and push long-form material into a skill rather than growing the rule.
+
 ### Vendored skills
 
 Third-party skills live in `.agents/skills/<name>/`, are recorded in
@@ -530,13 +537,15 @@ instead, which costs nothing and keeps the hash honest. Genuinely need the
 divergence? Reclassify the skill as `adapted` in `skills-provenance.json` first,
 so the fork is recorded rather than silent.
 
-### Derived skills
+### Derived skills and rules
 
-First-party skills authored from outside material are tracked in
-`skills-provenance.json` (hand-owned; `npx skills` never touches it). Verbatim
-copies → `skills-lock.json`; our own work from a source →
-`skills-provenance.json`. Each skill maps to a **list** of sources (one skill
-can draw on several). Every source carries a `relationship`:
+First-party skills and rules authored from outside material are tracked in
+`skills-provenance.json` and `rules-provenance.json` (both hand-owned; `npx
+skills` never touches either). Verbatim copies → `skills-lock.json`; our own
+work from a source → the matching provenance record. Rules have no vendored
+tier, so every rule is first-party and every rule with outside lineage is
+recorded. Each subject maps to a **list** of sources (one skill or rule can
+draw on several). Every source carries a `relationship`:
 
 - `adapted` — forked then diverged; pinned to a `ref`. Update = 3-way reconcile
   (`git diff <ref>..HEAD -- <path>`, port the non-conflicting upstream changes),
@@ -544,26 +553,39 @@ can draw on several). Every source carries a `relationship`:
 - `spec` — conforms to an external spec; watch the spec URL/version.
 - `inspired-by` — ideas/terminology only, no `ref`; attribution, not synced.
 
-Keep the human-readable `## Attribution` section in each derived SKILL.md as
-the reader-facing attribution; its flat-list format is defined by the
-`agent-skills` skill, and `skills-provenance.json` is its machine-readable
-mirror.
+Keep the human-readable `## Attribution` section in each derived `SKILL.md` and
+`rules/<name>.md` as the reader-facing attribution — the same flat-list format
+in both, defined by the `agent-skills` skill, with the provenance record as its
+machine-readable mirror.
 
-**Update both the provenance and the skill's `## Attribution` whenever a
-first-party skill changes** — they are part of the change, not a follow-up:
+**`check-payload` fails the run when the two disagree**, for skills and rules
+alike: a recorded subject with no `## Attribution`, a bullet count that doesn't
+match the source count, a section that isn't last in the file, an em dash where
+the format is ` - `, a GitHub bullet that doesn't name its recorded `origin`,
+an `## Attribution` with no record behind it, or a record naming a file that no
+longer exists. The single exemption is a vendored skill, whose lineage lives in
+`skills-lock.json` and whose body is not ours to annotate.
 
-- New skill from outside material → add `skills.<name>` entry + `## Attribution`.
-- New influence on existing skill → append source + add to `## Attribution`.
-  A source in `skills-provenance.json` without a matching `## Attribution` entry
-  is the common miss.
+**Update both the provenance and the `## Attribution` whenever a first-party
+skill or rule changes** — they are part of the change, not a follow-up:
+
+- New skill or rule from outside material → add the `skills.<name>` or
+  `rules.<name>` entry + `## Attribution`.
+- New influence on an existing one → append source + add to `## Attribution`.
+  A source in a provenance record without a matching `## Attribution` entry is
+  the common miss.
 - Reconciled upstream (`adapted`/`spec`) → bump `ref`/`version` + `reviewed`.
 - Purely local change → no `ref` change; `inspired-by` sources never carry one.
 
-Run the `update-skills` project skill (see below) to detect upstream drift and
-walk the reconcile per skill; it reads and writes `skills-provenance.json`. It
-never edits a SKILL.md, so the `## Attribution` change is always yours to make:
-every source in a skill's provenance list must have a matching entry in its
-`## Attribution`, and the reverse.
+Several subjects may pin the same upstream path — the five Rails rules all pin
+`thoughtbot/guides` at `rails`. Each carries its own `ref`, so porting a change
+into one never licenses bumping another.
+
+Run the `update-provenance` project skill (see below) to detect upstream drift
+and walk the reconcile per subject; it reads and writes both records. It never
+edits a `SKILL.md` or a rule on its own authority, so the `## Attribution`
+change is always yours to make: every source in a subject's provenance list
+must have a matching entry in its `## Attribution`, and the reverse.
 
 ### Project-only skills
 
@@ -571,7 +593,7 @@ Some skills exist only to maintain *this* repo and must not ship. Their bodies
 live in `.agents/skills/<name>/` but are deliberately **not** linked from
 `skills/`, so `mac`'s chain never carries them off this repo. They are still
 first-party — that word says who wrote a skill, not whether it ships.
-`update-skills` is one: scoped to this repo's skill set.
+`update-provenance` is one: scoped to this repo's own skills and rules.
 
 ### Markdown
 
@@ -608,7 +630,8 @@ formats belong to the `domain-modeling` skill.
   enforce this.
 - Conventional Commits, imperative mood. The agent payload and provisioner —
   `.agents/`, `.claude/`, `.codex/`, `.cursor/`, `rules/`, `skills/`, `mac`,
-  `skills-lock.json`, and `skills-provenance.json` — are **production code**,
+  `skills-lock.json`, `skills-provenance.json`, and `rules-provenance.json` —
+  are **production code**,
   not documentation, even where they're written in Markdown. Changes to them
   take a code type (`feat`, `fix`, `refactor`, `chore`, …), never `docs`.
   Reserve `docs` for the human-facing docs that describe the repo rather than

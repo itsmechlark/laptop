@@ -35,4 +35,6 @@ This file is Ruby the language. Rails conventions are in `rails.md`, dependency 
 
 Specs follow the RSpec standards (`rspec.md`), and they come first: new behavior and bug fixes are driven by a failing test before the code that satisfies it. The `tdd` skill covers that cycle.
 
-Style guidance here draws on thoughtbot's [Ruby guide](https://github.com/thoughtbot/guides/tree/main/ruby) (MIT).
+## Attribution
+
+- [thoughtbot/guides](https://github.com/thoughtbot/guides/tree/main/ruby) - ruby, MIT

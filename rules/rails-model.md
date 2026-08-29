@@ -17,4 +17,6 @@ ActiveRecord, ActiveModel, and the objects that carry domain behavior. Applicati
 - Reach for [Pundit](https://github.com/varvet/pundit) when access to models or data needs restricting, so authorization lives in one auditable place rather than spread across callers.
 - Use ActiveStorage for uploads that belong to a record, and never point a test at a live storage backend.
 
-Adapted from thoughtbot's [Rails guide](https://github.com/thoughtbot/guides/tree/main/rails) (MIT).
+## Attribution
+
+- [thoughtbot/guides](https://github.com/thoughtbot/guides/tree/main/rails) - rails, MIT

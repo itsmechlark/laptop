@@ -44,6 +44,7 @@
         "baprs",
         "basenames",
         "bikeshed",
+        "binstub",
         "binstubs",
         "blocklisted",
         "checkpointed",

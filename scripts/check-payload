@@ -619,65 +619,112 @@ fi
 fancy_echo "Checking attribution against recorded provenance ..."
 
 provenance=skills-provenance.json
+rules_provenance=rules-provenance.json
+
+# Skills and rules declare provenance the same way — a `## Attribution` section
+# that is a 1:1 human projection of the record — so one checker serves both. It
+# takes the Markdown file, the record, that record's collection key, the key
+# within it, and whether an unrecorded section is excusable. The last is yes
+# only for a vendored skill, whose lineage lives in skills-lock.json and whose
+# body is not ours to annotate; rules have no vendored tier, so there it never
+# is.
+check_attribution() {
+  md=$1
+  record=$2
+  collection=$3
+  key=$4
+  unrecorded_ok=$5
+
+  recorded=$(jq -r --arg c "$collection" --arg k "$key" \
+    'if .[$c][$k] then (.[$c][$k].sources | length) else "none" end' "$record")
+  has_section=no
+  grep -q '^## Attribution$' "$md" && has_section=yes
+
+  if [ "$recorded" = "none" ]; then
+    if [ "$has_section" = yes ] && [ "$unrecorded_ok" != yes ]; then
+      fail "$md: has ## Attribution but no entry in $record"
+    fi
+    return
+  fi
+
+  if [ "$has_section" = no ]; then
+    fail "$md: recorded in $record but has no ## Attribution section"
+    return
+  fi
+
+  if grep -A100000 '^## Attribution$' "$md" | tail -n +2 | grep -q '^## '; then
+    fail "$md: ## Attribution is not the last section"
+  fi
+
+  bullets=$(grep -A100000 '^## Attribution$' "$md" | tail -n +2 |
+    grep -c '^- ' || true)
+  if [ "$bullets" -ne "$recorded" ]; then
+    fail "$md: $bullets attribution bullets vs $recorded sources in $record"
+  fi
+
+  # Separator: SECTIONS.md specifies ') - name, LICENSE'. An em dash reads
+  # the same to a human and differs to a diff.
+  if grep -A100000 '^## Attribution$' "$md" | grep -q '^- \[.*) — '; then
+    fail "$md: attribution bullet uses ' — ' where the format is ' - '"
+  fi
+
+  # For github sources the origin string appears verbatim in its bullet, so
+  # order is checkable. Other kinds carry a prose title and are not.
+  i=0
+  while [ "$i" -lt "$recorded" ]; do
+    kind=$(jq -r --arg c "$collection" --arg k "$key" --argjson i "$i" \
+      '.[$c][$k].sources[$i].type' "$record")
+    origin=$(jq -r --arg c "$collection" --arg k "$key" --argjson i "$i" \
+      '.[$c][$k].sources[$i].origin' "$record")
+    if [ "$kind" = "github" ]; then
+      bullet=$(grep -A100000 '^## Attribution$' "$md" | tail -n +2 |
+        grep '^- ' | sed -n "$((i + 1))p")
+      case "$bullet" in
+        *"$origin"*) ;;
+        *) fail "$md: attribution bullet $((i + 1)) does not name '$origin'" ;;
+      esac
+    fi
+    i=$((i + 1))
+  done
+}
+
+# A record naming something that no longer exists reads as a clean run forever:
+# check_attribution only ever walks files that are present, so a renamed skill
+# or rule leaves its old entry behind silently. Body path is prefix + key +
+# suffix.
+check_orphan_records() {
+  orphan_record=$1
+  orphan_collection=$2
+  orphan_prefix=$3
+  orphan_suffix=$4
+
+  for orphan_key in $(jq -r --arg c "$orphan_collection" \
+    '.[$c] | keys[]' "$orphan_record"); do
+    body="$orphan_prefix$orphan_key$orphan_suffix"
+    [ -f "$body" ] ||
+      fail "$orphan_record: records '$orphan_key', but $body does not exist"
+  done
+}
 
 if [ ! -f "$provenance" ]; then
   fail "$provenance is missing"
 else
+  check_orphan_records "$provenance" skills "skills/" "/SKILL.md"
   for name in $(skill_names); do
-    md="skills/$name/SKILL.md"
-    recorded=$(jq -r --arg s "$name" \
-      'if .skills[$s] then (.skills[$s].sources | length) else "none" end' "$provenance")
-    has_section=no
-    grep -q '^## Attribution$' "$md" && has_section=yes
+    vendored=no
+    is_vendored "$name" && vendored=yes
+    check_attribution "skills/$name/SKILL.md" "$provenance" skills "$name" "$vendored"
+  done
+fi
 
-    if [ "$recorded" = "none" ]; then
-      # Vendored skills are recorded in skills-lock.json instead, and are not
-      # ours to annotate.
-      if [ "$has_section" = yes ] && [ ! -L "skills/$name" ]; then
-        fail "$md: has ## Attribution but no entry in $provenance"
-      fi
-      continue
-    fi
-
-    if [ "$has_section" = no ]; then
-      fail "$md: recorded in $provenance but has no ## Attribution section"
-      continue
-    fi
-
-    if grep -A100000 '^## Attribution$' "$md" | tail -n +2 | grep -q '^## '; then
-      fail "$md: ## Attribution is not the last section"
-    fi
-
-    bullets=$(grep -A100000 '^## Attribution$' "$md" | tail -n +2 |
-      grep -c '^- ' || true)
-    if [ "$bullets" -ne "$recorded" ]; then
-      fail "$md: $bullets attribution bullets vs $recorded provenance sources"
-    fi
-
-    # Separator: SECTIONS.md specifies ') - name, LICENSE'. An em dash reads
-    # the same to a human and differs to a diff.
-    if grep -A100000 '^## Attribution$' "$md" | grep -q '^- \[.*) — '; then
-      fail "$md: attribution bullet uses ' — ' where the format is ' - '"
-    fi
-
-    # For github sources the origin string appears verbatim in its bullet, so
-    # order is checkable. Other kinds carry a prose title and are not.
-    i=0
-    while [ "$i" -lt "$recorded" ]; do
-      kind=$(jq -r --arg s "$name" --argjson i "$i" \
-        '.skills[$s].sources[$i].type' "$provenance")
-      origin=$(jq -r --arg s "$name" --argjson i "$i" \
-        '.skills[$s].sources[$i].origin' "$provenance")
-      if [ "$kind" = "github" ]; then
-        bullet=$(grep -A100000 '^## Attribution$' "$md" | tail -n +2 |
-          grep '^- ' | sed -n "$((i + 1))p")
-        case "$bullet" in
-          *"$origin"*) ;;
-          *) fail "$md: attribution bullet $((i + 1)) does not name '$origin'" ;;
-        esac
-      fi
-      i=$((i + 1))
-    done
+if [ ! -f "$rules_provenance" ]; then
+  fail "$rules_provenance is missing"
+else
+  check_orphan_records "$rules_provenance" rules "rules/" ".md"
+  for rule in rules/*.md; do
+    [ -f "$rule" ] || continue
+    check_attribution "$rule" "$rules_provenance" rules \
+      "$(basename "$rule" .md)" no
   done
 fi
 

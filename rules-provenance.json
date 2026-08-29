@@ -1,0 +1,142 @@
+{
+  "version": 1,
+  "note": "Provenance for derived rules — the `rules/` counterpart to skills-provenance.json, and the same hand-owned model in every respect: the reader-facing mirror is a `## Attribution` section at the end of the rule, one flat bullet per source in this array's order, and check-payload holds the two in agreement with the same checker it runs over skills. A rule has no vendored tier — `npx skills` does not manage rules/, so there is no lock file beside this one and every rule in the payload is first-party, which makes an unrecorded `## Attribution` a failure here where it is excusable for a vendored skill. `relationship` decides sync behavior; `ref` is the upstream commit this rule is reconciled through as of `reviewed`. INITIAL PINS are baselines set to current upstream HEAD on the import date — they mean 'watch from here', not 'verified byte-identical to that commit'.",
+  "relationships": {
+    "adapted": "Forked from the source, then intentionally diverged. Has a `ref`. Sync = 3-way reconcile (diff ref..HEAD, port non-conflicting changes, then bump `ref`+`reviewed`). Never overwrite.",
+    "spec": "Conforms to an external normative specification rather than forking code. Watch the spec `url`/version; reconcile when the spec revises.",
+    "inspired-by": "Ideas, structure, or terminology only — no code lineage. Attribution only; the drift checker skips these (no `ref`)."
+  },
+  "rules": {
+    "bundler": {
+      "sources": [
+        {
+          "origin": "thoughtbot/guides",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/guides",
+          "path": "ruby",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
+          "reviewed": "2026-08-29",
+          "note": "INITIAL PIN. Recorded retroactively for commit 0bada2d, which split the single Ruby rule into four path-scoped ones and attributed the guide in prose without a machine-readable record. Only the pinning guidance is drawn from upstream; the bundler-audit, binstub, and dependency-cost bullets are local."
+        }
+      ]
+    },
+    "gem": {
+      "sources": [
+        {
+          "origin": "thoughtbot/guides",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/guides",
+          "path": "ruby",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
+          "reviewed": "2026-08-29",
+          "note": "INITIAL PIN, recorded retroactively for commit 0bada2d."
+        },
+        {
+          "origin": "thoughtbot/guides",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/guides",
+          "path": "ruby/how-to/release_a_ruby_gem.md",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
+          "reviewed": "2026-08-29",
+          "note": "INITIAL PIN. Source of the fixed release sequence — bump, bundle, suite, changelog, version-as-message commit, rake release. Tracked apart from the `ruby` directory because the how-to revises on its own schedule."
+        }
+      ]
+    },
+    "rails": {
+      "sources": [
+        {
+          "origin": "thoughtbot/guides",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/guides",
+          "path": "rails",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
+          "reviewed": "2026-08-29",
+          "note": "INITIAL PIN. Recorded retroactively for commit 0bada2d, whose message carries the divergences this pin does not: style enforcement names whatever opinionated config a project already has rather than RuboCop outright, and Spring binstubs, the empty-string column default, and blanket `touch: true` were left out. Upstream's code-review guidance is deliberately not here — it is review-time advice and lives in the `code-review` skill."
+        }
+      ]
+    },
+    "rails-controller": {
+      "sources": [
+        {
+          "origin": "thoughtbot/guides",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/guides",
+          "path": "rails",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
+          "reviewed": "2026-08-29",
+          "note": "INITIAL PIN, recorded retroactively for commit 0bada2d. Four layer rules share this path: a diff scoped to `rails` has to be triaged across rails, rails-controller, rails-model, rails-view, and rails-migration rather than ported into one."
+        }
+      ]
+    },
+    "rails-migration": {
+      "sources": [
+        {
+          "origin": "thoughtbot/guides",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/guides",
+          "path": "rails",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
+          "reviewed": "2026-08-29",
+          "note": "INITIAL PIN, recorded retroactively for commit 0bada2d. The expand/contract and reversibility bullets are local, from the global standards, not upstream."
+        }
+      ]
+    },
+    "rails-model": {
+      "sources": [
+        {
+          "origin": "thoughtbot/guides",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/guides",
+          "path": "rails",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
+          "reviewed": "2026-08-29",
+          "note": "INITIAL PIN, recorded retroactively for commit 0bada2d. Deliberate divergence: upstream rejects the `scope` DSL outright in favor of class methods, where this rule keeps `scope` for a simple argument-free condition and switches to `def self.method` once it takes arguments or branches. Do not let a reconcile quietly restore the upstream position."
+        }
+      ]
+    },
+    "rails-view": {
+      "sources": [
+        {
+          "origin": "thoughtbot/guides",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/guides",
+          "path": "rails",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
+          "reviewed": "2026-08-29",
+          "note": "INITIAL PIN, recorded retroactively for commit 0bada2d."
+        }
+      ]
+    },
+    "ruby": {
+      "sources": [
+        {
+          "origin": "thoughtbot/guides",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/guides",
+          "path": "ruby",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
+          "reviewed": "2026-08-29",
+          "note": "INITIAL PIN, recorded retroactively for commit 0bada2d. Style guidance only — the objects-and-names half is local. Upstream keeps two of these bullets in standalone files rather than the guide README (Limit-use-of-conditional-modifiers-to-short-simple-cases.md, Use-an-opinionated-set-of-rules-for-Rubocop.md), so a drift check scoped to the directory catches them and one scoped to the README would not."
+        }
+      ]
+    }
+  }
+}

@@ -28,4 +28,6 @@ Layer-specific conventions load with the file being edited: `rails-model.md`, `r
 
 Specs follow `rspec.md`, which covers factories, time control, and the spec type that belongs on an API endpoint.
 
-Adapted from thoughtbot's [Rails guide](https://github.com/thoughtbot/guides/tree/main/rails) (MIT).
+## Attribution
+
+- [thoughtbot/guides](https://github.com/thoughtbot/guides/tree/main/rails) - rails, MIT

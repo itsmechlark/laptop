@@ -15,4 +15,6 @@ Migrations, the schema they produce, and seed data. Application-wide conventions
 - Name columns for what they hold — `_at` for datetimes, `_on` for dates, `_time` for a time of day — and back a boolean concept with a timestamp (`published_at`, `deleted_at`) when *when* it happened is worth knowing.
 - Keep `db/schema.rb` (or `db/structure.sql`) in version control. `db/seeds.rb` is for data every environment needs; development-only seed data belongs in its own task.
 
-Adapted from thoughtbot's [Rails guide](https://github.com/thoughtbot/guides/tree/main/rails) (MIT).
+## Attribution
+
+- [thoughtbot/guides](https://github.com/thoughtbot/guides/tree/main/rails) - rails, MIT

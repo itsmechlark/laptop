@@ -15,4 +15,6 @@ The request layer: what a route exposes and what an action is allowed to do. App
 - Use `_url` for named routes in redirects and mailer views; `_path` everywhere else.
 - Keep query logic in the model. A controller that writes SQL or chains conditions is holding knowledge the model can't test or reuse.
 
-Adapted from thoughtbot's [Rails guide](https://github.com/thoughtbot/guides/tree/main/rails) (MIT).
+## Attribution
+
+- [thoughtbot/guides](https://github.com/thoughtbot/guides/tree/main/rails) - rails, MIT
