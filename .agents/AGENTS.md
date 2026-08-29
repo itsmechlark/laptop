@@ -43,6 +43,7 @@ Approach every task as a staff engineer would: understand the problem and its co
   - **D**ependency Inversion — depend on abstractions, not concretions; inject dependencies.
 - **Test-Driven Development (TDD)** — for new behavior and bug fixes, write a failing test first, make it pass with the minimum code, then refactor. A bug fix should start with a test that reproduces the bug.
 - Don't over-engineer. Don't add abstractions, configuration, or flexibility the task doesn't require. Three similar lines beat a premature abstraction.
+- **Follow the patterns already in the project** — its idioms, file layout, and tooling — unless diverging buys something concrete. Preserve intentional existing work and layer on top of it; rewrite only for a real defect or an explicit request to refactor.
 - Make the change explainable: a reviewer should be able to understand *why* from the diff and commit message.
 
 ## 2. Quality attributes (always design for these)
@@ -57,12 +58,14 @@ Every change must consider:
   - If you write insecure code, fix it immediately upon noticing.
 - **Maintainability**
   - Clear, intention-revealing names; small functions; low coupling and high cohesion.
-  - **Restrict comments in production code.** Prefer self-documenting code (precise names, small functions) over prose. A comment may explain *why* — intent, a trade-off, a non-obvious constraint — but never *what*: if you feel the need to narrate what the code does, rename or refactor instead. Default to no comments, and never leave commented-out code.
+  - **Restrict comments in production code.** Prefer self-documenting code (precise names, small functions) over prose. A comment may explain *why* — intent, a trade-off, a non-obvious constraint — but never *what*: if you feel the need to narrate what the code does, rename or refactor instead. Default to no comments, and never leave commented-out code. Directives the tooling reads (`eslint-disable-*`, `@ts-expect-error`, `# rubocop:disable`) are the standing exception. Section banners (`// ─── …`), sprint or ticket annotation blocks, and schema doc comments are not — that material belongs in an ADR or the commit message.
   - **Tests document the production code.** Treat the test suite as the executable specification — describe expected behavior, edge cases, and contracts clearly enough that the specs, not comments, are where a reader learns what the code does (see §1 TDD, and the `rspec` rule for Ruby).
   - Leave the code at least as clean as you found it, scoped to the task.
 - **Performance**
   - Be mindful of algorithmic complexity, N+1 queries, unnecessary allocations, and blocking I/O on hot paths.
   - Optimize for correctness and clarity first; optimize for speed where it measurably matters. Avoid premature micro-optimization.
+- **Accessibility**
+  - Interfaces and workflows are accessible by default: keyboard operation, visible focus, sufficient contrast, labeled controls, and error states that say what to do next. It is part of the change, not a follow-up ticket.
 
 ## 3. Jira vs. Pull Requests — audience separation
 
@@ -81,6 +84,7 @@ Work is not "done" until it is verified — never report a task complete on unve
 - **Exercise UI / behavioral changes.** Run the app and use the feature — happy path plus key edge cases — before claiming success. If you cannot run it in this environment, say so explicitly rather than asserting it works.
 - **Self-review the diff** for leftover debug output, secrets, and out-of-scope churn before handing it off.
 - If a check genuinely cannot be run here, state which one and why — don't silently skip it.
+- **Never mask a failing gate.** No `|| true`, no `| exit 0`, no skipped test or lowered threshold to get a green result. A formatter/lint helper (`pnpm fix`, `rubocop -a`) is not a correctness gate either. A gate that is genuinely wrong gets fixed or removed deliberately, never silenced.
 - **Don't trust a search that may have skipped files.** macOS/BSD `find` doesn't follow symlinks by default — use `find -L` when a directory tree mixes real dirs and symlinks, so a "found nothing" isn't just a symlinked subtree it never entered.
 
 ## 5. Safe rollout, feature flags & migrations
@@ -97,6 +101,7 @@ Ship behavioral change conservatively and reversibly.
 - **No silent failures.** Never swallow exceptions or rejected promises — no empty `rescue`, bare `catch {}`, or ignored `{:error, _}`. A caught error must be handled, re-raised, or surfaced with context.
 - **Actionable errors.** Messages should say what failed and carry enough context to debug (identifiers, operation), without leaking secrets or PII.
 - **Fail fast at boundaries; degrade gracefully for users.** Validate inputs early; in user-facing flows show a meaningful error state, never a blank screen or unhandled crash.
+- **Validate configuration at startup, in one place.** New environment variables are declared and parsed in the project's canonical config module, which fails with an error naming the missing or malformed setting. Downstream code depends on the parsed shape, never on loose `ENV[…]` reads scattered through the codebase.
 - **Structured, leveled logging.** Log at appropriate levels with structured context; never log secrets, tokens, or PII; keep hot paths quiet.
 - **Report to monitoring.** Send unexpected errors to the project's tracker (e.g. Sentry) — don't rely on logs alone for production failures.
 - **Idempotency & concurrency.** Make background jobs and mutating endpoints safe to retry — a redelivered Sidekiq job or a double-submitted request must not double-book, double-charge, or double-send. Guard shared-state updates against races with database constraints, locks, or atomic operations; never rely on an unprotected read-then-write. This is the failure mode behind overbooking.
