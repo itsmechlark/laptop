@@ -33,6 +33,7 @@ project_doc_max_bytes = 65536
 hooks = true
 # Required for [permissions.developer.network.domains] to be enforced.
 network_proxy = true
+memories = true
 
 # Scrub likely credentials from subprocess environments.
 [shell_environment_policy]
