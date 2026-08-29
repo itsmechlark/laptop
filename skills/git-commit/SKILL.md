@@ -96,11 +96,11 @@ Rewriting a commit that already exists can destroy work and breaks every clone t
 ```
 
 - **Types:** `feat` (→ MINOR), `fix` (→ PATCH), plus `build`, `chore`, `ci`, `docs`, `style`, `refactor`, `perf`, `test`.
-- **Scope** (optional), in parentheses, names the affected area — component, package, module, or feature/domain (e.g. `feat(auth): …`). Match the repo's existing scope convention; omit it if the project doesn't use one.
+- **Scope** (optional), in parentheses, names the affected area — component, package, module, or feature/domain (e.g. `feat(auth): …`). Match the repo's existing scope convention; omit it if the project doesn't use one. Where release tooling defines components (a release config, a workspace manifest), take the scope from those names rather than inventing a parallel vocabulary. When several are touched, use the one that clearly owns the change; when none does, drop the scope rather than reaching for a vague catch-all.
 - **Breaking changes:** add `!` before the colon (`feat(api)!: …`) and/or a `BREAKING CHANGE:` footer (uppercased) → SemVer MAJOR.
 - **Footers** follow git-trailer convention, one blank line after the body (e.g. `Refs: #123`, `Reviewed-by: …`).
 - **Issue reference (only if the project uses one):** reference a tracked issue the way the repo already does — a trailer (`Refs: #123`) or a plain URL on its own line — and only when it's obvious which one applies (the branch clearly maps to it, or the user named it). Don't fabricate or guess a number; ask if the convention needs a key you don't have.
-- **Skip CI on docs-only commits:** when a commit changes nothing CI validates (no code, config, or tests) and the CI honors it, add `[skip ci]` (or `[ci skip]`) on its own line in the body. Never on a commit that touches code, config, or tests.
+- **Skip CI on docs-only commits:** when a commit changes nothing CI validates (no code, config, or tests) and the CI honors it, add `[skip ci]` (or `[ci skip]`) on its own line in the body. Never on a commit that touches code, config, or tests. Four cases are worth naming because the type invites the mistake: a pipeline or workflow definition (the run *is* how it gets validated), any test change and especially a `fix` repairing a failing test, build config or generated contracts, and migrations. A non-feature type is not an exemption — `ci`, `test`, `chore`, and `fix` commits usually need the run. When in doubt leave CI enabled: a wasted run is cheaper than an unvalidated change.
 
 ### Subject line
 
