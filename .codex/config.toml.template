@@ -33,6 +33,9 @@ project_doc_max_bytes = 65536
 hooks = true
 # Required for [permissions.developer.network.domains] to be enforced.
 network_proxy = true
+# Leave code execution to the sandboxed shell; the JS REPL is a second, separately
+# governed execution path this profile does not need.
+js_repl = false
 memories = true
 
 # Scrub likely credentials from subprocess environments.
@@ -519,6 +522,15 @@ for raw_argv in split_commands(command):
             deny("kubectl mutation must put `apply` or `delete` immediately after `kubectl` so the native approval rule cannot be bypassed. Move global flags after the subcommand.")
 ''''
 timeout = 3
+
+# -----------------------------------------------------------------------------
+# Memories
+# -----------------------------------------------------------------------------
+
+# Sub-configuration for the memory feature toggled on under [features] above.
+[memories]
+generate_memories = true
+use_memories = true
 
 # -----------------------------------------------------------------------------
 # Telemetry
