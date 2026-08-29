@@ -1,36 +1,56 @@
 # Which rules load for a given path.
 #
 # One case per line: <path> <comma-separated rule names, or - for none>.
-# Rule names are the basenames in rules/. Order is alphabetical, which is how
-# check-payload builds the actual list.
+# Rule names are the basenames in rules/. Order is the order check-payload
+# builds the actual list in — a byte-wise sort under LC_ALL=C, which the script
+# pins. That is why `rails-model` precedes `rails`: `-` sorts before `.`.
 #
 # This asserts which rules *load* — a mechanical consequence of the paths:
 # globs. It deliberately does not assert which rules *apply*: rules/ember.md
 # claims a broad **/*.js and tells the reading agent to ignore it outside an
 # Ember app, and that judgment is not testable here.
 
-app/models/reservation.rb        ruby
-lib/tasks/backfill.rake          ruby
-Gemfile                          ruby
-tablecheck.gemspec               ruby
-spec/models/reservation_spec.rb  rspec,ruby,testing
-spec/rails_helper.rb             rspec,ruby,testing
-spec/support/factories.rb        rspec,ruby,testing
-lib/parser.ex                    elixir
-mix.exs                          elixir
-test/parser_test.exs             elixir,testing
-app/components/menu.tsx          react-typescript
-src/hooks/use-cart.ts            react-typescript
-src/hooks/use-cart.test.ts       react-typescript,testing
-app/routes/checkout.js           ember
-tests/unit/cart-test.js          ember,testing
-app/templates/checkout.hbs       ember
-app/templates/legacy.emblem      ember
-AGENTS.md                        agent-instructions
-CLAUDE.md                        agent-instructions
-.claude/CLAUDE.md                agent-instructions
-docs/nested/AGENTS.md            agent-instructions
-mac                              -
-README.md                        -
-config/database.yml              -
-AGENTS.md.bak                    -
+app/models/reservation.rb                   rails-model,rails,ruby
+app/controllers/reservations_controller.rb  rails-controller,rails,ruby
+app/mailers/reservation_mailer.rb           rails-controller,rails,ruby
+app/views/reservations/show.erb             rails-view,rails
+app/views/application/_flash.erb            rails-view,rails
+app/helpers/reservations_helper.rb          rails-view,rails,ruby
+app/components/badge_component.rb           rails-view,rails,ruby
+config/routes.rb                            rails-controller,rails,ruby
+config/initializers/sidekiq.rb              rails,ruby
+db/migrate/20260101_add.rb                  rails-migration,rails,ruby
+db/schema.rb                                rails-migration,rails,ruby
+db/structure.sql                            rails-migration
+config.ru                                   rails
+config/locales/en.yml                       rails
+lib/tasks/backfill.rake                     ruby
+Gemfile                                     bundler,ruby
+Gemfile.lock                                bundler
+gems.rb                                     bundler,ruby
+.ruby-version                               bundler
+gemfiles/rails_8.0.gemfile                  bundler
+tablecheck.gemspec                          bundler,gem,ruby
+Appraisals                                  gem
+lib/tablecheck/version.rb                   gem,ruby
+spec/models/reservation_spec.rb             rspec,ruby,testing
+spec/rails_helper.rb                        rspec,ruby,testing
+spec/support/factories.rb                   rspec,ruby,testing
+lib/parser.ex                               elixir
+mix.exs                                     elixir
+test/parser_test.exs                        elixir,testing
+app/components/menu.tsx                     react-typescript
+src/hooks/use-cart.ts                       react-typescript
+src/hooks/use-cart.test.ts                  react-typescript,testing
+app/routes/checkout.js                      ember
+tests/unit/cart-test.js                     ember,testing
+app/templates/checkout.hbs                  ember
+app/templates/legacy.emblem                 ember
+AGENTS.md                                   agent-instructions
+CLAUDE.md                                   agent-instructions
+.claude/CLAUDE.md                           agent-instructions
+docs/nested/AGENTS.md                       agent-instructions
+mac                                         -
+README.md                                   -
+config/database.yml                         -
+AGENTS.md.bak                               -

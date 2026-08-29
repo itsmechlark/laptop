@@ -18,8 +18,8 @@ Read these first; the rest of this document elaborates. None may be violated wit
 This file holds cross-cutting, always-on standards. Stack-specific standards and task workflows live beside it and load when relevant — apply them without being reminded:
 
 - **Machine & fleet context** → `~/.agents/CONTEXT.md` — when present, read it at the start of every session; it maps this machine and its repos (locations, deployment URLs, shared vocabulary). Per-repo domain glossaries live in each repo's own `CONTEXT.md` (the `domain-modeling` skill), not here.
-- **Language / framework standards** → `~/.claude/rules/` (auto-load when a matching file is opened): `testing.md` (framework-agnostic test discipline), `ruby.md` (Ruby + Rails), `rspec.md`, `elixir.md`, `react-typescript.md`, `ember.md`, plus `agent-instructions.md` for the size budgets on `AGENTS.md` and `CLAUDE.md` themselves.
-- **Task workflows** → `~/.claude/skills/` (invoke when doing the task): `git-commit` (commit messages & branch naming), `pull-request` (PR title & description), `git-worktree` (worktree setup).
+- **Language / framework standards** → `~/.agents/rules/` (auto-load when a matching file is opened): `testing.md` (framework-agnostic test discipline), `ruby.md` (the language), `rails.md` plus the layer rules `rails-model.md`, `rails-controller.md`, `rails-view.md`, and `rails-migration.md`, `bundler.md` (dependency declaration and pinning), `gem.md` (authoring and releasing a gem), `rspec.md`, `elixir.md`, `react-typescript.md`, `ember.md`, plus `agent-instructions.md` for the size budgets on `AGENTS.md` and `CLAUDE.md` themselves.
+- **Task workflows** → `~/.agents/skills/` (invoke when doing the task): `git-commit` (commit messages & branch naming), `pull-request` (PR title & description), `git-worktree` (worktree setup).
 
 ## First principles
 
