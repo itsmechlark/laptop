@@ -87,6 +87,10 @@ Work is not "done" until it is verified — never report a task complete on unve
 - If a check genuinely cannot be run here, state which one and why — don't silently skip it.
 - **Never mask a failing gate.** No `|| true`, no `| exit 0`, no skipped test or lowered threshold to get a green result. A formatter/lint helper (`pnpm fix`, `rubocop -a`) is not a correctness gate either. A gate that is genuinely wrong gets fixed or removed deliberately, never silenced.
 - **Don't trust a search that may have skipped files.** macOS/BSD `find` doesn't follow symlinks by default — use `find -L` when a directory tree mixes real dirs and symlinks, so a "found nothing" isn't just a symlinked subtree it never entered.
+- **Stage the gates rather than running everything after every edit.** In the inner loop run the smallest check that exercises what you changed; save broad or expensive gates — a full suite, a repo-wide type-check, a contract regeneration — for stable checkpoints and closeout. After fixing a failure rerun that gate and anything it directly invalidated, and if the fix changed behavior, rerun the focused tests and the closeout gate that had already passed.
+- **A long, quiet suite is not a hung one.** Don't restart or stack duplicate runs unless the process has failed, hung past a defensible timeout, or is exercising the wrong scope.
+- **Close out on the final tree.** Once the diff is stable, run `git diff --check` for whitespace damage and a diff-scoped secret scan (`gitleaks stdin --redact`) before handing off.
+- **Report what you actually ran.** End an implementation summary with a two-column table — each gate against its scope and result — plus test counts and coverage for new or changed modules, and a row naming any gate you couldn't run alongside the smallest command that would close the gap. Pick rows by touched surface; it's a reporting format, not a fixed script.
 
 ## 5. Safe rollout, feature flags & migrations
 
