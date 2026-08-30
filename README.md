@@ -111,11 +111,13 @@ GitHub tools:
 Development tools:
 
 * [CSpell] for spell-checking code and prose
+* [Gitleaks] for catching secrets in a diff before they are committed
 * [Trivy] for scanning dependencies and images for vulnerabilities
 * [1Password CLI] for reading secrets without pasting them
 * [Claude Code] and [Codex] for agentic coding
 
 [CSpell]: https://cspell.org
+[Gitleaks]: https://gitleaks.io/
 [Trivy]: https://trivy.dev/
 [1Password CLI]: https://developer.1password.com/docs/cli/
 [Claude Code]: https://claude.com/product/claude-code

@@ -172,6 +172,7 @@ brew "redis", restart_service: :changed
 # Development Tools
 brew "cspell"
 brew "gh"
+brew "gitleaks"
 brew "trivy"
 cask "1password-cli"
 cask "claude-code"
