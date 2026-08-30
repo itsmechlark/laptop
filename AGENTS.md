@@ -352,9 +352,10 @@ list, is in
 **Adjacent skills share one query pool** with labels per skill, so a query
 proves exactly one fires — `git-commit`/`pull-request`,
 `code-review`/`find-bugs`, `codebase-design`/`domain-modeling`,
-`grilling`/`review-response`. Labeling a shared query should-trigger in both is
-unfalsifiable, so `check-payload` fails on it. Pick a partner that can win the
-query — pairing against a flagged skill measures nothing on Claude.
+`grilling`/`review-response`, `agent-skills`/`agent-rules`. Labeling a shared
+query should-trigger in both is unfalsifiable, so `check-payload` fails on it.
+Pick a partner that can win the query — pairing against a flagged skill measures
+nothing on Claude.
 
 Two checks are worth understanding before you change them:
 

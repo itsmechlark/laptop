@@ -445,7 +445,7 @@ fancy_echo "Checking trigger-eval coverage ..."
 # Exempt: low description overlap and cheap to recover from when they misfire.
 # Move a name out of this list the first time it actually triggers wrongly, and
 # let the misfire be what motivates the query set.
-evals_exempt="agent-safety agent-skills git-worktree"
+evals_exempt="agent-safety git-worktree"
 
 for name in $(skill_names); do
   is_flagged "$name" && continue

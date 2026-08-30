@@ -18,8 +18,9 @@ here depends on skill-creator any more.
 | `tdd`, `fan-out` | A wrong trigger is expensive: one hijacks an implementation turn into red-green-refactor, the other spawns parallel agents |
 | `codebase-design` + `domain-modeling` | Both are design-time skills that fire on "this code is the wrong shape" requests, and `domain-modeling` hands work to `codebase-design` explicitly. The boundary — where the seam goes vs. what the words mean — had never been tested |
 | `grilling` + `review-response` | Both fire on "push back on this technical judgment" requests. `grilling` is also an interview primitive that four siblings route into — `triage`, `find-bugs`, `draft-spec`, and `brainstorming` — which changes what a bad result costs: the expensive failure is a *missed* trigger, where the agent improvises an interview instead of loading this one, and term overlap cannot see that |
+| `agent-skills` + `agent-rules` | Third highest overlap (0.122), above the `code-review` pair. They share every word that matters — frontmatter, description, glob, "never loads" — and differ only in which artifact is being written. `agent-skills` came off `evals_exempt` when `agent-rules` landed: low overlap was the reason it was exempt, and that reason expired |
 
-The four pairs share a single query pool, labeled independently per skill, so
+The five pairs share a single query pool, labeled independently per skill, so
 a query establishes which of the two should win rather than testing each in
 isolation. `check-payload` fails if any shared query is labeled should-trigger
 in both — that would make the pair unfalsifiable.
@@ -190,6 +191,18 @@ label may be what's wrong:
   is the artifact — feedback on a *plan* is `grilling`, comments on *code in
   review* are `review-response`. If the eval disagrees, the fix is in the
   descriptions, not the labels.
+- **agent-skills** / **agent-rules**, "should the rails conventions be a skill
+  or a rule?" — labeled should-trigger for `agent-rules` and not for
+  `agent-skills`. Genuinely contested: both bodies carry a routing table for
+  this exact question, written from opposite sides. The label follows the
+  descriptions, where only `agent-rules` claims the decision. Whichever fires,
+  the answer is the same, so this is the pair's cheapest failure — read it as a
+  tiebreak, not as evidence a description is wrong.
+- **agent-skills** / **agent-rules**, "codex keeps prompting me for every git
+  command. fix the execpolicy rules" — labeled should-not-trigger for both. It
+  is the word "rules" doing all the work: Codex `.rules` files are command
+  execpolicy, an unrelated artifact that `codex-config` owns. The negative most
+  likely to fail in the `agent-rules` set.
 
 ## One hypothesis these sets exist to settle
 

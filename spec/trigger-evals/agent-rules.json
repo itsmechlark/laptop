@@ -1,0 +1,22 @@
+[
+  {"query": "my cursor rule for the api folder never fires. the globs line looks right to me", "should_trigger": true},
+  {"query": "claude.md is up to 400 lines. split the ruby conventions and the migration conventions out into path-scoped rules", "should_trigger": true},
+  {"query": "for the reversible-migrations rule, should the glob be **/db/migrate/**/*.rb or just **/*.rb?", "should_trigger": true},
+  {"query": "we're moving the team off cursor onto claude code. port what's in .cursor/rules over", "should_trigger": true},
+  {"query": "review the rules directory before i commit it — a couple of these globs look way too broad", "should_trigger": true},
+  {"query": "add a rule so anything under app/components picks up the no-side-effects convention", "should_trigger": true},
+  {"query": "why is my testing rule loading on every single file instead of just the specs?", "should_trigger": true},
+  {"query": "we have the same conventions duplicated across .cursor/rules, .clinerules and .claude/rules. what should the single source be?", "should_trigger": true},
+  {"query": "should the rails conventions be a skill or a rule?", "should_trigger": true},
+  {"query": "write a SKILL.md for our staging deploy runbook", "should_trigger": false},
+  {"query": "this skill never gets picked up when i ask for it. is the description the problem?", "should_trigger": false},
+  {"query": "turn prompts/refactor.md into a proper skill", "should_trigger": false},
+  {"query": "my SKILL.md is 600 lines. what belongs in references/ and what belongs in assets/?", "should_trigger": false},
+  {"query": "does the name field have to match the folder name? validate this skill for me", "should_trigger": false},
+  {"query": "two of our skills keep competing for the same requests. fix the descriptions so one wins", "should_trigger": false},
+  {"query": "generate an AGENTS.md for this repo", "should_trigger": false},
+  {"query": "explain how the symlink chain in mac ends up at ~/.claude/skills", "should_trigger": false},
+  {"query": "codex keeps prompting me for every git command. fix the execpolicy rules", "should_trigger": false},
+  {"query": "find me a skill that can talk to jira", "should_trigger": false},
+  {"query": "the rubocop rule for line length is too strict, bump it to 120", "should_trigger": false}
+]

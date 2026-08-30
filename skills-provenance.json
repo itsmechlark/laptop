@@ -7,6 +7,46 @@
     "inspired-by": "Ideas, structure, or terminology only — no code lineage. Attribution only; the drift checker skips these (no `ref`)."
   },
   "skills": {
+    "agent-rules": {
+      "sources": [
+        {
+          "origin": "Claude Code rules documentation",
+          "type": "spec",
+          "url": "https://code.claude.com/docs/en/claude-md",
+          "relationship": "spec"
+        },
+        {
+          "origin": "Cursor rules documentation",
+          "type": "spec",
+          "url": "https://cursor.com/docs/rules",
+          "relationship": "spec"
+        },
+        {
+          "origin": "GitHub Copilot custom instructions documentation",
+          "type": "spec",
+          "url": "https://docs.github.com/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot",
+          "relationship": "spec"
+        },
+        {
+          "origin": "Windsurf rules documentation",
+          "type": "spec",
+          "url": "https://docs.devin.ai/desktop/cascade/memories",
+          "relationship": "spec"
+        },
+        {
+          "origin": "Cline rules documentation",
+          "type": "spec",
+          "url": "https://docs.cline.bot/customization/cline-rules",
+          "relationship": "spec"
+        },
+        {
+          "origin": "agentsmd/agents.md",
+          "type": "github",
+          "url": "https://github.com/agentsmd/agents.md/issues/179",
+          "relationship": "inspired-by"
+        }
+      ]
+    },
     "agent-safety": {
       "sources": [
         {
