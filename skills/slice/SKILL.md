@@ -128,7 +128,7 @@ After the list, give a one-paragraph sequencing rationale.
 
 A sequence agreed in conversation dies with it, and it's the artifact the next two weeks run on. Past one slice, ask where the list should live and write it there — a Markdown file at a path the user names, job stories verbatim so the criteria survive. One slice sharpened in three questions needs no file: say what you'd write, and let them decide.
 
-This step files nothing and specs nothing. `triage` owns the tracker, and creating items there is an outward-facing write that needs the user's yes (read and follow its `SKILL.md`); `draft-spec` writes slice one up properly when a contractor or an unattended agent has to work it cold.
+This step files nothing and specs nothing. Once the list is agreed, `file-tickets` puts it on the tracker as one item per slice with the dependency edges intact, and `triage` works those items afterwards — creating tracker items is an outward-facing write that needs the user's yes, and both of those are user-invoked, so read and follow the target's `SKILL.md`. `draft-spec` writes slice one up properly when a contractor or an unattended agent has to work it cold.
 
 ## Handing a slice off
 

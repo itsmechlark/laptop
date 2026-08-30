@@ -13,7 +13,7 @@ Match the destination to what was asked, and nothing more:
 | A spec | Return the Markdown in the conversation. Nothing is written anywhere. |
 | A durable local document | Write it to the path or docs location **they named**. Never invent a repo-wide `specs/` directory to have somewhere to put it. |
 | An existing tracker item filled in | Hand the draft over for tracker work — see below. |
-| A new tracker item | Resolve the real project and state vocabulary first, then get explicit approval immediately before publishing. |
+| A new tracker item | Resolve the real project and state vocabulary first, then get explicit approval immediately before publishing. A whole agreed breakdown rather than one item is `file-tickets`' job — read and follow its `SKILL.md`. |
 | Publishing, with no tracker integration available | Leave it as Markdown and say publication was not performed. |
 
 Never claim a file exists that you didn't write. "Spec drafted below" and "spec
