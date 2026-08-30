@@ -103,7 +103,8 @@ count that changes fails the run.
 **Trigger eval**:
 A query set at `spec/trigger-evals/<skill>.json` measuring whether a skill's
 description fires on the queries it should and stays quiet on the rest. Run from
-a terminal, never in CI. Measures the skill as installed (ADR 0008).
+a terminal, never in CI. Measures the skill as installed
+([ADR 0011](docs/adr/0011-trigger-evals-measure-installed-skills.md)).
 
 **Probe skill**:
 A throwaway skill carrying a candidate description, written into a temp project

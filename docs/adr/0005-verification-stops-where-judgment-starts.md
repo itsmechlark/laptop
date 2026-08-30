@@ -21,9 +21,11 @@ its own decision (ADR 0007).
 
 Choosing `claude -p` as the runner also decides what can be measured at all.
 `scripts/lib/run_eval_local.py` watches Claude's `Skill` tool fire on the skill
-under test — as installed, per ADR 0008 — and a flagged skill cannot fire on
-Claude, so a query set aimed at one is not merely unmotivated but unrunnable by
-any engine in this repo, and `check-payload` rejects it. On Codex
+under test — as installed, per
+[ADR 0011](0011-trigger-evals-measure-installed-skills.md) — and a flagged
+skill cannot fire on Claude, so a query set aimed at one is not merely
+unmotivated but unrunnable by any engine in this repo, and `check-payload`
+rejects it. On Codex
 and Cursor such a skill *can* misfire, because they ignore the key; measuring
 that would take a second runner driving `codex` and `cursor-agent`, which is the
 change to propose if it ever matters. Until then the skill's own body is the
