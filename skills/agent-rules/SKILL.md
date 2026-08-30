@@ -122,22 +122,36 @@ again and again. Write accordingly:
 - **Constraints, not prose.** Bulleted imperatives the agent can check itself
   against. "Rescue specific exceptions, never bare `rescue`" beats a paragraph
   about error-handling philosophy.
+- **One concrete example beats three paragraphs.** A short before-and-after, or
+  a path to the file in this repository that already does it right. What does
+  not belong is the appendix: reference material, multi-step procedures, and a
+  catalogue of worked cases go in a skill, loaded on demand. A rule that wants
+  an appendix is a rule that should name a skill and stop.
+- **Point at canonical files; never copy their contents.** An inlined snippet is
+  a second copy nothing keeps in sync, and it goes stale the first time someone
+  edits the original — silently, because the rule still reads fine. Name the
+  path and let the agent open it.
 - **One topic per file.** The filename is the topic; if you need a second
   heading level to organize it, it is two rules.
 - **Terse.** Windsurf caps a rule at 12,000 characters and Cursor advises 500
   lines, but the real budget is smaller: this text competes with the code for
   attention every time it loads. Aim for one screen.
-- **Long-form goes to a skill, not to a longer rule.** Reference material,
-  multi-step procedures, and worked examples belong somewhere loaded on demand.
-  A rule that wants an appendix is a rule that should name a skill and stop.
 - **Say why for anything surprising.** A constraint the agent can see the reason
   for survives contact with a case you did not anticipate; a bare prohibition
   does not.
 
-**Cite outside material where a rule derives from it.** A rule adapted from a
-published style guide should end with an attribution section naming the source,
-maintained the same way a skill's is — see the `## Attribution` standard in
-`agent-skills`.
+Four kinds of content reliably fail that trade and should not be here at all:
+anything a linter or type-checker already enforces, anything the model already
+knows, edge cases that rarely fire, and code the repository already contains.
+Write the rule after the *second* time you correct the same mistake, never in
+anticipation. Each of those with its worked contrast, plus how to turn a
+repeated chat prompt into a rule: [CONTENT.md](references/CONTENT.md).
+
+**Cite outside material where a rule derives from it** — while noticing that
+wholesale copying is usually the linter case wearing a citation. A style guide
+belongs in a linter, not a rule. Where the fork is genuinely warranted, end the
+rule with an attribution section naming the source, maintained the same way a
+skill's is — see the `## Attribution` standard in `agent-skills`.
 
 ## Gotchas
 
@@ -201,6 +215,9 @@ The rest is judgment:
 - [ ] `git ls-files` on each pattern returns a plausible, non-empty set
 - [ ] The rule is one topic, and the filename says which
 - [ ] Body is constraints, not exposition; long-form has been moved to a skill
+- [ ] Nothing here is enforceable by a linter, formatter, or type-checker
+- [ ] No copied code — canonical files are referenced by path
+- [ ] The rule answers a mistake that actually recurred, not one anticipated
 - [ ] Nothing here contradicts the instruction file or another rule that shares
       a matching path
 - [ ] Anything surprising carries its reason
@@ -211,13 +228,15 @@ The rest is judgment:
 
 ## References
 
-Read these as needed for the task in hand, not both upfront.
+Read these as needed for the task in hand, not all three upfront.
 
 - [FORMATS.md](references/FORMATS.md) — every host's frontmatter, locations,
   precedence, and limits; porting one rule across hosts; the `.agents/rules/`
   standardization proposal
 - [SCOPING.md](references/SCOPING.md) — glob syntax, brace expansion, layering
   broad and narrow rules, and testing a pattern before you commit it
+- [CONTENT.md](references/CONTENT.md) — what earns a place in a rule body and
+  what does not, the recurrence test, and promoting a repeated chat prompt
 - [Claude Code rules](https://code.claude.com/docs/en/claude-md) — `paths:`
   frontmatter and load order
 - [Cursor rules](https://cursor.com/docs/rules) — `.mdc` frontmatter and the
