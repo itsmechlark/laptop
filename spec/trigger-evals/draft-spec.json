@@ -19,5 +19,11 @@
   {"query": "can you write the release notes for 4.2", "should_trigger": false},
   {"query": "summarize this thread into something i can drop in slack for the team", "should_trigger": false},
   {"query": "we haven't decided between webhooks and polling yet but write the spec anyway so it looks like we have a plan", "should_trigger": false},
-  {"query": "our spec template is inconsistent across the team — can you propose a standard one", "should_trigger": false}
+  {"query": "our spec template is inconsistent across the team — can you propose a standard one", "should_trigger": false},
+  {"query": "sales keeps promising bulk export to enterprise customers and it's on the roadmap now. nobody's written down what problem it actually solves — draft a PRD before we design anything", "should_trigger": false},
+  {"query": "the brainstorm gave us an approach but there's no framing behind it — what problem we're solving and for whom. write that part up", "should_trigger": false},
+  {"query": "before we slice this can you write down what success looks like and what's explicitly out of scope", "should_trigger": false},
+  {"query": "draft the product requirements for waitlist promotion. keep it approach-free, the design conversation hasn't happened yet", "should_trigger": false},
+  {"query": "put together the problem statement, target users and success measures for the multi-location rollout", "should_trigger": false},
+  {"query": "we've got a feature request for a bulk-edit screen. write it up as requirements — i want the underlying problem stated, not the button", "should_trigger": false}
 ]

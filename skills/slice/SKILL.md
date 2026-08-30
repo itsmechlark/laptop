@@ -30,6 +30,7 @@ If the user asks you to skip the questions and just produce the slices, draft th
 - Not for items already filed on an issue tracker — `triage` works those
 - Not for writing the work up as a single spec document — that's `draft-spec`
 - Not for deciding *what* to build while the approach is still open — `brainstorming` comes first, and its architectural path hands the approved design here
+- Not for stating the problem the feature exists to solve — `draft-prd` writes that for the product team, and a feature with no agreed problem behind it has nothing to slice toward
 - Not for estimating, prioritizing a backlog, or splitting a large source file
 
 `brainstorming`, `triage`, and `feature-dev` are all user-invoke-only, so the Skill tool refuses them. Route to any of the three by reading and following the target's `SKILL.md`, or by telling the user to invoke it themselves.

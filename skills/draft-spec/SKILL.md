@@ -1,6 +1,6 @@
 ---
 name: draft-spec
-description: Turn an already-settled conversation or approved design into a formal, agent-ready spec document for triage and implementation planning. Use when asked to spec something out, write a discussion up as an issue, or formalize a design that has been agreed — including when an approved design is handed over ready to write up. Synthesizes what is already decided; not for opening a requirements interview.
+description: Turn an already-settled conversation or approved design into a formal, agent-ready engineering spec for triage and implementation planning — user stories, implementation decisions, testing decisions, and scope. Use when asked to spec something out, write a discussion up as an issue, or formalize a design that has been agreed — including when an approved design is handed over ready to write up. Synthesizes what is already decided, for the people who will build it; not for opening a requirements interview, and not for writing the product framing behind a request that has none.
 argument-hint: "[feature, decision, or conversation to specify]"
 ---
 
@@ -18,6 +18,7 @@ Subject: `$ARGUMENTS` — when the conversation settled several things, this nam
 - Not while the change is in flight — a spec written over half-built code documents the guess rather than the decision
 - Not to settle what is still open: pressure-testing a plan is `grilling`'s work, and choosing what to build at all is `brainstorming`'s
 - Not for splitting work into shippable pieces (`slice`), working an item that already exists on a tracker (`triage`), or judging code against a spec that already exists (`code-review`, whose third axis is exactly that)
+- Not for the product framing behind a request that never had any — the problem, who has it, and what would count as success are `draft-prd`'s, written for the product team and deliberately approach-free. This spec sits underneath one and describes how the agreed thing gets built
 
 ## Is it settled enough to write?
 

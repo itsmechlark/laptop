@@ -29,6 +29,8 @@ answer; there is nothing to classify before that.
   `draft-spec`
 - Not for breaking a feature into slices — use `slice` (though the architectural
   path may hand off to it)
+- Not for stating the problem and success measures behind an idea that has none
+  — that's `draft-prd`, and this skill designs against its output
 
 ## The hard gate
 
