@@ -11,7 +11,7 @@ Match the destination to what was asked, and nothing more:
 | The user asked for | Do this |
 | --- | --- |
 | A spec | Return the Markdown in the conversation. Nothing is written anywhere. |
-| A durable local document | Write it to the path or docs location **they named**. Never invent a repo-wide `specs/` directory to have somewhere to put it. |
+| A durable local document | Write it to the path or docs location **they named**. When they asked for a file but didn't name one, offer `docs/specs/<YYYYMMDDHHMMSS>-<kebab-slug>.md` and let them accept or redirect — never write without confirmation. |
 | An existing tracker item filled in | Hand the draft over for tracker work — see below. |
 | A new tracker item | Resolve the real project and state vocabulary first, then get explicit approval immediately before publishing. A whole agreed breakdown rather than one item is `file-tickets`' job — read and follow its `SKILL.md`. |
 | Publishing, with no tracker integration available | Leave it as Markdown and say publication was not performed. |
