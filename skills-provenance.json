@@ -544,20 +544,6 @@
           "note": "INITIAL PIN. Source is in-progress upstream. Adapted into a full skill: added structured summary format, when-to-use boundaries (vs fan-out), gotchas for background-agent limitations, and the report step."
         }
       ]
-    },
-    "file-tickets": {
-      "sources": [
-        {
-          "origin": "mattpocock/skills",
-          "type": "github",
-          "url": "https://github.com/mattpocock/skills",
-          "path": "skills/engineering/to-tickets",
-          "relationship": "inspired-by",
-          "license": "MIT",
-          "note": "Not a fork, so no ref. Upstream to-tickets slices and publishes in one pass; this payload already owns the slicing (slice) and the tracker state machine (triage), so only the publish step was new. Taken: the process shape, the frontier rule that only unblocked tickets are workable, one-approval-for-the-set, and the ban on file paths and code snippets in ticket bodies. Deliberately not taken: the slicing interview, the wide-refactor expand/contract ladder (slice rules those are steps inside a slice, not slices), the .scratch/ local file output (slice step 4 already captures the list), and upstream's ticket shape, which is engineering-audience and would violate AGENTS.md section 3."
-        },
-        { "origin": "Adapt, Build Wide, Ship Narrow", "type": "web", "url": "https://adapt.com/blog/build-wide-ship-narrow", "relationship": "inspired-by", "note": "Scoped the skill rather than shaping its body: decomposition is cheaper with the code in front of you, so this skill files an agreed list and stops, and the post-build split into pull requests stays in pull-request/references/SPLITTING.md." }
-      ]
     }
   }
 }

@@ -23,7 +23,7 @@ What to work: `$ARGUMENTS`. A bare `#42` resolves against the repository's track
 - Recording a rejected enhancement so the same idea isn't re-litigated in six months
 - Not for filing a *fresh* bug from an error message or stack trace: that is a dedupe-and-create job against the tracker, and where the environment ships a plugin skill for it (an Atlassian bundle usually does), that skill owns the path
 - Not for an enhancement that turns out to be an epic — `slice` cuts it, then triage the slices
-- Not for putting a whole agreed slice list onto the tracker for the first time — `file-tickets` creates that set with its dependency edges, and triage works the items afterwards (read and follow its `SKILL.md`)
+- Not for putting a whole agreed slice list onto the tracker for the first time — creating a set is an outward-facing write the user authorizes with the count in front of them, and triage works the items afterwards
 - Not for judging the code in an external PR beyond "does it do what it claims" — that's `code-review`
 - Not for a specification too large to live in a tracker comment — that's `draft-spec`
 
