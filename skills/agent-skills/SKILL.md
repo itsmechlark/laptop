@@ -45,6 +45,8 @@ what triggers it, not by what it's about:
 
 If you can't name the request that should load it, it isn't a skill.
 
+When the answer is a path-scoped rule rather than a skill, `agent-rules` authors and fixes it — the way this skill does for skills.
+
 ## Workflows
 
 ### Create a new skill

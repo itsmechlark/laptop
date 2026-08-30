@@ -174,6 +174,8 @@ If you were wrong, say so once and move on. No apology paragraph, no defense of 
 | A suggestion is right but out of scope for this PR | Say so, open the follow-up, and link it in the reply. Don't widen the diff. |
 | A required check can't run in this environment | Name the check and why, in the verification report and again in the reply. Never let it read as verified. |
 | The reviewer asks for a test you can't write without refactoring | Say what the seam costs and offer both: the test after the refactor, or a narrower one now. `tdd` covers writing it test-first. |
+| A thread settles a hard-to-reverse decision, not just this diff | The reasoning dies when the thread resolves. Record it as an ADR (`domain-modeling`) so it outlives the PR, and link it in the reply. |
+| A comment says the code is in the wrong place, or an abstraction is wrong | That's a design finding, not a line edit. `codebase-design` locates the seam; take the move as its own commit before reworking the diff around it. |
 | The user approves the fixes but not the replies | Commit and push; hold the replies. Say which threads are still unanswered so they don't look ignored. |
 | Nothing in `gh pr view` or the REST comments says whether a thread is resolved | It's GraphQL-only (`reviewThreads.isResolved`) — [THREADS.md](references/THREADS.md). Don't infer it from the comments. |
 | The same comment appears twice in the collected set | You fetched replies as top-level items. Group by `in_reply_to_id` first — [THREADS.md](references/THREADS.md). |

@@ -97,6 +97,8 @@ Two rules bind this axis:
 
 Also on this axis: **tests.** Judge new behavior and bug fixes against how this repo already tests. Missing coverage for new logic is a conformance finding — firm where the repo documents a testing requirement (the repo overrides), a judgment call where it doesn't. When missing coverage is a finding, point to the `tdd` skill for addressing it test-first. For Ruby projects, `rules/rspec.md` documents the testing conventions this axis measures against — it auto-loads for spec files.
 
+**When a Standards finding is really a missing standard, say so.** A smell you're flagging across more than one review, or a convention the code plainly follows but nothing documents, is a finding about the *baseline*, not just this diff. Surface it in the report as a candidate for the repo's own standards — a path-scoped rule (`agent-rules`) or an ADR (`domain-modeling`) — so the next review measures against it instead of rediscovering it. Recording it is the user's call and a separate change; flagging it is this skill's.
+
 ## Spec axis — the right thing built
 
 Find the originating spec, in this order:

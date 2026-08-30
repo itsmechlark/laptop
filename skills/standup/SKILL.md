@@ -31,6 +31,10 @@ Two skills take over when the sharpening in Step 3 turns up something bigger tha
 
 For the tracker items an update mentions, `triage` works them — and `feature-dev` runs the build the next update will report on. Both are user-invoke-only, so the Skill tool refuses them: route there by reading and following the target's `SKILL.md`, or by telling the user to invoke it themselves.
 
+When Step 2 or the user surfaces a problem that has carried across updates — a repeated slip, a blocker raised before and still open — that is a lesson to capture, not just report. Point it at its durable home: `domain-modeling` records it as an ADR or a settled term, and `agent-rules` as a path-scoped rule. This skill still only reports; it routes the capture, it doesn't do it.
+
+When the recurring item is a request the team keeps declining rather than a lesson, the cross-repo rejection record is `triage`'s — user-invoke-only, so read and follow its `SKILL.md`.
+
 ## Workflows
 
 Run this as a conversation, and wait for each answer before moving on.
