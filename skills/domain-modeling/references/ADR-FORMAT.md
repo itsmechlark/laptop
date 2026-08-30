@@ -2,6 +2,10 @@
 
 ADRs live in `docs/adr/`, numbered sequentially: `0001-slug.md`, `0002-slug.md`. Scan the directory for the highest number and increment. Create `docs/adr/` lazily — only when the first ADR is warranted.
 
+The number is an address, so two ADRs may never share one. Two branches open at once will each scan the same directory and claim the same next number, and the collision is invisible until both land — after which every `ADR NNNN` citation in the repo points at two files. Renumber on rebase, before merge, fixing the inbound references in the same commit.
+
+When a duplicate reaches the main branch anyway, the later of the two moves to the next free number rather than a recycled one, taking its references with it. It then sits out of chronological order, which is the price of treating the number as an address rather than a date. Otherwise a merged number is spent: never reuse it, not even for an ADR that turned out wrong.
+
 ## Template
 
 ```markdown
@@ -18,11 +22,22 @@ a projection that can lag, and schema changes mean replaying.
 
 **Rejected:** A mutable orders table with an audit trigger — cheaper, but the
 audit rows can't reconstruct intermediate states.
+
+**Evidence:** `app/models/order/`, `db/migrate/20260112_add_order_events.rb`,
+`docs/guides/order-history.md`
 ```
 
-Three to four short sections, one to three sentences each — a single paragraph covering all of them is fine when that reads better. The value is in recording *that* a decision was made and *why*, not in filling out a form. Context → decision → consequences, plus the alternatives you rejected and why, is the house shape (AGENTS.md §7).
+Context, decision, and consequences are the record; **Rejected** and **Evidence** are additions that earn their place case by case. One to three sentences each, and a single paragraph covering the first three is fine when that reads better. The value is in recording *that* a decision was made and *why*, not in filling out a form. Context → decision → consequences, plus the alternatives you rejected and why, is the house shape (AGENTS.md §7).
 
 Drop **Rejected** when there was no real alternative worth remembering. Add `status:` frontmatter (`proposed | accepted | deprecated | superseded by ADR-NNNN`) only in a repo where decisions get revisited often enough to need it.
+
+## Evidence
+
+**Evidence** is the only section that points outward: where the decision actually lives. Add it when the decision is spread across places nobody would connect by grep — a schema, a middleware, a migration, and the guide that explains them. Skip it when the decision lives in one module the title already names; a list of one is noise.
+
+Anchor it on directories and long-lived files, never line numbers. A rotted path is worse than no path, because a reader trusts it just long enough to conclude the decision was abandoned. Where a path has moved, updating it is editing the *record*, not the decision — do it, and don't open a new number for it. A superseded ADR is the exception: its Evidence freezes with the rest of the file, because it documents where the decision lived while it held.
+
+Evidence is not a file inventory. It names the load-bearing paths a reader would otherwise have to discover, and stops.
 
 ## Where the file goes
 

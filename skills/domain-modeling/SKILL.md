@@ -65,7 +65,9 @@ A relationship that survives a scenario is real; one that doesn't was wishful.
 
 **Write a settled term down inline.** A term is settled when all three hold: it has been used twice without hedging, no rival candidate is still in play, and you can state its boundary against its nearest neighbor. Then update `CONTEXT.md` immediately — don't batch, because a batch is a thing you forget. Keep it a glossary: no implementation detail, no spec, no scratch pad ([CONTEXT-FORMAT.md](references/CONTEXT-FORMAT.md)).
 
-**Offer ADRs sparingly.** Only when all three hold — hard to reverse, surprising without context, and the result of a real trade-off. If any is missing, skip it. When one qualifies, write it per [ADR-FORMAT.md](references/ADR-FORMAT.md); that is also the house rule (AGENTS.md §7 — durable decisions belong in an ADR, not buried in a PR description that rots).
+**Write an ADR the moment one is earned.** All three must hold — hard to reverse, surprising without context, and the result of a real trade-off. If any is missing, skip it. When all three hold, write it per [ADR-FORMAT.md](references/ADR-FORMAT.md) rather than offering to: waiting for permission is how the reasoning gets lost between deciding and committing. That is the house rule too (AGENTS.md §7 — durable decisions belong in an ADR, not buried in a PR description that rots). The gate is what makes writing-without-asking safe, and a number is spent permanently, so an ADR written on a maybe costs more than one never written.
+
+**Point `AGENTS.md` at each directory once.** A repo's first `CONTEXT.md` and first ADR are invisible until the instruction file names them — no client discovers either on its own. Add one pointer when you create the directory, then stop: after that an individual ADR earns an inline mention only where the rule it explains would otherwise look arbitrary enough that someone "fixes" it. A citation per decision grows `AGENTS.md` without informing anyone.
 
 **Be pedantic about words.** Two people using the same term for two different things is the failure this skill exists to catch, and catching it is worth interrupting for.
 
