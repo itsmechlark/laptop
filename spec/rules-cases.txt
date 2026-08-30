@@ -50,10 +50,10 @@ app/routes/checkout.js                      ember
 tests/unit/cart-test.js                     ember,test-levels,testing
 app/templates/checkout.hbs                  ember
 app/templates/legacy.emblem                 ember
-AGENTS.md                                   agent-instructions
-CLAUDE.md                                   agent-instructions
-.claude/CLAUDE.md                           agent-instructions
-docs/nested/AGENTS.md                       agent-instructions
+AGENTS.md                                   agent-instructions-layout,agent-instructions
+CLAUDE.md                                   agent-instructions-layout,agent-instructions
+.claude/CLAUDE.md                           agent-instructions-layout,agent-instructions
+docs/nested/AGENTS.md                       agent-instructions-layout,agent-instructions
 mac                                         -
 README.md                                   -
 config/database.yml                         -
