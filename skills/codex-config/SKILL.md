@@ -1,6 +1,6 @@
 ---
 name: codex-config
-description: Review, create, migrate, and validate OpenAI Codex CLI configuration and command-execution policy. Use when editing .codex/config.toml, config.toml.template, managed requirements.toml, or .codex/rules/*.rules; changing permission profiles, sandbox or network policy, hooks, or feature flags; or troubleshooting codex execpolicy. Not for general Codex setup, product questions, model selection, or API usage.
+description: Review, create, migrate, and validate OpenAI Codex CLI configuration and command-execution policy. Use when editing or rendering .codex/config.toml, config.toml.template, managed requirements.toml, or .codex/rules/*.rules; adding, reviewing, or validating permission profiles, sandbox or network policy, hooks (including PreToolUse gates for Codex), or feature flags; or troubleshooting codex execpolicy rejections. Not for general Codex setup, product questions, model selection, or API usage.
 compatibility: Requires Bash and Python 3.11+ or tomli. Runtime and execpolicy checks require the Codex CLI.
 ---
 

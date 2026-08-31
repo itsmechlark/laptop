@@ -1,6 +1,6 @@
 ---
 name: domain-modeling
-description: Build and sharpen a project's domain model while designing — challenge fuzzy terms, invent edge-case scenarios, and write the glossary and architectural decisions down the moment they hold still. Use when pinning down domain terminology or a ubiquitous language, recording an ADR, or when another skill needs the domain model maintained.
+description: Build and sharpen a project's domain model while designing — challenge fuzzy terms, invent edge-case scenarios, and write the glossary and architectural decisions down the moment they hold still. Use when pinning down domain terminology or a ubiquitous language, resolving a naming conflict where product, code, and API each use a different word for the same thing, defining what a word (a 'table', a 'hold', a 'party size') actually means in this system, adding or clarifying a term in the glossary or CONTEXT.md, recording an ADR (architectural decision record), or when another skill needs the domain model maintained.
 argument-hint: "[topic, term, or decision to model]"
 ---
 
