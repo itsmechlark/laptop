@@ -355,7 +355,9 @@ proves exactly one fires — `git-commit`/`pull-request`,
 `grilling`/`review-response`, `agent-skills`/`agent-rules`. Labeling a shared
 query should-trigger in both is unfalsifiable, so `check-payload` fails on it.
 Pick a partner that can win the query — pairing against a flagged skill measures
-nothing on Claude.
+nothing on Claude. A skill contested from several directions at once cross-labels
+its positives as negatives in every neighbor rather than merging their pools;
+`draft-plan` does, and `spec/trigger-evals/README.md` says why.
 
 Two checks are worth understanding before you change them:
 
@@ -503,9 +505,11 @@ Codex and Cursor ignore the key, so the rule that holds on every client is
 written into the skill: `triage`'s draft-show-then-ask, `standup`'s never-send
 ([ADR 0003](docs/adr/0003-model-invocation-flag-is-claude-only.md)).
 
-Mid-chain skills that others call constantly — `draft-spec`, `slice`, `tdd`,
-`explain`, `grilling`, `code-review` — are better left invocable, because every
-caller pays the indirection.
+Mid-chain skills that others call constantly — `draft-spec`, `draft-plan`,
+`slice`, `tdd`, `explain`, `grilling`, `code-review` — are better left
+invocable, because every caller pays the indirection. When one of those also
+has an expensive next step, the body carries the stop instead: `draft-plan`
+ends at the saved plan and never executes it.
 
 ### `rules/<lang>.md`
 

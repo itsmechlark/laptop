@@ -23,6 +23,7 @@ Feature to build: `$ARGUMENTS`. If nothing came with the invocation, ask what th
 - Not for reviewing a change that already exists — a PR, someone else's diff, a branch you didn't write — that's `code-review`
 - Not for deciding *what* to build while the approach is still open — that's `brainstorming`, whose architectural path hands the approved design back here
 - Not for breaking a whole epic down — that's `slice` on its own; come back with one slice
+- Not for writing a plan someone *else* executes — that's `draft-plan`. This skill builds the slice itself, in this session, which is exactly the case where a plan document is ceremony
 - Not for work already filed on an issue tracker — `triage` is the entry point for those
 - Not for dependency upgrades, mechanical refactors, or a one-line fix: eight phases cost more than the work
 

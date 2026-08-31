@@ -18,6 +18,7 @@ Subject: `$ARGUMENTS` — when the conversation settled several things, this nam
 - Not while the change is in flight — a spec written over half-built code documents the guess rather than the decision
 - Not to settle what is still open: pressure-testing a plan is `grilling`'s work, and choosing what to build at all is `brainstorming`'s
 - Not for splitting work into shippable pieces (`slice`), working an item that already exists on a tracker (`triage`), or judging code against a spec that already exists (`code-review`, whose third axis is exactly that)
+- Not for the task-by-task breakdown with file paths and steps — that's `draft-plan`, which argues from a finished spec and is written only when the implementer is cold. A spec that has to carry paths to be usable is being asked to do that skill's job
 - Not for the product framing behind a request that never had any — the problem, who has it, and what would count as success are `draft-prd`'s, written for the product team and deliberately approach-free. This spec sits underneath one and describes how the agreed thing gets built
 
 ## Is it settled enough to write?
@@ -70,7 +71,7 @@ A user who wants the draft challenged rather than confirmed goes to `grilling`, 
 
 - **An invented detail is indistinguishable from a decided one once it's in the document.** Actors, edge-case behavior, API shapes, schema fields, rollout plans — a spec is read as authoritative by exactly the people who weren't in the conversation. Anything you supplied yourself belongs in **Further Notes**, labeled.
 
-- **No file paths, diffs, or code snippets.** They are stale before the first commit and they turn a spec into a plan the implementer can't argue with. The single exception is a compact type, state machine, reducer, or payload shape when the shape *is* the decision — include only the decision-rich part, and say it came from a prototype.
+- **No file paths, diffs, or code snippets.** They are stale before the first commit and they turn a spec into a plan the implementer can't argue with. The single exception is a compact type, state machine, reducer, or payload shape when the shape *is* the decision — include only the decision-rich part, and say it came from a prototype. When the implementer genuinely can't argue back — a cold subagent, one arm of a parallel dispatch, a contractor — that trade is worth making, and `draft-plan` makes it deliberately in a separate, disposable document rather than by loosening this rule here.
 
 - **The spec fixes what to build, never how it splits into pull requests.** Decomposition into PRs is settled later, once the code makes the real boundaries visible; deciding it here freezes a guess about the codebase into a document people treat as agreed. When the spec reveals several independently shippable pieces, hand them to `slice` rather than sequencing them inline.
 

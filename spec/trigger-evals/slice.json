@@ -20,5 +20,12 @@
   {"query": "our sprint velocity has dropped two sprints in a row and i need to say something at standup", "should_trigger": false},
   {"query": "reorder the backlog so the highest business value stuff is at the top", "should_trigger": false},
   {"query": "the story's done and the tests pass — can you review the diff before i push", "should_trigger": false},
-  {"query": "the slice we shipped last week broke the availability cache. find out why", "should_trigger": false}
+  {"query": "the slice we shipped last week broke the availability cache. find out why", "should_trigger": false},
+  {"query": "the deposit-refund spec is approved. write an implementation plan a subagent can work from without asking me anything", "should_trigger": false},
+  {"query": "turn this spec into tasks with exact file paths — i'm handing it to a contractor next week", "should_trigger": false},
+  {"query": "write the task-by-task plan for the availability-caching slice, with the interfaces each task produces", "should_trigger": false},
+  {"query": "break the approved spec into review-sized tasks, each with its own failing test and a commit", "should_trigger": false},
+  {"query": "write an implementation plan for the refund feature", "should_trigger": false},
+  {"query": "i want to dispatch four agents on this slice but they keep picking different names for the same method. write the task briefs first", "should_trigger": false},
+  {"query": "i'll start a fresh session tomorrow with none of this context. write the implementation plan down", "should_trigger": false}
 ]

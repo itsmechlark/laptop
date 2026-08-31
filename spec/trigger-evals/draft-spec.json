@@ -25,5 +25,12 @@
   {"query": "before we slice this can you write down what success looks like and what's explicitly out of scope", "should_trigger": false},
   {"query": "draft the product requirements for waitlist promotion. keep it approach-free, the design conversation hasn't happened yet", "should_trigger": false},
   {"query": "put together the problem statement, target users and success measures for the multi-location rollout", "should_trigger": false},
-  {"query": "we've got a feature request for a bulk-edit screen. write it up as requirements — i want the underlying problem stated, not the button", "should_trigger": false}
+  {"query": "we've got a feature request for a bulk-edit screen. write it up as requirements — i want the underlying problem stated, not the button", "should_trigger": false},
+  {"query": "the deposit-refund spec is approved. write an implementation plan a subagent can work from without asking me anything", "should_trigger": false},
+  {"query": "turn this spec into tasks with exact file paths — i'm handing it to a contractor next week", "should_trigger": false},
+  {"query": "i want to dispatch four agents on this slice but they keep picking different names for the same method. write the task briefs first", "should_trigger": false},
+  {"query": "write the task-by-task plan for the availability-caching slice, with the interfaces each task produces", "should_trigger": false},
+  {"query": "i'll start a fresh session tomorrow with none of this context. write the implementation plan down", "should_trigger": false},
+  {"query": "break the approved spec into review-sized tasks, each with its own failing test and a commit", "should_trigger": false},
+  {"query": "write an implementation plan for the refund feature", "should_trigger": false}
 ]

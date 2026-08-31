@@ -26,6 +26,7 @@ Behavior to drive out: `$ARGUMENTS`. If nothing came with the invocation, ask wh
 - Not for debugging a flaky or slow suite, or migrating between test frameworks
 - Not for judging a change whose tests already pass — that's `code-review`, or `find-bugs` for an adversarial security pass
 - Not for deciding what to build or how to shape the interface — `slice` cuts the work, `codebase-design` places the seam, and both hand the result here
+- Not for writing the task list — `draft-plan` writes the brief when the implementer will be cold; this drives one task red-green-refactor, with or without a plan behind it
 
 Once you're keeping the code, it comes in test-first. That is what AGENTS.md §1, *Engineering mindset (plan & code like a staff engineer)*, requires — this skill is how that requirement gets executed, not an optional house style.
 

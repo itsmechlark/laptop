@@ -19,7 +19,7 @@ Subject to grill: `$ARGUMENTS`. If nothing came with the invocation, ask what th
 - Feedback received from a demo or a reviewer, before iterating on it — so the next round answers a real problem instead of a vibe
 - Another skill needs an interview, rather than improvising one of its own
 - Not for choosing what to build while the approach is still open — that's `brainstorming`; read and follow its `SKILL.md`
-- Not for writing an already-settled design up as a document — that's `draft-spec`
+- Not for writing an already-settled design up as a document — that's `draft-spec`, or `draft-plan` for the task-by-task version of one. "Plan" here means a proposed course of action to argue with, never an implementation plan to author
 - Not for evaluating code that already exists — that's `code-review`
 
 ## How to grill

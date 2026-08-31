@@ -1,6 +1,6 @@
 ---
 name: slice
-description: Break a feature into independently shippable slices — split an epic into stories, sharpen a story into a job story, or scope work for incremental delivery. Use when asked to break down a feature, slice an epic, split work into stories, write job stories, decide what to ship first, or re-cut the remaining slices after one has shipped or overrun its scope. Not for building a slice once it is defined, and not for deciding what to build while the approach is still open.
+description: Break a feature into independently shippable slices — split an epic into stories, sharpen a story into a job story, or scope work for incremental delivery. Use when asked to break down a feature, slice an epic, split work into stories, write job stories, decide what to ship first, or re-cut the remaining slices after one has shipped or overrun its scope. Not for building a slice once it is defined, not for writing the task-by-task implementation plan inside one already cut, and not for deciding what to build while the approach is still open.
 argument-hint: "[feature description]"
 ---
 
@@ -29,6 +29,7 @@ If the user asks you to skip the questions and just produce the slices, draft th
 - Not for building a slice once it's defined — that's `tdd`, or `feature-dev` for the whole chain
 - Not for items already filed on an issue tracker — `triage` works those
 - Not for writing the work up as a single spec document — that's `draft-spec`
+- Not for cutting one slice into implementation tasks with file paths and steps — that's `draft-plan`, which runs after a spec and only when the implementer can't come back and ask. Tasks are review-sized steps inside a slice, so a task list is the build order this skill's [Gotchas](#gotchas) refuse to accept as a slice list
 - Not for deciding *what* to build while the approach is still open — `brainstorming` comes first, and its architectural path hands the approved design here
 - Not for stating the problem the feature exists to solve — `draft-prd` writes that for the product team, and a feature with no agreed problem behind it has nothing to slice toward
 - Not for estimating, prioritizing a backlog, or splitting a large source file
@@ -186,7 +187,7 @@ The common case is not a blank page. A slice shipped, or a build ran over its sc
 | The user wants estimates | Out of scope here. Sequencing answers "what first"; sizing is a separate conversation. |
 | The feature is a pure refactor with no user-visible change | There are no value slices to cut. Sequence it by risk instead, and use `codebase-design` to place the seams. |
 | The conversation keeps reopening what to build | The approach isn't settled, so there's nothing to slice yet. Route to `brainstorming` (read and follow its `SKILL.md`) and come back with a design. |
-| The slices are agreed but nobody can pick one up cold | A captured list is a record, not a brief. `draft-spec` writes one slice up so an agent or a contractor can work from it. |
+| The slices are agreed but nobody can pick one up cold | A captured list is a record, not a brief. `draft-spec` writes one slice up so an agent or a contractor can work from it, and `draft-plan` goes one further into tasks and file paths when the implementer won't be able to ask anything. |
 | A shipped slice made the rest of the list wrong | Expected. Re-cut the remainder against what shipping taught — [Re-slicing after something shipped](#re-slicing-after-something-shipped) — rather than starting the epic over. |
 
 ## References

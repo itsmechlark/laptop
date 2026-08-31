@@ -166,6 +166,21 @@
         }
       ]
     },
+    "draft-plan": {
+      "sources": [
+        {
+          "origin": "obra/superpowers",
+          "type": "github",
+          "url": "https://github.com/obra/superpowers",
+          "path": "skills/writing-plans",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "b36e0829c6d0140e93cfef2ca599b1b07d4a7797",
+          "reviewed": "2026-08-31",
+          "note": "Adapted at import, not forked. Ported: the task right-sizing rule (smallest unit carrying its own test cycle and worth a fresh reviewer's gate), the Consumes/Produces interfaces block and its reason (the implementer sees only their own task), the No Placeholders failure list including the ban on 'Similar to Task N', the three-part self-review, Global Constraints copied verbatim from the spec, and mapping file structure before cutting tasks. Deliberately not ported: the superpowers runtime plumbing — the docs/superpowers/plans/ save path, the 'REQUIRED SUB-SKILL' header markup, the announce-at-start line, and the Execution Handoff routing to subagent-driven-development and executing-plans, neither of which exists in this payload (the counterparts are fan-out, tdd, and feature-dev). Upstream's inline red-green-commit template is cited to tdd rather than restated, so the Iron Law has one home and cannot drift. Upstream is unscoped as to when a plan is warranted; this fork gates on execution mode instead — the plan is written only when the implementer cannot come back and ask, and is treated as disposable because draft-spec already refuses file paths on staleness grounds. Same ref as fan-out, git-worktree, brainstorming, and tdd."
+        }
+      ]
+    },
     "draft-spec": {
       "sources": [
         {

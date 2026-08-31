@@ -19,11 +19,31 @@ here depends on skill-creator any more.
 | `codebase-design` + `domain-modeling` | Both are design-time skills that fire on "this code is the wrong shape" requests, and `domain-modeling` hands work to `codebase-design` explicitly. The boundary — where the seam goes vs. what the words mean — had never been tested |
 | `grilling` + `review-response` | Both fire on "push back on this technical judgment" requests. `grilling` is also an interview primitive that four siblings route into — `triage`, `find-bugs`, `draft-spec`, and `brainstorming` — which changes what a bad result costs: the expensive failure is a *missed* trigger, where the agent improvises an interview instead of loading this one, and term overlap cannot see that |
 | `agent-skills` + `agent-rules` | Third highest overlap (0.122), above the `code-review` pair. They share every word that matters — frontmatter, description, glob, "never loads" — and differ only in which artifact is being written. `agent-skills` came off `evals_exempt` when `agent-rules` landed: low overlap was the reason it was exempt, and that reason expired |
+| `draft-plan`, cross-labeled into `fan-out`, `slice` and `draft-spec` | Contested from three directions, and no single pairing covers it. `fan-out` is where the *expensive* mistake is — picking it spawns agents against briefs nobody wrote, picking `draft-plan` writes a document when the work was ready to dispatch. `slice` and `draft-spec` are where the *lexical* mistake is: `--collisions` puts `draft-plan <-> slice` at 0.163 and `draft-plan <-> draft-spec` at 0.094, while `draft-plan <-> fan-out` is off the board entirely. Term overlap could not have predicted the first, expense could not have predicted the other two. Read the `slice` score as a *result*, not a warning — it rose from 0.115 when `slice`'s exclusion was made to name draft-plan's artifact, which is overlap bought deliberately to reduce confusion. Not a shared pool — see below |
 
 The five pairs share a single query pool, labeled independently per skill, so
 a query establishes which of the two should win rather than testing each in
 isolation. `check-payload` fails if any shared query is labeled should-trigger
 in both — that would make the pair unfalsifiable.
+
+`draft-plan` is the one set built the other way, and the asymmetry is
+deliberate. A full pool across three neighbors would put slice's eleven
+epic-cutting positives, draft-spec's ten write-it-up positives and fan-out's
+six parallelism positives in every file, and most of them share no vocabulary
+at all with "write the implementation plan" — quadruple the run cost to assert
+something nobody doubts. So only the direction that can actually fail is
+exhaustive: **every `draft-plan` positive appears as a negative in `fan-out`,
+`slice` and `draft-spec`**, because a neighbor swallowing a cold-handoff
+request is the failure this skill introduced. Coming back the other way,
+`draft-plan` carries only the neighbor queries whose phrasing is genuinely
+contested. Read a clean run as "the neighbors don't steal it", not as "the
+boundary is mapped in every direction".
+
+`draft-spec` is the neighbor worth explaining, because it is the one directly
+upstream — an approved spec is what `draft-plan` reads. The two therefore share
+the audience ("someone who can't ask you") and differ only in the artifact, so
+the contested queries are the ones naming that audience without naming the
+artifact.
 
 Skills with no set here are either vendored (no in-repo fix for a bad result) or
 on `check-payload`'s `evals_exempt` list — deliberately uncovered because they
@@ -198,6 +218,57 @@ label may be what's wrong:
   descriptions, where only `agent-rules` claims the decision. Whichever fires,
   the answer is the same, so this is the pair's cheapest failure — read it as a
   tiebreak, not as evidence a description is wrong.
+- **draft-plan**, "write an implementation plan for the refund feature" —
+  labeled should-trigger, and the positive most likely to fail. It carries the
+  skill's own words and none of its gate: no spec is named, and nothing says the
+  implementer is cold. The label is deliberate — the skill's *Does this need a
+  plan?* check is designed to fire on exactly this and answer "the spec already
+  covers this, build from it", which is a better outcome than staying silent.
+  Flip it only if you'd rather nothing fired than have the skill push back.
+- **draft-plan**, "implement the deposit-refund slice, i'm right here and we're
+  building it now" — labeled should-not-trigger, and the negative that matters
+  most. It is the whole boundary in one query: a plan is only worth its
+  staleness when the implementer can't come back and ask. If this fires, the
+  description is claiming planning work in general rather than cold handoff.
+- **draft-plan**, "the slice i'm building turned out to be two things. i'll
+  ship the smaller half — redo the rest of the plan around that" — a `slice`
+  positive carried here as a negative, and the sharpest of them: it says
+  "slice" and "plan" in one breath, and what it asks for is a re-cut, not a
+  document. If `draft-plan` fires on this, the description is reading the noun
+  rather than the request.
+- **draft-plan**, "write the task-by-task plan for the availability-caching
+  slice, with the interfaces each task produces" and "i want to dispatch four
+  agents on this slice but they keep picking different names for the same
+  method. write the task briefs first" — the two that `slice` actually stole on
+  the first run, and the only draft-plan positives self-contained enough to be
+  testable at all. Both name a slice that is already cut and ask for the plan
+  inside it; `slice` won on the noun. Naming the artifact in `slice`'s exclusion
+  — it had covered *building* a defined slice and said nothing about *planning*
+  one — freed the first. The second survived, because the exclusion says
+  "implementation plan" and the query says "task briefs": same artifact under a
+  name neither description claims. Having draft-plan claim it was tried and
+  **backed out** — it cost a steal on the "redo the rest of the plan" negative
+  below, which is the more expensive one to lose. One steal in eighteen
+  negatives, on a query saying "slice" twice, is inside what a description can
+  reasonably lose. Keep the pair as a matched set: one tests whether the
+  exclusion holds, the other whether it holds under a synonym, and the second is
+  expected to fail until something cheaper than a description rewrite fixes it.
+- **draft-plan**, "can you formalize what we agreed above into something an
+  agent could implement without coming back to ask me questions" — a
+  `draft-spec` positive carried here as a negative, and the one query that uses
+  `draft-plan`'s own justification against it. The cold implementer is stated
+  outright; what's missing is the spec. "What we agreed above" is a thread, not
+  an approved document, so the artifact owed is a spec. If `draft-plan` fires,
+  it is matching on the audience alone.
+- **draft-plan**, "i'm about halfway through implementing the fee change and
+  i've lost track of what's left. write it down for me" — a `draft-spec`
+  negative that reads like `draft-plan`'s cold-handoff positive with the cold
+  part removed. Same verb, warm context, no handoff: the asker is the
+  implementer. Neither skill owns this.
+- **draft-plan**, "poke holes in this plan before i commit to it" — labeled
+  should-not-trigger. The word "plan" belongs to `grilling` here: it means a
+  proposed course of action to argue with, not an implementation plan to author.
+  `grilling`'s exclusion list now says so from its side too.
 - **agent-skills** / **agent-rules**, "codex keeps prompting me for every git
   command. fix the execpolicy rules" — labeled should-not-trigger for both. It
   is the word "rules" doing all the work: Codex `.rules` files are command
