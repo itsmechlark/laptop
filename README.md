@@ -363,7 +363,11 @@ belongs in a `cspell:ignore` comment beside the line it excuses.
 * `spec/trigger-evals/*.json` — query sets for whether a skill's description
   fires on the requests it should. These need a live model, so they are not part
   of CI — run them with `sh scripts/run-trigger-evals` (all sets) or
-  `sh scripts/run-trigger-evals slice` (one), with a logged-in `claude` CLI
+  `sh scripts/run-trigger-evals slice` (one), with a logged-in `claude` CLI. To
+  iterate on a single query, set `EVAL_QUERY` to a substring of it —
+  `EVAL_QUERY="party size" sh scripts/run-trigger-evals domain-modeling` runs
+  only the matching queries and writes to `<skill>.subset.json`, leaving the
+  full-set artifact intact
 
 Adding a fixture adds an assertion, and `check-payload` validates the fixtures
 themselves — an eval set with no negatives, duplicate queries, or a name that

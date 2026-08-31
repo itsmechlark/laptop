@@ -28,12 +28,17 @@
 # Usage (from anywhere — it relocates to the repository root itself):
 #   sh scripts/run-trigger-evals                 # every set in spec/trigger-evals
 #   sh scripts/run-trigger-evals slice explain   # only the named ones
+#   EVAL_QUERY="party size" sh scripts/run-trigger-evals domain-modeling
+#                                                # only queries matching a substring
 # Env: RUNS_PER_QUERY (default 3), EVAL_MODEL (default sonnet),
-#      QUERY_TIMEOUT (default 120s per query).
+#      QUERY_TIMEOUT (default 120s per query),
+#      EVAL_QUERY (substring — run only matching queries; queries are unique, so a
+#      specific enough substring selects exactly one, for cheap single-query iteration).
 #
 # Results land in artifacts/trigger-evals/<skill>.json (git-ignored); each
 # `claude -p` stderr is appended to artifacts/trigger-evals/<skill>.stderr.log so
-# a run of errors can never masquerade as "0% triggers".
+# a run of errors can never masquerade as "0% triggers". A subset run (EVAL_QUERY)
+# writes to <skill>.subset.json instead, leaving the full-set artifact intact.
 
 set -u
 
@@ -61,6 +66,11 @@ model=${EVAL_MODEL:-sonnet}
 # stall, not a budget — the stream loop exits the moment `message_stop` arrives,
 # so a high ceiling costs nothing on queries that behave.
 query_timeout=${QUERY_TIMEOUT:-120}
+
+# Optional substring selector. When set, only queries whose text contains it run,
+# and results go to <skill>.subset.json so the canonical full-set artifact is not
+# overwritten by a partial run.
+query_filter=${EVAL_QUERY:-}
 
 fancy_echo() {
   printf "\n%s\n" "$1"
@@ -122,39 +132,70 @@ failed=0
 completed=0
 total_fired=0
 
+# Run the helper for one set, forwarding the optional query filter. Split into a
+# function because --query carries spaces and cannot ride an unquoted optional
+# variable the way --model does.
+run_helper() {
+  # $1 eval-set  $2 skill-path  $3 stderr-log
+  if [ -n "$query_filter" ]; then
+    # shellcheck disable=SC2086 # cmd_model is an intentional optional flag pair
+    python3 "$helper" \
+      --eval-set "$1" --skill-path "$2" \
+      --runs-per-query "$runs_per_query" --timeout "$query_timeout" \
+      --stderr-log "$3" $cmd_model --query "$query_filter" --verbose
+  else
+    # shellcheck disable=SC2086 # cmd_model is an intentional optional flag pair
+    python3 "$helper" \
+      --eval-set "$1" --skill-path "$2" \
+      --runs-per-query "$runs_per_query" --timeout "$query_timeout" \
+      --stderr-log "$3" $cmd_model --verbose
+  fi
+}
+
+cmd_model=""
+[ -n "$model" ] && cmd_model="--model $model"
+
 for name in $names; do
   set_file="$sets_dir/$name.json"
   [ -f "$set_file" ] || die "no eval set at $set_file"
   [ -f "skills/$name/SKILL.md" ] || die "no skill at skills/$name"
 
-  queries=$(jq length "$set_file")
-  fancy_echo "Evaluating $name — $queries queries x $runs_per_query runs ..."
+  # Subset runs write to their own artifact so a partial run never overwrites the
+  # canonical full-set result and read later as complete.
+  if [ -n "$query_filter" ]; then
+    json_out="$out_dir/$name.subset.json"
+    stderr_log="$out_dir/$name.subset.stderr.log"
 
-  stderr_log="$out_dir/$name.stderr.log"
+    matched=$(jq --arg q "$query_filter" \
+      '[.[] | select((.query // "" | ascii_downcase) | contains($q | ascii_downcase))] | length' \
+      "$set_file" 2>/dev/null)
+    case $matched in '' | *[!0-9]*) matched=0 ;; esac
+    if [ "$matched" -eq 0 ]; then
+      fancy_echo "Skipping $name — no queries match \"$query_filter\""
+      continue
+    fi
+    total=$(jq length "$set_file")
+    fancy_echo "Evaluating $name — $matched of $total queries matching \"$query_filter\" x $runs_per_query runs ..."
+  else
+    json_out="$out_dir/$name.json"
+    stderr_log="$out_dir/$name.stderr.log"
+    queries=$(jq length "$set_file")
+    fancy_echo "Evaluating $name — $queries queries x $runs_per_query runs ..."
+  fi
+
   : >"$stderr_log"
 
-  cmd_model=""
-  [ -n "$model" ] && cmd_model="--model $model"
-
-  # shellcheck disable=SC2086 # cmd_model is an intentional optional flag pair
-  if python3 "$helper" \
-    --eval-set "$set_file" \
-    --skill-path "skills/$name" \
-    --runs-per-query "$runs_per_query" \
-    --timeout "$query_timeout" \
-    --stderr-log "$stderr_log" \
-    $cmd_model \
-    --verbose >"$out_dir/$name.json"; then
+  if run_helper "$set_file" "skills/$name" "$stderr_log" >"$json_out"; then
     jq -r '"  \(.summary.passed)/\(.summary.total) queries as labeled"' \
-      "$out_dir/$name.json" 2>/dev/null ||
-      printf "  (could not read a summary from %s)\n" "$out_dir/$name.json"
+      "$json_out" 2>/dev/null ||
+      printf "  (could not read a summary from %s)\n" "$json_out"
     # Tally triggers to power the null-result guard below.
-    fired=$(jq '[.results[].triggers] | add // 0' "$out_dir/$name.json" 2>/dev/null)
+    fired=$(jq '[.results[].triggers] | add // 0' "$json_out" 2>/dev/null)
     case $fired in '' | *[!0-9]*) fired=0 ;; esac
     total_fired=$((total_fired + fired))
     completed=$((completed + 1))
   else
-    printf "  FAILED — see %s and %s\n" "$out_dir/$name.json" "$stderr_log"
+    printf "  FAILED — see %s and %s\n" "$json_out" "$stderr_log"
     failed=$((failed + 1))
   fi
 done
@@ -163,6 +204,22 @@ done
 
 fancy_echo "----"
 printf "Results in %s/ (stderr in %s/<skill>.stderr.log)\n" "$out_dir" "$out_dir"
+
+# Subset runs opt out of the null-result guard: a hand-picked query — especially a
+# lone negative, or a positive the model answers inline — can legitimately fire
+# nothing, so zero triggers here is data, not a broken harness.
+if [ -n "$query_filter" ]; then
+  if [ "$completed" -eq 0 ] && [ "$failed" -eq 0 ]; then
+    die "no queries matched \"$query_filter\" in any named set"
+  fi
+  printf "Subset run (filter: %s) — wrote %s/<skill>.subset.json; the full-set\n" "$query_filter" "$out_dir"
+  printf "artifacts are untouched, and the null-result guard is off for subsets.\n"
+  if [ "$failed" -gt 0 ]; then
+    printf "%s set(s) did not complete.\n" "$failed"
+    exit 1
+  fi
+  exit 0
+fi
 
 # Null-result guard. A trigger scores only when `claude -p` emits the Skill/Read
 # tool_use on our uniquely named temp skill. If not one query — positive or

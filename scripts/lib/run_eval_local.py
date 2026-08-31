@@ -398,6 +398,16 @@ def main():
     parser = argparse.ArgumentParser(description="Run a trigger eval against a real skill")
     parser.add_argument("--eval-set", required=True, help="Path to eval set JSON file")
     parser.add_argument("--skill-path", required=True, help="Path to the skill directory under test")
+    parser.add_argument(
+        "--query",
+        action="append",
+        default=None,
+        metavar="SUBSTRING",
+        help="Only run queries whose text contains this substring (case-insensitive). "
+             "Repeatable. The set's queries are unique (check-payload enforces it), so "
+             "a specific enough substring selects exactly one — use it to iterate on a "
+             "single query without re-running the whole set.",
+    )
     parser.add_argument("--description", default=None, help="Override description to test")
     parser.add_argument("--num-workers", type=int, default=10, help="Parallel workers")
     parser.add_argument("--timeout", type=int, default=30, help="Per-query timeout (s)")
@@ -417,6 +427,24 @@ def main():
     args = parser.parse_args()
 
     eval_set = json.loads(Path(args.eval_set).read_text())
+
+    # Optional query subset. Filter here, where the set is loaded, so the JSON
+    # artifact records exactly which queries ran rather than implying the whole
+    # set did. A no-match is an error, not an empty run: a typo'd substring must
+    # not read as a clean pass over zero queries.
+    if args.query:
+        needles = [q.lower() for q in args.query]
+        eval_set = [
+            it for it in eval_set
+            if any(n in it.get("query", "").lower() for n in needles)
+        ]
+        if not eval_set:
+            print(
+                f"Error: no queries in {args.eval_set} match {args.query!r}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
     skill_path = Path(args.skill_path)
     if not (skill_path / "SKILL.md").exists():
         print(f"Error: No SKILL.md found at {skill_path}", file=sys.stderr)
