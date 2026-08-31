@@ -154,9 +154,35 @@ descriptions with no model involved. It answers a narrower question — which
 descriptions compete for the same words — and cannot predict a trigger. Useful
 before a run to spot a pair worth adding queries for.
 
+## Read a miss and a steal differently
+
+The runner gives `claude -p` one turn in an empty temp project with `Bash`,
+`Edit`, `Write` and `Task` disallowed. A query that presupposes an artifact —
+"the deposit-refund spec is approved", "review this branch", "read
+docs/specs/waitlist.md" — has nothing to find, so the model asks a clarifying
+question instead of reaching for a skill. The resulting miss is a property of
+the environment and says nothing about the description.
+
+This is not a rare edge. Across the sets in `artifacts/trigger-evals/`, twelve
+of eighteen fire zero times on their own positives, `git-commit` and
+`pull-request` among them — and what does fire is dominated by self-contained
+queries, the ones asking to author something out of the query text alone.
+
+So weigh the two directions differently:
+
+- **A miss is weak evidence.** Before believing one, check whether the query
+  could have been answered at all in an empty directory. Discount it if not.
+- **A steal is strong evidence.** A skill firing on a query labeled
+  should-not-trigger means a `Skill` call was actually observed; nothing
+  environmental manufactures that. Rank findings by the false positives.
+
+A wall of false negatives is a reason to re-read the queries, not to rewrite a
+description. Reach for `--description` and a self-contained rephrasing before
+concluding the shipped text is at fault.
+
 ## Queries worth a second look before trusting a score
 
-Three are deliberately contested. If the eval disagrees with the label, the
+These are deliberately contested. If the eval disagrees with the label, the
 label may be what's wrong:
 
 - **draft-spec**, "we haven't decided between webhooks and polling yet but write
