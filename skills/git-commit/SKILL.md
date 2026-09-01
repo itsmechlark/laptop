@@ -171,6 +171,8 @@ Examples: `feat-getting-started`, `ABC-1234-fix-null-check`. Branch from the rep
 
 - **A secret is unrecoverable the moment it's committed.** Deleting it in a later commit doesn't remove it — the value stays in history and has to be rotated. Staging is the last point where the fix is free, which is why step 1 reads the diff for credentials.
 
+- **Never disable commit signing.** Don't pass `--no-gpg-sign`, `-c commit.gpgsign=false`, or any flag that suppresses signing. If the signer fails (1Password locked, agent not running, socket unreachable), ask the user whether to try the commit again or stop — don't bypass signing to unblock yourself.
+
 ## Troubleshooting
 
 | Issue | Solution |
@@ -184,6 +186,7 @@ Examples: `feat-getting-started`, `ABC-1234-fix-null-check`. Branch from the rep
 | You're on the default branch | Stop and ask. Offer a branch name from the convention above rather than switching or committing unasked. |
 | `git branch --show-current` prints nothing | Detached HEAD — the commit becomes unreachable as soon as anything else is checked out. An empty result is not "no branch to worry about". Stop and ask. |
 | The diff contains a credential, token, or key | Don't commit it. Say what you found and where; the fix is removing it from the working tree, not committing and cleaning up after. |
+| Commit signing fails (1Password locked, agent not running, socket unreachable) | Don't disable signing. Ask the user: retry the commit (after they unlock 1Password or start the agent), or stop. Never pass `--no-gpg-sign` or `-c commit.gpgsign=false`. |
 | Asked to amend, reword, squash, or drop a commit | That's the rewriting workflow — [REWRITING.md](references/REWRITING.md). Check what's already pushed before touching anything. |
 
 ## References
