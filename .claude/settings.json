@@ -416,7 +416,8 @@
       "git restore *",
       "git stash *",
       "git switch *",
-      "git checkout *"
+      "git checkout *",
+      "git worktree *"
     ]
   },
   "effortLevel": "high",
