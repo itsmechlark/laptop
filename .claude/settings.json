@@ -421,5 +421,7 @@
     ]
   },
   "effortLevel": "high",
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "awaySummaryEnabled": false,
+  "promptSuggestionEnabled": false
 }
