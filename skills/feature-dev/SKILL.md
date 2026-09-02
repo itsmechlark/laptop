@@ -33,7 +33,7 @@ Feature to build: `$ARGUMENTS`. If nothing came with the invocation, ask what th
 
 ### The run
 
-Track the phases with `TodoWrite`, so the user can see where they are and an interrupted run is resumable. Read each phase's detail when you reach it, not all upfront.
+Track the phases with `TaskCreate` and `TaskUpdate`, so the user can see where they are and an interrupted run is resumable. Read each phase's detail when you reach it, not all upfront.
 
 - [ ] **0. Isolate and baseline** — run `git-worktree`'s pre-edit guard, and a known-green suite to measure against — [PHASES.md](references/PHASES.md#phase-0-isolate-and-baseline)
 - [ ] **1. Frame the work** — understand the feature, and rule on one slice vs. an epic — [PHASES.md](references/PHASES.md#phase-1-frame-the-work)
