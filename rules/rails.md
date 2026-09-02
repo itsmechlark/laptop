@@ -20,6 +20,9 @@ Application-wide Rails conventions, layered on the language standards in `ruby.m
 - Use `Time.current`, `Date.current`, and `Time.zone.parse` — never `Time.now`, `Date.today`, or `Time.parse`, which read the server's zone instead of the application's.
 - Prefer `cookies.signed` over `cookies`, so a tampered value is rejected rather than trusted, and set `config.sandbox_by_default` in production-like environments so an unplanned console session can't write.
 - Build queries with Arel or parameter binding, and run `brakeman` in CI — it catches the string-interpolated `where` that review misses.
+- Filter sensitive parameters out of the logs — passwords, tokens, secrets, API keys — through `config.filter_parameters`. A credential in a log file is still leaked.
+- Serialize a JSON response from an explicit attribute allowlist (`only:` or a serializer), never `render json: model` — a bare model ships every column, including ones you add later.
+- Build a shell-out as an argv array (`system("cmd", arg)`), never string interpolation (`system("cmd #{arg}")`) — interpolation is command injection.
 - Offload slow or external work to background jobs, and make each one idempotent: Sidekiq redelivers, so a job that isn't safe to run twice will eventually run twice.
 - Set the application up for multiple locales from the start, order translations alphabetically by key, and raise on a missing translation in development and test rather than shipping the key to a user.
 - Design a JSON API against Heroku's [HTTP API Design Guide](https://github.com/interagent/http-api-design) before the first endpoint exists. The payload is a published contract once a consumer depends on it.
@@ -29,3 +32,4 @@ Specs follow `rspec.md`, which covers factories, time control, and the spec type
 ## Attribution
 
 - [thoughtbot/guides](https://github.com/thoughtbot/guides/tree/main/rails) - rails, MIT
+- [thoughtbot/guides](https://github.com/thoughtbot/guides/tree/main/rails/ai-rules) - rails AI rules, MIT

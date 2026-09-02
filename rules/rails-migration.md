@@ -14,7 +14,10 @@ Migrations, the schema they produce, and seed data. Application-wide conventions
 - Use SQL inside a migration, not ActiveRecord models: the model will change and the migration will quietly stop meaning what it did when it ran.
 - Name columns for what they hold — `_at` for datetimes, `_on` for dates, `_time` for a time of day — and back a boolean concept with a timestamp (`published_at`, `deleted_at`) when *when* it happened is worth knowing.
 - Keep `db/schema.rb` (or `db/structure.sql`) in version control. `db/seeds.rb` is for data every environment needs; development-only seed data belongs in its own task.
+- Generate every migration with `rails generate migration` — it stamps the timestamp and boilerplate correctly, where a hand-authored filename sorts wrong and runs out of order.
+- Reach for `text` over `string` when a column's length varies a lot; a `string`'s implicit cap is a migration you will write later.
 
 ## Attribution
 
 - [thoughtbot/guides](https://github.com/thoughtbot/guides/tree/main/rails) - rails, MIT
+- [thoughtbot/guides](https://github.com/thoughtbot/guides/tree/main/rails/ai-rules) - rails AI rules, MIT

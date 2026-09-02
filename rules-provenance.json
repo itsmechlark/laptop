@@ -60,6 +60,17 @@
           "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
           "reviewed": "2026-08-29",
           "note": "INITIAL PIN. Recorded retroactively for commit 0bada2d, whose message carries the divergences this pin does not: style enforcement names whatever opinionated config a project already has rather than RuboCop outright, and Spring binstubs, the empty-string column default, and blanket `touch: true` were left out. Upstream's code-review guidance is deliberately not here — it is review-time advice and lives in the `code-review` skill."
+        },
+        {
+          "origin": "thoughtbot/guides",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/guides",
+          "path": "rails/ai-rules/rules",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
+          "reviewed": "2026-09-02",
+          "note": "Folded thoughtbot's agent-rules distillation (rails/ai-rules) on 2026-09-02: the app-wide security bullets — log parameter filtering, explicit JSON attribute allowlists, and argv-form shell-outs. Same repo and ref as the `rails` source above; tracked as its own source because ai-rules revises on its own schedule and a diff has to be triaged across the five rails layer rules that draw on it."
         }
       ]
     },
@@ -75,6 +86,17 @@
           "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
           "reviewed": "2026-08-29",
           "note": "INITIAL PIN, recorded retroactively for commit 0bada2d. Four layer rules share this path: a diff scoped to `rails` has to be triaged across rails, rails-controller, rails-model, rails-view, and rails-migration rather than ported into one."
+        },
+        {
+          "origin": "thoughtbot/guides",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/guides",
+          "path": "rails/ai-rules/rules",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
+          "reviewed": "2026-09-02",
+          "note": "Folded rails/ai-rules controllers.md and security.md on 2026-09-02: HTTP-only actions, strong parameters over params.permit!, authenticate and authorize by default, CSRF and redirect-target validation, and the Turbo `unprocessable_entity` on a failed form."
         }
       ]
     },
@@ -90,6 +112,17 @@
           "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
           "reviewed": "2026-08-29",
           "note": "INITIAL PIN, recorded retroactively for commit 0bada2d. The expand/contract and reversibility bullets are local, from the global standards, not upstream."
+        },
+        {
+          "origin": "thoughtbot/guides",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/guides",
+          "path": "rails/ai-rules/rules",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
+          "reviewed": "2026-09-02",
+          "note": "Folded rails/ai-rules database.md on 2026-09-02: generate migrations with `rails generate migration`, and prefer `text` over `string` for a variable-length column."
         }
       ]
     },
@@ -104,7 +137,18 @@
           "license": "MIT",
           "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
           "reviewed": "2026-08-29",
-          "note": "INITIAL PIN, recorded retroactively for commit 0bada2d. Deliberate divergence: upstream rejects the `scope` DSL outright in favor of class methods, where this rule keeps `scope` for a simple argument-free condition and switches to `def self.method` once it takes arguments or branches. Do not let a reconcile quietly restore the upstream position."
+          "note": "INITIAL PIN, recorded retroactively for commit 0bada2d. Deliberate divergence: upstream rejects the `scope` DSL outright in favor of class methods, where this rule keeps `scope` for a simple argument-free condition and switches to `def self.method` once it takes arguments or branches. Second deliberate divergence: the authorization bullet names a generic authorization library, not Pundit as upstream does, so the rule fits CanCanCan, Action Policy, or any equivalent. Do not let a reconcile quietly restore the upstream position or reintroduce a specific gem."
+        },
+        {
+          "origin": "thoughtbot/guides",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/guides",
+          "path": "rails/ai-rules/rules",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
+          "reviewed": "2026-09-02",
+          "note": "Folded rails/ai-rules models.md and database.md on 2026-09-02: noun-named domain classes over *Service/*Manager/*Handler, domain verbs over generic .call/.perform, ActiveModel::Model for validating POROs, composition and code-smell avoidance, and the unbounded-`all` / `.count`-in-loop / `counter_cache` query guidance. DELIBERATE DIVERGENCE: ai-rules bans service objects outright (`app/models/` only, never `app/services/`); that ban was NOT imported, because it contradicts the service/query/form-object extraction endorsed in rails.md, kept per maintainer decision on 2026-09-02. Do not let a reconcile quietly restore the upstream ban."
         }
       ]
     },
@@ -120,6 +164,17 @@
           "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
           "reviewed": "2026-08-29",
           "note": "INITIAL PIN, recorded retroactively for commit 0bada2d."
+        },
+        {
+          "origin": "thoughtbot/guides",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/guides",
+          "path": "rails/ai-rules/rules",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
+          "reviewed": "2026-09-02",
+          "note": "Folded rails/ai-rules views.md and security.md on 2026-09-02: no logic in views with display logic in a presenter, the helper-size limit, XSS-safe output (no raw/html_safe/`<%==` on user data), and small Stimulus controllers."
         }
       ]
     },

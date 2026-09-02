@@ -15,7 +15,12 @@ Templates, partials, helpers, and view components. Application-wide conventions 
 - Put application-wide partials in `app/views/application`.
 - Use `link_to` for GET and `button_to` for every other verb, so the request doesn't depend on JavaScript that may not have loaded.
 - Use `_url` for named routes in mailer views — a relative path has nothing to resolve against in an inbox — and `_path` in ordinary templates.
+- A view renders data — no calculations, queries, or branchy conditionals. Push display logic into a presenter the action instantiates and hands to the template.
+- Helpers are for simple formatting only (dates, money); once one grows past a few lines it's a presenter method, not a helper.
+- Never pass user-supplied data through `raw`, `html_safe`, or `<%== %>` — that is how stored XSS reaches the page. Let Rails escape it.
+- Keep Stimulus controllers small and single-purpose; reach for a presenter or a partial before writing more JavaScript.
 
 ## Attribution
 
 - [thoughtbot/guides](https://github.com/thoughtbot/guides/tree/main/rails) - rails, MIT
+- [thoughtbot/guides](https://github.com/thoughtbot/guides/tree/main/rails/ai-rules) - rails AI rules, MIT
