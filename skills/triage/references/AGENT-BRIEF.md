@@ -13,6 +13,8 @@ A brief says what should be *true when the work is done*. For an issue that mean
 * Good: "`SkillConfig` should accept an optional `schedule` field of type `CronExpression`"
 * Bad: "Open `src/types/skill.ts` and add a schedule field on line 42"
 
+**The implementer starts isolated.** Whoever picks the brief up begins by running `git-worktree`'s pre-edit guard — a worktree off the default branch, on a branch named to `git-commit`'s convention (lowercase, `[<issue-key>-]<type>-<slug>`) — not by editing the main checkout. The branch name derives from the ticket key the brief already carries, so an implementer who skips the guard is the same one who invents an off-standard name like `HDR-1190/durable-hydra-allocation-retry`. It is a handoff instruction, not an acceptance criterion — it never becomes a checkbox.
+
 **Acceptance criteria that can fail.** Every criterion must be independently checkable and phrased so an implementer can tell done from nearly done. "Triage should work correctly" is not a criterion; "`gh issue list --label needs-triage` returns only items past initial classification" is.
 
 **Explicit scope boundaries.** Name what not to touch. Without boundaries, an unattended agent may gold-plate adjacent work that only looked related.
@@ -188,6 +190,7 @@ Before moving a ticket to `ready-for-agent`, verify:
 * [ ] commands, branches, test names, UI paths, and expected outputs are quoted where they're needed to verify completion
 * [ ] vague terms are replaced with concrete pass/fail outcomes
 * [ ] human approval and CI merge gates are not listed as criteria
+* [ ] the brief tells the implementer to isolate first — `git-worktree`'s pre-edit guard and a standard, lowercase branch name
 
 ## Template
 
@@ -198,6 +201,8 @@ Before moving a ticket to `ready-for-agent`, verify:
 **Summary:** one line — what needs to happen
 **Impact:** <reach> · <frequency> · <cost, and the workaround's cost>
 **Prior art checked:** the searches run during triage, and what they returned
+
+**Setup:** isolate before editing — run `git-worktree`'s pre-edit guard, then work on a lowercase branch named per `git-commit` (`[<issue-key>-]<type>-<slug>`), never the main checkout.
 
 **Repro:** *(bugs and PRs; omit for enhancements)*
 The failing test and the branch it lives on, the exact command and its verbatim

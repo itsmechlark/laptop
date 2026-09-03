@@ -42,7 +42,7 @@ Build a real picture of the diff before grouping. Run these together:
 
 Read the diff for the *why*, not just the *what* — you're about to explain it to a future reader. If there's nothing to commit, say so and stop; never create an empty commit.
 
-**Check the branch before the grouping.** If the current branch is the repository's default branch and the work isn't a deliberate direct commit, say so and offer a branch named by the [Branch naming](#branch-naming) convention below. Ask rather than switching unasked — moving the work is the user's call.
+**Check the branch before the grouping.** Run `git branch --show-current` and hold it against the [Branch naming](#branch-naming) convention below. On the repository's **default branch** — and the work isn't a deliberate direct commit — say so and offer a convention-named branch, asking before you switch. On a **non-default branch that breaks the convention** (an uppercase key, a `<key>/<slug>` slash form, or a missing `<type>` segment) flag it and offer `git branch -m <corrected>` while the branch is unpushed; once it's pushed, say so and leave it, since renaming orphans the remote and breaks any open PR. An off-standard name usually means `git-worktree`'s pre-edit guard never ran — the step that would have named the branch to standard in the first place.
 
 **Read the diff for secrets while you're in it.** Credentials, tokens, key material, a `.env` or keystore that shouldn't be tracked. This is the last cheap moment: once committed, the fix is rotation plus history surgery, not a follow-up commit.
 
@@ -147,13 +147,13 @@ docs: fix typo in installation instructions
 
 ## Branch naming
 
-Name branches `<type>-<short-slug>`, optionally prefixed with an issue key when the project tracks work in an issue tracker: `[<issue-key>-]<type>-<short-slug>`.
+Name branches `<type>-<short-slug>`, optionally prefixed with an issue key when the project tracks work in an issue tracker: `[<issue-key>-]<type>-<short-slug>`. The whole name is **lowercase**, every segment joined by a single hyphen — no slashes, no `<key>/<slug>` shorthand.
 
-- `<issue-key>` — the tracker key, kept as-is (e.g. `ABC-1234`), when applicable.
-- `<type>` — the Conventional Commit type the work maps to (`feat`, `fix`, `chore`, …), lowercase.
+- `<issue-key>` — the tracker key, **lowercased** (Jira `HDR-1190` → `hdr-1190`); dev-panel branch detection matches case-insensitively, so the ticket link still resolves.
+- `<type>` — the Conventional Commit type the work maps to (`feat`, `fix`, `chore`, …), lowercase, and **required**: a name with no type segment isn't to convention.
 - `<short-slug>` — a few lowercase, hyphen-separated words describing the change.
 
-Examples: `feat-getting-started`, `ABC-1234-fix-null-check`. Branch from the repository's default branch unless told otherwise.
+The shape is `^([a-z0-9]+-[0-9]+-)?(feat|fix|chore|build|ci|docs|style|refactor|perf|test)-[a-z0-9-]+$`. Examples: `feat-getting-started`, `hdr-1190-feat-durable-hydra-allocation-retry`. A `<key>/<slug>` form like `HDR-1190/durable-hydra-allocation-retry` fails it twice — the slash, and the absent type. Branch from the repository's default branch unless told otherwise.
 
 ## Gotchas
 
@@ -184,6 +184,7 @@ Examples: `feat-getting-started`, `ABC-1234-fix-null-check`. Branch from the rep
 | The repo's history doesn't use Conventional Commits | Match the repo. Its own consistent convention outranks this default — say which one you followed. |
 | Unclear which issue the change references | Omit the reference. Don't guess a number or key; ask if the repo's convention requires one. |
 | You're on the default branch | Stop and ask. Offer a branch name from the convention above rather than switching or committing unasked. |
+| On a non-default branch whose name breaks the convention (uppercase key, `<key>/<slug>` slash, no `<type>`) | Flag it; offer `git branch -m` while unpushed, and once pushed leave it and say why. It usually means `git-worktree`'s pre-edit guard was skipped. |
 | `git branch --show-current` prints nothing | Detached HEAD — the commit becomes unreachable as soon as anything else is checked out. An empty result is not "no branch to worry about". Stop and ask. |
 | The diff contains a credential, token, or key | Don't commit it. Say what you found and where; the fix is removing it from the working tree, not committing and cleaning up after. |
 | Commit signing fails (1Password locked, agent not running, socket unreachable) | Don't disable signing. Ask the user: retry the commit (after they unlock 1Password or start the agent), or stop. Never pass `--no-gpg-sign` or `-c commit.gpgsign=false`. |
