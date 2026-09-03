@@ -21,10 +21,12 @@ Violation 2 — describing an invocable skill as user-invoke-only:
 `tdd` is user-invoke-only, so read its SKILL.md.
 
 Violation 3 — naming a path-scoped rule as though it were a skill. This is the
-form that shipped: `skills/tdd/SKILL.md` carried it from the day the skill was
-written until 2026-08-23, and every other check passed the whole time.
+form that shipped: `skills/tdd/SKILL.md` named an `rspec` skill that was only a
+`rules/` file, from the day the skill was written until 2026-08-23, and every
+other check passed the whole time. `rspec` later became a skill in its own
+right, so `ruby` — a `rules/` file with no skill — stands in for that form here.
 
-For Ruby projects, the `rspec` skill documents the spec conventions.
+For Ruby projects, the `ruby` skill documents the language conventions.
 
 Violation 4 — naming a skill that does not exist at all. `no-such-skill` is
 reserved for this line; don't make it real.

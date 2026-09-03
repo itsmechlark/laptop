@@ -329,6 +329,21 @@
         }
       ]
     },
+    "rspec": {
+      "sources": [
+        {
+          "origin": "el-feo/ai-context",
+          "type": "github",
+          "url": "https://github.com/el-feo/ai-context",
+          "path": "plugins/ruby-rails/skills/rspec",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "ae77f01b54c90589d8a16bbeb1afadd2f6fbd2fc",
+          "reviewed": "2026-09-02",
+          "note": "INITIAL PIN — a baseline to watch from, not a byte-for-byte reconcile: upstream refused verbatim reproduction, so this is a rewrite informed by the source's section structure and substance rather than a fork of its text. Ported as structure — the section set the skill was asked for: Core Testing Patterns, When to Use Each Spec Type, and the Testing Pyramid framing, plus the spec-type-to-purpose mapping (model/request/system). Deliberately diverged: the pyramid is inverted to this payload's stance (base = fast model and service/PORO unit specs, not upstream's 'start with system specs'), and the general principle is deferred to rules/testing-levels.md and tdd rather than restated, to avoid the cross-file drift agent-skills warns about. Added service-object and command-object spec coverage, which upstream omits entirely and which is the skill's reason to exist beside rules/rspec.md. Dropped upstream's Factory Bot, Essential Matchers, Mocks/Stubs, Configuration, Performance, and Quick Reference sections as either model-known or already owned by rules/rspec.md; the always-on style is cited to rules/rspec.md and the test-first order to tdd, so each rule keeps one home."
+        }
+      ]
+    },
     "review-response": {
       "sources": [
         {

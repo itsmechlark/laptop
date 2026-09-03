@@ -1,0 +1,22 @@
+[
+  {"query": "should the RefundCalculator be a model spec or something else? it's a plain ruby object", "should_trigger": true},
+  {"query": "what kind of spec should i write for a service object that creates a reservation and enqueues a confirmation mail?", "should_trigger": true},
+  {"query": "i have a command object with a call method that returns a result object. how do i spec its success and failure paths?", "should_trigger": true},
+  {"query": "how should i lay out the describe and context blocks for the Booking model's cancellation logic?", "should_trigger": true},
+  {"query": "is the no-show fee a model spec, or does the calculator need its own spec separate from the request spec?", "should_trigger": true},
+  {"query": "the availability check is a PORO with no persistence — what level does its spec sit at and how do i shape it?", "should_trigger": true},
+  {"query": "our suite is almost all system specs. how should the spec types actually break down across the pyramid?", "should_trigger": true},
+  {"query": "where does a mailer spec sit relative to the request spec that triggers the same email?", "should_trigger": true},
+  {"query": "i'm writing the spec for a DepositRefund service that writes to the database — should it use a real datastore or a mock, and what do i assert?", "should_trigger": true},
+  {"query": "should the cancellation flow be a request spec or a system spec? it's a json api with no browser client", "should_trigger": true},
+  {"query": "add the no-show fee calculation to the reservation, test-first with a failing spec first", "should_trigger": false},
+  {"query": "there's a double-refund bug on cancel — write a failing spec that reproduces it, then fix it", "should_trigger": false},
+  {"query": "drive the availability-caching change outside-in, red-green-refactor", "should_trigger": false},
+  {"query": "why does this spec pass locally but fail one run in five in CI?", "should_trigger": false},
+  {"query": "our rspec suite takes 14 minutes, speed it up", "should_trigger": false},
+  {"query": "convert these minitest files to rspec", "should_trigger": false},
+  {"query": "add a rubocop-rspec rule banning let! in new specs", "should_trigger": false},
+  {"query": "should the fee live on the reservation or a separate policy object? i'm not sure yet", "should_trigger": false},
+  {"query": "write the vitest tests for the react availability widget", "should_trigger": false},
+  {"query": "commit the specs, they're green", "should_trigger": false}
+]

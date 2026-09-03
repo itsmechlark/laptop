@@ -20,6 +20,7 @@ here depends on skill-creator any more.
 | `grilling` + `review-response` | Both fire on "push back on this technical judgment" requests. `grilling` is also an interview primitive that four siblings route into — `triage`, `find-bugs`, `draft-spec`, and `brainstorming` — which changes what a bad result costs: the expensive failure is a *missed* trigger, where the agent improvises an interview instead of loading this one, and term overlap cannot see that |
 | `agent-skills` + `agent-rules` | Third highest overlap (0.122), above the `code-review` pair. They share every word that matters — frontmatter, description, glob, "never loads" — and differ only in which artifact is being written. `agent-skills` came off `evals_exempt` when `agent-rules` landed: low overlap was the reason it was exempt, and that reason expired |
 | `draft-plan`, cross-labeled into `fan-out`, `slice` and `draft-spec` | Contested from three directions, and no single pairing covers it. `fan-out` is where the *expensive* mistake is — picking it spawns agents against briefs nobody wrote, picking `draft-plan` writes a document when the work was ready to dispatch. `slice` and `draft-spec` are where the *lexical* mistake is: `--collisions` puts `draft-plan <-> slice` at 0.163 and `draft-plan <-> draft-spec` at 0.094, while `draft-plan <-> fan-out` is off the board entirely. Term overlap could not have predicted the first, expense could not have predicted the other two. Read the `slice` score as a *result*, not a warning — it rose from 0.115 when `slice`'s exclusion was made to name draft-plan's artifact, which is overlap bought deliberately to reduce confusion. Not a shared pool — see below |
+| `rspec` | Competes with `tdd` on "write specs for this": `tdd` owns the *order* (a failing example first), `rspec` owns the *shape and spec type*, service objects included. Standalone rather than a shared pool — like `tdd`/`fan-out` — because `tdd.json` already carries the RSpec-mechanics negatives that prove the reverse direction |
 
 The five pairs share a single query pool, labeled independently per skill, so
 a query establishes which of the two should win rather than testing each in
@@ -300,6 +301,13 @@ label may be what's wrong:
   is the word "rules" doing all the work: Codex `.rules` files are command
   execpolicy, an unrelated artifact that `codex-config` owns. The negative most
   likely to fail in the `agent-rules` set.
+- **rspec** / **tdd**, the "write specs for the deposit-refund service" family —
+  the boundary is *order* versus *shape*. A request that says test-first,
+  failing-spec-first, or red-green is `tdd`; one asking what kind of spec, how to
+  structure it, or how to test a service object is `rspec`. A bare "write specs
+  for X" firing `tdd` is the expected default — `rspec` wins only when the ask is
+  about type or structure, which is why `rspec.json`'s negatives are `tdd`'s
+  own test-first phrasings.
 
 ## One hypothesis these sets exist to settle
 
