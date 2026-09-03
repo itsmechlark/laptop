@@ -128,12 +128,14 @@ glossary and nothing else: no domain term belongs in it, and no machine path
 belongs here.
 
 **Journal**:
-`.agents/standup/` — one dated Markdown file per `standup` update, so the next
-run can see what was promised. Pruned to 14 days, and git-ignored because the
-entries are client-facing status in plaintext.
+`~/.agents/standup/` — one dated Markdown file per `standup` update, so the next
+run can see what was promised. Pruned to 14 days. It sits outside every checkout,
+which is what keeps client-facing status out of a published history; the repo's
+`.agents/standup` ignore rule survives only as a guard against accidental
+creation ([ADR 0008](docs/adr/0008-provision-agent-state-as-real-directories.md)).
 
 **Cross-repo rejection**:
 A declined request belonging to no single codebase — a standing policy that
-would otherwise be re-argued in every repo. Kept in `.agents/out-of-scope/` and
+would otherwise be re-argued in every repo. Kept in `~/.agents/out-of-scope/` and
 never pruned. A rejection grounded in one codebase goes in that repository's own
 `.out-of-scope/` instead.

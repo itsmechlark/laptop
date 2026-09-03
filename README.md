@@ -237,10 +237,10 @@ so all three clients read the same context.
 Per-repo domain glossaries stay in each repo's own `CONTEXT.md`;
 this one stops at the repo boundary.
 
-Standup journal (`.agents/standup/`)
-------------------------------------
+Standup journal (`~/.agents/standup/`)
+--------------------------------------
 
-`mac` creates `.agents/standup/` and links it to `~/.agents/standup`,
+`mac` creates `~/.agents/standup/` as a real directory,
 where the `standup` skill keeps one dated Markdown file per update.
 It reads the most recent one before writing the next,
 so it can point out work that has sat in "in progress" for three days
@@ -248,9 +248,9 @@ and dates promised last time that nobody has mentioned since.
 
 Nothing to set up — the directory is created on the first `mac` run,
 and the skill prunes entries older than 14 days.
-It is git-ignored, and that matters:
-the entries are client-facing status in plaintext
-inside a repository that gets pushed.
+It sits outside every checkout, and that matters:
+the entries are client-facing status in plaintext,
+and a repository that gets pushed is no place for them.
 All three clients grant write access to that one path,
 which is why the skill needs no per-client configuration.
 

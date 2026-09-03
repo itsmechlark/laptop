@@ -90,8 +90,6 @@ spec/                   # fixtures check-payload validates and reads
   references/
     CONTEXT-FORMAT.md   # template for .agents/CONTEXT.md
   skills/               # skill bodies: vendored + project-only (project-only = not linked from skills/)
-  standup/              # standup's journal — provisioned under ~/.agents by mac (ADR 0008)
-  out-of-scope/         # cross-repo rejections, shared by triage/slice/draft-spec — provisioned under ~/.agents by mac (ADR 0008)
 rules/                  # path-scoped language standards, auto-loaded by glob
 skills/                 # published skills → ~/.agents/skills; first-party dirs + symlinks into .agents/skills
 .claude/settings.json   # Claude Code settings (permissions, sandbox, hooks, plugins)

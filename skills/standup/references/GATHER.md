@@ -89,17 +89,20 @@ for reader in $(ls ./*.md 2>/dev/null | sed 's/.*-//; s/\.md$//' | sort -u); do
 done
 ```
 
-`-L` matters for the same reason it matters in Step 6: `.` here is reached
-through a symlink, and BSD `find` will not descend one it was handed unless told
-to. Verify a prune actually removed something before believing it did.
+`-L` matters for the same reason it matters in Step 6: the directory is real
+today, but on a machine that hasn't re-run `mac` since it stopped being a
+symlink, `.` is still reached through one — and BSD `find` will not descend a
+symlink it was handed unless told to. Verify a prune actually removed something
+before believing it did.
 
 When the directory is missing, `mac` has not run on this machine: say so in one
-line, skip the journal, and **never create the directory yourself** — a real one
-there gets moved aside to `standup.backup` by the next `mac` run, losing the
-history it existed to keep. When it exists but the write is refused, report that
-plainly too. The skill works without a journal; it just can't tell the user
-anything they didn't already know. Never fall back to writing it somewhere else,
-least of all into the current repository.
+line, skip the journal, and **never create the directory yourself** — the
+provisioner owns these paths, and the sandbox grants write inside each one
+rather than to `~/.agents` itself, so the attempt is likely to be refused. When
+it exists but the write is refused, report that plainly too. The skill works
+without a journal; it just can't tell the user anything they didn't already
+know. Never fall back to writing it somewhere else, least of all into the
+current repository.
 
 ### Without a journal, judge staleness from dwell time
 

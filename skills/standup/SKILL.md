@@ -138,9 +138,9 @@ That file is the whole of Step 2's continuity check, and the only reason this sk
 
 Then prune to 14 days — enough for a sprint and any "last week" a reader refers to, past which it is a growing archive of client status nobody reads. **Never prune a reader's most recent entry, whatever its age:** a monthly report would otherwise lose all its history before the next one, and continuity for an infrequent reader is worth more than the two weeks. The command, which handles both rules: [GATHER.md](references/GATHER.md).
 
-**Whatever you run, `-L` is not optional.** `~/.agents/standup` is a symlink, and BSD `find` does not follow one given as its starting point — without `-L` the command matches nothing, deletes nothing, and reports success while the journal grows forever (AGENTS.md §4, *Definition of Done*).
+**Whatever you run, `-L` is not optional.** `~/.agents/standup` is a real directory now, but on a machine that hasn't re-run `mac` since it stopped being a symlink it still is one — and BSD `find` does not follow a symlink given as its starting point, so without `-L` the command matches nothing, deletes nothing, and reports success while the journal grows forever (AGENTS.md §4, *Definition of Done*).
 
-If the directory doesn't exist, `mac` hasn't run on this machine. Say so in one line and skip the journal — do **not** create it, since a real directory here is one `mac` run away from being moved aside to `standup.backup`, taking the history with it. Details: [GATHER.md](references/GATHER.md).
+If the directory doesn't exist, `mac` hasn't run on this machine. Say so in one line and skip the journal — do **not** create it: the provisioner owns these paths, and the sandbox grants write inside each one rather than to `~/.agents` itself. Details: [GATHER.md](references/GATHER.md).
 
 ## Gotchas
 
