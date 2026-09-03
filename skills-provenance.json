@@ -227,6 +227,15 @@
           "ref": "9807306250b2fa86886568be3a6d40cefabe5b4a",
           "reviewed": "2026-08-22",
           "note": "Recorded retroactively. Commit b6c9cd4 states the adaptation ('Adapted from thoughtbot's rails-consultant skills') and deliberately kept it out of skills-lock.json, but no provenance entry replaced it — the same gap 48e467f found for explain. Reconciled through this ref: upstream's 'what already exists' grounding note and its sharper Socratic warning are ported; its /code-review --fix instruction is deliberately not, since this payload's code-review is a first-party skill that reports rather than fixes."
+        },
+        {
+          "origin": "anthropics/claude-plugins-official",
+          "type": "github",
+          "url": "https://github.com/anthropics/claude-plugins-official",
+          "path": "plugins/code-simplifier",
+          "relationship": "inspired-by",
+          "license": "Apache-2.0",
+          "note": "Its 'maintain balance' principle — don't over-simplify into clever code, don't merge unrelated concerns, don't strip a useful abstraction to save lines — is the overshoot paragraph in LEANNESS.md's 'When it runs over'. That was the one idea the agent carried with no home in this payload; its findings otherwise duplicate code-review's smell baseline, and its JS/TS house style and proactive-refactor stance were deliberately not taken (the latter contradicts AGENTS.md §1 on preserving intentional existing work). The plugin itself ships via enabledPlugins in .claude/settings.json, so nothing was vendored."
         }
       ]
     },

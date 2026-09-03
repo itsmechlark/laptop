@@ -39,6 +39,8 @@ Make an explicit call among three, and tell the user which applies:
 
 The third is the one that gets rationalized into the second. If the criteria themselves each dragged in new machinery, that is scope, not essential complexity.
 
+Cutting has its own overshoot. Simplifying is not license to fuse unrelated concerns into one function, collapse a branchy case into a ternary nobody can read back, or drop an abstraction a second caller genuinely uses. A diff that lands under the budget and takes longer to understand has traded a number you can measure for one you can't. When the only cut left would cost clarity, stop and make the essential-complexity call instead.
+
 ## After review
 
 `code-review` hunts for simplification and reuse on its Standards axis, so treat its findings as a second pass on leanness. A duplication or dead-flexibility finding there is the budget check catching what the line count missed — an over-abstracted 200-line diff is still over-abstracted.
