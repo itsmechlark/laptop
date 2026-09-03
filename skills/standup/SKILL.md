@@ -132,7 +132,7 @@ Then hand the text over and stop. Sending it is theirs.
 
 ### 6. File it for tomorrow
 
-Once the text is final — after the read-back, never before — write it to `~/.agents/standup/YYYY-MM-DD-<audience>.md`, dated from `date +%Y-%m-%d`, in the same skeleton it was written in so tomorrow's sections line up with today's. The audience belongs in the name: a client update and a team standup on one day are two different promises to two different readers, and one filename would silently overwrite the other.
+Once the text is final — after the read-back, never before — write it to `~/.agents/standup/YYYY-MM-DD-<audience>.md`, dated from `date +%Y-%m-%d`, in the same skeleton it was written in so tomorrow's sections line up with today's. The audience belongs in the name: a client update and a team standup on one day are two different promises to two different readers, and one filename would silently overwrite the other. Above the skeleton goes a frontmatter block naming the audience, format, period, and repos — shape and reasons in [GATHER.md](references/GATHER.md). It indexes the file rather than forming part of the update, so **the text the user copies never carries it.**
 
 That file is the whole of Step 2's continuity check, and the only reason this skill can tell the user something they didn't already know.
 

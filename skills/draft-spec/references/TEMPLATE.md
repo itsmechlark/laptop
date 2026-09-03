@@ -5,6 +5,16 @@ one line — a missing section reads as an oversight, and a reader can't tell
 "nothing is out of scope" from "nobody thought about scope".
 
 ```markdown
+---
+name: <the slice, kebab-case>
+description: <one line, under 120 characters — when a reader should open this>
+metadata:
+  status: draft
+  topic: <the join key, same as the PRD and slice list this came from>
+  tickets: []
+  adrs: []
+---
+
 ## Problem Statement
 
 The problem the user is facing, from the user's perspective.
@@ -48,6 +58,22 @@ not be pulled into the implementation.
 Assumptions, unresolved questions, dependencies, and rollout notes a future
 implementer needs.
 ```
+
+## The frontmatter
+
+Three keys, the same block a PRD, a plan, an ADR, and a lore note carry.
+`metadata.topic` is what threads them: a spec inherits it from the PRD or slice
+list it came from, and the plan written under this spec repeats it.
+
+`description` is required and short — one line, under 120 characters, no
+wrapping. It says when someone should open the spec, not what it is titled.
+
+Two rules bound it. **The block belongs to the file, never to the delivered
+text** — it renders as literal junk in a Jira or GitHub issue body, so it is
+stripped at every tracker boundary ([PUBLISHING.md](PUBLISHING.md)). And **the
+output directory's existing convention wins**: read what is already in the specs
+directory, and where those files carry a different shape or none, match them and
+say so rather than leaving two conventions in one directory.
 
 ## What each section holds
 
@@ -107,6 +133,8 @@ confidently in the Solution is expensive.
 
 ## Self-check before showing the draft
 
+- [ ] `description` is one line under 120 characters, and `metadata.topic`
+      matches the PRD or slice list this came from rather than being reinvented
 - [ ] Problem and Solution both describe a user-visible outcome, not a task
 - [ ] Every story is in the `As an <actor>, I want a <feature>, so that
       <benefit>` form, and every actor is a real one — not "the user" standing

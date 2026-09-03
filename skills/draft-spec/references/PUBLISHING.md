@@ -19,6 +19,20 @@ Match the destination to what was asked, and nothing more:
 Never claim a file exists that you didn't write. "Spec drafted below" and "spec
 written to `docs/specs/foo.md`" are different sentences; use the true one.
 
+## The frontmatter block does not travel
+
+The block belongs to the file. A tracker renders it as literal YAML in the issue
+body, under the user's name — so strip it on every route that is not a local
+Markdown file, tracker items and conversation output alike. What it holds that
+the reader still needs (the ticket keys, the ADR numbers) is already in the
+tracker's own fields or in the spec's sections; the block is the *file's* index,
+not the document's.
+
+Where the spec does land as a file, read the destination directory first. If the
+specs already there carry a different frontmatter shape, or none, match them and
+say so — one directory with two conventions leaves a reader no way to tell which
+is current, which costs more than the consistency is worth.
+
 ## Tracker handoff
 
 Assume nothing about the tracker: not the API, not the project key, not the label

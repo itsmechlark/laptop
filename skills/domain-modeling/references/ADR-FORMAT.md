@@ -9,6 +9,14 @@ When a duplicate reaches the main branch anyway, the later of the two moves to t
 ## Template
 
 ```markdown
+---
+name: event-sourced-orders
+description: Why order history comes for free and every read path can lag.
+metadata:
+  status: accepted
+  topic: order-history
+---
+
 # Event-sourced write model for orders
 
 **Context:** Orders are amended repeatedly before dispatch and the support team
@@ -29,7 +37,22 @@ audit rows can't reconstruct intermediate states.
 
 Context, decision, and consequences are the record; **Rejected** and **Evidence** are additions that earn their place case by case. One to three sentences each, and a single paragraph covering the first three is fine when that reads better. The value is in recording *that* a decision was made and *why*, not in filling out a form. Context → decision → consequences, plus the alternatives you rejected and why, is the house shape (AGENTS.md §7).
 
-Drop **Rejected** when there was no real alternative worth remembering. Add `status:` frontmatter (`proposed | accepted | deprecated | superseded by ADR-NNNN`) only in a repo where decisions get revisited often enough to need it.
+Drop **Rejected** when there was no real alternative worth remembering.
+
+## Frontmatter
+
+Three keys, the same shape a spec, a plan, and a lore note carry, so one artifact leads to the next by `metadata.topic` rather than by grep.
+
+| Field | Purpose |
+| --- | --- |
+| `name` | The decision's stable slug. Deliberately **not** the filename: the number is an address that a rebase can force you to change, and `name` is what survives renumbering |
+| `description` | Required, and short: one line, under 120 characters, no wrapping. Say when a reader should open this ADR — the title already says what it decided |
+| `metadata.status` | `proposed` · `accepted` · `deprecated` · `superseded` |
+| `metadata.topic` | Kebab-case join key, shared with the spec, plan, and lore notes for the same work |
+| `metadata.supersedes` | The ADR number this one replaces, when it replaces one |
+| `metadata.superseded-by` | The ADR number that replaced this one, added when it happens. Flipping `status` and adding this is the only *decision-bearing* edit an accepted ADR takes — correcting the record is separate, and covered below |
+
+**The directory's existing convention wins.** Read `docs/adr/` before writing. Where the ADRs there carry no frontmatter, or a different shape, match them and say so rather than leaving one directory with two conventions and no way to tell which a reader should follow. Adopting the block in a directory that predates it is a deliberate migration — and it is not one you can make, because an accepted ADR is never edited to match a later convention. The block starts at the first ADR written after the change; the ones before it stay as written.
 
 ## Evidence
 
@@ -47,7 +70,7 @@ With a single context, one `docs/adr/` at the repo root takes everything. With s
 
 **Never edit an accepted ADR to hold the new decision.** The directory's value is the trail — a reader arrives wanting to know what was believed at the time, and rewriting the file in place deletes exactly that.
 
-Instead: write a new ADR at the next number, state in its **Context** which ADR it replaces and what changed since, and mark the old one superseded. If the repo uses `status:` frontmatter, that's `superseded by ADR-NNNN`; if it doesn't, a one-line note under the old title does the same job. The old file otherwise stays as written, wrong conclusion and all.
+Instead: write a new ADR at the next number, record the old number in the new one's `metadata.supersedes`, state in its **Context** which ADR it replaces and what changed since, and mark the old one superseded. Where the old ADR carries frontmatter, that is `status: superseded` plus `superseded-by: NNNN`; where it predates the convention, a one-line note under its title does the same job — adding a block to it would be restructuring a record that is supposed to be frozen. The old file otherwise stays as written, wrong conclusion and all.
 
 Correcting a typo, tightening a sentence, or adding a consequence you'd missed is editing the *record*, not the decision — that's fine, and doesn't need a new number.
 

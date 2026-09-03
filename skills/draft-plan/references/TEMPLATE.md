@@ -5,20 +5,37 @@ fixed, and both are written for a reader who has this document and nothing else.
 
 ## Header
 
-Every plan opens with this. `Spec:` is not optional — the plan argues from the
-spec, so the spec travels with it, and an implementer reads both.
+Every plan opens with this. `metadata.spec` is not optional — the plan argues
+from the spec, so the spec travels with it, and an implementer reads both. It
+sits in the frontmatter rather than the body because a path repeated in two
+places is a path that can disagree with itself; the same goes for `stack`.
+
+`metadata.topic` is copied from the spec unchanged. It is the join key that ties
+this plan to the spec above it and the lore notes written after it, and copying
+it wrong is the one frontmatter error nothing downstream will catch.
+
+`description` is required and short: one line, under 120 characters, no
+wrapping. **The output directory's existing convention wins** — read what is
+already in the plans directory, and where those files carry a different shape or
+none, match them and say so instead of leaving two conventions in one directory.
 
 ```markdown
+---
+name: <the slice, kebab-case>
+description: <one line, under 120 characters — when a reader should open this>
+metadata:
+  status: ready
+  topic: <the join key, copied from the spec>
+  spec: <docs/specs/<file>.md — or the tracker item, or the URL>
+  stack: <languages, frameworks, and libraries a task will touch>
+---
+
 # <Slice name> implementation plan
 
 **Goal:** One sentence: what a user can do afterwards that they cannot do now.
 
 **Approach:** Two or three sentences on how, at the level a reviewer needs to
 follow the task order.
-
-**Stack:** The languages, frameworks, and libraries a task will touch.
-
-**Spec:** `docs/specs/<file>.md` — or the tracker item, or the URL.
 
 **Execution:** Tasks are independent within their stated dependencies. Steps use
 `- [ ]` so progress is trackable. Follow the test-first cycle exactly as written.

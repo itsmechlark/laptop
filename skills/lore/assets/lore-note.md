@@ -1,10 +1,13 @@
 ---
-kind: plan|implementation|investigation|decision|operation
-status: current
-topic: <kebab-case-join-key>
-tickets: []
-prs: []
-supersedes: []
+name: <stable kebab-case identity, not the timestamped filename>
+description: <one line, under 120 characters — when a reader should open this>
+metadata:
+  kind: plan|implementation|investigation|decision|operation
+  status: current
+  topic: <kebab-case-join-key>
+  tickets: []
+  prs: []
+  supersedes: []
 ---
 
 # <Ticket or area> — <the finding, not the task>

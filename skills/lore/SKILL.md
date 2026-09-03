@@ -69,7 +69,7 @@ Then look for what this note continues:
 grep -l 'topic: <topic>' lore/*.md
 ```
 
-A match means the earlier note gets `status: superseded` and this one lists it in `supersedes:` — the arc is the value, so never edit the predecessor's body to hold the new finding.
+A match means the earlier note gets `metadata.status: superseded` and this one lists it in `metadata.supersedes` — the arc is the value, so never edit the predecessor's body to hold the new finding.
 
 The link is deliberately one-directional: the successor names the predecessor, and the predecessor is found again through `topic`. Don't invent a `superseded-by:` field to close the loop — it would mean editing a merged note every time a successor lands, which is the thing the frozen-body rule exists to prevent.
 
@@ -94,13 +94,13 @@ Do not commit it. The note is part of the change and gets staged with everything
 
 - **Never impose this on the repository.** No `lore/README.md`, no edit to a tracked `CLAUDE.md`, `AGENTS.md`, or `.claude/commands/` file to make the team follow it. In a shared repo those files are everyone's; this convention is one person's. The notes themselves are additive and land in a normal commit.
 
-- **Never restructure someone else's lore.** Existing files predate this convention and most were written by other people or other tools. Adding frontmatter to them, retitling them, or "fixing" their sections is churn in a shared repo that buys the user nothing. Flipping `status:` on a note that already *has* frontmatter is the one exception, and it is maintenance rather than restructuring — [KINDS.md](references/KINDS.md) has when.
+- **Never restructure someone else's lore.** Existing files predate this convention and most were written by other people or other tools. Adding frontmatter to them, retitling them, or "fixing" their sections is churn in a shared repo that buys the user nothing. Flipping `metadata.status` on a note that already *has* frontmatter is the one exception, and it is maintenance rather than restructuring — [KINDS.md](references/KINDS.md) has when.
 
 - **The note comes after verification, never from the plan.** A note written mid-work records what was believed, and the belief is usually what changed. Write it once the work holds.
 
 - **Don't edit a merged note except to mark it superseded.** A dated record that gets rewritten is not a record. A root-cause note whose conclusion is corrected a week later ends up contradicting its own filename — that correction is a second note, not an edit.
 
-- **A `plan` note is closed out, not deleted.** When the implementation note lands, flip the plan to `status: superseded` and name it in `supersedes:`. Deleting it erases the arc, which is the part a PR description can't hold.
+- **A `plan` note is closed out, not deleted.** When the implementation note lands, flip the plan to `metadata.status: superseded` and name it in the successor's `metadata.supersedes`. Deleting it erases the arc, which is the part a PR description can't hold.
 
 - **`kind: operation` is usually not worth writing.** A backport or cherry-pick whose note would be a lead paragraph plus a commit list fails gate 2. Write one only for the conflict resolution that will recur.
 
@@ -119,7 +119,7 @@ Do not commit it. The note is part of the change and gets staged with everything
 | Unsure whether it's lore or an ADR | Apply the three ADR tests (hard to reverse, surprising, real trade-off). All three hold → ADR via `domain-modeling`. Any missing → lore. |
 | Unsure whether it's lore or the PR description | Ask which one outlives the branch and is readable with no network. If the answer is "either", it's the PR's. |
 | The user wants a note on every change | Say once what that produces: a directory whose signal-to-noise drops until nobody opens it. Then follow their call — it's their directory. |
-| You read a note whose body no longer matches the code | Flip it to `status: historical` in that turn, if it has frontmatter to flip. Nobody sweeps the directory, so this is the only moment that information exists — [KINDS.md](references/KINDS.md). |
+| You read a note whose body no longer matches the code | Flip it to `metadata.status: historical` in that turn, if it has frontmatter to flip. Nobody sweeps the directory, so this is the only moment that information exists — [KINDS.md](references/KINDS.md). |
 
 ## References
 

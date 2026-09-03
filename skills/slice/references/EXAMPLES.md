@@ -5,6 +5,38 @@ one job story, and a build order caught pretending to be a slice list. The
 domains are stand-ins — what carries across is the shape of the cut and the
 reasoning that produced it.
 
+## The captured list's frontmatter
+
+A slice list written to a file opens with the same three-key block a PRD, a
+spec, a plan, and a lore note carry:
+
+```yaml
+---
+name: teammate-invites
+description: How the invite loop was cut into four slices, riskiest first.
+metadata:
+  status: agreed
+  topic: teammate-invites
+  tickets: []
+---
+```
+
+`metadata.topic` comes from the PRD when there is one, and every spec and plan
+written under these slices repeats it — that is what joins the chain. The
+`description` is required and short: one line, under 120 characters, no
+wrapping, saying when someone should open the list rather than what it is
+titled.
+
+**No slice count.** This skill re-cuts a list whenever one slice ships or
+overruns, and a number in the frontmatter would go stale on the first re-cut
+with nothing to catch it. The list below is the count.
+
+Two rules bound it. **The block belongs to the file, never to the delivered
+text** — a list pasted into a tracker renders it as literal YAML, so strip it
+there. And **the output directory's existing convention wins**: where the
+documents already at that path carry a different shape or none, match them and
+say so, rather than leaving one directory with two conventions in it.
+
 ## An epic, sliced
 
 **The feature as it arrived:** "Admins should be able to invite teammates into

@@ -6,6 +6,15 @@ An empty one there means the boundary or the measure hasn't been agreed yet,
 which is a finding to report rather than a blank to leave.
 
 ```markdown
+---
+name: <the outcome, kebab-case>
+description: <one line, under 120 characters — when a reader should open this>
+metadata:
+  status: draft
+  topic: <the join key every artifact under this PRD will carry>
+  tickets: []
+---
+
 # <Outcome, in the user's language>
 
 ## Problem
@@ -52,6 +61,22 @@ satisfy whatever it turns out to be. Omit when there are none.
 Anything stated here that came from the author rather than from a person, a
 document, or the product. Omit only when the answer is genuinely nothing.
 ```
+
+## The frontmatter
+
+This PRD is the top of a chain — the slice list cut from it, the specs written
+for those slices, the plans under those specs, and the lore notes that follow
+all carry the same `metadata.topic`. **Choose it here**, because everything
+downstream copies it, and a topic chosen twice is a chain that never joins.
+
+`description` is required and short: one line, under 120 characters, no
+wrapping. It says when someone should open the PRD, not what it is titled.
+
+Two rules bound it. **The block belongs to the file, never to the delivered
+text** — a PRD published to a tracker or a wiki renders it as literal YAML under
+the user's name, so strip it there. And **the output directory's existing
+convention wins**: where the documents already in the destination carry a
+different shape or none, match them and say so.
 
 ## What each section holds
 
@@ -117,6 +142,8 @@ researched one, and both look equally confident on the page.
 
 ## Self-check before showing the draft
 
+- [ ] `description` is one line under 120 characters, and `metadata.topic` is a
+      key the whole chain under this PRD can carry
 - [ ] The Problem survives deleting the proposed feature — something is still
       wrong for somebody
 - [ ] The Problem carries a frequency, a volume, or a cost, not just an adverb

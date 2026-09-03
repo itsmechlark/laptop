@@ -23,25 +23,49 @@ kind — it is findable because its status says it still describes reality.
 
 ## Frontmatter
 
+Three keys at the top level, the same shape every artifact these skills author
+uses — a spec, a plan, an ADR, and a lore note all open identically, and
+`metadata.topic` is what threads them together.
+
 ```yaml
 ---
-kind: implementation
-status: current
-topic: rate-limiting
-tickets: [PROJ-482]
-prs: [1174]
-supersedes: []
+name: rate-limiting
+description: Why the limiter counts requests after auth, not before.
+metadata:
+  kind: implementation
+  status: current
+  topic: rate-limiting
+  tickets: [PROJ-482]
+  prs: [1174]
+  supersedes: []
 ---
 ```
 
 | Field | Purpose |
 | --- | --- |
-| `kind` | One of the five above |
-| `status` | `current` (still describes the code) · `historical` (was true at its date, the code has moved) · `superseded` (a later note replaces it) |
-| `topic` | Kebab-case join key. **The most important field** — it is what clusters plan → implementation → harden for one piece of work, which filenames only do by accident |
-| `tickets` | Ticket keys, so the note is reachable from the tracker |
-| `prs` | PR numbers. Load-bearing: this is the *pointer* to where the change narrative lives, which is how the note avoids restating it |
-| `supersedes` | Filenames this note replaces. Empty list when none |
+| `name` | Stable identity, deliberately **not** the filename slug — the filename leads with a timestamp nobody cites, and a note that gets renamed keeps its `name` |
+| `description` | Required, and short: one line, under 120 characters, no wrapping. It says when a reader should open the note, which is a different job from the title that says what it records |
+| `metadata.kind` | One of the five above |
+| `metadata.status` | `current` (still describes the code) · `historical` (was true at its date, the code has moved) · `superseded` (a later note replaces it) |
+| `metadata.topic` | Kebab-case join key. **The most important field** — it is what clusters plan → implementation → harden for one piece of work, which filenames only do by accident. Shared with the spec, plan, and ADRs for the same work |
+| `metadata.tickets` | Ticket keys, so the note is reachable from the tracker |
+| `metadata.prs` | PR numbers. Load-bearing: this is the *pointer* to where the change narrative lives, which is how the note avoids restating it |
+| `metadata.supersedes` | Filenames this note replaces. Empty list when none |
+
+`status` is the only one of these you may edit after merge, and `historical` is
+the reader's call — both below. Everything under `metadata` is this note's own;
+only `topic` is shared, and it is copied from the spec or plan rather than
+invented here.
+
+### The lore directory's existing convention wins
+
+Read what is already in `lore/` before writing the first note. Where the notes
+there carry a different frontmatter shape, or none, **match them and say so** —
+a directory holding two conventions gives a future reader no way to tell which
+one to follow, and this shape is not worth that. Adopt it in a directory these
+skills established, or one holding nothing that contradicts it. Migrating a
+directory you own is a deliberate change of its own, never a side effect of
+writing the next note.
 
 ### Two fields deliberately absent
 
@@ -98,9 +122,14 @@ already carries the genre, so `-plan` and `-harden` suffixes are redundant.
 ## Finding a note again
 
 There is no index file, on purpose: an index lists filenames and rots the moment
-one is added. The frontmatter is the index.
+one is added. The frontmatter is the index — which is what `description` is for,
+and why it is required. The queries below are unanchored deliberately, so they
+match whether the field sits at the top level or nested under `metadata:`.
 
 ```sh
+# the index: every note, one line each
+grep -h 'description:' lore/*.md
+
 # every note on one piece of work, in order
 grep -l 'topic: rate-limiting' lore/*.md
 

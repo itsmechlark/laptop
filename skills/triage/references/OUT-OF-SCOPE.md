@@ -70,6 +70,15 @@ Write it as a short design note, not a database row — paragraphs, and a code
 sample where it makes the constraint concrete.
 
 ```markdown
+---
+name: dark-mode
+description: Theming was declined; the pipeline resolves one palette at build time.
+metadata:
+  scope: project
+  constraint: build-time palette resolution
+  prior-requests: ["#42", "#87"]
+---
+
 # Dark mode
 
 This project does not support theming.
@@ -88,9 +97,37 @@ Theming is a downstream concern for consumers who redistribute the output.
 - #87 — "Night theme for accessibility"
 ```
 
-A cross-repo entry takes the same shape, and its `Prior requests` list spans
-repositories — so qualify each line (`acme/web#42`) rather than leaving a bare
-number that means nothing outside the repo it came from.
+A cross-repo entry takes the same shape with `scope: cross-repo`, and its
+`Prior requests` list spans repositories — so qualify each line (`acme/web#42`)
+rather than leaving a bare number that means nothing outside the repo it came
+from.
+
+### The frontmatter
+
+The same three-key block every artifact these skills author carries.
+`description` is required and short — one line, under 120 characters, no
+wrapping — and it is the field this knowledge base runs on: the dedupe check
+below reads one line per entry instead of opening every file, which is what
+makes checking both locations on every triage affordable.
+
+`metadata.constraint` names the thing the rejection rests on in a few words, so
+the staleness check has something to verify against the code. Add
+`metadata.adr` only when a rejection also settled an architectural question —
+omit the key otherwise rather than writing an empty one.
+
+**Quote every entry in `prior-requests`.** They carry a `#`, and a cross-repo
+entry qualifies them further (`"acme/web#42"`). Unquoted, a reference with a
+space before the `#` silently becomes a YAML comment and the rest of the list
+disappears — a dedupe failure that looks exactly like a file nobody has hit yet.
+
+There is no `topic`. The join key threads a piece of work through its spec,
+plan, and lore notes; a rejection has none of those by definition, which is what
+makes it a rejection.
+
+**The directory's existing convention wins.** Read what is already in
+`.out-of-scope/` before writing the first entry; where those files carry a
+different shape or none, match them and say so. And the block does not travel:
+a rejection quoted into a close comment is prose for the reporter, never YAML.
 
 **The reason has to be substantive.** Point at project scope, a technical
 constraint, or a deliberate strategic choice. "We don't want this" isn't a
@@ -115,7 +152,12 @@ entry to the ADR.
 ## When to check
 
 During step 1 of triage, both locations, every time. Match on concept, not
-keywords — "night theme" matches `dark-mode.md`.
+keywords — "night theme" matches `dark-mode.md`. Read the descriptions first;
+opening files is for the entry that looks like a hit.
+
+```sh
+grep -h 'description:' .out-of-scope/*.md ~/.agents/out-of-scope/*.md
+```
 
 **Check the reason before you repeat it.** An entry cites something — a pipeline
 that resolves one palette at build time, a dependency the project won't take, a

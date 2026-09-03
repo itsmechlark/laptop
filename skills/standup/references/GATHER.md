@@ -16,10 +16,50 @@ ls ~/.agents/standup/                          # everything kept
 ls ~/.agents/standup/*-client.md | tail -3     # one reader's recent history
 ```
 
+### The entry's frontmatter
+
+Each entry opens with the block every artifact these skills author carries, and
+the final text sits below it:
+
+```yaml
+---
+name: 2026-09-03-client
+description: Billing migration cut over; the reconciliation gap is still open.
+metadata:
+  audience: client
+  format: block
+  period: 2026-08-28..2026-09-03
+  repos: [acme/web, acme/billing]
+---
+```
+
+`format` is the field that earns its place. The promise-and-stall table below
+maps differently for each skeleton, and without this you are inferring which
+mapping to use from the section names — which fails on exactly the update whose
+sections were edited. `audience` restates what the filename encodes and is kept
+because the filename is a path, not data; `period` is the stretch the update
+covers, which the filename's date is not.
+
+`name` matches the filename here, which it does nowhere else. Elsewhere it
+exists because the filename moves — an ADR gets renumbered, a spec migrates into
+a tracker. A journal entry never moves and never leaves this directory, so
+inventing a second identity for it would buy nothing.
+
+There is no `topic`. The join key the other artifacts share ties one piece of
+work to its spec, plan, and lore notes; an update spans whatever the stretch
+touched, so a single topic would be a lie on most days.
+
+**The block never leaves this file.** It is written here, below the read-back,
+and stripped from anything the user copies — a Slack message or an email carrying
+YAML under their name is the failure this skill exists to avoid.
+
+### Reading the last entry
+
 What to do with the most recent one:
 
 - **Diff the sections, not the prose.** Compare like to like — the mapping
-  differs by format, because the three skeletons don't share section names:
+  differs by format, so read `metadata.format` rather than guessing from the
+  section names, because the three skeletons don't share any:
 
   | Format | Promise check | Stall check |
   | --- | --- | --- |
