@@ -15,9 +15,12 @@ Read these first; the rest of this document elaborates. None may be violated wit
 
 ## Standards layout
 
-This file holds cross-cutting, always-on standards. Stack-specific standards and task workflows live beside it and load when relevant — apply them without being reminded:
+This file holds cross-cutting, always-on standards, plus two kinds of material that live beside it.
 
-- **Machine & fleet context** → `~/.agents/CONTEXT.md` — when present, read it at the start of every session; it maps this machine and its repos (locations, deployment URLs, shared vocabulary). Per-repo domain glossaries live in each repo's own `CONTEXT.md` (the `domain-modeling` skill), not here.
+**Machine & fleet context loads only if you Read it.** Before starting work in any repo, Read `~/.agents/CONTEXT.md` when it exists — nothing auto-injects it the way this file is injected, so skipping the Read leaves you blind to where the machine's repos, tools, and deployments live. It maps this machine and its repos (locations, deployment URLs, shared vocabulary). Per-repo domain glossaries live in each repo's own `CONTEXT.md` (the `domain-modeling` skill), not here.
+
+**Stack-specific standards and task workflows load when relevant** — apply them without being reminded:
+
 - **Language / framework standards** → `~/.agents/rules/` (auto-load when a matching file is opened): `testing.md` (framework-agnostic test discipline) and `testing-levels.md` (unit vs integration vs end to end), `ruby.md` (the language), `rails.md` plus the layer rules `rails-model.md`, `rails-controller.md`, `rails-view.md`, and `rails-migration.md`, `bundler.md` (dependency declaration and pinning), `gem.md` (authoring and releasing a gem), `rspec.md`, `elixir.md`, `react-typescript.md`, `ember.md`, plus the pair governing `AGENTS.md` and `CLAUDE.md` themselves — `agent-instructions-layout.md` (how a repository arranges its instruction files, rules, and skills) and `agent-instructions.md` (the size budgets those files must stay under).
 - **Task workflows** → `~/.agents/skills/` (invoke when doing the task): `git-commit` (commit messages & branch naming), `pull-request` (PR title & description), `git-worktree` (worktree setup).
 
