@@ -139,3 +139,19 @@ A declined request belonging to no single codebase — a standing policy that
 would otherwise be re-argued in every repo. Kept in `~/.agents/out-of-scope/` and
 never pruned. A rejection grounded in one codebase goes in that repository's own
 `.out-of-scope/` instead.
+
+**Opt-in directory**:
+The repository directory an authored artifact needs — `lore/`, `docs/specs/`,
+`docs/adr/`, `.out-of-scope/`. Its existence is the repository's consent to hold
+that artifact; a skill never creates one unasked, and writes to the matching
+global root under `~/.agents/` instead. Creating it on the user's say-so is a
+different act, and a fine one
+([ADR 0014](docs/adr/0014-fall-back-to-a-global-home-when-the-repo-has-not-opted-in.md)).
+
+**Global root**:
+The per-artifact fallback directory under `~/.agents/` — `lore`, `specs`,
+`plans`, `prds`, `slices`, `adr`, and `out-of-scope` — holding what a repository
+that has not opted in would otherwise have taken. Flat and shared across
+projects, so each artifact records `metadata.repo`: the repository's name, never
+a path. `~/.agents/standup/` sits beside them but is not one: the journal has no
+repository directory to fall back from.

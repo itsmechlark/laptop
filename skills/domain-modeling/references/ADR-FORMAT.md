@@ -1,6 +1,8 @@
 # The ADR format
 
-ADRs live in `docs/adr/`, numbered sequentially: `0001-slug.md`, `0002-slug.md`. Scan the directory for the highest number and increment. Create `docs/adr/` lazily — only when the first ADR is warranted.
+ADRs live in `docs/adr/`, numbered sequentially: `0001-slug.md`, `0002-slug.md`. Scan the directory for the highest number and increment — and in `~/.agents/adr/`, scan **only the files carrying this repository's prefix**, since that directory holds several projects and the highest number in it usually belongs to someone else.
+
+**Creating `docs/adr/` is the repository's call, not this skill's.** Where the directory exists, write there. Where it doesn't, say so and ask — an ADR is the one artifact here written entirely for other people, and one filed outside the repository is a decision the team cannot read, which is not a recorded decision. Offer both: adopting `docs/adr/` in this repo, or `~/.agents/adr/` as your own record until they do. A global ADR carries `metadata.repo` (the repository's name) and is filed as `~/.agents/adr/<repo>-NNNN-slug.md`. The prefix is load-bearing: numbering stays per-repository, so the file can be moved into `docs/adr/` later by dropping the prefix, but one flat directory would otherwise hold two different `0001` — and the number is an address, which the next section says may never be shared.
 
 The number is an address, so two ADRs may never share one. Two branches open at once will each scan the same directory and claim the same next number, and the collision is invisible until both land — after which every `ADR NNNN` citation in the repo points at two files. Renumber on rebase, before merge, fixing the inbound references in the same commit.
 
@@ -15,6 +17,7 @@ description: Why order history comes for free and every read path can lag.
 metadata:
   status: accepted
   topic: order-history
+  repo: billing-api     # only in ~/.agents/adr/ — omit in a repo's own docs/adr/
 ---
 
 # Event-sourced write model for orders
@@ -50,6 +53,7 @@ Three keys, the same shape a spec, a plan, and a lore note carry, so one artifac
 | `metadata.status` | `proposed` · `accepted` · `deprecated` · `superseded` |
 | `metadata.topic` | Kebab-case join key, shared with the spec, plan, and lore notes for the same work |
 | `metadata.supersedes` | The ADR number this one replaces, when it replaces one |
+| `metadata.repo` | The repository's name — `billing-api`, not a path and not an owner-qualified slug like `acme/web`. Required in `~/.agents/adr/`, where one flat directory holds several projects' numbering; omitted in a repo's own `docs/adr/` |
 | `metadata.superseded-by` | The ADR number that replaced this one, added when it happens. Flipping `status` and adding this is the only *decision-bearing* edit an accepted ADR takes — correcting the record is separate, and covered below |
 
 **The directory's existing convention wins.** Read `docs/adr/` before writing. Where the ADRs there carry no frontmatter, or a different shape, match them and say so rather than leaving one directory with two conventions and no way to tell which a reader should follow. Adopting the block in a directory that predates it is a deliberate migration — and it is not one you can make, because an accepted ADR is never edited to match a later convention. The block starts at the first ADR written after the change; the ones before it stay as written.

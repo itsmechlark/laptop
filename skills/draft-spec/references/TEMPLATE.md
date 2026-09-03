@@ -13,6 +13,7 @@ metadata:
   topic: <the join key, same as the PRD and slice list this came from>
   tickets: []
   adrs: []
+  repo: <the repository's name — only in ~/.agents/specs/; delete this line in a repo's own docs/specs/>
 ---
 
 ## Problem Statement

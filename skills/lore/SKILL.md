@@ -28,13 +28,13 @@ Everything else about the change already has a home. The commit says why this di
 
 Both must pass before a single word gets written.
 
-### 1. The repository already has a lore directory
+### 1. Find where the note goes
 
 ```sh
 [ -d "$(git rev-parse --show-toplevel)/lore" ] || echo "no lore directory"
 ```
 
-**If it isn't there, stop and say so.** Do not create it, do not pick a different directory, and do not write a `lore/README.md` telling the team how notes should look. This convention is personal — it applies to notes written here, never to the repository's other contributors or their existing files. See [Gotchas](#gotchas).
+The repository's `lore/` when it exists. **When it doesn't, the note goes to `~/.agents/lore/` and carries `metadata.repo`** — never create `lore/` in a repository that doesn't have one, don't substitute `docs/`, and don't write a `lore/README.md` telling the team how notes should look. The directory existing is how a repository opts in; most repositories belong to other people, and this convention is personal. Say which of the two paths you wrote to ([KINDS.md](references/KINDS.md)).
 
 ### 2. The note survives the deletion test
 
@@ -75,7 +75,7 @@ The link is deliberately one-directional: the successor names the predecessor, a
 
 ### 3. Write it
 
-Copy [assets/lore-note.md](assets/lore-note.md) to `lore/YYYYMMDD-HHMM-<slug>.md`, taking the timestamp from `date +%Y%m%d-%H%M` and never from memory.
+Copy [assets/lore-note.md](assets/lore-note.md) to `YYYYMMDD-HHMM-<slug>.md` under whichever directory step 1 settled on, taking the timestamp from `date +%Y%m%d-%H%M` and never from memory.
 
 Fill the frontmatter, then the lead paragraph, then only the sections that have something in them. **Omit every empty section** — a heading with nothing under it is the filler this skill exists to prevent (AGENTS.md §8).
 
@@ -113,7 +113,7 @@ Do not commit it. The note is part of the change and gets staged with everything
 | Issue | Solution |
 | --- | --- |
 | A command or workflow says to write lore, but gate 2 fails | The gate wins. Say in one line what the note would have restated and where that already lives, then skip it. |
-| The repo has no `lore/` | Stop. Don't create it and don't substitute `docs/`. Tell the user, and let them decide whether the repo gets one. |
+| The repo has no `lore/` | Write to `~/.agents/lore/` with `metadata.repo`, and say that's where it went. Don't create the repo directory and don't substitute `docs/` — whether the repo gets one is the team's call, not this note's. |
 | The finding is worth 3,000 words | Then it isn't a note. Say so — a subsystem reference has a different lifetime and needs a home that gets updated in place, which a dated file never gets. |
 | Two notes for one piece of work, hours apart | One supersedes the other. Pick the one that turned out to be true, flip the other, and link them by `topic`. |
 | Unsure whether it's lore or an ADR | Apply the three ADR tests (hard to reverse, surprising, real trade-off). All three hold → ADR via `domain-modeling`. Any missing → lore. |

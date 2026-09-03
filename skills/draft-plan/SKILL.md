@@ -107,7 +107,7 @@ These are plan failures, not style preferences. Each one costs a round trip the 
 
 ## The handoff
 
-Show the plan, save it where the user asks — `docs/plans/<YYYYMMDDHHMMSS>-<kebab-slug>.md` is the fallback when they have no convention — and stop there.
+Show the plan, save it where the user asks, and stop there. With no convention to follow, offer `docs/plans/<YYYYMMDDHHMMSS>-<kebab-slug>.md` **when that directory already exists** and `~/.agents/plans/<YYYYMMDDHHMMSS>-<kebab-slug>.md` when it doesn't — the plan then carries `metadata.repo`, the repository's name. Never create `docs/plans/` to make room for the file: the directory existing is how a repository opts in, and most repositories belong to other people. Name the path you actually wrote to.
 
 Then name the execution route instead of taking it:
 

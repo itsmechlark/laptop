@@ -128,7 +128,7 @@ After the list, give a one-paragraph sequencing rationale.
 
 ### 4. Capture the list before it evaporates
 
-A sequence agreed in conversation dies with it, and it's the artifact the next two weeks run on. Past one slice, ask where the list should live and write it there — a Markdown file at a path the user names, job stories verbatim so the criteria survive. One slice sharpened in three questions needs no file: say what you'd write, and let them decide.
+A sequence agreed in conversation dies with it, and it's the artifact the next two weeks run on. Past one slice, ask where the list should live and write it there — a Markdown file at a path the user names, job stories verbatim so the criteria survive. With no path named, offer one inside a docs directory the repo already has, and `~/.agents/slices/` when it has none — never a directory created for the purpose, since a repository opts in by already having somewhere for this. A list filed there carries `metadata.repo`. One slice sharpened in three questions needs no file: say what you'd write, and let them decide.
 
 The file opens with the frontmatter block every artifact in this chain carries, so the specs and plans written under these slices join back to it by `metadata.topic` — the shape, and the two rules bounding it, are in [EXAMPLES.md](references/EXAMPLES.md).
 

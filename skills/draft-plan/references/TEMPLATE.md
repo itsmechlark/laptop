@@ -28,6 +28,7 @@ metadata:
   topic: <the join key, copied from the spec>
   spec: <docs/specs/<file>.md — or the tracker item, or the URL>
   stack: <languages, frameworks, and libraries a task will touch>
+  repo: <the repository's name — only in ~/.agents/plans/; delete this line in a repo's own docs/plans/>
 ---
 
 # <Slice name> implementation plan

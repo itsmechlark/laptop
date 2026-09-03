@@ -18,6 +18,7 @@ metadata:
   status: agreed
   topic: teammate-invites
   tickets: []
+  repo: billing-api     # only in ~/.agents/slices/; omit in a repo's own docs directory
 ---
 ```
 

@@ -8,6 +8,7 @@ metadata:
   tickets: []
   prs: []
   supersedes: []
+  repo: <the repository's name — only in ~/.agents/lore/; delete this line in a repo's own lore/>
 ---
 
 # <Ticket or area> — <the finding, not the task>

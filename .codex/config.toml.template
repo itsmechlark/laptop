@@ -84,12 +84,22 @@ glob_scan_max_depth = 8
 "/opt/homebrew" = "read"
 "~/Codespace" = "write"
 "~/.agents" = "read"
-# Narrows the read grant above for the two directories an agent writes under
-# ~/.agents: the standup skill's journal and the cross-repo rejection knowledge
-# base. Provisioned by mac as real directories (not symlinks) so Codex's
-# Seatbelt sandbox accepts them as writable roots (ADR 0008).
+# Narrows the read grant above for the directories an agent writes under
+# ~/.agents: the standup skill's journal, the cross-repo rejection knowledge
+# base, and the fallback home for each durable artifact a skill authors when the
+# repository has no directory for it (ADR 0014). Provisioned by mac as real
+# directories (not symlinks) so Codex's Seatbelt sandbox accepts them as
+# writable roots (ADR 0008). ~/.agents/skills and ~/.agents/rules are
+# deliberately absent: they resolve into this repo and are the agent's own
+# instructions.
 "~/.agents/standup" = "write"
 "~/.agents/out-of-scope" = "write"
+"~/.agents/lore" = "write"
+"~/.agents/specs" = "write"
+"~/.agents/plans" = "write"
+"~/.agents/prds" = "write"
+"~/.agents/slices" = "write"
+"~/.agents/adr" = "write"
 "~/.claude" = "write"
 # Self-policy guard: the Claude settings files are enforced policy. Keep them
 # readable but never agent-writable (this narrows the ~/.claude write grant

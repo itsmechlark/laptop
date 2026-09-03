@@ -38,6 +38,7 @@ metadata:
   tickets: [PROJ-482]
   prs: [1174]
   supersedes: []
+  repo: billing-api     # only in ~/.agents/lore/ — see "Where the note goes"
 ---
 ```
 
@@ -51,6 +52,7 @@ metadata:
 | `metadata.tickets` | Ticket keys, so the note is reachable from the tracker |
 | `metadata.prs` | PR numbers. Load-bearing: this is the *pointer* to where the change narrative lives, which is how the note avoids restating it |
 | `metadata.supersedes` | Filenames this note replaces. Empty list when none |
+| `metadata.repo` | The repository's name — `billing-api`, not a path and not an owner-qualified slug like `acme/web`. Required in `~/.agents/lore/`, omitted in a repo's own `lore/`. Take it from the remote's basename, else the toplevel directory's, so a worktree or a renamed clone doesn't change it |
 
 `status` is the only one of these you may edit after merge, and `historical` is
 the reader's call — both below. Everything under `metadata` is this note's own;
@@ -109,10 +111,33 @@ Two limits on that:
 A note is never deleted for being stale. `historical` is how a directory stays
 honest without anyone maintaining it.
 
+## Where the note goes
+
+`lore/` in the repository **when that directory already exists**. When it does
+not, the note goes to `~/.agents/lore/` instead, and it carries
+`metadata.repo`. Never create `lore/` in a repository that doesn't have one:
+most repositories belong to other people, and a directory nobody agreed to is a
+convention imposed rather than adopted.
+
+Say which path you wrote to, every time. A note filed globally is easy to
+believe was filed in the repo.
+
+| The repo has `lore/` | Write to | `metadata.repo` |
+| --- | --- | --- |
+| Yes | `lore/` | Omitted — the location already says it |
+| No | `~/.agents/lore/` | Required |
+
+`~/.agents/lore/` is flat and holds every project's notes, so `metadata.repo` is
+what separates them — `topic` is only unique within one project, and two
+codebases with a `billing` topic would otherwise collide. When the directory is
+missing, `mac` has not run on this machine: say so in one line and offer the
+note in the conversation rather than creating it.
+
 ## Filename
 
 ```
 lore/YYYYMMDD-HHMM-<slug>.md
+~/.agents/lore/YYYYMMDD-HHMM-<slug>.md
 ```
 
 From `date +%Y%m%d-%H%M`, never from memory — leading zeros included. The slug

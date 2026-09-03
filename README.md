@@ -254,11 +254,27 @@ and a repository that gets pushed is no place for them.
 All three clients grant write access to that one path,
 which is why the skill needs no per-client configuration.
 
-Cross-repo rejections (`.agents/out-of-scope/`)
------------------------------------------------
+Where skills put what they write (`~/.agents/…`)
+------------------------------------------------
 
-`mac` creates `.agents/out-of-scope/` and links it to `~/.agents/out-of-scope`,
-wired exactly like the journal above and for the same reason.
+Seven more directories sit beside the journal —
+`lore`, `specs`, `plans`, `prds`, `slices`, `adr`, and `out-of-scope` —
+created the same way, on the same first `mac` run.
+
+They exist because most repositories are not yours.
+A skill that needed somewhere to file a note
+used to create `lore/` or `docs/specs/` in whatever repo was open,
+which imposes one person's workflow on everyone who pulls the branch.
+So the repository directory existing is the opt-in:
+where it is already there, the file goes in the repo;
+where it isn't, the file goes to the matching directory here
+and records which repository it was about
+in a `repo:` field in its frontmatter.
+The skill names the path it actually wrote to, every time.
+
+Cross-repo rejections (`~/.agents/out-of-scope/`)
+-------------------------------------------------
+
 The `triage` skill writes a file here when it rejects a request
 for a reason that belongs to no single project —
 a standing policy such as "no telemetry",
@@ -267,9 +283,13 @@ It sits beside `skills` and `standup` rather than under a skill
 because `slice` and `draft-spec` read it too,
 before they propose work that may already have been declined.
 
-Rejections grounded in a particular codebase do not go here.
-Those belong in that repository's own `.out-of-scope/`, committed,
-where a co-maintainer and the next reporter can read them.
+Rejections grounded in a particular codebase belong
+in that repository's own `.out-of-scope/`, committed,
+where a co-maintainer and the next reporter can read them —
+when the repository has that directory.
+When it doesn't, the entry lands here too,
+marked `scope: project` and naming its repository,
+so the reasoning survives without a directory nobody agreed to.
 Triage checks both places before deciding anything is new.
 
 Unlike the journal, nothing here is pruned:

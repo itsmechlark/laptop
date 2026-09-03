@@ -690,16 +690,23 @@ and description templates — use them.
   `.agents/*.local.md`, `.agents/CONTEXT.md`, `.agents/standup`,
   `.agents/out-of-scope`, `.agents/.skills-lock.json`, and any nested `.claude`
   directory under `.agents/` or `skills/`.
-- `~/.agents/standup/` is the `standup` journal and `~/.agents/out-of-scope/`
-  the **cross-repo** rejection knowledge base. `mac` provisions both as real
-  directories directly under `~/.agents/` — not symlinks — because Codex's
-  Seatbelt sandbox rejects symlinked writable roots
+- `mac` provisions eight real directories under `~/.agents/` — `standup`,
+  `out-of-scope`, `lore`, `specs`, `plans`, `prds`, `slices`, `adr` — not
+  symlinks, because Codex's Seatbelt sandbox rejects symlinked writable roots
   ([ADR 0008](docs/adr/0008-provision-agent-state-as-real-directories.md),
   supersedes [ADR 0004](docs/adr/0004-machine-local-agent-state-in-repo.md)).
-  `out-of-scope` is not namespaced under a skill: `triage` writes it, `slice`
-  and `draft-spec` read it. The journal prunes to 14 days; rejections never do,
-  and hold only cross-project standing policies. **A codebase-specific rejection
-  goes in that repo's own `.out-of-scope/`**.
+  All three clients grant each one write; `skills` and `rules` are pointedly
+  excluded, since they resolve into this repo.
+- **All but `standup` are fallbacks, not defaults**
+  ([ADR 0014](docs/adr/0014-fall-back-to-a-global-home-when-the-repo-has-not-opted-in.md)).
+  A skill writes into a repository only where the matching directory (`lore/`,
+  `docs/specs/`, `docs/adr/`, …) already exists — the repo's opt-in — and never
+  creates one unasked; otherwise it writes to the global root and records
+  `metadata.repo`, the repository's *name*, never a path. `out-of-scope` is not
+  namespaced under a skill: `triage` writes it, `slice` and `draft-spec` read
+  it. The journal prunes to 14 days; rejections never do. **A codebase-specific
+  rejection goes in that repo's own `.out-of-scope/`** when it has one, else the
+  global root marked `scope: project`.
 - **`CONTEXT.md` names two unrelated files.** The root is this repo's committed
   glossary. `.agents/CONTEXT.md` is the git-ignored machine map — what the four
   symlinks point at. Never write a domain term into the map, or a machine path

@@ -267,15 +267,17 @@ symlink_path "$PROJECT_DIR/rules" "$AGENTS_GLOBAL_DIR/rules"
 symlink_path "$PROJECT_DIR/skills" "$AGENTS_GLOBAL_DIR/skills"
 symlink_path "$PROJECT_DIR/skills-lock.json" "$AGENTS_GLOBAL_DIR/.skills-lock.json"
 
-# Standup journal and cross-repo rejection knowledge base — machine-local state
-# that outlives a session. Provisioned directly under ~/.agents rather than
-# symlinked from the repo, because Codex's Seatbelt sandbox rejects symlinked
-# writable roots (ADR 0008). Both directories are already under ~, so they
-# persist across checkouts and need no gitignore discipline to stay unpublished.
+# Machine-local state that outlives a session: the standup journal, the
+# cross-repo rejection knowledge base, and the fallback home for every durable
+# artifact a skill authors when the repository has no directory for it (ADR
+# 0014). Provisioned directly under ~/.agents rather than symlinked from the
+# repo, because Codex's Seatbelt sandbox rejects symlinked writable roots (ADR
+# 0008). All are already under ~, so they persist across checkouts and need no
+# gitignore discipline to stay unpublished.
 #
 # Migrate existing symlinks from the old provisioning (ADR 0004): remove the
 # symlink, create a real directory, and move any existing content over.
-for dir in standup out-of-scope; do
+for dir in standup out-of-scope lore specs plans prds slices adr; do
   path="$AGENTS_GLOBAL_DIR/$dir"
   if [ -L "$path" ]; then
     old="$(readlink "$path")"

@@ -72,6 +72,8 @@ Where it goes next depends on what is still open:
 - **A single agreed piece needs implementable detail** — `draft-spec` writes the engineering specification under this document, and cites it.
 - **The user wants it attacked rather than accepted** — `grilling`, only when they ask.
 
+Asked for it as a file, offer `docs/prds/<YYYYMMDDHHMMSS>-<kebab-slug>.md` **when that directory already exists** and `~/.agents/prds/<YYYYMMDDHHMMSS>-<kebab-slug>.md` when it doesn't — the second carries `metadata.repo`. Never create `docs/prds/` to make room for it: the directory existing is how a repository opts in, and a PRD is exactly the document a team should agree to host before it appears. Name the path you wrote to.
+
 Publishing to a tracker or a wiki is an outward-facing write. Never do it without a separate yes, and never invent a project key, a space, or a label to make it fit.
 
 ## Gotchas

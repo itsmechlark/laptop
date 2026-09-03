@@ -15,7 +15,7 @@ Read these first; the rest of this document elaborates. None may be violated wit
 
 ## Standards layout
 
-This file holds cross-cutting, always-on standards, plus two kinds of material that live beside it.
+This file holds cross-cutting, always-on standards, plus three kinds of material that live beside it.
 
 **Machine & fleet context loads only if you Read it.** Before starting work in any repo, Read `~/.agents/CONTEXT.md` when it exists — nothing auto-injects it the way this file is injected, so skipping the Read leaves you blind to where the machine's repos, tools, and deployments live. It maps this machine and its repos (locations, deployment URLs, shared vocabulary). Per-repo domain glossaries live in each repo's own `CONTEXT.md` (the `domain-modeling` skill), not here.
 
@@ -23,6 +23,15 @@ This file holds cross-cutting, always-on standards, plus two kinds of material t
 
 - **Language / framework standards** → `~/.agents/rules/` (auto-load when a matching file is opened): `testing.md` (framework-agnostic test discipline) and `testing-levels.md` (unit vs integration vs end to end), `ruby.md` (the language), `rails.md` plus the layer rules `rails-model.md`, `rails-controller.md`, `rails-view.md`, and `rails-migration.md`, `bundler.md` (dependency declaration and pinning), `gem.md` (authoring and releasing a gem), `rspec.md`, `elixir.md`, `react-typescript.md`, `ember.md`, plus the pair governing `AGENTS.md` and `CLAUDE.md` themselves — `agent-instructions-layout.md` (how a repository arranges its instruction files, rules, and skills) and `agent-instructions.md` (the size budgets those files must stay under).
 - **Task workflows** → `~/.agents/skills/` (invoke when doing the task): `git-commit` (commit messages & branch naming), `pull-request` (PR title & description), `git-worktree` (worktree setup).
+
+**Prior work on this repo may be recorded outside it, and only a Read finds it.** Where a repository has no `lore/`, `docs/specs/`, `docs/adr/`, `.out-of-scope/` or the like, the skills that author those write to the matching `~/.agents/` root instead of creating a directory the repo never agreed to. Those roots are flat, so each file names its repository in `metadata.repo` — the bare name, never a path. Check before concluding anything is undocumented or undecided: a design already written up, a decision already made, a request already declined, or the notes explaining code you are about to re-derive may all be there, and a miss is silent.
+
+```sh
+repo=$(basename "$(git rev-parse --show-toplevel 2>/dev/null || pwd)")
+grep -rl "repo: $repo" ~/.agents/{lore,specs,plans,prds,slices,adr,out-of-scope}/ 2>/dev/null
+```
+
+Read what it returns as this repo's own history, filed elsewhere. `~/.agents/out-of-scope/` also holds `scope: cross-repo` policy, which names no repo and applies everywhere.
 
 ## First principles
 

@@ -71,7 +71,7 @@ _Avoid_: Client, buyer, account
 │       └── docs/adr/
 ```
 
-Create every one of these lazily — only when there is something to put in it. Which `docs/adr/` a given decision belongs in is [ADR-FORMAT.md](ADR-FORMAT.md)'s question.
+Create every one of these lazily — only when there is something to put in it, and for `docs/adr/` only with the repository's agreement, since creating it commits everyone who pulls the branch to a convention ([ADR-FORMAT.md](ADR-FORMAT.md)). Which `docs/adr/` a given decision belongs in is that file's question too.
 
 The map itself says where each context lives and how they relate:
 

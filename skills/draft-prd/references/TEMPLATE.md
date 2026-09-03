@@ -13,6 +13,7 @@ metadata:
   status: draft
   topic: <the join key every artifact under this PRD will carry>
   tickets: []
+  repo: <the repository's name — only in ~/.agents/prds/; delete this line in a repo's own docs/prds/>
 ---
 
 # <Outcome, in the user's language>
@@ -77,6 +78,10 @@ text** — a PRD published to a tracker or a wiki renders it as literal YAML und
 the user's name, so strip it there. And **the output directory's existing
 convention wins**: where the documents already in the destination carry a
 different shape or none, match them and say so.
+
+`metadata.repo` is filled in only when the PRD lands in `~/.agents/prds/`, which
+happens when the repository has no `docs/prds/` of its own — step 4 of the
+`SKILL.md` has that rule and owns it.
 
 ## What each section holds
 

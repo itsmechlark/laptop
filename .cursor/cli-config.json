@@ -11,7 +11,13 @@
   "permissions": {
     "allow": [
       "Write(~/.agents/standup/**)",
-      "Write(~/.agents/out-of-scope/**)"
+      "Write(~/.agents/out-of-scope/**)",
+      "Write(~/.agents/lore/**)",
+      "Write(~/.agents/specs/**)",
+      "Write(~/.agents/plans/**)",
+      "Write(~/.agents/prds/**)",
+      "Write(~/.agents/slices/**)",
+      "Write(~/.agents/adr/**)"
     ],
     "deny": [
       "Read(**/.env)",
