@@ -236,6 +236,15 @@
           "relationship": "inspired-by",
           "license": "Apache-2.0",
           "note": "Its 'maintain balance' principle — don't over-simplify into clever code, don't merge unrelated concerns, don't strip a useful abstraction to save lines — is the overshoot paragraph in LEANNESS.md's 'When it runs over'. That was the one idea the agent carried with no home in this payload; its findings otherwise duplicate code-review's smell baseline, and its JS/TS house style and proactive-refactor stance were deliberately not taken (the latter contradicts AGENTS.md §1 on preserving intentional existing work). The plugin itself ships via enabledPlugins in .claude/settings.json, so nothing was vendored."
+        },
+        {
+          "origin": "anthropics/claude-plugins-official",
+          "type": "github",
+          "url": "https://github.com/anthropics/claude-plugins-official",
+          "path": "plugins/feature-dev",
+          "relationship": "inspired-by",
+          "license": "Apache-2.0",
+          "note": "Its code-explorer agent closes with 'Always include specific file paths and line numbers' and mandates an entry-point-through-layers trace; code-architect asks for patterns cited at file:line. That discipline is the explorer return contract in PHASES.md Phase 2 — fan-out already requires one contract per dispatch but never says what an exploration's should be, so the local rule that nothing an agent reports is true until you check it had no cheap way to be checked. Deliberately not taken: the code-explorer and code-architect agent types themselves (plugin-scoped, and this payload ships to Codex and Cursor, where fan-out is the portable seam), and the Architecture Design phase. That phase's 2-3 candidate approaches with trade-offs and a recommendation already exist as brainstorming's architectural path, which feature-dev Phase 1 routes to and which also covers the rollout and migration shape upstream omits; its full-blueprint output is draft-plan, which SKILL.md rejects as ceremony for work built in-session; and an up-front blueprint pre-commits the internal structure Phase 4's outside-in TDD exists to discover. Upstream also instructs code-architect to 'make confident architectural choices rather than presenting multiple options' while launching two or three of them to present multiple options, so the variety is assigned by the orchestrator rather than discovered."
         }
       ]
     },

@@ -95,3 +95,4 @@ Read each when you reach it, not all upfront.
 
 - [thoughtbot/rails-consultant](https://github.com/thoughtbot/rails-consultant/tree/main/skills/feature-dev) - feature-dev, MIT
 - [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier) - code-simplifier, Apache-2.0
+- [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/feature-dev) - feature-dev, Apache-2.0

@@ -46,7 +46,13 @@ Match the effort to the feature. For a small, well-understood change, a few targ
 
 For a single unfamiliar file, class, or flow, `explain` builds the mental model faster than an explorer does — it reads for comprehension rather than searching.
 
-Ask each explorer for the 5–10 files most worth reading, then **read those files yourself.** The explorers build the map; you need the detail in context to write code that matches it.
+Give every explorer the same return contract, whatever angle it covers. `fan-out` requires one contract for the whole dispatch; this is what an exploration's should be:
+
+- **Every claim anchored at `path:line`.** An unanchored report has to be re-searched before you can trust it, which costs more than the exploration saved.
+- **A trace, not an inventory** — the entry point through the layers to wherever the work lands, naming the transformation at each hop rather than listing the files it passed through.
+- **The 5–10 files most worth reading.**
+
+Then **read those files yourself.** The explorers build the map; you need the detail in context to write code that matches it.
 
 **Exit:** a short summary of the patterns that will shape the slice — where the code will live, what it should look like, what to reuse, and **what already exists.** That last part changes the slice: if the feature is half-built, or an adjacent one already covers part of it, Phase 3 needs to know before it starts asking questions. A slice shaped in ignorance of a half-finished implementation is a slice that will be re-cut in Phase 4.
 
