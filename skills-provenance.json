@@ -424,6 +424,13 @@
           "url": "https://github.com/getsentry/skills",
           "path": "skills/code-review/SKILL.md",
           "relationship": "inspired-by"
+        },
+        {
+          "origin": "Conventional Comments",
+          "type": "web",
+          "url": "https://conventionalcomments.org/",
+          "relationship": "inspired-by",
+          "note": "Source of the issue:/question:/suggestion:/nit:/praise: prefixes PR-REVIEW.md asks a posted comment to carry. Labels only; the same source backs the receiving side in review-response."
         }
       ]
     },
