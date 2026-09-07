@@ -17,6 +17,6 @@
   {"query": "is there an n+1 in the availability endpoint? it goes slow under load", "should_trigger": false},
   {"query": "update the spec doc to match what i actually built, it drifted", "should_trigger": false},
   {"query": "this spec fails maybe one run in five and passes locally every time. why", "should_trigger": false},
-  {"query": "add rubocop to CI and get the existing offenses down to zero", "should_trigger": false},
+  {"query": "a contributor opened #88 against our repo and i'm the reviewer — go through it and tell me whether i should approve", "should_trigger": false},
   {"query": "what changed in this PR? just the highlights, i'll read it properly after", "should_trigger": false}
 ]
