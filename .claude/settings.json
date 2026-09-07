@@ -380,7 +380,19 @@
     "credentials": {
       "envVars": [
         {
-          "name": "PANTHEON_API_KEY",
+          "name": "ANTHROPIC_AUTH_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "BUGSNAG_AUTH_TOKEN",
+          "mode": "mask",
+          "injectHosts": [
+            "api.bugsnag.com",
+            "api.bugsnag.smartbear.com"
+          ]
+        },
+        {
+          "name": "CLAUDE_CODE_OAUTH_TOKEN",
           "mode": "deny"
         },
         {
@@ -388,27 +400,39 @@
           "mode": "deny"
         },
         {
+          "name": "GH_TOKEN",
+          "mode": "mask",
+          "injectHosts": [
+            "api.github.com",
+            "uploads.github.com"
+          ]
+        },
+        {
           "name": "GITHUB_TOKEN",
-          "mode": "deny"
+          "mode": "mask",
+          "injectHosts": [
+            "api.github.com",
+            "uploads.github.com"
+          ]
         },
         {
           "name": "GITHUB_PERSONAL_ACCESS_TOKEN",
-          "mode": "deny"
-        },
-        {
-          "name": "GH_TOKEN",
-          "mode": "deny"
+          "mode": "mask",
+          "injectHosts": [
+            "api.github.com",
+            "uploads.github.com"
+          ]
         },
         {
           "name": "NPM_TOKEN",
-          "mode": "deny"
+          "mode": "mask",
+          "injectHosts": [
+            "registry.npmjs.org",
+            "registry.yarnpkg.com"
+          ]
         },
         {
-          "name": "ANTHROPIC_AUTH_TOKEN",
-          "mode": "deny"
-        },
-        {
-          "name": "CLAUDE_CODE_OAUTH_TOKEN",
+          "name": "SEMAPHORE_API_TOKEN",
           "mode": "deny"
         }
       ]
