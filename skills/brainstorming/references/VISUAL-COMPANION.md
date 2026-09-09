@@ -71,11 +71,11 @@ versions.
 
 ### Using a browser MCP server
 
-If the session has browser tools from an MCP server (Chrome DevTools MCP, or
-whatever the host provides), use them directly: navigate to the mockup's
-`file://` URL, screenshot it, and read the page when you need its structure.
-Check the tool names available in the session rather than assuming them — they
-differ between servers and change between versions.
+If the session has browser tools from an MCP server (Chrome DevTools,
+Firefox DevTools, Safari, or whatever the host provides), use them directly:
+navigate to the mockup's `file://` URL, screenshot it, and read the page when
+you need its structure. Check the tool names available in the session rather
+than assuming them — they differ between servers and change between versions.
 
 Two constraints worth knowing before you reach for them:
 

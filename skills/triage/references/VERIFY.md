@@ -40,12 +40,12 @@ disproportionate for UI, timing-dependent, or environment-specific bugs, and
 impossible on a repository you cannot push to.
 
 When the failure only shows in a running UI, reproduce it by driving a real
-browser with whatever automation tooling the machine has — a browser-driving CLI
-(such as `agent-browser`), or Chrome over MCP or a CLI. Drive the app to the
-broken state and keep **the screenshot together with the exact steps** that
-reached it: the URL first, then the navigation and the clicks. The screenshot is
-the artifact; the steps are what let the next reader re-reach it in whatever tool
-they happen to have.
+browser with whatever automation tooling the machine has — a browser-driving
+CLI (such as `agent-browser`), or a browser over MCP (Chrome, Firefox,
+Safari) or a CLI. Drive the app to the broken state and keep **the screenshot
+together with the exact steps** that reached it: the URL first, then the
+navigation and the clicks. The screenshot is the artifact; the steps are what
+let the next reader re-reach it in whatever tool they happen to have.
 
 ## Tier (c) — "couldn't reproduce", plus exactly what you tried
 
