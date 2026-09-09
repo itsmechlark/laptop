@@ -299,6 +299,7 @@ symlink_path "$AGENTS_GLOBAL_DIR/AGENTS.md" "$CLAUDE_GLOBAL_DIR/CLAUDE.md"
 symlink_path "$AGENTS_GLOBAL_DIR/rules" "$CLAUDE_GLOBAL_DIR/rules"
 symlink_path "$AGENTS_GLOBAL_DIR/skills" "$CLAUDE_GLOBAL_DIR/skills"
 symlink_path "$PROJECT_DIR/.claude/settings.json" "$CLAUDE_GLOBAL_DIR/settings.json"
+symlink_path "$PROJECT_DIR/.mcp.json" "$HOME/.mcp.json"
 
 # Codex
 CODEX_GLOBAL_DIR="$HOME/.codex"

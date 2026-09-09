@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "excalidraw": {
+      "type": "http",
+      "url": "https://mcp.excalidraw.com/mcp"
+    },
+    "smartbear-bugsnag": {
+      "type": "http",
+      "url": "https://bugsnag.mcp.smartbear.com/mcp"
+    }
+  }
+}
