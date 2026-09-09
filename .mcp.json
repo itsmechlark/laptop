@@ -15,6 +15,14 @@
       "type": "http",
       "url": "https://mcp.excalidraw.com/mcp"
     },
+    "firefox-devtools": {
+      "command": "npx",
+      "args": ["-y", "@mozilla/firefox-devtools-mcp@latest"],
+      "env": {
+        "ASDF_NODEJS_VERSION": "v22.23.2",
+        "START_URL": "about:blank"
+      }
+    },
     "smartbear-bugsnag": {
       "type": "http",
       "url": "https://bugsnag.mcp.smartbear.com/mcp"
