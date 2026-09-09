@@ -82,6 +82,8 @@ glob_scan_max_depth = 8
 
 # Development/worktree area and selected tool/runtime state.
 "/opt/homebrew" = "read"
+# The bin/srt shim (npx @anthropic-ai/sandbox-runtime srt), on PATH via ~/.bin.
+"~/.bin" = "read"
 "~/Codespace" = "write"
 "~/.agents" = "read"
 # Narrows the read grant above for the directories an agent writes under
@@ -107,6 +109,10 @@ glob_scan_max_depth = 8
 # AGENTS.md "Agent-client configuration parity".
 "~/.claude/settings.json" = "read"
 "~/.claude/settings.local.json" = "read"
+# Self-policy guard: the srt second-line sandbox config, readable for review but
+# never agent-writable. Global cargo governing unsafe commands. See AGENTS.md
+# "Agent-client configuration parity" and ADR 0015.
+"~/.srt-settings.json" = "read"
 "~/.cache" = "read"
 "~/.cache/rubocop_cache" = "write"
 "~/.cache/gem" = "write"
@@ -185,6 +191,8 @@ glob_scan_max_depth = 8
 ".claude/settings.json" = "read"
 ".claude/settings.local.json" = "read"
 ".cursor/**" = "read"
+"srt-settings.json" = "read"
+"bin/srt" = "read"
 
 [permissions.developer.network]
 enabled = true

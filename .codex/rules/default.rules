@@ -262,3 +262,18 @@ prefix_rule(
     justification = "Remote shell access requires approval.",
     match = ["ssh example.com"],
 )
+
+# -----------------------------------------------------------------------------
+# Require approval: second-line sandbox for unsafe commands (srt)
+# -----------------------------------------------------------------------------
+
+# srt (the bin/srt shim -> npx @anthropic-ai/sandbox-runtime srt) runs unsafe,
+# untrusted commands under its own OS sandbox. It bypasses the per-command gates
+# above by design (the inner command is never the prefix), so each use is gated
+# by a single approval prompt instead. See AGENTS.md parity section and ADR 0015.
+prefix_rule(
+    pattern = ["srt"],
+    decision = "prompt",
+    justification = "The srt sandbox wrapper runs unsafe commands; each use requires approval.",
+    match = ["srt npm install", "srt curl https://example.com"],
+)

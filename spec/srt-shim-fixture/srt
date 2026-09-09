@@ -1,0 +1,6 @@
+#!/bin/sh
+# Deliberate violations for the srt shim self-test in scripts/check-payload: the
+# bare package positional (npx passes 'srt' through as an argument, so srt wraps
+# itself) and no version pin. Do not "fix" these — the violations are the
+# assertion, and a different count fails the run.
+exec npx -y @anthropic-ai/sandbox-runtime srt "$@"

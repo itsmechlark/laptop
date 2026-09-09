@@ -146,6 +146,10 @@
       "Edit(~/.claude/settings.json)",
       "Edit(**/.claude/settings.local.json)",
       "Edit(~/.claude/settings.local.json)",
+      "Edit(**/srt-settings.json)",
+      "Edit(~/.srt-settings.json)",
+      "Edit(**/bin/srt)",
+      "Edit(~/.bin/srt)",
       "mcp__plugin_sem-ai_sem-ai__pipeline_promote",
       "mcp__plugin_sem-ai_sem-ai__deploy_deactivate",
       "mcp__plugin_sem-ai_sem-ai__service-account_deactivate",
@@ -192,7 +196,10 @@
       "mcp__plugin_chrome-devtools-mcp_chrome-devtools__new_page",
       "Bash(curl *)",
       "Bash(wget *)",
-      "Bash(ssh *)"
+      "Bash(ssh *)",
+      "Bash(srt *)",
+      "Bash(npx @anthropic-ai/sandbox-runtime *)",
+      "Bash(npx -y @anthropic-ai/sandbox-runtime *)"
     ],
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable",
@@ -328,7 +335,11 @@
         "~/.cursor/cli-config.json",
         "./.cursor/cli-config.json",
         "~/.cursor/hooks.json",
-        "./.cursor/hooks.json"
+        "./.cursor/hooks.json",
+        "~/.srt-settings.json",
+        "./srt-settings.json",
+        "~/.bin/srt",
+        "./bin/srt"
       ],
       "denyRead": [
         "~/",
@@ -448,7 +459,10 @@
       "git stash *",
       "git switch *",
       "git checkout *",
-      "git worktree *"
+      "git worktree *",
+      "srt *",
+      "npx @anthropic-ai/sandbox-runtime *",
+      "npx -y @anthropic-ai/sandbox-runtime *"
     ]
   },
   "effortLevel": "high",

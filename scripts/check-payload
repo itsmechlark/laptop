@@ -850,6 +850,84 @@ else
   done <"$cases"
 fi
 
+# -------------------------------------------------------------- srt shim form
+
+# bin/srt runs srt through npx. It must disambiguate the package from the command
+# with --package=: `npx <pkg-spec> srt` hands the bin name to npx as a positional,
+# so srt is run with `srt` prepended and wraps `srt <cmd>` — it sandboxes itself,
+# and the nested run cannot bind its control socket. That form shipped once and
+# cost real debugging (ADR 0015); this guards the regression. The version must be
+# pinned so a wrapped run is reproducible.
+#
+# Reports one problem per line; the caller counts. Takes the shim path so the
+# fixture can exercise it against a file with known answers.
+scan_srt_shim() {
+  shim=$1
+
+  # The shim documents the broken form in a comment on purpose — scan only the
+  # executable lines.
+  invocation=$(grep -vE '^[[:space:]]*#' "$shim" | grep -E '\bnpx\b')
+
+  if [ -z "$invocation" ]; then
+    printf "%s: no npx invocation found\n" "$shim"
+    return
+  fi
+
+  case "$invocation" in
+    *--package=@anthropic-ai/sandbox-runtime*) ;;
+    *@anthropic-ai/sandbox-runtime*)
+      printf "%s: runs srt via a bare package positional — npx passes 'srt' through as an argument and srt wraps itself; use 'npx --package=@anthropic-ai/sandbox-runtime srt'\n" "$shim" ;;
+    *)
+      printf "%s: npx invocation does not name @anthropic-ai/sandbox-runtime\n" "$shim" ;;
+  esac
+
+  case "$invocation" in
+    *@anthropic-ai/sandbox-runtime@[0-9]*) ;;
+    *) printf "%s: @anthropic-ai/sandbox-runtime is not pinned to a version\n" "$shim" ;;
+  esac
+}
+
+fancy_echo "Self-testing the srt shim check ..."
+
+# A correct shim and a self-wrapping one are both a single npx line: if this
+# check stopped firing, the broken form would pass exactly like the good one —
+# which is how it shipped. The fixture carries both violations, the bare
+# positional and no version pin.
+srt_fixture=spec/srt-shim-fixture/srt
+if [ ! -f "$srt_fixture" ]; then
+  fail "$srt_fixture is missing — the srt shim check cannot be self-verified"
+else
+  detected=$(scan_srt_shim "$srt_fixture" | wc -l | tr -d ' ')
+  if [ "$detected" -eq 2 ]; then
+    printf "  ok    fixture: bare-positional and unpinned shim forms detected\n"
+  else
+    fail "srt shim check is broken: fixture yielded $detected of 2 expected detections"
+  fi
+fi
+
+fancy_echo "Checking the srt shim and settings ..."
+
+if [ ! -f bin/srt ]; then
+  fail "bin/srt is missing — the srt entrypoint shim"
+else
+  srt_report=$(scan_srt_shim bin/srt)
+  if [ -n "$srt_report" ]; then
+    printf '%s\n' "$srt_report" | while IFS= read -r line; do
+      printf "  FAIL  %s\n" "$line"
+    done
+    failures=$((failures + $(printf '%s\n' "$srt_report" | wc -l | tr -d ' ')))
+  fi
+fi
+
+# srt-settings.json is the entire filesystem/network boundary for a wrapped
+# command; malformed JSON would break every srt run silently. jq is already a
+# dependency of this script.
+if [ ! -f srt-settings.json ]; then
+  fail "srt-settings.json is missing — the srt confinement policy"
+elif ! jq -e . srt-settings.json >/dev/null 2>&1; then
+  fail "srt-settings.json: not valid JSON"
+fi
+
 # ---------------------------------------------------- payload hygiene
 
 fancy_echo "Checking payload hygiene ..."

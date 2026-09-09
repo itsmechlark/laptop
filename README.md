@@ -112,12 +112,14 @@ Development tools:
 
 * [CSpell] for spell-checking code and prose
 * [Gitleaks] for catching secrets in a diff before they are committed
+* [ripgrep] for fast recursive search, and as the runtime backend `srt` needs
 * [Trivy] for scanning dependencies and images for vulnerabilities
 * [1Password CLI] for reading secrets without pasting them
 * [Claude Code] and [Codex] for agentic coding
 
 [CSpell]: https://cspell.org
 [Gitleaks]: https://gitleaks.io/
+[ripgrep]: https://github.com/BurntSushi/ripgrep
 [Trivy]: https://trivy.dev/
 [1Password CLI]: https://developer.1password.com/docs/cli/
 [Claude Code]: https://claude.com/product/claude-code
@@ -295,6 +297,45 @@ Triage checks both places before deciding anything is new.
 Unlike the journal, nothing here is pruned:
 the reasoning is meant to outlive the ticket that prompted it.
 
+Running unsafe commands under a second sandbox (`srt`)
+------------------------------------------------------
+
+The agent's own sandbox is the primary, granular layer over the
+commands the agent runs. `srt` ([sandbox-runtime]) is the second
+line: the sanctioned way to run something you don't trust —
+a downloaded installer, a `curl | sh`, an unaudited build script —
+under real OS-level confinement rather than with the agent's own grants.
+
+Run it by prefixing the command:
+
+```sh
+srt <cmd>          # e.g. srt npm install, srt ./configure
+```
+
+The `bin/srt` shim fetches `srt` on demand with `npx` — no global
+install; `ripgrep` is required, and `mac` installs it.
+Its confinement is governed by `~/.srt-settings.json`,
+tracked here as `srt-settings.json` and symlinked by `mac`:
+one machine-wide file read by every `srt` run in any project.
+
+`srt` **asks for approval on every use** —
+the agent cannot run it silently.
+On approval it runs under srt's own sandbox,
+bypassing the per-command destructive gates
+(the inner command is never the command prefix),
+so the prompt plus srt's confinement replace those gates.
+Reads see everything but the secret floor
+(`~/.ssh`, `.env`, `*.pem`, credentials, shell histories);
+writes are confined to `~/Codespace`, tmp, and caches,
+so the writable set — not the gate —
+bounds what a wrapped `rm -rf` can reach;
+egress stays on the allowlist.
+The settings file is guarded read-only in every client.
+Why, and the blast-radius tradeoff: [ADR 0015].
+
+[sandbox-runtime]: https://github.com/anthropics/sandbox-runtime
+[ADR 0015]: docs/adr/0015-second-line-sandbox-for-unsafe-commands.md
+
 Contributing
 ------------
 
@@ -380,6 +421,9 @@ belongs in a `cspell:ignore` comment beside the line it excuses.
   and naming a "skill" that is really a `rules/` file or does not exist at all.
   The anchor check is what catches a `#section` link left behind by a rename —
   the resource-link check only proves the *file* is there
+* `spec/srt-shim-fixture/` — a `bin/srt` written with the bare `npx <pkg> srt`
+  form (which hands `srt` to npx as an argument, so srt wraps itself) and no
+  version pin, proving the shim check catches a regression to that form
 * `spec/trigger-evals/*.json` — query sets for whether a skill's description
   fires on the requests it should. These need a live model, so they are not part
   of CI — run them with `sh scripts/run-trigger-evals` (all sets) or

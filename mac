@@ -173,6 +173,7 @@ brew "redis", restart_service: :changed
 brew "cspell"
 brew "gh"
 brew "gitleaks"
+brew "ripgrep"
 brew "trivy"
 cask "1password-cli"
 cask "claude-code"
@@ -318,6 +319,19 @@ symlink_path "$PROJECT_DIR/.cursor/cli-config.json" "$CURSOR_GLOBAL_DIR/cli-conf
 symlink_path "$PROJECT_DIR/.cursor/hooks.json" "$CURSOR_GLOBAL_DIR/hooks.json"
 symlink_path "$AGENTS_GLOBAL_DIR/rules" "$CURSOR_GLOBAL_DIR/rules"
 symlink_path "$AGENTS_GLOBAL_DIR/skills" "$CURSOR_GLOBAL_DIR/skills"
+
+# Sandbox runtime (srt)
+# Machine-wide second-line sandbox for running unsafe commands, wrapped by the
+# bin/srt shim as `npx --package=@anthropic-ai/sandbox-runtime srt <cmd>`
+# (fetched on demand; no global install). ~/.srt-settings.json governs it and
+# is global cargo, like .agents/AGENTS.md: one tracked file, symlinked into
+# $HOME, read by every srt run in any project. srt expands ~ and globs, so the
+# settings file is a plain symlink — no __HOME__ render (unlike config.toml). The
+# shim lands in ~/.bin, already created and on PATH near the top of this script.
+# Both are guarded read-only in every client; see the parity section of
+# AGENTS.md and docs/adr/0015-second-line-sandbox-for-unsafe-commands.md.
+symlink_path "$PROJECT_DIR/srt-settings.json" "$HOME/.srt-settings.json"
+symlink_path "$PROJECT_DIR/bin/srt" "$HOME/.bin/srt"
 
 # Root context map — optional, machine-local, git-ignored. Linked into ~/.agents
 # and every client only when it exists; copy .agents/references/CONTEXT-FORMAT.md

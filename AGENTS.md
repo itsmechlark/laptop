@@ -75,6 +75,8 @@ skills-lock.json        # provenance + content hashes for vendored skills (tool-
 skills-provenance.json  # source lineage for first-party derived skills (hand-owned)
 rules-provenance.json   # source lineage for derived rules (hand-owned)
 cspell.json             # spell check: dictionaries, project words, ignore paths
+srt-settings.json       # srt (sandbox-runtime) config → ~/.srt-settings.json (global)
+bin/srt                 # shim → ~/.bin/srt: npx --package=@anthropic-ai/sandbox-runtime srt
 scripts/                # verification tooling; each relocates to the repo root itself
   check-payload         # static verification of the payload (POSIX sh + jq)
   run-trigger-evals     # runs spec/trigger-evals; needs a logged-in claude CLI
@@ -83,6 +85,7 @@ spec/                   # fixtures check-payload validates and reads
   rules-cases.txt       # path -> which rules/ load for it
   invocability-fixture/ # deliberate violations; proves the check still fires
   orphan-fixture/       # unreachable references + stale anchors; proves the checks fire
+  srt-shim-fixture/     # a self-wrapping, unpinned bin/srt; proves the shim check fires
   trigger-evals/*.json  # query sets for skill triggering (run by hand, not CI)
 .agents/
   AGENTS.md             # global engineering standards (shipped to ~/.claude/CLAUDE.md)
@@ -126,6 +129,8 @@ skills/                 # published skills → ~/.agents/skills; first-party dir
 | `~/.cursor/cli-config.json` | `.cursor/cli-config.json` |
 | `~/.cursor/hooks.json` | `.cursor/hooks.json` |
 | `~/.cursor/CONTEXT.md` | `~/.agents/CONTEXT.md` |
+| `~/.srt-settings.json` | `srt-settings.json` |
+| `~/.bin/srt` | `bin/srt` |
 
 `symlink_path` moves any pre-existing real file to `<path>.backup` before
 linking; check for stray `.backup` files if a link looks wrong.
@@ -193,6 +198,8 @@ Use this map to find the counterpart for a change:
 | Allowed network hosts | `sandbox.network.allowedDomains` | `config.toml` `[…network.domains]` | — (no egress allowlist) |
 | Unix sockets | `sandbox.network.allowUnixSockets` | `config.toml` `[…network.unix_sockets]` | — |
 | Unsandboxed command escape | `sandbox.excludedCommands` | — (`approval_policy = "on-request"`) | — (commands run unsandboxed, prompt-gated) |
+| Second-line sandbox for unsafe commands (`srt`) | `permissions.ask` `Bash(srt *)` / `npx … *` (prompts each use); run un-nested via `sandbox.excludedCommands` | `rules/default.rules` `["srt"]` = `"prompt"` (shim form only — argv-prefix can't match the `npx` form); `on-request` approval escalates it out of Seatbelt so it runs un-nested (srt can't nest on macOS) | `approvalMode` prompts (`srt` unlisted) + `hooks.json` bypass early-return |
+| `srt-settings.json` self-policy guard | `sandbox.filesystem.denyWrite` + `permissions.ask` `Edit(…srt-settings.json)` | `[…filesystem]` `~/.srt-settings.json = "read"` + `:workspace_roots` `srt-settings.json = "read"` | `permissions.deny` `Write(**/srt-settings.json)` |
 | Env-var scrubbing | `env` + `sandbox.credentials.envVars` | `config.toml` `[shell_environment_policy.filters]` | — |
 | Lifecycle hooks | `hooks.PreToolUse` | `config.toml` `[[hooks.PreToolUse]]` | `hooks.json` `beforeShellExecution` |
 
@@ -212,6 +219,7 @@ Cursor's gaps, recorded here rather than dropped:
 | `~` home-glob reach is an assumption | `~` expansion in `permissions` patterns is undocumented; `Read(~/…)` denials are best-effort, `**/` globs cover in-workspace secrets |
 | No MCP drop-tool denies | Claude's MongoDB `drop-*` denials have no counterpart — that MCP is not wired into Cursor |
 | `sandbox.mode` / `networkAccess` omitted | Accepted enum values are undocumented; left unset to avoid breaking the config |
+| srt bypasses substring gates | `beforeShellExecution` skips the destructive checks for an unchained `srt`/`npx-srt` command (top-level `;` `|` `>` or a newline still fall through), then defers to the approval prompt — `srt` is not allowlisted, so it is not auto-run. srt's own sandbox is the boundary |
 
 ## Testing instructions
 
@@ -270,7 +278,9 @@ skills and rules,
 vendored-edit discipline, secret-path parity across clients, frontmatter and
 size limits, resource links in both directions, anchor fragments (`#section`
 must match a heading or `<a id>`), global-standards section citations
-(`AGENTS.md §N` must resolve and name the section correctly), and which
+(`AGENTS.md §N` must resolve and name the section correctly), the `bin/srt`
+shim's disambiguated npx form (`--package=`, not a bare positional that makes srt
+wrap itself) plus valid `srt-settings.json`, and which
 `rules/` load for a given path (`spec/rules-cases.txt`).
 
 The vendored-edit rule is the single check that looks past `skills/`, and only
@@ -289,9 +299,10 @@ but discards the `#fragment`. Fragments resolve against heading slugs
 `<a id="…">`. Use the explicit form when a heading opens with punctuation —
 ``## `## Attribution` `` slugs to `-attribution`, not `attribution`.
 
-Three checks self-test against fixtures carrying deliberate violations:
+Four checks self-test against fixtures carrying deliberate violations:
 invocability against `spec/invocability-fixture/SKILL.md` (four kinds),
-reference-reachability and anchors against `spec/orphan-fixture/` (two each). A
+reference-reachability and anchors against `spec/orphan-fixture/` (two each), and
+the srt shim form against `spec/srt-shim-fixture/srt` (two). A
 different count fails the run. Don't "fix" those fixtures; their violations are
 the assertion.
 
@@ -323,6 +334,7 @@ than no fixture: it reports success.
 | `spec/invocability-fixture/SKILL.md` | One deliberate violation of each invocability kind | Must yield exactly 4 detections, or the run fails |
 | `spec/orphan-fixture/skills/alpha/` | An unlinked reference and a fence-only one, beside a legally one-hop file | Must yield exactly 2 detections, or the run fails |
 | `spec/orphan-fixture/skills/alpha/SKILL.md` | A stale intra-file anchor and a stale cross-file one, beside an anchor that resolves | Must yield exactly 2 detections, or the run fails |
+| `spec/srt-shim-fixture/srt` | A bare-positional npx form (srt wraps itself) and no version pin | Must yield exactly 2 detections, or the run fails |
 | `spec/trigger-evals/<skill>.json` | `[{"query": …, "should_trigger": …}, …]` | Shape, labels, and target skill — see below |
 
 An eval set fails when it is invalid JSON, empty, has missing/empty `query` or
@@ -367,7 +379,9 @@ Two checks are worth understanding before you change them:
 - **The self-tests guard the checks whose clean result is indistinguishable from
   a broken one** — invocability and reference reachability are both silent when
   the payload is fine, and the invocability bug they exist for shipped for
-  months with every other check passing. Their fixture violations are the
+  months with every other check passing. The srt shim self-test is the same
+  shape: a self-wrapping shim passes exactly like a correct one, which is how
+  that form shipped. Their fixture violations are the
   assertion; don't tidy them
   ([ADR 0006](docs/adr/0006-fixtures-assert-with-deliberate-violations.md)).
 
@@ -640,7 +654,7 @@ formats belong to the `domain-modeling` skill.
   Reserve `docs` for the human-facing docs that describe the repo rather than
   ship from it: `README.md`, this `AGENTS.md`, `SECURITY.md`, the root
   `CONTEXT.md`, and `docs/adr/`. Scopes in use
-  here: `mac`, `skills`, `agents`, `claude`, `codex`, `cursor`, `ci` — e.g.
+  here: `mac`, `skills`, `agents`, `claude`, `codex`, `cursor`, `srt`, `ci` — e.g.
   `fix(mac): set up asdf via PATH instead of asdf.sh`, `feat(skills): add
   create-agentsmd skill`.
 - `check-payload` and `spec/` are verification code, so they take a code type
@@ -679,6 +693,13 @@ and description templates — use them.
   credentials, and destructive git commands, and constrain filesystem writes and
   network egress. Widening any is a deliberate act — justify in the commit
   message and mirror across every client ("Agent-client configuration parity").
+- `~/.srt-settings.json` (tracked as `srt-settings.json`) is a sixth boundary:
+  the machine-wide config for `srt`, the second-line sandbox for unsafe
+  commands. Every `srt` use prompts for approval, and once approved it bypasses
+  the per-command destructive gates, so this file — tight on secret reads,
+  egress, and policy-file writes — is the whole boundary for a wrapped command.
+  Guarded read-only in every client; see
+  [ADR 0015](docs/adr/0015-second-line-sandbox-for-unsafe-commands.md).
 
 [advisory]: https://github.com/itsmechlark/laptop/security/advisories/new
 

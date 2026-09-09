@@ -1,0 +1,8 @@
+#!/bin/sh
+# Second-line sandbox entrypoint. Fetches srt on demand (npx, no global install)
+# at a pinned version and runs the wrapped command under ~/.srt-settings.json.
+# Bump the pin deliberately: srt is 0.0.x and its config schema may still change.
+# --package is required: `npx <pkg> srt …` passes the bin name through as an
+# argument, so srt would wrap `srt <cmd>` — it sandboxes itself, and the nested
+# run fails. --package makes `srt` the command to run, not an argument.
+exec npx -y --package=@anthropic-ai/sandbox-runtime@0.0.75 srt "$@"
