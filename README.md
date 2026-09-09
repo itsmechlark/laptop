@@ -110,6 +110,7 @@ GitHub tools:
 
 Development tools:
 
+* [Agent Browser] for browser automation from agent workflows
 * [CSpell] for spell-checking code and prose
 * [Gitleaks] for catching secrets in a diff before they are committed
 * [ripgrep] for fast recursive search, and as the runtime backend `srt` needs
@@ -117,6 +118,7 @@ Development tools:
 * [1Password CLI] for reading secrets without pasting them
 * [Claude Code] and [Codex] for agentic coding
 
+[Agent Browser]: https://agent-browser.dev
 [CSpell]: https://cspell.org
 [Gitleaks]: https://gitleaks.io/
 [ripgrep]: https://github.com/BurntSushi/ripgrep
