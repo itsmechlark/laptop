@@ -100,6 +100,7 @@
       "mcp__plugin_chrome-devtools-mcp_chrome-devtools__upload_file",
       "mcp__firefox-devtools__evaluate_script",
       "mcp__firefox-devtools__upload_file_by_uid",
+      "mcp__safari__evaluate_script",
       "Bash(curl * | bash)",
       "Bash(curl * | sh)",
       "Bash(wget * | bash)",

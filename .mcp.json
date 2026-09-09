@@ -23,6 +23,10 @@
         "START_URL": "about:blank"
       }
     },
+    "safari": {
+      "command": "/usr/bin/safaridriver",
+      "args": ["--mcp"]
+    },
     "smartbear-bugsnag": {
       "type": "http",
       "url": "https://bugsnag.mcp.smartbear.com/mcp"
