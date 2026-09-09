@@ -243,13 +243,20 @@
     "chrome-devtools-mcp@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true,
-    "claude-md-management@claude-plugins-official": true
+    "claude-md-management@claude-plugins-official": true,
+    "mcp-apps@mcp-apps": true
   },
   "extraKnownMarketplaces": {
     "semaphoreio": {
       "source": {
         "source": "github",
         "repo": "semaphoreio/sem-ai"
+      }
+    },
+    "mcp-apps": {
+      "source": {
+        "source": "github",
+        "repo": "modelcontextprotocol/ext-apps"
       }
     }
   },
