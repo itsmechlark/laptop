@@ -7,6 +7,10 @@
         "ASDF_NODEJS_VERSION": "v22.23.2"
       }
     },
+    "deepwiki": {
+      "type": "http",
+      "url": "https://mcp.deepwiki.com/mcp"
+    },
     "excalidraw": {
       "type": "http",
       "url": "https://mcp.excalidraw.com/mcp"

@@ -43,7 +43,9 @@
       "*.anthropic.com",
       "rspec.rubystyle.guide",
       "pypi.org",
-      "files.pythonhosted.org"
+      "files.pythonhosted.org",
+      "mcp.excalidraw.com",
+      "mcp.deepwiki.com"
     ],
     "deniedDomains": [],
     "allowUnixSockets": [
