@@ -1,3 +1,12 @@
+---
+name: provision-agent-state-as-real-directories
+description: Why agent state directories are real mkdir'd paths, not symlinks into the repo.
+metadata:
+  status: accepted
+  supersedes: 4
+  topic: agent-state
+---
+
 # Provision agent state as real directories, not symlinks
 
 Supersedes the location decision in

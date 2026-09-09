@@ -126,9 +126,8 @@ only mechanizable slice is that the templates under `skills/*/assets/` and
 mixed directories in the field, which is the price of not rewriting files this
 repo does not own.
 
-This ADR carries the block, and the twelve before it do not. That is the
-precedence rule applied to `docs/adr/` itself: an accepted ADR is never edited to
-match a later convention.
+All fifteen ADRs now carry the block — the twelve before this one were migrated
+deliberately, which is the directory-you-own exception the precedence rule allows.
 
 **Rejected:** Promoting `topic` to a fourth top-level key. It is the most
 load-bearing field in the design, which is the argument for it, but the value of

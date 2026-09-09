@@ -1,3 +1,11 @@
+---
+name: fixtures-assert-with-deliberate-violations
+description: Why each silent check runs against a fixture that must detect an exact count of violations.
+metadata:
+  status: accepted
+  topic: verification
+---
+
 # Fixtures assert with deliberate violations, and their detection count is checked
 
 **Context:** Three of `check-payload`'s checks are silent when the payload is

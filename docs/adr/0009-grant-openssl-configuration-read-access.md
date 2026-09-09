@@ -1,3 +1,11 @@
+---
+name: grant-openssl-read-access
+description: Why the Codex profile reads /System/Library/OpenSSL/openssl.cnf and nothing wider.
+metadata:
+  status: accepted
+  topic: sandbox
+---
+
 # Grant OpenSSL configuration read access
 
 **Context:** The Codex developer profile denies host access by default and

@@ -1,3 +1,11 @@
+---
+name: trigger-eval-coverage-prioritized
+description: Why some invocable skills earn a trigger eval and others land on the exempt list.
+metadata:
+  status: accepted
+  topic: trigger-evals
+---
+
 # Trigger-eval coverage is prioritized, not uniform
 
 **Context:** Only model-invocable skills can misfire, and a query set costs

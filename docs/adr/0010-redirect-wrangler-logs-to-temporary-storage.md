@@ -1,3 +1,11 @@
+---
+name: redirect-wrangler-logs
+description: Why WRANGLER_LOG_PATH points at /tmp instead of granting a user-preferences write.
+metadata:
+  status: accepted
+  topic: sandbox
+---
+
 # Redirect Wrangler logs to temporary storage
 
 **Context:** Wrangler writes logs under

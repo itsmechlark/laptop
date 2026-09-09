@@ -1,3 +1,11 @@
+---
+name: trigger-evals-measure-installed-skills
+description: Why eval runs use the machine's real skill population instead of an isolated copy.
+metadata:
+  status: accepted
+  topic: trigger-evals
+---
+
 # Trigger evals measure the installed skills, not an isolated copy
 
 **Context:** The eval used to install a probe skill into a throwaway project and

@@ -1,3 +1,11 @@
+---
+name: model-invocation-flag-claude-only
+description: Why the flag narrows Claude but the skill body carries the guard on every client.
+metadata:
+  status: accepted
+  topic: skill-invocation
+---
+
 # The model-invocation flag narrows Claude only; the skill body carries the guarantee
 
 **Context:** Some skills are expensive to auto-invoke because firing has

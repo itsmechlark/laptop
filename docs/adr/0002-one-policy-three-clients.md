@@ -1,3 +1,11 @@
+---
+name: one-policy-three-clients
+description: Why a change to one client's security policy must be mirrored into the other two in the same commit.
+metadata:
+  status: accepted
+  topic: client-parity
+---
+
 # One security policy, three client configs, mirrored by hand
 
 **Context:** Claude Code, Codex, and Cursor each read their own config format,

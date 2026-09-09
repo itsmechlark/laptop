@@ -1,3 +1,11 @@
+---
+name: symlink-payload
+description: Why editing a skill is live immediately and only a new top-level link needs sh mac again.
+metadata:
+  status: accepted
+  topic: payload-delivery
+---
+
 # Symlink the payload into the home dotdirs instead of copying it
 
 **Context:** This repo is the single source of truth for how coding agents

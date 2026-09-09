@@ -1,3 +1,11 @@
+---
+name: backward-handoff-edges
+description: Why five skills gained backward edges that route lessons from review and standup into durable records.
+metadata:
+  status: accepted
+  topic: skill-graph
+---
+
 # Close the feedback loop with backward handoff edges
 
 **Context:** The first-party skill graph runs forward — design to build to ship —

@@ -1,3 +1,11 @@
+---
+name: verification-stops-where-judgment-starts
+description: Why check-payload covers only deterministic checks and trigger evals stay out of CI.
+metadata:
+  status: accepted
+  topic: verification
+---
+
 # Verification stops where judgment starts, and trigger evals stay out of CI
 
 **Context:** `mac` is verified by shellcheck plus a real run. The payload it

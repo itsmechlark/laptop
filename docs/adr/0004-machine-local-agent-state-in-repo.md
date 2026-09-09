@@ -1,3 +1,12 @@
+---
+name: agent-state-in-repo
+description: Why standup and out-of-scope directories were placed inside the repo and git-ignored.
+metadata:
+  status: superseded
+  superseded-by: 8
+  topic: agent-state
+---
+
 # Machine-local agent state lives in the repo, git-ignored
 
 Location decision superseded by
