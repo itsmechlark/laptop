@@ -64,7 +64,7 @@ is a second runner, not a file in this directory.
 These are fixtures, so they are tracked. What they measure is not: a trigger
 rate depends on the model answering, which means credentials, network egress,
 and tokens. That is why this tier is deliberately outside CI and outside the
-agent sandbox — see "Testing instructions" in `AGENTS.md`.
+agent sandbox — see [`docs/verification.md`](../../docs/verification.md).
 
 ## Measure first
 
