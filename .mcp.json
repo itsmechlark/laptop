@@ -1,5 +1,12 @@
 {
   "mcpServers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"],
+      "env": {
+        "ASDF_NODEJS_VERSION": "v22.23.2"
+      }
+    },
     "excalidraw": {
       "type": "http",
       "url": "https://mcp.excalidraw.com/mcp"
