@@ -105,12 +105,13 @@ Then close out **Definition of Done** (AGENTS.md §4), because the fixes were wr
 
 1. Re-run the full test suite.
 2. Run the project's linter, formatter, and type-checker — RuboCop, Credo, ESLint/Prettier, `tsc`, Dialyzer, whichever apply. A green suite alone is not Done.
-3. If a fix changed behavior no test covers, add that test — failing first, per Phase 4.
-4. Self-review the diff for debug output, secrets, and out-of-scope churn.
+3. **Offer a browser pass** when the slice touches a UI or user-visible behavior, and run it only if the user agrees — a round-trip through a running app is theirs to spend, so name the criteria you'd exercise and ask rather than opening a browser unasked. On a yes, drive it with whatever automation the machine has — a browser-driving CLI (such as `agent-browser`), or a browser over MCP (Chrome, Firefox, Safari) — through the happy path and the edge cases Phase 3 named, and keep a screenshot for Phase 7. On a no, or where the app can't be run here, name the criteria left resting on tests alone rather than letting a green suite imply them.
+4. If a fix changed behavior no test covers, add that test — failing first, per Phase 4.
+5. Self-review the diff for debug output, secrets, and out-of-scope churn.
 
 Summarize what changed: what the review fixed, anything it flagged and you deliberately left (with the reason), and which checks you ran. If you could not run one here, say which and why rather than skipping it silently.
 
-**Exit:** review findings resolved or explicitly deferred, and every check green and named.
+**Exit:** review findings resolved or explicitly deferred, every check green and named, and — for a UI slice — the browser pass run, declined, or ruled out.
 
 ## Phase 6: Commit the slice
 
@@ -132,7 +133,7 @@ Mark the todos complete and give a short summary:
 
 - **What shipped** — the slice in one line the user could paste into a PR description.
 - **Acceptance criteria** — confirm each is met and covered by a test.
-- **Verification** — the checks you ran and their results; name anything you could not run here.
+- **Verification** — the checks you ran and their results; name anything you could not run here. For a UI slice, say where the browser pass landed: what you drove and what you saw, or that it was declined or unavailable and which criteria rest on tests alone.
 - **The commit** — subject line and SHA, and the branch it's on.
 - **Key decisions** — anything notable from slicing, testing, or review, including findings deliberately left and the production-line count against the ~300 budget (restate the justification if it ran over).
 - **Next steps** — the branch is unpushed with no PR open; say so. If this was one slice of a larger epic, name the slices still waiting, and that the clean path is to merge this one before cutting the next off the default branch — building the next slice on this unmerged branch stacks them. `pull-request` covers the title and description when the user is ready, and its SPLITTING.md covers the stack.

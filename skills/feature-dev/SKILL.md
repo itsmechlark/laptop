@@ -52,7 +52,7 @@ A small slice does not guarantee a small diff. Slicing controls *what* ships; no
 
 ## Gotchas
 
-- **A green suite is not Done.** TDD proves the criteria are met; it says nothing about lint, format, or type-checks. Run all of them before the commit and report what you ran (AGENTS.md §4, *Definition of Done*) — "tests pass" claimed as done, with RuboCop or `tsc` unrun, is the most common way this workflow ships a red branch.
+- **A green suite is not Done.** TDD proves the criteria are met; it says nothing about lint, format, type-checks, or whether the feature works on a real screen. Run all of them before the commit and report what you ran (AGENTS.md §4, *Definition of Done*) — "tests pass" claimed as done, with RuboCop or `tsc` unrun, is the most common way this workflow ships a red branch. A UI slice owes the *offer* of a browser pass — a passing component test and a working screen are two different claims, and only the user can waive the difference.
 
 - **A new feature that changes existing behavior ships default-off.** Gate it behind a flag and keep the flag-off path behavior-preserving; keep any migration backward-compatible, expanding before it contracts (AGENTS.md §5, *Safe rollout, feature flags & migrations*). This is a Phase 3 acceptance criterion, not a Phase 6 afterthought — retrofitting a flag after the tests are written rewrites both.
 
