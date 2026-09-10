@@ -192,6 +192,8 @@ What's specific to a PR body is the reader's position: they have the diff and do
 
 - **Write the body file to `$TMPDIR`, never `/tmp`** — the macOS sandbox blocks `/tmp`, and a failed write surfaces as an empty PR body rather than as a permission error.
 
+- **Run `git push` and `gh` as bare, top-level commands.** A sandbox that lets these network commands through recognizes them by their leading words (`git push …`, `gh …`), so wrapping one — `cd <dir> && git push`, `git -C <dir> push`, `git -c credential.helper=… push`, or piping its output — can break that match and silently drop the command *back inside* the sandbox, where its credentials (`~/.config/gh`, keys under `~/.ssh`) are unreadable. The failure then reads as an auth error (`403`, `could not read Username`) or `operation not permitted`, never as a sandbox message — so it looks like a permission problem when it isn't. To push from a worktree, set the directory in its own step (`cd <worktree>` alone, then a bare `git push`), and never fix an auth failure by injecting a credential helper inline — that wrapper is what caused it.
+
 - **`gh pr edit --body-file` replaces the whole body**, it never appends. If you mean to keep part of what's there, read the current body first (`gh pr view --json body`).
 
 - **`gh pr create` from a fork targets the upstream's default branch**, not your own repository's. Pass `--repo` and `--base` explicitly when the remote is a fork.
@@ -209,6 +211,8 @@ What's specific to a PR body is the reader's position: they have the diff and do
 | `gh` is missing or `gh auth status` fails | Say what's missing and hand over the title plus the body file so the user can open it themselves. Don't silently fall back to a browser flow. |
 | A PR already exists for this branch | `gh pr view --json number,url,body` — edit that one rather than opening a second. |
 | `gh pr create` reports no upstream, or offers to push | Push first: `git push -u origin <branch>`. Pushing is a publish step, so it needs the same explicit go-ahead. |
+| `git push` or `gh` fails with `operation not permitted` on a credential file | It ran inside the sandbox because it was wrapped (`git -c …`, `git -C …`, `cd … &&`, a pipe). Re-run it as a bare top-level command so the sandbox lets it reach `~/.config/gh` / `~/.ssh`. |
+| `git push` returns `403` / "Write access to repository not granted" | Check who's authenticated and whether they can push: `gh auth status`. A wrapped push can 403 by falling back to the wrong stored credential, so rule that out by pushing bare first. If the account genuinely lacks write, push to your fork and open with `--repo`/`--head` — don't mask it with an inline credential helper. |
 | You're asked to open a PR from the default branch | Stop. There's nothing to open from it — the work needs a branch first (`git-commit` has the naming convention), and moving it is the user's call. |
 | The repo has several templates under `.github/PULL_REQUEST_TEMPLATE/` | Pick the one matching the kind of change and say which you used. If none fits, use the format here and say that. |
 | The diff contains commits you didn't write | Stale base. `git fetch`, then three-dot against `origin/<base>`. |
