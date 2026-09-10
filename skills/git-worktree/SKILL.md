@@ -47,16 +47,26 @@ ahead="${default:+$(git rev-list --count "$default"..HEAD)}"      # what this br
 
 ### Choosing the base
 
-The start-point decides what the new branch already contains. The default branch is the right answer only when the new work depends on nothing still in flight — so whenever the branch you're leaving carries unmerged commits, choose deliberately rather than letting it default.
+The start-point decides what the new branch already contains. The default branch is the right answer only when the new work depends on nothing still in flight — so whenever the branch you're leaving carries unmerged commits or uncommitted work, choose deliberately rather than letting it default.
 
-| The branch you're leaving | The new work | Base on | Where it lives |
+| The branch you're leaving | The new work | Base on | What to create |
 | --- | --- | --- | --- |
 | Merged, or carries nothing | Anything | The default branch | A new worktree |
-| Unmerged, and the new work **depends** on it | Builds on those commits | That branch | A new branch in the **same** checkout — `gh-stack` owns the layers |
+| Unmerged, and the new work **depends** on it | Builds on those commits | That branch | **Its own new branch**, stacked on that one — here in this worktree, not a second one |
 | Unmerged, and the new work is **independent** | Unrelated | The default branch | A new worktree |
 | Unmerged, and parallel agents must not diverge from you | One arm of a fan-out | Your current branch | A worktree per agent — `fan-out` covers the dispatch |
 
-**A stack is not a thing to spread across worktrees.** Where the new work depends on an unmerged branch, the layers live in one checkout and `gh-stack` moves between them with `checkout`, `up`, and `down`. A worktree created from inside a stack starts a branch that knows nothing about the layers below it — that is the default biting.
+**Every row creates a branch. None of them is "keep committing where you are."** The stacked row is the one that gets misread: staying put refers to the *directory*, never the branch. Continuing to commit on the predecessor's branch is not stacking — it is precisely the mixed branch the guard just stopped you from making, and it is why the guard fired.
+
+```sh
+# the stacked row — cut the branch where you stand. Rows 1 and 3 create a worktree instead (step 2).
+git switch -c <issue-key>-<type>-<slug>    # from the current HEAD, carrying any uncommitted work
+gh stack add <issue-key>-<type>-<slug>     # instead, when gh-stack manages the stack
+```
+
+**Uncommitted work is settled before the base is.** The table reads committed state, so when the guard fired on a dirty tree, first ask whose work it is. If it belongs to the unit you're leaving, `git switch -c` is the move — the working tree comes with you, which is the lossless way to rescue work begun on the wrong branch. Creating a worktree does not: the new one is a clean checkout, and the changes stay stranded in the old directory.
+
+**A stack is not a thing to spread across worktrees.** The layers share one worktree and `gh-stack` moves between them with `checkout`, `up`, and `down`. A worktree created from inside a stack starts a branch that knows nothing about the layers below it — that is the default biting.
 
 **Record nothing new.** For a stack, `gh stack view --json` reports each branch's `base`; otherwise `git merge-base <base> HEAD` recovers it. A separate ledger of base branches only drifts from both.
 

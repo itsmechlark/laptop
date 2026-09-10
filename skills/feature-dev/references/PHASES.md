@@ -8,7 +8,7 @@ Each phase has a goal and an exit condition. Read the phase you are entering; do
 
 **Invoke `git-worktree` and take its pre-edit guard's ruling** — don't decide isolation by feel. The guard reads where you actually are; on the default branch in the main checkout it rules for a worktree, which is the ordinary outcome here rather than an exception earned by a long slice or a dirty tree. `git-worktree` then handles placement, branch naming, linking git-ignored local agent config, and installing the stack's dependencies.
 
-**Building slice N of an epic is the case that catches people out.** Sitting in the previous slice's worktree, the guard does not rule "proceed" just because a worktree exists — a branch carrying finished-but-unmerged commits is the wrong place to start the next slice, and `git worktree add -b` would silently base it on that branch. Take the guard's second ruling and settle the start-point through `git-worktree`'s *Choosing the base*: merged predecessor or independent slice → a fresh worktree off the default branch; a slice that **depends** on the unmerged one → a stacked branch in the same checkout, managed by `gh-stack`.
+**Building slice N of an epic is the case that catches people out.** Sitting in the previous slice's worktree, the guard does not rule "proceed" just because a worktree exists — a branch carrying finished-but-unmerged commits is the wrong place to start the next slice, and `git worktree add -b` would silently base it on that branch. Take the guard's second ruling and settle the start-point through `git-worktree`'s *Choosing the base*: merged predecessor or independent slice → a fresh worktree off the default branch; a slice that **depends** on the unmerged one → **its own new branch** stacked on the predecessor, cut here in this worktree (`git switch -c …`, or `gh stack add`). Either way you end Phase 0 on a branch that did not exist when you started. Reading "stacked, in the same worktree" as "keep committing on the predecessor's branch" is the failure this ruling exists to prevent — it puts two slices on one branch and Phase 6 can no longer commit them apart.
 
 Then **run the test suite once, before touching anything.** Note the result:
 
@@ -19,7 +19,7 @@ Run the linter and type-checker too if they're fast. Knowing the repo was alread
 
 **On a stacked slice, the baseline is the parent branch's, not the default branch's.** You inherit whatever the layer below shipped, so measure against it — held against the default branch, the parent's own changes read as your regressions in Phase 5.
 
-**Exit:** isolation resolved by the pre-edit guard — a worktree, or a branch chosen deliberately — the start-point settled where a prior slice's branch was in play, and a written baseline.
+**Exit:** isolation resolved by the pre-edit guard, and a written baseline. State the branch by name and what it was cut from — if that branch already existed when Phase 0 began, and this is not a continuation of the work it already carries, Phase 0 is not done.
 
 ## Phase 1: Frame the work
 
