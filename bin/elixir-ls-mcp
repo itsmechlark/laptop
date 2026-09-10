@@ -1,0 +1,13 @@
+#!/bin/sh
+# Bridges ElixirLS's MCP TCP port to stdio for the .mcp.json entry.
+# Resolves the Homebrew prefix at runtime so the same tracked file works on
+# both Apple Silicon (/opt/homebrew) and Intel (/usr/local).
+prefix="$(brew --prefix elixir-ls 2>/dev/null)"
+bridge="$prefix/libexec/tcp_to_stdio_bridge.exs"
+
+if [ -z "$prefix" ] || [ ! -f "$bridge" ]; then
+  printf "elixir-ls not found; install with: brew install elixir-ls\n" >&2
+  exit 1
+fi
+
+exec elixir "$bridge" "${1:-4328}"

@@ -172,6 +172,7 @@ brew "redis", restart_service: :changed
 # Development Tools
 brew "agent-browser"
 brew "cspell"
+brew "elixir-ls"
 brew "gh"
 brew "gitleaks"
 brew "ripgrep"
@@ -231,6 +232,12 @@ install_asdf_language "nodejs"
 
 fancy_echo "Installing latest Python ..."
 install_asdf_language "python"
+
+fancy_echo "Installing latest Erlang ..."
+install_asdf_language "erlang"
+
+fancy_echo "Installing latest Elixir ..."
+install_asdf_language "elixir"
 
 fancy_echo "Linking configuration ..."
 
@@ -333,6 +340,7 @@ symlink_path "$AGENTS_GLOBAL_DIR/skills" "$CURSOR_GLOBAL_DIR/skills"
 # Both are guarded read-only in every client; see the parity section of
 # AGENTS.md and docs/adr/0015-second-line-sandbox-for-unsafe-commands.md.
 symlink_path "$PROJECT_DIR/srt-settings.json" "$HOME/.srt-settings.json"
+symlink_path "$PROJECT_DIR/bin/elixir-ls-mcp" "$HOME/.bin/elixir-ls-mcp"
 symlink_path "$PROJECT_DIR/bin/srt" "$HOME/.bin/srt"
 
 # Root context map — optional, machine-local, git-ignored. Linked into ~/.agents

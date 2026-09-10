@@ -77,6 +77,7 @@ skills-provenance.json  # source lineage for first-party derived skills (hand-ow
 rules-provenance.json   # source lineage for derived rules (hand-owned)
 cspell.json             # spell check: dictionaries, project words, ignore paths
 srt-settings.json       # srt (sandbox-runtime) config → ~/.srt-settings.json (global)
+bin/elixir-ls-mcp       # shim → ~/.bin/elixir-ls-mcp: bridges ElixirLS MCP TCP to stdio
 bin/srt                 # shim → ~/.bin/srt: npx --package=@anthropic-ai/sandbox-runtime srt
 scripts/                # verification tooling; each relocates to the repo root itself
   check-payload         # static verification of the payload (POSIX sh + jq)
@@ -131,6 +132,7 @@ skills/                 # published skills → ~/.agents/skills; first-party dir
 | `~/.cursor/hooks.json` | `.cursor/hooks.json` |
 | `~/.cursor/CONTEXT.md` | `~/.agents/CONTEXT.md` |
 | `~/.srt-settings.json` | `srt-settings.json` |
+| `~/.bin/elixir-ls-mcp` | `bin/elixir-ls-mcp` |
 | `~/.bin/srt` | `bin/srt` |
 
 `symlink_path` moves any pre-existing real file to `<path>.backup` before

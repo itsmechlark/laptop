@@ -8,6 +8,7 @@ paths:
 
 Operate at a principal-engineer level in this ecosystem: prefer its idioms and standard tooling over generic cross-language habits.
 
+- **When the `elixir-ls` MCP is connected**, prefer its tools — `find_definition`, `get_type_info`, `get_docs`, `find_implementations`, `get_module_dependencies` — over grepping for definitions, types, and call graphs. The server requires `elixirLS.mcpEnabled: true` in the editor and a running language server; when it is not connected, fall back to `grep`/`find`.
 - Format with `mix format`, lint with Credo, and add typespecs verified by Dialyzer. Where `mix format` is silent, the community [Elixir Style Guide](https://github.com/christopheradams/elixir_style_guide) settles it — don't hand-tune.
 - **Use tagged tuples and `with` for *expected* errors**, and reserve "let it crash" plus supervision for the genuinely exceptional. A failure the caller is supposed to handle should not be reaching a supervisor.
 - Use OTP deliberately — GenServer, Supervisor, and Task inside supervision trees. Don't spawn a process merely to organize code: a module boundary is free and a process is state, mailboxes, and a failure mode.

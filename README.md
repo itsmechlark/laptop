@@ -112,6 +112,12 @@ Development tools:
 
 * [Agent Browser] for browser automation from agent workflows
 * [CSpell] for spell-checking code and prose
+* [ElixirLS] for Elixir language-server support in editors.
+  Its built-in MCP server is bridged to Claude Code via `.mcp.json`.
+  Enable it in your editor with `elixirLS.mcpEnabled: true`
+  and optionally set `elixirLS.mcpPort` to a fixed port
+  (the default is `3789 + hash(workspace_path)`).
+  The bridge connects to that TCP port — it does not start ElixirLS itself
 * [Gitleaks] for catching secrets in a diff before they are committed
 * [ripgrep] for fast recursive search, and as the runtime backend `srt` needs
 * [Trivy] for scanning dependencies and images for vulnerabilities
@@ -120,6 +126,7 @@ Development tools:
 
 [Agent Browser]: https://agent-browser.dev
 [CSpell]: https://cspell.org
+[ElixirLS]: https://github.com/elixir-lsp/elixir-ls
 [Gitleaks]: https://gitleaks.io/
 [ripgrep]: https://github.com/BurntSushi/ripgrep
 [Trivy]: https://trivy.dev/
@@ -142,19 +149,24 @@ Programming languages, package managers, and configuration:
 * [asdf-vm] for managing programming language versions
 * [Bundler] for managing Ruby libraries
 * [Coreutils] for the GNU versions of core Unix utilities
+* [Erlang] and [Elixir] for building concurrent, fault-tolerant applications
 * [libyaml] for parsing YAML, needed to build Ruby
 * [Node.js] and [npm], for running apps and installing JavaScript packages
+* [Python] for scripting and data work
 * [Ruby] stable for writing general-purpose code
 * [Yarn] for managing JavaScript packages
 * [Rosetta 2] for running tools that are not supported in Apple silicon processors
 
 [Bundler]: http://bundler.io/
 [Coreutils]: https://www.gnu.org/software/coreutils/
+[Elixir]: https://elixir-lang.org/
+[Erlang]: https://www.erlang.org/
 [libyaml]: https://pyyaml.org/wiki/LibYAML
 [ImageMagick]: http://www.imagemagick.org/
 [Node.js]: http://nodejs.org/
 [npm]: https://www.npmjs.org/
 [asdf-vm]: https://github.com/asdf-vm/asdf
+[Python]: https://www.python.org/
 [Ruby]: https://www.ruby-lang.org/en/
 [Yarn]: https://yarnpkg.com/en/
 [Rosetta 2]: https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment
@@ -168,6 +180,7 @@ Databases:
 [Redis]: http://redis.io/
 
 It should take less than 15 minutes to install (depends on your machine).
+Erlang builds from source, which can add 30–60 minutes on the first run.
 
 Customize in `~/.laptop.local`
 ------------------------------

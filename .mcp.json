@@ -1,5 +1,9 @@
 {
   "mcpServers": {
+    "elixir-ls": {
+      "command": "elixir-ls-mcp",
+      "args": ["4328"]
+    },
     "chrome-devtools": {
       "command": "npx",
       "args": ["-y", "chrome-devtools-mcp@latest"],
