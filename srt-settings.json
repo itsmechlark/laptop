@@ -53,7 +53,8 @@
       "/tmp/.s.PGSQL.5432",
       "/var/run/docker.sock",
       "~/.docker/run/docker.sock",
-      "~/.colima/default/docker.sock"
+      "~/.colima/default/docker.sock",
+      "~/.local/state/watchman"
     ],
     "allowLocalBinding": true
   },
@@ -110,7 +111,9 @@
       "~/Codespace",
       "/tmp",
       "/private/tmp",
-      "~/.cache/**"
+      "~/.cache/**",
+      "~/.config/configstore/**",
+      "~/.local/state/watchman/**"
     ],
     "denyWrite": [
       "~/.srt-settings.json",
