@@ -8,6 +8,8 @@ Each phase has a goal and an exit condition. Read the phase you are entering; do
 
 **Invoke `git-worktree` and take its pre-edit guard's ruling** — don't decide isolation by feel. The guard reads where you actually are; on the default branch in the main checkout it rules for a worktree, which is the ordinary outcome here rather than an exception earned by a long slice or a dirty tree. `git-worktree` then handles placement, branch naming, linking git-ignored local agent config, and installing the stack's dependencies.
 
+**Building slice N of an epic is the case that catches people out.** Sitting in the previous slice's worktree, the guard does not rule "proceed" just because a worktree exists — a branch carrying finished-but-unmerged commits is the wrong place to start the next slice, and `git worktree add -b` would silently base it on that branch. Take the guard's second ruling and settle the start-point through `git-worktree`'s *Choosing the base*: merged predecessor or independent slice → a fresh worktree off the default branch; a slice that **depends** on the unmerged one → a stacked branch in the same checkout, managed by `gh-stack`.
+
 Then **run the test suite once, before touching anything.** Note the result:
 
 - **Green** — you have a baseline. Every red from here on is yours.
@@ -15,7 +17,9 @@ Then **run the test suite once, before touching anything.** Note the result:
 
 Run the linter and type-checker too if they're fast. Knowing the repo was already clean is what lets you claim Definition of Done honestly at Phase 5.
 
-**Exit:** isolation resolved by the pre-edit guard — a worktree, or a branch chosen deliberately — and a written baseline.
+**On a stacked slice, the baseline is the parent branch's, not the default branch's.** You inherit whatever the layer below shipped, so measure against it — held against the default branch, the parent's own changes read as your regressions in Phase 5.
+
+**Exit:** isolation resolved by the pre-edit guard — a worktree, or a branch chosen deliberately — the start-point settled where a prior slice's branch was in play, and a written baseline.
 
 ## Phase 1: Frame the work
 
@@ -136,4 +140,4 @@ Mark the todos complete and give a short summary:
 - **Verification** — the checks you ran and their results; name anything you could not run here. For a UI slice, say where the browser pass landed: what you drove and what you saw, or that it was declined or unavailable and which criteria rest on tests alone.
 - **The commit** — subject line and SHA, and the branch it's on.
 - **Key decisions** — anything notable from slicing, testing, or review, including findings deliberately left and the production-line count against the ~300 budget (restate the justification if it ran over).
-- **Next steps** — the branch is unpushed with no PR open; say so. If this was one slice of a larger epic, name the slices still waiting, and that the clean path is to merge this one before cutting the next off the default branch — building the next slice on this unmerged branch stacks them. `pull-request` covers the title and description when the user is ready, and its SPLITTING.md covers the stack.
+- **Next steps** — the branch is unpushed with no PR open; say so. If this was one slice of a larger epic, name the slices still waiting, and that the clean path is to merge this one before cutting the next off the default branch. Where the next slice **depends** on this unmerged one, that is a stack rather than a fresh worktree — `git-worktree`'s *Choosing the base* makes the call and `gh-stack` manages the layers. `pull-request` covers the title and description when the user is ready, and its SPLITTING.md covers the stack.

@@ -26,17 +26,39 @@ Keep worktrees in a dedicated sibling folder next to the repository, never insid
 
 ### Pre-edit guard
 
-Before starting code edits, check whether you're already isolated. Run the detection from step 1 of [Set up a worktree](#set-up-a-worktree):
+Before starting code edits, check whether you're already isolated **for this task**. Run the detection from step 1 of [Set up a worktree](#set-up-a-worktree), plus a divergence probe:
 
 ```sh
 git_dir="$(git rev-parse --path-format=absolute --git-dir)"
 git_common="$(git rev-parse --path-format=absolute --git-common-dir)"
 superproject="$(git rev-parse --show-superproject-working-tree 2>/dev/null)"
+default="$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null)"   # e.g. origin/develop
+ahead="${default:+$(git rev-list --count "$default"..HEAD)}"      # what this branch already carries
 ```
 
-- **Already in a worktree** (git-dir ≠ git-common-dir, superproject empty) → proceed with edits.
+**An empty `ahead` is not zero.** It means `origin/HEAD` is unset locally — a local-only repo, a fresh clone, a remote not named `origin` — so run `git remote set-head origin -a` and probe again. Don't write the count as `$(git rev-list --count "$default"..HEAD)` unguarded: with `$default` empty that reads as `HEAD..HEAD` and returns a confident `0`, which sends the guard down the "proceed" path in exactly the case it exists to catch.
+
+- **In a worktree, continuing the work its branch carries** (git-dir ≠ git-common-dir, superproject empty) → proceed with edits.
+- **In a worktree already carrying another unit's work — unmerged commits (`ahead` > 0), uncommitted changes, or both — and this is a *different* unit of work** → stop. Being in *a* worktree is not the same as being isolated for *this* task: commit here and the new work lands on the previous unit's branch, where the two can no longer be reviewed, rebased, or reverted apart. Resolve the start-point per [Choosing the base](#choosing-the-base), then create the branch or worktree it points to.
 - **On the default branch in the main checkout** → create a worktree first, following [Set up a worktree](#set-up-a-worktree), then work there. Name the branch after the task (ask the user if the intent isn't clear enough to pick a name).
 - **On a non-default branch in the main checkout** → the user has already switched branches, so a worktree is optional — proceed with edits unless the user prefers isolation.
+
+**`ahead` > 0 is a trigger to ask, not a verdict.** Git sees commits, not intent — it cannot tell the next slice of an epic from the next commit of the one already in flight. You know which you're starting; the probe only stops you defaulting silently onto the previous unit's branch.
+
+### Choosing the base
+
+The start-point decides what the new branch already contains. The default branch is the right answer only when the new work depends on nothing still in flight — so whenever the branch you're leaving carries unmerged commits, choose deliberately rather than letting it default.
+
+| The branch you're leaving | The new work | Base on | Where it lives |
+| --- | --- | --- | --- |
+| Merged, or carries nothing | Anything | The default branch | A new worktree |
+| Unmerged, and the new work **depends** on it | Builds on those commits | That branch | A new branch in the **same** checkout — `gh-stack` owns the layers |
+| Unmerged, and the new work is **independent** | Unrelated | The default branch | A new worktree |
+| Unmerged, and parallel agents must not diverge from you | One arm of a fan-out | Your current branch | A worktree per agent — `fan-out` covers the dispatch |
+
+**A stack is not a thing to spread across worktrees.** Where the new work depends on an unmerged branch, the layers live in one checkout and `gh-stack` moves between them with `checkout`, `up`, and `down`. A worktree created from inside a stack starts a branch that knows nothing about the layers below it — that is the default biting.
+
+**Record nothing new.** For a stack, `gh stack view --json` reports each branch's `base`; otherwise `git merge-base <base> HEAD` recovers it. A separate ledger of base branches only drifts from both.
 
 ### Set up a worktree
 
@@ -46,13 +68,13 @@ superproject="$(git rev-parse --show-superproject-working-tree 2>/dev/null)"
    git rev-parse --path-format=absolute --git-common-dir   # …/.git for the main checkout
    git rev-parse --show-superproject-working-tree          # non-empty ⇒ you're in a submodule
    ```
-   You're in a linked worktree when git-dir ≠ git-common-dir **and** the superproject probe is empty — then skip to step 3. A submodule's dirs can differ too, so the probe is the guard: if it's non-empty, treat this as a normal checkout. Otherwise continue to step 2.
+   You're in a linked worktree when git-dir ≠ git-common-dir **and** the superproject probe is empty — then skip to step 3, but only when that worktree is for *this* work. If its branch already carries another unit's, being in a worktree doesn't make you isolated: go back to the [pre-edit guard](#pre-edit-guard) and settle the base first. A submodule's dirs can differ too, so the probe is the guard: if it's non-empty, treat this as a normal checkout. Otherwise continue to step 2.
 
 2. **Create the worktree** by absolute path, in the sibling folder:
    - Existing branch: `git worktree add <repo>.worktrees/<name> <branch>`
-   - New branch: `git worktree add -b <branch> <repo>.worktrees/<name> [<start-point>]`, basing `<start-point>` on the default branch unless told otherwise.
+   - New branch: `git worktree add -b <branch> <repo>.worktrees/<name> <start-point>`
 
-   **Mind the start-point when the current branch is a stack layer.** That default is what bites: a worktree created from inside a stack starts a branch that knows nothing about the layers below it. Base it on the current branch, or stay in the checkout — `gh-stack` moves between layers with `checkout`, `up`, and `down`, and a stack is not a thing to spread across worktrees.
+   **Name `<start-point>` explicitly whenever the branch you're leaving has unmerged commits.** [Choosing the base](#choosing-the-base) settles which branch it is — and whether this work belongs in a worktree at all. Omitted, it falls back to the current branch, and that default is right only when nothing in flight matters.
 
    A native worktree tool works too — Claude Code's `EnterWorktree` takes an absolute `path`, manages its own placement, and enters an isolated session; mind its command vetting under [Gotchas](#gotchas).
 
@@ -97,6 +119,7 @@ Detect the stack by its manifest and run the matching install. Run it **inside t
 
 ## Gotchas
 
+- **Already isolated is not isolated *for this task*.** A worktree still carrying a finished-but-unmerged unit of work is the wrong place to start the next one, and `git worktree add -b` defaults its start-point to `HEAD` — so the next branch silently inherits the last one. The [pre-edit guard](#pre-edit-guard) catches it; [Choosing the base](#choosing-the-base) says where to go instead.
 - **Never create a worktree inside the repository checkout** or in a nonstandard hidden location — a nested worktree gets swept into the parent repo's `git status` and tree-walking tooling and can be committed by accident. The sibling `.worktrees/` folder avoids that. (Entering an *existing* worktree by its path is fine.)
 - **Always pass an absolute path, never a `~`-prefixed one.** A `~` path doesn't match `git worktree list` and doesn't expand when quoted; use `$HOME/…` or a full `/Users/…` path.
 - **Only symlink files that are git-ignored** — run `git check-ignore -q` first. Ignored status is shared with the main checkout, so a file ignored there is ignored in the worktree too; symlink a *tracked* path and you shadow the real file and dirty `git status`.

@@ -13,7 +13,7 @@ A brief says what should be *true when the work is done*. For an issue that mean
 * Good: "`SkillConfig` should accept an optional `schedule` field of type `CronExpression`"
 * Bad: "Open `src/types/skill.ts` and add a schedule field on line 42"
 
-**The implementer starts isolated.** Whoever picks the brief up begins by running `git-worktree`'s pre-edit guard — a worktree off the default branch, on a branch named to `git-commit`'s convention (lowercase, `[<issue-key>-]<type>-<slug>`) — not by editing the main checkout. The branch name derives from the ticket key the brief already carries, so an implementer who skips the guard is the same one who invents an off-standard name like `HDR-1190/durable-hydra-allocation-retry`. It is a handoff instruction, not an acceptance criterion — it never becomes a checkbox.
+**The implementer starts isolated.** Whoever picks the brief up begins by running `git-worktree`'s pre-edit guard — a worktree off the base that guard resolves (the default branch, unless this work builds on something unmerged), on a branch named to `git-commit`'s convention (lowercase, `[<issue-key>-]<type>-<slug>`) — not by editing the main checkout. The branch name derives from the ticket key the brief already carries, so an implementer who skips the guard is the same one who invents an off-standard name like `HDR-1190/durable-hydra-allocation-retry`. It is a handoff instruction, not an acceptance criterion — it never becomes a checkbox.
 
 **Acceptance criteria that can fail.** Every criterion must be independently checkable and phrased so an implementer can tell done from nearly done. "Triage should work correctly" is not a criterion; "`gh issue list --label needs-triage` returns only items past initial classification" is.
 

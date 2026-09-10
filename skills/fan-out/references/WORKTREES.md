@@ -25,10 +25,10 @@ and hooks are all absent.
 
 ## Before dispatch: one prepared worktree per agent
 
-Create each one per `git-worktree`. The single fan-out-specific rule: **base the
-agent branches on your current branch**, not the default branch. If you're
-already on `feat-xyz`, an agent branching from the default branch will bring
-unrelated divergence back with its merge.
+Create each one per `git-worktree`, whose *Choosing the base* section picks the
+start-point. For a fan-out that answer is always **your current branch**, and
+the reason is this skill's: if you're already on `feat-xyz`, an agent branching
+from the default branch will bring unrelated divergence back with its merge.
 
 ```sh
 base_branch="$(git branch --show-current)"
