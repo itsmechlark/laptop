@@ -22,6 +22,21 @@
         }
       ]
     },
+    "comments": {
+      "sources": [
+        {
+          "origin": "thoughtbot/guides",
+          "type": "github",
+          "url": "https://github.com/thoughtbot/guides",
+          "path": "rails/ai-rules/rules/comments.md",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "ba63038301c33df65a13f44ae2837d22d268ebfe",
+          "reviewed": "2026-09-11",
+          "note": "Distilled thoughtbot's rails/ai-rules comments.md into a standalone, language-neutral rule scoped to Ruby, JS/TS, and Elixir on 2026-09-11: the comment-is-a-smell framing and the rename/extract/test/commit ladder to work before a comment. DELIBERATE DIVERGENCE: upstream bans TODO comments outright; that ban was NOT imported, because the global standards allow a TODO that points to a tracking ticket for deliberate tech debt. Do not let a reconcile quietly restore the blanket ban. ADAPTED FOR SCOPE: upstream is Ruby/Rails-centric and silent on documentation comments, so because this rule also loads for Elixir and TypeScript it carves out the documentation layer (Elixir @moduledoc/@doc, published-API doc comments) and linter/compiler directives, none of which are the explanatory comments the rule targets. Pinned to the specific file rather than the ai-rules directory (as the rails-* layer rules are), because this rule derives solely from comments.md and a diff on that one file drives its reconcile."
+        }
+      ]
+    },
     "gem": {
       "sources": [
         {
