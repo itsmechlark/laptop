@@ -2,8 +2,8 @@
 
 Twelve smells from Fowler, *Refactoring* (2nd ed.), ch. 3. This is the Standards
 axis's floor — what's left when neither the repo nor the global standards speak
-to the code. It is the weakest of the three source tiers, so everything here is
-a judgment call.
+to the code, and no existing sibling shows how the repo already does it. It is
+the weakest of the four source tiers, so everything here is a judgment call.
 
 Read it when working the Standards axis. When that axis runs as a sub-agent,
 give the agent this file's path — it has no other access to the baseline.
@@ -13,7 +13,8 @@ give the agent this file's path — it has no other access to the baseline.
 - **The repo overrides.** Where a documented standard endorses something here,
   drop the smell. Where the repo is silent, the global standards
   (`~/.agents/AGENTS.md`, plus whichever `rules/*.md` matched the changed paths)
-  still sit above this list.
+  and the nearest existing sibling still sit above this list — code the repo
+  already ships this way is evidence, and a smell is not.
 - **Label it, never assert it.** "possible Feature Envy", not "Feature Envy
   violation". Only a documented limit makes a finding firm, and a linter usually
   owns that limit already — skip anything a linter, formatter, or type-checker
