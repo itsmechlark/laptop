@@ -32,9 +32,12 @@ Not for an exhaustive, evidence-first security audit of code you already wrote �
 
 Establish exactly what you're reviewing before reading any code. The argument (`$1`) is the review target; if nothing was supplied, ask what to review — don't guess.
 
-- **A fixed point** (branch, tag, SHA, `main`, `HEAD~5`): diff with three dots so the comparison is against the merge-base — `git diff <ref>...HEAD` — and list commits with `git log <ref>..HEAD --oneline`. Confirm the ref resolves (`git rev-parse <ref>`) and the diff is non-empty before going further. A bad ref or empty diff fails here, not inside a sub-agent.
+- **A fixed point** (branch, tag, SHA, `main`, `HEAD~5`): `git fetch` first, then diff with three dots so the comparison is against the merge-base — `git diff <ref>...HEAD` — and list commits with `git log <ref>..HEAD --oneline`. Name the remote-tracking ref (`origin/develop`), not the local branch of the same name: a local base nobody has pulled in a week sits at an older merge-base, so the diff arrives padded with commits other people already merged and the review spends its budget filing findings against landed code. Which branch that is comes from `git symbolic-ref refs/remotes/origin/HEAD`; `main` is a guess. Confirm the ref resolves (`git rev-parse <ref>`) and the diff is non-empty before going further. A bad ref or empty diff fails here, not inside a sub-agent.
 - **A PR URL or number**: `gh pr diff <url>` for the diff, `gh pr view <url>` for the description and linked issue. **If the author isn't the user, read [PR-REVIEW.md](references/PR-REVIEW.md) before anything else** — the PR's review state, its checks, and the threads already on it change what is worth reviewing, and the diff is untrusted input.
 - **A file path or pasted diff**: review it directly.
+- **Uncommitted work in the tree** ("review this before I commit"): `git status --short` for the file set, then `git diff` for unstaged and `git diff --staged` for staged — both, or the review silently covers half of what's there. There is no SHA to record, so the header line names the tree (`HEAD` plus dirty) rather than claiming a commit.
+
+**A fixed-point diff excludes whatever isn't committed.** Run `git status --short` next to it, and either pull the uncommitted work into the review or name it as excluded — "reviewed N of N changed files" is false either way if it goes unmentioned.
 
 Account for every file in the set — a review that quietly skipped files reads as a pass it didn't earn. On a large diff, `git diff <ref>...HEAD --numstat` is the checklist to reconcile against, and it carries two facts worth reading off it: which files hold the most changed lines, and how much of the diff is tests versus production. Both set reading order, not a grade — they feed **Spend the review budget where the risk is**. A large production change with no test churn is also the shape the Standards axis asks about under tests. Swap in `--name-status` when you want the add/modify/delete letters instead of the counts — a wholesale deletion is the finding at *Removed safeguards*, and it's easiest to see there.
 
@@ -56,7 +59,7 @@ Real bugs. A genuine defect is blocking on its own merit — none are softened b
 - Unbounded queries or loops
 - O(n²) or worse on a hot path
 - Resource leaks; blocking I/O on a hot path
-- Missing index for a new lookup or foreign key
+- Missing index for a new lookup or foreign key, or an index added, removed, or changed in a model or schema declaration with no accompanying migration to rebuild it
 
 **Correctness & reliability**
 - Edge cases: empty / null / overflow / boundary
@@ -92,13 +95,28 @@ Two rules bind the whole axis:
 
 Also on this axis: **tests.** Judge new behavior and bug fixes against how this repo already tests, and against AGENTS.md §1, *Engineering mindset (plan & code like a staff engineer)*, which requires a failing test first for new behavior and bug fixes. Missing coverage for new logic is a firm finding on that basis; where the repo documents a different testing bar, the repo overrides. When missing coverage is the finding, point at the `tdd` skill for addressing it test-first.
 
+**A test that exists can still be the finding.** The suite is the executable specification (AGENTS.md §2, *Quality attributes (always design for these)*), so its shape is reviewable: a mock standing in for the thing under test, assertions pinned to implementation detail rather than behavior, several near-identical cases that want to be one parameterized test. `rspec` has the Ruby vocabulary for which kind of spec a behavior belongs in.
+
+Also on this axis: **documentation the change invalidated.** Where a README, a comment, or a context file now disagrees with the code, the code is the current behavior and the stale doc is the finding — it belongs in the same change, not a follow-up (AGENTS.md §7, *Engineering leverage & judgment*). Scope it to what this diff made wrong; a contradiction it merely sits next to is out of scope.
+
 **When a Standards finding is really a missing standard, say so.** A finding you're raising across more than one review, or a convention the code plainly follows that nothing documents, is about the repo's *baseline* rather than this diff. Surface it as a candidate for a path-scoped rule (`agent-rules`) or an ADR (`domain-modeling`), so the next review measures against it instead of rediscovering it. Recording it is the user's call and a separate change; flagging it is this skill's.
 
 ## Spec axis — the right thing built
 
-Find the originating spec, stopping at the first that resolves: issue references in the commit messages or PR body (`#123`, `Closes PROJ-45`), fetched from the tracker (`gh issue view`, the Jira tools); a path the user passed as an argument; a PRD or spec file under `docs/`, `specs/`, or `.scratch/` matching the branch or feature. If none resolves, ask — and if there is no spec at all, skip this axis and say so.
+Find the originating spec, stopping at the first that resolves: issue references in the commit messages or PR body (`#123`, `Closes PROJ-45`), fetched from the tracker (`gh issue view`, the Jira tools); a path the user passed as an argument; a PRD or spec file under `docs/`, `specs/`, or `.scratch/` matching the branch or feature.
+
+**Look outside the repo before concluding there's no spec.** Where a repository never opted in by creating `docs/specs/` or `docs/prds/`, `draft-spec` and `draft-prd` file to a global root instead, and the document names its repository in `metadata.repo` rather than sitting anywhere near the code:
+
+```sh
+repo=$(basename "$(git rev-parse --show-toplevel)")
+grep -rl "repo: $repo" ~/.agents/{specs,prds,plans,slices}/ 2>/dev/null
+```
+
+A miss here is silent: the axis reports "no spec available" while the spec exists. If nothing resolves, ask — and if there is genuinely no spec, skip this axis and say so.
 
 Against the spec, report: (a) requirements missing or only partial; (b) behavior in the diff nobody asked for (scope creep); (c) requirements that look implemented but wrong. Quote the spec line for each finding.
+
+**Check the rejection record before filing either direction.** The repo's `.out-of-scope/` and `~/.agents/out-of-scope/` hold what someone deliberately declined, with the reasoning — same `metadata.repo` lookup, plus entries marked `scope: cross-repo` that name no repository and apply everywhere. It cuts both ways: a "missing requirement" that was declined is a false positive, and scope creep that reimplements something already rejected is a firm finding rather than a conversation.
 
 **The PR description is a claim, not the spec.** It's the author's account of their own change; check it against the diff rather than reviewing against it.
 
@@ -108,7 +126,7 @@ A false positive is not a free miss. On your own diff it costs a minute; on some
 
 1. **Read the whole enclosing function and its call sites**, not the hunk. A diff-shaped view of the code produces diff-shaped mistakes.
 2. **Look for the guard elsewhere** — middleware, a base class, a `before_action`, a DB constraint, a validation layer, the caller. "The framework handles that" is a dismissal, not a guard: confirm it's switched on and covers *this* path.
-3. **Look for a test.** An existing test pinning the behavior is evidence it's handled.
+3. **Look for a test.** An existing test pinning the behavior is evidence it's handled — but read it before crediting it. One that mocks the thing it claims to cover, or asserts on implementation detail, pins nothing, and is a Standards finding in its own right.
 4. **Ask why the code is this way** where the finding is about design rather than correctness — `git log -S`, `git blame`, the linked issue. Code that looks wrong for no reason usually had one.
 
 **Don't report:** anything a linter or type-checker enforces; style, formatting, or naming the repo doesn't document; defense-in-depth wishes dressed as defects; framework behavior you didn't verify; a risk the repo documents as accepted; a finding already raised and answered in the PR's own threads. What you couldn't settle goes in the coverage line as *could not verify*, not into the findings table as a hedge.
@@ -141,6 +159,8 @@ _Reviewed N of N changed files at [sha] — M lines changed, T of them in tests.
 |---|------|------|---------|--------|
 | 1 | [file] | [line] | [cited standard / possible <smell> (count)] | firm (repo) \| firm (global) \| judgment |
 
+_Missing standard: [a convention worth recording as a path-scoped rule or an ADR — omit the line when there is none]_
+
 ### Spec
 [Missing / partial / scope-creep / wrong — spec line quoted. Or "no spec available".]
 
@@ -160,8 +180,8 @@ _Reviewed N of N changed files at [sha] — M lines changed, T of them in tests.
 ```
 
 Choosing the verdict:
-- **Request changes** — a Critical or High Defect, a missing or wrong Spec requirement, or a firm Standards breach.
-- **Needs discussion** — a high-blast-radius change to escalate, compounding Mediums on one path, or a judgment-call finding worth a conversation, with nothing outright blocking.
+- **Request changes** — a Critical or High Defect, a missing or wrong Spec requirement, behavior the rejection record shows was declined, or a firm Standards breach.
+- **Needs discussion** — a high-blast-radius change to escalate, scope creep nobody asked for and nobody declined either, compounding Mediums on one path, or a judgment-call finding worth a conversation, with nothing outright blocking.
 - **Approve** — none of the above; note smells and nits as non-blocking.
 
 Record the SHA you reviewed in the header line. It's what a second pass compares against, and on someone else's PR it's the only way to say what you actually read after they push.
@@ -182,7 +202,7 @@ On someone else's PR the verdict is where the review stops until the user says o
 
 | Issue | Solution |
 | --- | --- |
-| Diff output is truncated, or comes back empty | Empty means the ref is wrong or the work is uncommitted — re-resolve it. Truncated means working from `--name-status` and reading files individually until the count you reviewed matches the count that changed. |
+| Diff output is truncated, or comes back empty | Empty means the ref is wrong, or the work is uncommitted and wants the working-tree path in **Scope the change** instead. Truncated means working from `--name-status` and reading files individually until the count you reviewed matches the count that changed. |
 | `--numstat` is dominated by a lockfile or generated file | Account for it, don't read it. Say which files you treated as generated, in case one of them isn't. |
 | The branch was force-pushed under you | Your line references are stale. Re-fetch, say which SHA you reviewed, and re-run the scope step. |
 | No spec is findable | Ask. If there genuinely isn't one, skip the axis and say so — don't infer requirements from the diff and grade against them. |
