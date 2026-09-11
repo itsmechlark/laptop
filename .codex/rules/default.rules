@@ -164,6 +164,17 @@ prefix_rule(
 )
 
 # -----------------------------------------------------------------------------
+# Forbidden: destructive GitHub CLI operations
+# -----------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = ["gh", ["repo", "issue", "release", "gist", "run", "cache", "codespace", "project", "label", "ssh-key", "gpg-key"], "delete"],
+    decision = "forbidden",
+    justification = "GitHub CLI delete operations are destructive and blocked. Use the GitHub web UI for deliberate deletions.",
+    match = ["gh repo delete owner/repo", "gh issue delete 123", "gh release delete v1.0", "gh ssh-key delete abc123"],
+)
+
+# -----------------------------------------------------------------------------
 # Require approval: external writes / destructive local operations
 # -----------------------------------------------------------------------------
 
@@ -196,10 +207,122 @@ prefix_rule(
 )
 
 prefix_rule(
-    pattern = ["gh"],
+    pattern = ["gh", "pr", ["create", "merge", "close", "edit", "review", "comment", "ready", "reopen"]],
     decision = "prompt",
-    justification = "GitHub CLI access requires approval under this policy.",
-    match = ["gh pr view 123", "gh api user"],
+    justification = "Pull-request mutations require approval.",
+    match = ["gh pr create --title example", "gh pr merge 123", "gh pr close 123"],
+)
+
+prefix_rule(
+    pattern = ["gh", "issue", ["create", "edit", "close", "comment", "reopen", "transfer", "pin", "unpin", "develop"]],
+    decision = "prompt",
+    justification = "Issue mutations require approval.",
+    match = ["gh issue create --title example", "gh issue close 123", "gh issue comment 123"],
+)
+
+prefix_rule(
+    pattern = ["gh", "repo", ["create", "fork", "edit", "archive", "rename"]],
+    decision = "prompt",
+    justification = "Repository mutations require approval.",
+    match = ["gh repo create example", "gh repo fork owner/repo"],
+)
+
+prefix_rule(
+    pattern = ["gh", "repo", "deploy-key"],
+    decision = "prompt",
+    justification = "Deploy-key management is security-sensitive.",
+    match = ["gh repo deploy-key add key.pub", "gh repo deploy-key delete 12345", "gh repo deploy-key list"],
+)
+
+prefix_rule(
+    pattern = ["gh", "release", ["create", "edit", "upload"]],
+    decision = "prompt",
+    justification = "Release mutations require approval.",
+    match = ["gh release create v1.0", "gh release upload v1.0 asset.tar.gz"],
+)
+
+prefix_rule(
+    pattern = ["gh", "run", ["cancel", "rerun"]],
+    decision = "prompt",
+    justification = "Workflow run mutations require approval.",
+    match = ["gh run cancel 12345", "gh run rerun 12345"],
+)
+
+prefix_rule(
+    pattern = ["gh", "workflow", ["run", "enable", "disable"]],
+    decision = "prompt",
+    justification = "Workflow mutations require approval.",
+    match = ["gh workflow run deploy.yml", "gh workflow disable deploy.yml"],
+)
+
+prefix_rule(
+    pattern = ["gh", "gist", ["create", "edit"]],
+    decision = "prompt",
+    justification = "Gist mutations require approval.",
+    match = ["gh gist create file.txt", "gh gist edit abc123"],
+)
+
+prefix_rule(
+    pattern = ["gh", ["secret", "variable"]],
+    decision = "prompt",
+    justification = "Secret and variable management requires approval.",
+    match = ["gh secret set TOKEN", "gh secret list", "gh variable set KEY"],
+)
+
+prefix_rule(
+    pattern = ["gh", "label", ["create", "edit"]],
+    decision = "prompt",
+    justification = "Label mutations require approval.",
+    match = ["gh label create bug", "gh label edit bug"],
+)
+
+prefix_rule(
+    pattern = ["gh", ["ssh-key", "gpg-key"], "add"],
+    decision = "prompt",
+    justification = "Key registration requires approval.",
+    match = ["gh ssh-key add key.pub", "gh gpg-key add key.asc"],
+)
+
+prefix_rule(
+    pattern = ["gh", "codespace", ["create", "stop", "rebuild"]],
+    decision = "prompt",
+    justification = "Codespace mutations require approval.",
+    match = ["gh codespace create", "gh codespace stop"],
+)
+
+prefix_rule(
+    pattern = ["gh", "project", ["create", "edit", "close"]],
+    decision = "prompt",
+    justification = "Project mutations require approval.",
+    match = ["gh project create", "gh project close 1"],
+)
+
+prefix_rule(
+    pattern = ["gh", "api", "graphql"],
+    decision = "prompt",
+    justification = "GraphQL API calls default to POST and can include mutations.",
+    match = ["gh api graphql -f query={ viewer { login } }"],
+)
+
+prefix_rule(
+    pattern = ["gh", "api", ["-X", "--method"], ["POST", "PUT", "PATCH", "DELETE"]],
+    decision = "prompt",
+    justification = "Mutating API calls require approval.",
+    match = ["gh api -X POST /repos/owner/repo/issues", "gh api --method DELETE /repos/owner/repo/issues/1"],
+)
+
+prefix_rule(
+    pattern = ["gh", "auth", ["login", "logout", "refresh", "switch", "setup-git"]],
+    decision = "prompt",
+    justification = "Authentication state changes require approval.",
+    match = ["gh auth login", "gh auth logout"],
+)
+
+prefix_rule(
+    pattern = ["gh", "extension", ["install", "remove", "upgrade"]],
+    decision = "prompt",
+    justification = "Extension management requires approval.",
+    match = ["gh extension install owner/extension", "gh extension remove owner/extension"],
 )
 
 prefix_rule(
