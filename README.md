@@ -274,8 +274,9 @@ which is why the skill needs no per-client configuration.
 Where skills put what they write (`~/.agents/…`)
 ------------------------------------------------
 
-Seven more directories sit beside the journal —
-`lore`, `specs`, `plans`, `prds`, `slices`, `adr`, and `out-of-scope` —
+Eight more directories sit beside the journal —
+`lore`, `specs`, `plans`, `prds`, `slices`,
+`adr`, `handoffs`, and `out-of-scope` —
 created the same way, on the same first `mac` run.
 
 They exist because most repositories are not yours.

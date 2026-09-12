@@ -11,7 +11,8 @@ diff?**
 
 That is lore. Each clause rules something out:
 
-- *Outlives the branch* — a handoff summary dies with the session.
+- *Outlives the branch* — a handoff summary is replaced by the next task,
+  whether it lived in a temp file or in the repo.
 - *No network* — a PR description lives on GitHub; an agent working from a
   checkout cannot read it.
 - *In nobody's diff* — the change itself is already recorded, in the diff.
@@ -24,7 +25,7 @@ That is lore. Each clause rules something out:
 | PR description | What changed, how, testing, risks, rollout | `pull-request` | The note becomes the PR body in a file — the most common failure by volume |
 | ADR | A hard-to-reverse decision the codebase must live with | `domain-modeling` | The decision rots in a dated file nobody looks at, instead of a numbered trail |
 | Path-scoped rule | A convention every future edit must follow | `agent-rules` | A lesson that should load automatically instead waits to be found |
-| Handoff summary | The next session's starting context | `claude-handoff` | The note is full of "remaining work" that is done by the time anyone reads it |
+| Handoff | The next session's starting context | `agent-handoff` | The note is full of "remaining work" that is done by the time anyone reads it |
 | Status update | What a person needs to know this week | `standup` | The note reads as progress reporting, which expires in days |
 
 ## The four things that are only lore's

@@ -17,7 +17,8 @@
       "Write(~/.agents/plans/**)",
       "Write(~/.agents/prds/**)",
       "Write(~/.agents/slices/**)",
-      "Write(~/.agents/adr/**)"
+      "Write(~/.agents/adr/**)",
+      "Write(~/.agents/handoffs/**)"
     ],
     "deny": [
       "Read(**/.env)",

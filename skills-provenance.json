@@ -624,7 +624,7 @@
         }
       ]
     },
-    "claude-handoff": {
+    "agent-handoff": {
       "sources": [
         {
           "origin": "mattpocock/skills",
@@ -635,7 +635,7 @@
           "license": "MIT",
           "ref": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76",
           "reviewed": "2026-08-26",
-          "note": "INITIAL PIN. Source is in-progress upstream. Adapted into a full skill: added structured summary format, when-to-use boundaries (vs fan-out), gotchas for background-agent limitations, and the report step."
+          "note": "INITIAL PIN. Source is in-progress upstream. Adapted into a full skill: added structured summary format, when-to-use boundaries (vs fan-out), gotchas for background-agent limitations, and the report step. Since renamed from claude-handoff and generalized past Claude Code — the handoff became a dated artifact under docs/handoffs/ with a ~/.agents/handoffs/ fallback, and the launch step became client-agnostic across Claude Code, Codex, and Cursor (ADR 0016). Upstream remains Claude-only, so the divergence is wide; reconcile for ideas rather than by porting."
         }
       ]
     }

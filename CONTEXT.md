@@ -85,7 +85,8 @@ body sits; the missing link is the whole difference.
 
 **Handoff**:
 One skill naming another to route work it shouldn't do itself, written
-`` `X` skill `` or `` skill `X` ``.
+`` `X` skill `` or `` skill `X` ``. Not the file `agent-handoff` writes — that
+is a **handoff file**, and the two senses share nothing but the word.
 
 **Flagged skill**:
 A skill carrying `disable-model-invocation: true`; the complement is
@@ -140,6 +141,13 @@ would otherwise be re-argued in every repo. Kept in `~/.agents/out-of-scope/` an
 never pruned. A rejection grounded in one codebase goes in that repository's own
 `.out-of-scope/` instead.
 
+**Handoff file**:
+The dated record of where a session stopped and what the next one should pick
+up, written by `agent-handoff` to `docs/handoffs/` or to the `handoffs` global
+root. Superseded rather than overwritten, so the chain survives a previous
+agent having been wrong
+([ADR 0016](docs/adr/0016-handoffs-are-a-dated-artifact.md)).
+
 **Opt-in directory**:
 The repository directory an authored artifact needs — `lore/`, `docs/specs/`,
 `docs/adr/`, `.out-of-scope/`. Its existence is the repository's consent to hold
@@ -150,8 +158,8 @@ different act, and a fine one
 
 **Global root**:
 The per-artifact fallback directory under `~/.agents/` — `lore`, `specs`,
-`plans`, `prds`, `slices`, `adr`, and `out-of-scope` — holding what a repository
-that has not opted in would otherwise have taken. Flat and shared across
-projects, so each artifact records `metadata.repo`: the repository's name, never
-a path. `~/.agents/standup/` sits beside them but is not one: the journal has no
-repository directory to fall back from.
+`plans`, `prds`, `slices`, `adr`, `handoffs`, and `out-of-scope` — holding what
+a repository that has not opted in would otherwise have taken. Flat and shared
+across projects, so each artifact records `metadata.repo`: the repository's
+name, never a path. `~/.agents/standup/` sits beside them but is not one: the
+journal has no repository directory to fall back from.

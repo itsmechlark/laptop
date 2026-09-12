@@ -570,10 +570,10 @@ and description templates — use them.
   `.agents/*.local.md`, `.agents/CONTEXT.md`, `.agents/standup`,
   `.agents/out-of-scope`, `.agents/.skills-lock.json`, and any nested `.claude`
   directory under `.agents/` or `skills/`.
-- `mac` provisions eight real directories under `~/.agents/` — `standup`,
-  `out-of-scope`, `lore`, `specs`, `plans`, `prds`, `slices`, `adr` — not
-  symlinks, because Codex's Seatbelt sandbox rejects symlinked writable roots
-  ([ADR 0008](docs/adr/0008-provision-agent-state-as-real-directories.md),
+- `mac` provisions nine real directories under `~/.agents/` — `standup`,
+  `out-of-scope`, `lore`, `specs`, `plans`, `prds`, `slices`, `adr`, `handoffs`
+  — not symlinks, because Codex's Seatbelt sandbox rejects symlinked writable
+  roots ([ADR 0008](docs/adr/0008-provision-agent-state-as-real-directories.md),
   supersedes [ADR 0004](docs/adr/0004-machine-local-agent-state-in-repo.md)).
   All three clients grant each one write; `skills` and `rules` are pointedly
   excluded, since they resolve into this repo.

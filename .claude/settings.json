@@ -403,6 +403,7 @@
         "~/.agents/prds",
         "~/.agents/slices",
         "~/.agents/adr",
+        "~/.agents/handoffs",
         "~/.asdf",
         "~/.rvm",
         "~/.cache/rubocop_cache",

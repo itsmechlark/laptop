@@ -20,7 +20,7 @@ Everything else about the change already has a home. The commit says why this di
 - Work spanned several PRs and no single PR description holds the arc
 - Not for the PR description, the commit message, or the branch name — `pull-request` and `git-commit`
 - Not for a hard-to-reverse architectural decision — that is an ADR, via `domain-modeling`
-- Not for seeding the next session's context — that is `claude-handoff`
+- Not for seeding the next session's context — that is `agent-handoff`
 - Not for a status update to a person — that is `standup`
 - Not for explaining code to the user right now, with no file written — that is `explain`
 

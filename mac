@@ -286,7 +286,7 @@ symlink_path "$PROJECT_DIR/skills-lock.json" "$AGENTS_GLOBAL_DIR/.skills-lock.js
 #
 # Migrate existing symlinks from the old provisioning (ADR 0004): remove the
 # symlink, create a real directory, and move any existing content over.
-for dir in standup out-of-scope lore specs plans prds slices adr; do
+for dir in standup out-of-scope lore specs plans prds slices adr handoffs; do
   path="$AGENTS_GLOBAL_DIR/$dir"
   if [ -L "$path" ]; then
     old="$(readlink "$path")"
