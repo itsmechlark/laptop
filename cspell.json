@@ -97,6 +97,7 @@
         "libexec",
         "libyaml",
         "linkfail",
+        "liquidslr",
         "lockfiles",
         "mattpocock",
         "mcpjson",

@@ -36,6 +36,7 @@ The solution to that problem, from the user's perspective.
 - Schema or data changes, and their compatibility requirements
 - API contracts and specific interactions
 - Rollout, observability, security, or idempotency constraints
+- The load the design was sized against, and what breaks first beyond it
 
 ## Alternatives Considered
 
@@ -96,10 +97,12 @@ cheapest requirements bug there is to find at this stage.
 
 **Implementation Decisions.** Boundaries, contracts, data, interactions, and
 rollout constraints — enough that an implementer knows what is already decided,
-without turning into a code plan. Technical clarifications the developer gave
-during the conversation belong here rather than in the narrative, which keeps the
-product-facing sections readable on a tracker (AGENTS.md §3, *Jira vs. Pull
-Requests — audience separation*).
+without turning into a code plan. Where the design was sized against a load,
+record the figure and what breaks first past it: a sizing pass that stays in the
+conversation is one the implementer has to redo or guess at. Technical
+clarifications the developer gave during the conversation belong here rather
+than in the narrative, which keeps the product-facing sections readable on a
+tracker (AGENTS.md §3, *Jira vs. Pull Requests — audience separation*).
 
 No file paths, no diffs, no code snippets. A compact prototype-derived state
 machine, reducer, schema, or type shape is allowed when it states the decision

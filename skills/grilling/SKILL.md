@@ -32,7 +32,7 @@ Subject to grill: `$ARGUMENTS`. If nothing came with the invocation, ask what th
 
 **Look facts up; put decisions to the user.** If the answer is discoverable — in the filesystem, the code, the tracker, a tool — go find it and report what you found. Ask only about what's genuinely theirs to decide. When a lookup is expensive, use the `fan-out` skill to run it in the background and keep grilling the branches that don't depend on it; only the questions downstream of the lookup wait.
 
-**Ask only what would change something.** A question that doesn't move the plan is noise. Aim at the ambiguous term, the unhandled case, the assumption nobody has checked, the criterion for done.
+**Ask only what would change something.** A question that doesn't move the plan is noise. Aim at the ambiguous term, the unhandled case, the assumption nobody has checked, the criterion for done, and the load nobody has multiplied by ten — "what breaks first at 10×?" is answerable from a plan, and "nothing" means either a genuinely small system or one nobody has sized.
 
 **Push when an answer is thin.** "It depends" and "we'll figure that out later" aren't answers. Ask what it depends on, or what happens by default when nobody figures it out.
 
@@ -85,3 +85,5 @@ Once they confirm, hand off rather than continuing here:
 
 - [mattpocock/skills](https://github.com/mattpocock/skills/tree/main/skills/productivity/grilling) - grilling, MIT
 - [Build Wide, Ship Narrow (Adapt)](https://adapt.com/blog/build-wide-ship-narrow)
+- [liquidslr/system-design-notes](https://github.com/liquidslr/system-design-notes/blob/main/03.%20System%20Design%20Framework/Readme.md) - A Framework for System Design Interviews
+- Alex Xu, *System Design Interview: An Insider's Guide*, ch. 3 — the four-step framework

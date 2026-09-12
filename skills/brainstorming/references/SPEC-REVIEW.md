@@ -84,7 +84,9 @@ Verify the spec covers what the brainstorming conversation settled:
 - Trade-offs that were discussed and resolved should be recorded (in
   implementation decisions or further notes), not silently dropped
 - Constraints the user mentioned (timeline, compatibility, performance) should
-  be visible
+  be visible, and so should the load the design was sized against — an
+  order-of-magnitude pass that stayed in the conversation is the easiest thing
+  on this list to lose
 
 **Fix:** add the missing content from the conversation. If a decision was made
 but the reasoning wasn't captured, add a brief note on why.

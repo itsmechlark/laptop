@@ -55,6 +55,11 @@ reaching for the Skill tool, which refuses it. `draft-spec`, `slice`,
 - Ask questions one at a time to refine the idea.
 - Prefer multiple choice questions when possible, but open-ended is fine too.
 - Focus on understanding: purpose, constraints, success criteria.
+- Ask what load the thing has to hold — data volume, concurrent users, growth
+  over the next year — while the requirements are still open. A design drawn
+  first and sized afterwards gets defended rather than redrawn. On the bounded
+  path this is one question, not a sizing exercise: an answer that comes back
+  large is hidden complexity, and hidden complexity upgrades the path.
 
 ## Exploring approaches (architectural path)
 
@@ -80,6 +85,12 @@ reaching for the Skill tool, which refuses it. `draft-spec`, `slice`,
   default-off flag?), data migration and backward compatibility, security, and
   idempotency for anything retryable. Where one genuinely doesn't apply, say so
   explicitly rather than dropping it silently.
+- Size the design against the load before asking for buy-in. One
+  order-of-magnitude pass — records per day, rows after a year, requests at
+  peak — answers the question that matters here: does the shape survive the
+  numbers? Name what breaks first and at roughly what multiple, so the claim is
+  one a reviewer can argue with; "it should scale" is not. Carry that load
+  figure into the spec as an Implementation Decision.
 - Be ready to go back and clarify if something doesn't make sense.
 
 Section-by-section approval is architectural only. A bounded design is one short

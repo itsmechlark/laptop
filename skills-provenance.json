@@ -198,6 +198,19 @@
           "type": "web",
           "url": "https://adapt.com/blog/build-wide-ship-narrow",
           "relationship": "inspired-by"
+        },
+        {
+          "origin": "liquidslr/system-design-notes",
+          "type": "github",
+          "url": "https://github.com/liquidslr/system-design-notes",
+          "path": "03. System Design Framework/Readme.md",
+          "relationship": "inspired-by",
+          "note": "The framework sizes the high-level design before buy-in but has no artifact to leave the number in, so the load bullet in TEMPLATE.md's Implementation Decisions is ours: it is where brainstorming's sizing pass becomes durable instead of dying with the conversation. No license declared upstream as of 2026-09-12 - no LICENSE file, and none reported by the GitHub API. The repo is itself a summary of Xu's book. Ideas only, no text reused; do not promote to `adapted`."
+        },
+        {
+          "origin": "Alex Xu, System Design Interview: An Insider's Guide, ch. 3",
+          "type": "book",
+          "relationship": "inspired-by"
         }
       ]
     },
@@ -280,6 +293,19 @@
           "origin": "Adapt, \"Build Wide, Ship Narrow\"",
           "type": "web",
           "url": "https://adapt.com/blog/build-wide-ship-narrow",
+          "relationship": "inspired-by"
+        },
+        {
+          "origin": "liquidslr/system-design-notes",
+          "type": "github",
+          "url": "https://github.com/liquidslr/system-design-notes",
+          "path": "03. System Design Framework/Readme.md",
+          "relationship": "inspired-by",
+          "note": "Step 4's wrap-up question - how the design goes from one million users to ten million - is the 10x question class in 'Ask only what would change something'. It earns a place because it is answerable from a plan alone, which is the bar every question in this skill has to clear. No license declared upstream as of 2026-09-12 - no LICENSE file, and none reported by the GitHub API. The repo is itself a summary of Xu's book. Ideas only, no text reused; do not promote to `adapted`."
+        },
+        {
+          "origin": "Alex Xu, System Design Interview: An Insider's Guide, ch. 3",
+          "type": "book",
           "relationship": "inspired-by"
         }
       ]
@@ -582,6 +608,19 @@
           "license": "MIT",
           "ref": "b36e0829c6d0140e93cfef2ca599b1b07d4a7797",
           "reviewed": "2026-08-20"
+        },
+        {
+          "origin": "liquidslr/system-design-notes",
+          "type": "github",
+          "url": "https://github.com/liquidslr/system-design-notes",
+          "path": "03. System Design Framework/Readme.md",
+          "relationship": "inspired-by",
+          "note": "Steps 1 and 2 of the four-step framework - ask what scale the thing must hold alongside the other requirements, then do an order-of-magnitude pass over the high-level design before asking for buy-in - are the two load bullets in PROCESS.md. The step-1 question sits in 'Understanding the idea', which the bounded path reads too: there it is one question rather than a sizing exercise, and a large answer is the hidden complexity that trips the one-way ratchet up to architectural. The step-2 pass is architectural only. Deliberately not taken: the interview's time allocation (3-10/10-15/10-25/3-5 minutes of a 45-minute slot), because the spike/bounded/architectural classification already scales ceremony to the work rather than to a clock; and the communication advice (do not go silent, treat the interviewer as a collaborator), which is already the one-question-at-a-time house style. No license declared upstream as of 2026-09-12 - no LICENSE file, and none reported by the GitHub API. The repo is itself a summary of Xu's book. Ideas only, no text reused; do not promote to `adapted`."
+        },
+        {
+          "origin": "Alex Xu, System Design Interview: An Insider's Guide, ch. 3",
+          "type": "book",
+          "relationship": "inspired-by"
         }
       ]
     },

@@ -160,3 +160,5 @@ Read these as needed during the architectural path, not all upfront.
 ## Attribution
 
 - [obra/superpowers](https://github.com/obra/superpowers/tree/main/skills/brainstorming) - brainstorming, MIT
+- [liquidslr/system-design-notes](https://github.com/liquidslr/system-design-notes/blob/main/03.%20System%20Design%20Framework/Readme.md) - A Framework for System Design Interviews
+- Alex Xu, *System Design Interview: An Insider's Guide*, ch. 3 — the four-step framework
