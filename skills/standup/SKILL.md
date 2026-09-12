@@ -191,7 +191,7 @@ If the directory doesn't exist, `mac` hasn't run on this machine. Say so in one 
 Read these when the step points at them, not upfront.
 
 - [GATHER.md](references/GATHER.md) — gathering across several repos, the time window, reviews and tickets, and the read-only rule
-- [FORMATS.md](references/FORMATS.md) — which skeleton in `assets/` to fill, what changes per audience, the end-of-week variant, and two worked updates including a thin day
+- [FORMATS.md](references/FORMATS.md) — which skeleton in `templates/` to fill, what changes per audience, the end-of-week variant, and two worked updates including a thin day
 - [QUESTIONS.md](references/QUESTIONS.md) — the sharpening bank, grouped by what each group surfaces, with the rule for choosing
 
 ## Attribution

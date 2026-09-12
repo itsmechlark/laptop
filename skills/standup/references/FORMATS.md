@@ -1,6 +1,6 @@
 # Update formats
 
-Three skeletons live in `assets/`, ready to copy and fill. This file is the
+Three skeletons live in `templates/`, ready to copy and fill. This file is the
 judgment around them: which one, what changes per audience, and what a filled-in
 one looks like when the news is good and when it isn't.
 
@@ -22,13 +22,13 @@ Take the date from the environment (`date +%Y-%m-%d`), never from memory.
 
 | Situation | Skeleton |
 | --- | --- |
-| Client or manager, written and asynchronous | [`assets/update-block.md`](../assets/update-block.md) |
-| Team channel, written | [`assets/update-terse.md`](../assets/update-terse.md) |
-| Team, spoken in a call | [`assets/update-spoken.txt`](../assets/update-spoken.txt) |
+| Client or manager, written and asynchronous | [`templates/update-block.md`](../templates/update-block.md) |
+| Team channel, written | [`templates/update-terse.md`](../templates/update-terse.md) |
+| Team, spoken in a call | [`templates/update-spoken.txt`](../templates/update-spoken.txt) |
 
 ## Written block — client or manager
 
-[`assets/update-block.md`](../assets/update-block.md) is the default for anyone
+[`templates/update-block.md`](../templates/update-block.md) is the default for anyone
 reading asynchronously and deciding something off the back of it.
 
 For a **manager**, make "Heads up" specifically about where you need a decision
@@ -45,7 +45,7 @@ filler teaches the reader to skip the one place real news will appear.
 
 ## Terse standup — team, written
 
-[`assets/update-terse.md`](../assets/update-terse.md). A team channel wants less
+[`templates/update-terse.md`](../templates/update-terse.md). A team channel wants less
 ceremony than the block: three lines, because the reader is scanning six of
 these in a row.
 
@@ -55,7 +55,7 @@ their own day just changed.
 
 ## Spoken standup — team, live
 
-[`assets/update-spoken.txt`](../assets/update-spoken.txt). Thirty seconds of
+[`templates/update-spoken.txt`](../templates/update-spoken.txt). Thirty seconds of
 speech, so no headers, no bullets, no bold — three sentences the user can say
 out loud. Two rules apply only to this form:
 

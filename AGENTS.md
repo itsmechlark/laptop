@@ -332,18 +332,27 @@ The `description` is what an agent matches against, so lead with the capability
 and spell out concrete trigger phrases. Long-form material goes in
 `skills/<name>/references/*.md` rather than bloating `SKILL.md`.
 
-Two subdirectories, split by whether the agent has to *read* the file:
+Three subdirectories, split by what the agent does with the file:
 
 | Directory | Holds | Enters context |
 | --- | --- | --- |
 | `skills/<name>/references/*.md` | Prose the agent reads to decide | Yes, when linked |
-| `skills/<name>/assets/*` | Files used as-is in output — templates, boilerplate | No |
+| `skills/<name>/templates/*` | Scaffolds the agent copies and fills in | When referenced |
+| `skills/<name>/assets/*` | Files emitted unchanged — no filling in | No |
 
-A file the agent copies and fills in rather than reasons about belongs in
-`assets/`: it stays out of context, so an HTML mockup skeleton or a config
-template costs nothing to keep complete. Reference it by relative path from the
-`references/*.md` that uses it (`../assets/<file>`).
-`skills/brainstorming/assets/mockup-template.html` is the worked example.
+**The test is whether the output differs from the file.** A skeleton the agent
+copies and completes — a note template, an update format, an HTML mockup — is a
+`templates/` file, because the agent reads it and builds on it. `assets/` is for
+what ships byte-for-byte: a logo, a fixture, a config the agent never edits. Both
+stay out of the discovery budget, so either can be kept complete. Reference one
+by relative path from the `SKILL.md` or `references/*.md` that uses it
+(`templates/<file>` or `../templates/<file>`).
+`skills/lore/templates/lore-note.md` is the worked example.
+
+Today every first-party scaffold is a `templates/` file and no skill has an
+`assets/` directory — the tier exists for the first file that is genuinely
+emitted unchanged
+([ADR 0017](docs/adr/0017-scaffolds-are-templates-not-assets.md)).
 
 **These skills co-ship, so name each other freely.** `mac` symlinks `skills/`
 as a whole — prefer "that's `code-review`" over describing the boundary

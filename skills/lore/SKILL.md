@@ -75,7 +75,7 @@ The link is deliberately one-directional: the successor names the predecessor, a
 
 ### 3. Write it
 
-Copy [assets/lore-note.md](assets/lore-note.md) to `YYYYMMDD-HHMM-<slug>.md` under whichever directory step 1 settled on, taking the timestamp from `date +%Y%m%d-%H%M` and never from memory.
+Copy [templates/lore-note.md](templates/lore-note.md) to `YYYYMMDD-HHMM-<slug>.md` under whichever directory step 1 settled on, taking the timestamp from `date +%Y%m%d-%H%M` and never from memory.
 
 Fill the frontmatter, then the lead paragraph, then only the sections that have something in them. **Omit every empty section** — a heading with nothing under it is the filler this skill exists to prevent (AGENTS.md §8).
 
@@ -127,4 +127,4 @@ Read these when a step points at them.
 
 - [BOUNDARIES.md](references/BOUNDARIES.md) — the overlap map against commits, PRs, ADRs, handoffs and status updates, with the failure each overlap causes
 - [KINDS.md](references/KINDS.md) — the five kinds, every frontmatter field and why two obvious ones are absent, supersession, and the discovery queries
-- [assets/lore-note.md](assets/lore-note.md) — the template to copy
+- [templates/lore-note.md](templates/lore-note.md) — the template to copy

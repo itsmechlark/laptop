@@ -102,7 +102,7 @@ Two constraints worth knowing before you reach for them:
 
 ## Writing mockup HTML
 
-Start from [`assets/mockup-template.html`](../assets/mockup-template.html) —
+Start from [`templates/mockup-template.html`](../templates/mockup-template.html) —
 copy it to `$TMPDIR`, replace the question and the options, and delete the
 wireframe blocks this question doesn't need. It's a self-contained page: styles
 inline, no external dependencies, and a `prefers-color-scheme` palette so it

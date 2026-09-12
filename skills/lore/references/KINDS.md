@@ -182,5 +182,5 @@ until someone tries to follow it.
 
 ## The template
 
-Copy [../assets/lore-note.md](../assets/lore-note.md) and delete the sections
+Copy [../templates/lore-note.md](../templates/lore-note.md) and delete the sections
 that have nothing in them.
