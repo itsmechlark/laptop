@@ -363,6 +363,12 @@
         "source": "github",
         "repo": "pulumi/agent-skills"
       }
+    },
+    "cloudflare": {
+      "source": {
+        "source": "github",
+        "repo": "cloudflare/skills"
+      }
     }
   },
   "sandbox": {
