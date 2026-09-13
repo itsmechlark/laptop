@@ -27,6 +27,10 @@
         "START_URL": "about:blank"
       }
     },
+    "pulumi": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.ai.pulumi.com/mcp"]
+    },
     "safari": {
       "command": "/usr/bin/safaridriver",
       "args": ["--mcp"]

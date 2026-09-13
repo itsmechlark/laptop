@@ -81,6 +81,13 @@
       "Bash(shutdown *)",
       "Bash(reboot *)",
       "Bash(poweroff *)",
+      "Bash(pulumi destroy *)",
+      "Bash(pulumi destroy)",
+      "Bash(pulumi stack rm *)",
+      "mcp__pulumi__deploy-to-aws",
+      "mcp__pulumi__neo-task-launcher",
+      "mcp__pulumi__neo-bridge",
+      "mcp__pulumi__pulumi-cli-up",
       "mcp__plugin_mongodb_mongodb__drop-database",
       "mcp__plugin_mongodb_mongodb__drop-collection",
       "mcp__plugin_sem-ai_sem-ai__project_delete",
@@ -191,6 +198,16 @@
       "Bash(terraform destroy *)",
       "Bash(kubectl apply *)",
       "Bash(kubectl delete *)",
+      "Bash(pulumi up *)",
+      "Bash(pulumi up)",
+      "Bash(pulumi update *)",
+      "Bash(pulumi update)",
+      "Bash(pulumi cancel *)",
+      "Bash(pulumi cancel)",
+      "Bash(pulumi import *)",
+      "Bash(pulumi refresh *)",
+      "Bash(pulumi refresh)",
+      "Bash(pulumi new *)",
       "Bash(git push *)",
       "Bash(git push)",
       "Bash(git commit *)",
@@ -273,6 +290,9 @@
       "mcp__firefox-devtools__install_extension",
       "mcp__firefox-devtools__uninstall_extension",
       "mcp__firefox-devtools__restart_firefox",
+      "mcp__pulumi__neo-continue-task",
+      "mcp__pulumi__neo-reset-conversation",
+      "mcp__pulumi__pulumi-cli-refresh",
       "Bash(curl *)",
       "Bash(wget *)",
       "Bash(ssh *)",
@@ -337,6 +357,12 @@
         "source": "github",
         "repo": "modelcontextprotocol/ext-apps"
       }
+    },
+    "pulumi-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "pulumi/agent-skills"
+      }
     }
   },
   "sandbox": {
@@ -384,7 +410,8 @@
         "*.anthropic.com",
         "rspec.rubystyle.guide",
         "mcp.excalidraw.com",
-        "mcp.deepwiki.com"
+        "mcp.deepwiki.com",
+        "*.pulumi.com"
       ],
       "allowUnixSockets": [
         "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
@@ -534,6 +561,10 @@
         {
           "name": "SEMAPHORE_API_TOKEN",
           "mode": "deny"
+        },
+        {
+          "name": "PULUMI_ACCESS_TOKEN",
+          "mode": "deny"
         }
       ]
     },
@@ -549,6 +580,7 @@
       "git switch *",
       "git checkout *",
       "git worktree *",
+      "pulumi *",
       "srt *",
       "npx @anthropic-ai/sandbox-runtime *",
       "npx -y @anthropic-ai/sandbox-runtime *"

@@ -361,6 +361,38 @@ prefix_rule(
     ],
 )
 
+prefix_rule(
+    pattern = ["pulumi", "destroy"],
+    decision = "forbidden",
+    justification = "Pulumi destroy tears down all resources and is blocked. Perform the destroy manually outside Codex.",
+    match = ["pulumi destroy", "pulumi destroy --yes"],
+)
+
+prefix_rule(
+    pattern = ["pulumi", ["up", "update"]],
+    decision = "prompt",
+    justification = "Pulumi infrastructure mutation requires approval.",
+    match = ["pulumi up", "pulumi update"],
+    not_match = [
+        # The PreToolUse hook rejects this form and asks for `cd infra && pulumi up`.
+        "pulumi -C infra up",
+    ],
+)
+
+prefix_rule(
+    pattern = ["pulumi", ["cancel", "import", "refresh", "new"]],
+    decision = "prompt",
+    justification = "Pulumi state mutation requires approval.",
+    match = ["pulumi cancel", "pulumi import urn", "pulumi refresh", "pulumi new typescript"],
+)
+
+prefix_rule(
+    pattern = ["pulumi", "stack", "rm"],
+    decision = "forbidden",
+    justification = "Pulumi stack removal is destructive and is blocked. Remove stacks manually outside Codex.",
+    match = ["pulumi stack rm dev"],
+)
+
 # -----------------------------------------------------------------------------
 # Require approval: outbound / remote command tools
 # -----------------------------------------------------------------------------

@@ -247,6 +247,7 @@ dangerously_allow_all_unix_sockets = false
 "rspec.rubystyle.guide" = "allow"
 "mcp.excalidraw.com" = "allow"
 "mcp.deepwiki.com" = "allow"
+"*.pulumi.com" = "allow"
 "localhost" = "allow"
 "127.0.0.1" = "allow"
 "::1" = "allow"
@@ -542,6 +543,17 @@ for raw_argv in split_commands(command):
         sub_index, subcommand = first_subcommand(args, {"apply", "delete"})
         if subcommand is not None and sub_index != 0:
             deny("kubectl mutation must put `apply` or `delete` immediately after `kubectl` so the native approval rule cannot be bypassed. Move global flags after the subcommand.")
+
+    if exe == "pulumi":
+        sub_index, subcommand = first_subcommand(args, {"destroy"})
+        if subcommand is not None:
+            deny("Pulumi destroy is blocked as destructive. Perform the destroy manually outside Codex.")
+        stack_index, _ = first_subcommand(args, {"stack"})
+        if stack_index is not None and stack_index + 1 < len(args) and args[stack_index + 1] == "rm":
+            deny("Pulumi stack rm is blocked as destructive. Remove stacks manually outside Codex.")
+        sub_index, subcommand = first_subcommand(args, {"up", "update", "cancel", "import", "refresh", "new"})
+        if subcommand is not None and sub_index != 0:
+            deny("Pulumi mutation must use canonical `pulumi <subcommand>` form so the native approval rule cannot be bypassed. Change directory first instead of placing global options before the subcommand.")
 ''''
 timeout = 3
 
