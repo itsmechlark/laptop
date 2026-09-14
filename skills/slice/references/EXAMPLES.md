@@ -205,3 +205,40 @@ skeleton.
 The collapse: items 1 through 5 are slice 1 above. Then ask what *else* the
 feature contains beyond the first path, which is where slices 2, 3, and 4 come
 from.
+
+## Independent by value, coupled at the merge
+
+Two slices off the same skeleton, both `Depends on: none`, both shippable in
+either order — and both editing the same runtime module and its config:
+
+```
+Capture dead-letter failures
+When a deployed job exhausts its retries, I want the poison job preserved
+so an operator can investigate it instead of losing it silently.
+Ships when: a job failing past its retry budget lands in the dead-letter queue.
+Depends on: none.
+Shares files with: Serialize the scheduler — both edit the runtime jobs
+consumer, its environment types, and the worker config. Serialize: land this
+first, rebase the other.
+Risk / learning: fixes an active data-loss bug.
+```
+
+```
+Serialize the scheduler
+When a scheduled run fires while a prior one is still going, I want the scheduler
+to run exclusively so the deployed schedule is safe to turn on.
+Ships when: two overlapping scheduled runs serialize, and only one does the work.
+Depends on: none.
+Shares files with: Capture dead-letter failures — same runtime consumer,
+environment types, and worker config. Serialize behind it, or stack this PR on
+its branch.
+Risk / learning: unblocks the deployed schedule.
+```
+
+Both pass the two tests and neither waits on the other's behavior, so
+`Depends on:` is honestly `none` for both. `Shares files with:` is the field that
+stops them from being opened as two PRs off the default branch that then refuse to
+merge: the second serializes behind the first, or stacks on its branch.
+Re-cutting so one slice owned all three files was the third option, rejected
+here — the two features are genuinely separate, and folding them together would
+bury a data-loss fix inside a scheduling change.

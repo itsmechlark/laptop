@@ -11,6 +11,7 @@ description: <one line, under 120 characters — when a reader should open this>
 metadata:
   status: draft
   topic: <the join key, same as the PRD and slice list this came from>
+  part-of: <the index/umbrella spec's slug, when this spec is one slice of a set — omit for a standalone spec>
   tickets: []
   adrs: []
   repo: <the repository's name — only in ~/.agents/specs/; delete this line in a repo's own docs/specs/>
@@ -66,6 +67,14 @@ implementer needs.
 Three keys, the same block a PRD, a plan, an ADR, and a lore note carry.
 `metadata.topic` is what threads them: a spec inherits it from the PRD or slice
 list it came from, and the plan written under this spec repeats it.
+
+When a spec is one slice of a set, `part-of` names the set's index spec — the
+umbrella that carries the slice list and the build-order table. Often the index
+spec's `name` *is* the shared `topic`, so `topic` already threads the members and
+`part-of` makes the parent explicit for a reader who opened one child cold. Keep
+the dependency and merge order between members in the index's slice table and the
+`slice` list's `Shares files with:`, not copied into each child's frontmatter,
+where it goes stale the first time the set is re-cut.
 
 `description` is required and short — one line, under 120 characters, no
 wrapping. It says when someone should open the spec, not what it is titled.
@@ -138,7 +147,8 @@ confidently in the Solution is expensive.
 ## Self-check before showing the draft
 
 - [ ] `description` is one line under 120 characters, and `metadata.topic`
-      matches the PRD or slice list this came from rather than being reinvented
+      matches the PRD or slice list this came from rather than being reinvented,
+      with `part-of` naming the index spec when this is one slice of a set
 - [ ] Problem and Solution both describe a user-visible outcome, not a task
 - [ ] Every story is in the `As an <actor>, I want a <feature>, so that
       <benefit>` form, and every actor is a real one — not "the user" standing

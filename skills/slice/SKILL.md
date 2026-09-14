@@ -50,7 +50,7 @@ Once the feature is known, ask conversationally — not as a form:
 
 Listen for: vagueness about the user (the scope isn't understood yet), vagueness about done (it will expand), and whatever they flag as uncertain (that's where the risk lives). If an answer is vague, ask one follow-up before moving on. Don't slice work you don't understand.
 
-**When there's a repository in front of you, spend a few minutes in it first.** What already exists decides which slice is actually the smallest: half of a proposed skeleton is often already built, and an existing seam makes a different cut cheaper. Read the feature's neighbors and any glossary or `CONTEXT.md`, and use the project's own words. Check the rejection knowledge bases too — the repo's `.out-of-scope/` and `~/.agents/out-of-scope/` — because a slice of something already declined needs that reasoning answered before it is cut, not after. Skip it when you arrived from a workflow that already mapped the codebase. Either way this is grounding only — what you find makes the questions specific and never answers them (see [Gotchas](#gotchas)).
+**When there's a repository in front of you, spend a few minutes in it first.** What already exists decides which slice is actually the smallest: half of a proposed skeleton is often already built, and an existing seam makes a different cut cheaper. It also shows which files each candidate slice will touch — how you catch two independent-by-value slices that edit the same code before the merge does. Read the feature's neighbors and any glossary or `CONTEXT.md`, and use the project's own words. Check the rejection knowledge bases too — the repo's `.out-of-scope/` and `~/.agents/out-of-scope/` — because a slice of something already declined needs that reasoning answered before it is cut, not after. Skip it when you arrived from a workflow that already mapped the codebase. Either way this is grounding only — what you find makes the questions specific and never answers them (see [Gotchas](#gotchas)).
 
 **Move on when** you can name the person, the moment they're in, and what they'll be able to do that they can't today. Short of that, ask again.
 
@@ -107,12 +107,15 @@ Acceptance criteria:
 - [ ] [edge case or boundary]
 - [ ] [error state, if applicable]
 Depends on: [an earlier slice whose behavior must already be live, or "none"].
+Shares files with: [a sibling slice that edits the same files, and the plan — stack, serialize, or re-cut — when a repo makes this knowable; omit otherwise].
 Risk / learning: [what this slice tests or de-risks, or "low risk"].
 ```
 
 `Ships when:` is the demonstration — the one path you'd show someone to prove the slice is live. The criteria are everything that has to hold for that to be true, including the boundaries and failures nobody demos. Three placeholders is not a quota: write as many as the behavior has, and no speculative ones.
 
 `Depends on:` records **sequence, not coupling** — an earlier slice whose shipped behavior this one builds on. If a slice only makes sense once a *later* slice ships too, they aren't two slices; merge them.
+
+`Depends on:` is about *what ships when*, not *which files change* — and a slice can pass both tests, wait on nothing, and still collide at the merge. Two slices that could ship in either order but edit the same file — one runtime module, a shared config, the migration chain — conflict the moment the second opens its PR. When a repository is in front of you, compare the files each `Depends on: none` slice will touch; where two overlap, record it as **Shares files with:** on both and pick the remedy now — **stack** the second on the first, **serialize** them and rebase the second once the first lands, or **re-cut** so a single slice owns the shared file. A fan whose every slice edits the same core file is a fan on paper and a queue at the merge.
 
 Filled-in examples of every field: [EXAMPLES.md](references/EXAMPLES.md).
 
@@ -138,7 +141,7 @@ This step files nothing and specs nothing. Putting the list on a tracker is an o
 
 Once the sequence is settled, `tdd` turns one slice's acceptance criteria into a red-green-refactor cycle — one slice at a time, in the order you just justified.
 
-`fan-out` can put a slice per agent, but only across slices that all read `Depends on: none` and touch disjoint files. Parallelizing a slice that builds on one still unshipped turns a sequencing decision into a merge conflict.
+`fan-out` can put a slice per agent, but only across slices that all read `Depends on: none` **and** touch disjoint files. Two ways this bites: parallelizing a slice that builds on one still unshipped turns a sequencing decision into a merge conflict, and parallelizing two slices that edit the same files does the same even when neither depends on the other — the **Shares files with:** note is what catches the second case before dispatch.
 
 For the whole chain rather than the build alone — explore, sharpen, build test-first, review, commit — that's `feature-dev`, which calls this skill as its shaping phase. Read and follow its `SKILL.md`, or tell the user to invoke it themselves.
 
@@ -161,6 +164,8 @@ The common case is not a blank page. A slice shipped, or a build ran over its sc
 - **Past about five slices, check whether you sliced by task rather than by value.** A build order — model, then endpoint, then UI — masquerades as a slice list; collapse that and cut vertically again. It's a prompt to re-read the list against [the two tests](#2-shape-the-slices), not a cap: a quarter-sized epic can hold more, and if every entry passes both, the count is fine.
 
 - **Every slice depending on the one before it is the same tell.** Real slices fan out from the skeleton; a single chain is a plan of work wearing job-story clothes.
+
+- **A clean fan can still collide at the merge.** Independent-by-value is not independent-by-file. Slices that fan out from the skeleton but all edit the same core module, config, or migration chain ship in any order yet conflict when the second opens its PR — the `Depends on: none` was honest and the merge still broke. Record the overlap as **Shares files with:** and choose stack, serialize, or re-cut; don't discover it when the second PR won't merge.
 
 - **A stack's layers are horizontal slices, and that's fine — for a stack.** `gh-stack` teaches `models <- api <- frontend`, precisely the cut this skill rejects, because a stack orders *review* within one shippable thing and nothing mid-stack ships. So neither direction converts: a stack's layer names are not a slice list, and this sequence is not a stack — `Depends on:` means the earlier slice is already live, so the next one is a fresh PR off the default branch, not a branch layered on an open one.
 

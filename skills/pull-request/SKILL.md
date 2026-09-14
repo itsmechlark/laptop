@@ -44,6 +44,13 @@ Describe the whole branch, not just the last commit. Fetch first, then run these
 
 Read the commits and diff for the *why*. A description explains a set of changes to a reviewer — you can't write it from the last commit alone. Check for a PR template while you're there, and read the linked issue if the branch or the user names one: the problem statement usually lives there, not in the code.
 
+**Check for collisions before you open, when the branch is one of a set.** A slice cut as independent can still edit the same files as a sibling that's already open or freshly merged — independent *value* is not disjoint *files*. Compare what this branch changes against what's in flight:
+
+- `git diff --name-only origin/<base>...HEAD` — the files this PR touches
+- `gh pr list --state open --json number,headRefName,title` — then `gh pr view <n> --json files` for the siblings that plausibly overlap, not every open PR. A repo's open list is mostly unrelated work and dependency bumps; the ones worth a call are the other slices of this set, which the slice list or the branch-name prefix already names.
+
+Overlap with an **unmerged** sibling is a merge conflict in waiting, even when neither PR depends on the other's behavior. Surface the choice rather than opening blind: **stack** this PR on the sibling's branch (`--base <sibling-branch>`, [SPLITTING.md](references/SPLITTING.md)), **serialize** — open as a draft, state the merge order in Risks & rollout, and rebase once the sibling lands — or go back to `slice` and **re-cut** so one slice owns the shared file. Overlap with an **already-merged** sibling that isn't in your base means the branch is stale: rebase onto the updated base before opening.
+
 ### 2. Write the title
 
 Conventional Commits, same as a commit subject: `<type>[optional scope]: <description>`. The `git-commit` skill has the full convention — types, scope, breaking-change marker, and voice — and the PR title mirrors the commit subject.
@@ -63,6 +70,7 @@ Read your own body once before posting:
 - Testing describes test code and verification CI can't show, not a green suite.
 - No section reads as a task log ("then I also…", "addressed feedback").
 - The repo's own template sections and checkboxes are filled.
+- No unmerged sibling PR edits the same files — or if one does, the merge order is in Risks & rollout and the PR is opened as a draft.
 - Nothing fabricated: no invented issue link, reviewer, label, screenshot, or test you didn't write.
 - The whole body reads in under a minute.
 
@@ -170,7 +178,7 @@ Running the suite, lint, and type-checks before opening is still required (AGENT
 
 ### Risks & rollout
 
-Failure modes, the flag gating the change and its default, migration and rollback steps. State cross-PR dependencies plainly here too — a PR that must land after another, or needs a config value set in production before it's enabled.
+Failure modes, the flag gating the change and its default, migration and rollback steps. State cross-PR dependencies plainly here too — a PR that must land after another, whether because it builds on that PR's behavior or because the two edit the same files and would otherwise conflict, or one that needs a config value set in production before it's enabled.
 
 ## Voice and tone
 

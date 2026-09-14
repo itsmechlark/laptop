@@ -2,7 +2,7 @@
 
 When a feature was built wide — proven end to end on a throwaway branch — don't open one sprawling PR from that branch. Small PRs flow; large ones sit.
 
-**This is the recovery path**, and it salvages a branch that already holds too much. Work that is *several shippable things* was never one PR to recover — `slice` cuts that, and each slice becomes its own PR off the default branch. Stacking, below, is for something narrower: **one** shippable thing whose implementation is too large to read in a single diff, layered for the reviewer. When you know that up front, build it in layers from the start rather than splitting afterwards — `gh-stack`'s `references/stack-design.md` is blunt about why, and it comes down to there being no non-interactive way to reorder a stack once it exists.
+**This is the recovery path**, and it salvages a branch that already holds too much. Work that is *several shippable things* was never one PR to recover — `slice` cuts that, and each slice becomes its own PR off the default branch, *unless two slices edit the same files*: then they collide at the merge however independent their value, and one stacks on the other or waits — see [Stack only when a dependency is real](#stack-only-when-a-dependency-is-real). Stacking, below, is for something narrower: **one** shippable thing whose implementation is too large to read in a single diff, layered for the reviewer. When you know that up front, build it in layers from the start rather than splitting afterwards — `gh-stack`'s `references/stack-design.md` is blunt about why, and it comes down to there being no non-interactive way to reorder a stack once it exists.
 
 ## Decide the set first
 

@@ -148,7 +148,11 @@ Read these as needed during the architectural path, not all upfront.
   not at all. Prefer multiple choice when possible.
 - **Scope decomposition comes before design.** If the request describes multiple
   independent subsystems, flag it immediately — don't spend questions refining
-  details of a project that needs decomposition first.
+  details of a project that needs decomposition first. And when a chosen seam
+  would put several planned slices in the same files — a per-runtime split where
+  every feature lands in that runtime's modules — say so in the design's recorded
+  decisions, so `slice` records the shared surface instead of the team
+  discovering it at the merge.
 - **A request to skip the questions is not a request to skip the gate.** If the
   user wants the design without the interview, draft it — then mark every
   assumption you had to invent and hand it back for correction rather than
