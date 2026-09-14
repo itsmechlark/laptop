@@ -118,6 +118,15 @@ glob_scan_max_depth = 8
 "~/.cache" = "read"
 "~/.cache/rubocop_cache" = "write"
 "~/.cache/gem" = "write"
+# prisma generate calls utime() on the cached engine binaries on every run.
+# Engine downloads stay blocked regardless: binaries.prisma.sh is not an
+# allowed domain, so only already-fetched engines are reachable.
+"~/.cache/prisma" = "write"
+# wrangler's global config dir on macOS (env-paths; no override, and the
+# ~/.wrangler legacy path is only used when it already exists). It writes
+# metrics.json on every invocation to mint a device id, even with telemetry
+# off. Inert JSON: metrics, dev service registry, debug logs.
+"~/Library/Preferences/.wrangler" = "write"
 "~/.hex" = "read"
 "~/.gitconfig" = "read"
 "~/.zlogin" = "read"
