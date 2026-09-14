@@ -15,7 +15,7 @@ spec, a plan, and a lore note carry:
 name: teammate-invites
 description: How the invite loop was cut into four slices, riskiest first.
 metadata:
-  status: agreed
+  status: accepted
   topic: teammate-invites
   tickets: []
   repo: billing-api     # only in ~/.agents/slices/; omit in a repo's own docs directory
@@ -27,6 +27,17 @@ written under these slices repeats it — that is what joins the chain. The
 `description` is required and short: one line, under 120 characters, no
 wrapping, saying when someone should open the list rather than what it is
 titled.
+
+`metadata.status` moves through the lifecycle every planning artifact shares:
+`draft` (written, not yet agreed) → `accepted` (agreed; implementation may
+start) → `done` (every slice has shipped), with `superseded` when a wholesale
+re-cut replaces the list — named in the new list's `metadata.supersedes`, the
+same one-directional link `lore` and ADRs use.
+
+A list is filed only after the user has agreed the sequence, so it is born
+`accepted`; it reaches `done` when the last slice ships. Re-cutting the
+remainder in place is an edit, not a supersession — a new file is warranted
+only when the whole sequence is re-thought.
 
 **No slice count.** This skill re-cuts a list whenever one slice ships or
 overruns, and a number in the frontmatter would go stale on the first re-cut

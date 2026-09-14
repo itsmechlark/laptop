@@ -73,6 +73,15 @@ downstream copies it, and a topic chosen twice is a chain that never joins.
 `description` is required and short: one line, under 120 characters, no
 wrapping. It says when someone should open the PRD, not what it is titled.
 
+`metadata.status` moves through the lifecycle every planning artifact shares:
+`draft` (written, not yet agreed) → `accepted` (agreed; work may start) →
+`done` (the outcome it describes has shipped), with `superseded` for one a
+later PRD replaces — named in that successor's `metadata.supersedes`, the same
+one-directional link `lore` and ADRs use.
+
+A PRD is born `draft`, becomes `accepted` on confirmation, and reaches `done`
+only when the whole outcome is delivered — not when its first slice does.
+
 Two rules bound it. **The block belongs to the file, never to the delivered
 text** — a PRD published to a tracker or a wiki renders it as literal YAML under
 the user's name, so strip it there. And **the output directory's existing
@@ -149,6 +158,7 @@ researched one, and both look equally confident on the page.
 
 - [ ] `description` is one line under 120 characters, and `metadata.topic` is a
       key the whole chain under this PRD can carry
+- [ ] `metadata.status` is `draft` until the PRD is agreed, then `accepted`
 - [ ] The Problem survives deleting the proposed feature — something is still
       wrong for somebody
 - [ ] The Problem carries a frequency, a volume, or a cost, not just an adverb

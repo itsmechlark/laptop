@@ -19,12 +19,21 @@ wrapping. **The output directory's existing convention wins** — read what is
 already in the plans directory, and where those files carry a different shape or
 none, match them and say so instead of leaving two conventions in one directory.
 
+`metadata.status` moves through the lifecycle every planning artifact shares:
+`draft` (written, not yet agreed) → `accepted` (agreed; implementation may
+start) → `done` (the slice it plans has shipped), with `superseded` for one a
+successor plan replaces — named in that successor's `metadata.supersedes`, the
+same one-directional link `lore` and ADRs use.
+
+A plan is written to be executed, so it is born `accepted`; `feature-dev`, or
+whoever executes it, flips it to `done` when the slice lands.
+
 ```markdown
 ---
 name: <the slice, kebab-case>
 description: <one line, under 120 characters — when a reader should open this>
 metadata:
-  status: ready
+  status: accepted
   topic: <the join key, copied from the spec>
   spec: <docs/specs/<file>.md — or the tracker item, or the URL>
   stack: <languages, frameworks, and libraries a task will touch>

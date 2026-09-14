@@ -76,6 +76,17 @@ the dependency and merge order between members in the index's slice table and th
 `slice` list's `Shares files with:`, not copied into each child's frontmatter,
 where it goes stale the first time the set is re-cut.
 
+`metadata.status` moves through the lifecycle every planning artifact shares:
+`draft` (written, not yet agreed) → `accepted` (agreed; implementation may
+start) → `done` (the work it describes has shipped), with `superseded` for one
+a successor spec replaces — named in that successor's `metadata.supersedes`,
+the same one-directional link `lore` and ADRs use.
+
+A spec is born `draft` and becomes `accepted` on confirmation — or when
+`feature-dev` starts building from it; the build marks it `done` once its slice
+lands. Where the spec is one slice of a set, `done` is that slice shipping, and
+the index spec reaches `done` only when its last member does.
+
 `description` is required and short — one line, under 120 characters, no
 wrapping. It says when someone should open the spec, not what it is titled.
 
@@ -149,6 +160,7 @@ confidently in the Solution is expensive.
 - [ ] `description` is one line under 120 characters, and `metadata.topic`
       matches the PRD or slice list this came from rather than being reinvented,
       with `part-of` naming the index spec when this is one slice of a set
+- [ ] `metadata.status` is `draft` while unconfirmed, `accepted` once agreed
 - [ ] Problem and Solution both describe a user-visible outcome, not a task
 - [ ] Every story is in the `As an <actor>, I want a <feature>, so that
       <benefit>` form, and every actor is a real one — not "the user" standing

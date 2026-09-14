@@ -77,6 +77,8 @@ Close with a rough **size budget**: given what Phase 2 revealed, does this look 
 
 **If `slice` surfaces more than one slice, don't force it back to one story.** It takes Phase 1's size call rather than re-opening it, but pushing on the acceptance criteria can still expose scope that call missed — and then it switches to its large-feature path. Let it finish the breakdown and capture the list, then carry only the first slice in its sequence into Phase 4. The rest are Phase 7's to hand back.
 
+**If you're building from a spec, slice list, or plan still marked `draft`, flip its `metadata.status` to `accepted`.** Confirming the slice with the user is the agreement that state records; leaving it `draft` while code lands against it is the field lying.
+
 **Exit:** one job story to build now — a "ships when", verifiable criteria including rollout and migration shape, and a size call — plus any wider breakdown captured and its other slices deferred.
 
 ## Phase 4: Build it test-first
@@ -140,4 +142,5 @@ Mark the todos complete and give a short summary:
 - **Verification** — the checks you ran and their results; name anything you could not run here. For a UI slice, say where the browser pass landed: what you drove and what you saw, or that it was declined or unavailable and which criteria rest on tests alone.
 - **The commit** — subject line and SHA, and the branch it's on.
 - **Key decisions** — anything notable from slicing, testing, or review, including findings deliberately left and the production-line count against the ~300 budget (restate the justification if it ran over).
+- **Status** — the spec, slice list, or plan this built from moves to `done` when the slice ships. This workflow stops before the merge, so flip it once the slice lands — for an epic's shared list or index spec, only when the *last* slice does — and name the pending flip here if the merge is still open. A planning artifact left at `accepted` after its work shipped is the rot `lore` guards against.
 - **Next steps** — the branch is unpushed with no PR open; say so. If this was one slice of a larger epic, name the slices still waiting, and that the clean path is to merge this one before cutting the next off the default branch. Where the next slice **depends** on this unmerged one, that is a stack rather than a fresh worktree — `git-worktree`'s *Choosing the base* makes the call and `gh-stack` manages the layers. `pull-request` covers the title and description when the user is ready, and its SPLITTING.md covers the stack.
