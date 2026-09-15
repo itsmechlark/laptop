@@ -19,9 +19,13 @@ app/helpers/reservations_helper.rb          comments,rails-view,rails,ruby
 app/components/badge_component.rb           comments,rails-view,rails,ruby
 config/routes.rb                            comments,rails-controller,rails,ruby
 config/initializers/sidekiq.rb              comments,rails,ruby
-db/migrate/20260101_add.rb                  comments,rails-migration,rails,ruby
-db/schema.rb                                comments,rails-migration,rails,ruby
-db/structure.sql                            rails-migration
+db/migrate/20260101_add.rb                  comments,rails-migration,rails,ruby,schema-reference
+db/schema.rb                                comments,rails-migration,rails,ruby,schema-reference
+db/structure.sql                            rails-migration,schema-reference
+db/seeds.rb                                 comments,rails-migration,rails,ruby
+db/schema.md                                schema-reference
+packages/postgres/prisma/schema.prisma      schema-reference
+packages/postgres/prisma/schema.md          schema-reference
 config.ru                                   rails
 config/locales/en.yml                       rails
 lib/tasks/backfill.rake                     comments,ruby
