@@ -68,7 +68,7 @@ Commit the groups one at a time. For each:
 
 ### 4. Write and commit the message
 
-Write each group's message to a file and commit with `git commit -F <file>` (or repeated `-m` flags) — avoid inline heredocs/quoting that can mangle the subject/body split. Always write the temp file to `$TMPDIR`, not `/tmp`.
+Write each group's message to a file and commit with `git commit -F <file>` (or repeated `-m` flags) — avoid inline heredocs/quoting that can mangle the subject/body split. Write the temp file to `$TMPDIR` and pass the **full absolute path** to `git commit -F` — `$TMPDIR` resolves differently across shell invocations, so a variable reference in the command may not find the file you wrote.
 
 Follow [Commit message format](#commit-message-format) for the structure and [Voice and tone](#voice-and-tone) for how it should read.
 
@@ -157,7 +157,7 @@ The shape is `^([a-z0-9]+-[0-9]+-)?(feat|fix|chore|build|ci|docs|style|refactor|
 
 ## Gotchas
 
-- **Write the message file to `$TMPDIR`, never `/tmp`** — the macOS sandbox blocks `/tmp`, and a failed write surfaces as a mangled or empty commit message rather than as a permission error.
+- **Pass the full absolute path to `git commit -F`** — `$TMPDIR` resolves differently across shell invocations (the file lives at `/tmp/claude-501/` but the variable may expand to `/var/folders/…/T/`), so a `$TMPDIR` reference in the command won't find the file. Write to `$TMPDIR`, then use the resolved path in the command.
 
 - **A pre-commit hook that reformats files leaves its own fix unstaged** — the commit captures the pre-hook content, so the next commit carries a stray formatting diff. Re-stage what the hook touched and commit again; reaching for `--no-verify` hides the problem instead.
 
@@ -179,7 +179,7 @@ The shape is `^([a-z0-9]+-[0-9]+-)?(feat|fix|chore|build|ci|docs|style|refactor|
 | --- | --- |
 | A pre-commit hook rewrote files during the commit | Re-stage exactly what it touched (`git add` those paths) and commit again, so the hook's output lands in the same commit rather than the next one. |
 | A pre-commit hook fails and blocks the commit | Report what it said and fix the underlying problem. Don't `--no-verify` unless the user asked for it. |
-| The subject and body ran together, or quoting mangled the message | The message went in inline. Write it to a file under `$TMPDIR` and use `git commit -F <file>`. |
+| The subject and body ran together, or quoting mangled the message | The message went in inline. Write it to a file under `$TMPDIR` and use `git commit -F` with the full absolute path. |
 | One file's hunks belong to different groups | Write the hunks for this group to a patch and `git apply --cached <patch>`; confirm with `git diff --staged`. Interactive `git add -p` isn't available here. |
 | The repo's history doesn't use Conventional Commits | Match the repo. Its own consistent convention outranks this default — say which one you followed. |
 | Unclear which issue the change references | Omit the reference. Don't guess a number or key; ask if the repo's convention requires one. |

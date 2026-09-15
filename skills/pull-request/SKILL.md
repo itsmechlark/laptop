@@ -59,7 +59,7 @@ When the project tracks work in an issue tracker, append the key in square brack
 
 ### 3. Write the description
 
-Follow [Description format](#description-format) for the structure and [Voice and tone](#voice-and-tone) for how it should read. Write it to a file under `$TMPDIR` — you'll pass that file to the host CLI in step 5, and it keeps the body out of shell quoting.
+Follow [Description format](#description-format) for the structure and [Voice and tone](#voice-and-tone) for how it should read. Write it to a file under `$TMPDIR` and note the **full absolute path** — you'll pass that path to the host CLI in step 5. Using the resolved path rather than the `$TMPDIR` variable keeps the body out of shell quoting and sidesteps `$TMPDIR` resolving differently across shell invocations.
 
 ### 4. Self-check
 
@@ -198,7 +198,7 @@ What's specific to a PR body is the reader's position: they have the diff and do
 
 - **`--fill` throws the template away.** It builds the body out of commit messages, which is neither the repo's template nor anything the significance filter touched. Always write the body yourself and pass `--body-file`.
 
-- **Write the body file to `$TMPDIR`, never `/tmp`** — the macOS sandbox blocks `/tmp`, and a failed write surfaces as an empty PR body rather than as a permission error.
+- **Pass the full absolute path to `--body-file`** — `$TMPDIR` resolves differently across shell invocations (the file lives at `/tmp/claude-501/` but the variable may expand to `/var/folders/…/T/`), so a `$TMPDIR` reference in the `gh` command won't find the file. Write to `$TMPDIR`, then use the resolved path in `gh pr create --body-file` and `gh pr edit --body-file`.
 
 - **Run `git push` and `gh` as bare, top-level commands.** A sandbox that lets these network commands through recognizes them by their leading words (`git push …`, `gh …`), so wrapping one — `cd <dir> && git push`, `git -C <dir> push`, `git -c credential.helper=… push`, or piping its output — can break that match and silently drop the command *back inside* the sandbox, where its credentials (`~/.config/gh`, keys under `~/.ssh`) are unreadable. The failure then reads as an auth error (`403`, `could not read Username`) or `operation not permitted`, never as a sandbox message — so it looks like a permission problem when it isn't. To push from a worktree, set the directory in its own step (`cd <worktree>` alone, then a bare `git push`), and never fix an auth failure by injecting a credential helper inline — that wrapper is what caused it.
 
