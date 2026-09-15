@@ -850,6 +850,43 @@ else
   done <"$cases"
 fi
 
+# --------------------------------------------------- cursor rules generation
+
+# rules/*.md is Claude-shaped (paths:, .md). Cursor reads only .mdc scoped by a
+# bare globs: string, so `mac` renders that half with scripts/gen-cursor-rules.
+# Run the same generator into a temp dir and prove its output stays in sync with
+# the source — a translation bug would otherwise surface only on a Cursor laptop.
+fancy_echo "Checking Cursor rule generation ..."
+
+cursor_out="${TMPDIR:-/tmp}/check-payload-cursor.$$"
+rm -rf "$cursor_out"
+if ! sh scripts/gen-cursor-rules "$cursor_out" >/dev/null 2>&1; then
+  fail "scripts/gen-cursor-rules failed to render rules/ into Cursor .mdc files"
+else
+  for rule in rules/*.md; do
+    [ -f "$rule" ] || continue
+    name=$(basename "$rule" .md)
+    mdc="$cursor_out/$name.mdc"
+    if [ ! -f "$mdc" ]; then
+      fail "$rule: gen-cursor-rules produced no $name.mdc"
+      continue
+    fi
+    grep -q '^alwaysApply: false$' "$mdc" ||
+      fail "$mdc: missing 'alwaysApply: false'"
+    mdc_globs=$(sed -n 's/^globs: //p' "$mdc")
+    if [ -z "$mdc_globs" ]; then
+      fail "$mdc: has no globs: line"
+      continue
+    fi
+    # The translated globs must be exactly the source paths:, comma-joined.
+    want=$(frontmatter "$rule" | sed -n 's/^  *- *//p' | sed -e 's/"//g' -e "s/'//g" | paste -sd, -)
+    if [ "$mdc_globs" != "$want" ]; then
+      fail "$mdc: globs '$mdc_globs' does not match rules/$name.md paths '$want'"
+    fi
+  done
+fi
+rm -rf "$cursor_out"
+
 # -------------------------------------------------------------- srt shim form
 
 # bin/srt runs srt through npx. It must disambiguate the package from the command

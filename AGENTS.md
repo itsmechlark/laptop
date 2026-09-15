@@ -81,6 +81,7 @@ bin/elixir-ls-mcp       # shim → ~/.bin/elixir-ls-mcp: bridges ElixirLS MCP TC
 bin/srt                 # shim → ~/.bin/srt: npx --package=@anthropic-ai/sandbox-runtime srt
 scripts/                # verification tooling; each relocates to the repo root itself
   check-payload         # static verification of the payload (POSIX sh + jq)
+  gen-cursor-rules      # renders .cursor/rules/*.mdc from rules/*.md (mac + check-payload)
   run-trigger-evals     # runs spec/trigger-evals; needs a logged-in claude CLI
   lib/run_eval_local.py # trigger-eval engine: drives claude -p against installed skills
 spec/                   # fixtures check-payload validates and reads
@@ -104,6 +105,7 @@ skills/                 # published skills → ~/.agents/skills; first-party dir
 .cursor/                # Cursor CLI config — mirrors the same policy
   cli-config.json       # permissions.deny lists, approvalMode, attribution-off
   hooks.json            # beforeShellExecution: command log + destructive-command gate
+  rules/                # generated .mdc rules — mac renders from rules/, git-ignored
 .github/workflows/      # CI
 ```
 
@@ -130,6 +132,7 @@ skills/                 # published skills → ~/.agents/skills; first-party dir
 | `~/.codex/CONTEXT.md` | `~/.agents/CONTEXT.md` |
 | `~/.cursor/cli-config.json` | `.cursor/cli-config.json` |
 | `~/.cursor/hooks.json` | `.cursor/hooks.json` |
+| `~/.cursor/rules` | `.cursor/rules` (rendered by `mac` from `rules/` via `scripts/gen-cursor-rules`) |
 | `~/.cursor/CONTEXT.md` | `~/.agents/CONTEXT.md` |
 | `~/.srt-settings.json` | `srt-settings.json` |
 | `~/.bin/elixir-ls-mcp` | `bin/elixir-ls-mcp` |
@@ -145,11 +148,12 @@ the change is already live for every client — directories are linked, not
 copied. Why links rather than copies:
 [ADR 0001](docs/adr/0001-symlink-the-payload-instead-of-copying.md).
 
-Only three changes need `sh mac` again:
+Only four changes need `sh mac` again:
 
 1. Adding a **new top-level link**.
 2. Editing `.codex/config.toml.template` — see below.
-3. Creating `.agents/CONTEXT.md` for the first time — see below.
+3. Editing a `rules/*.md` — Cursor reads a generated copy, see below.
+4. Creating `.agents/CONTEXT.md` for the first time — see below.
 
 **Always edit via the repo path, never the home symlink.** The sandbox allows
 writes to this repository but restricts the home dotdirs (`~/.claude/`,
@@ -165,6 +169,16 @@ renders it from `.codex/config.toml.template`, then links the result; the output
 is git-ignored because Codex needs an absolute Unix-socket path and does not
 expand `~`. Edit the template and re-run `sh mac` to regenerate and relink —
 edits to the generated file are overwritten.
+
+**`.cursor/rules/` is generated, not linked to tracked files.** `rules/*.md` is
+the source of truth for every client, but Cursor loads only `.mdc` and scopes
+with a bare `globs:` string, not `paths:`. `mac` runs `scripts/gen-cursor-rules`
+to render `.cursor/rules/*.mdc` from `rules/`, then links that directory; the
+output is git-ignored like `config.toml`. Edit the `rules/*.md` and re-run `sh
+mac` to regenerate — edits to the generated `.mdc` files are overwritten. The
+Claude copy needs no re-run; it reads `rules/` through its own live symlink. Why
+generated rather than a second frontmatter key:
+[ADR 0018](docs/adr/0018-generate-cursor-rules-from-canonical-rules.md).
 
 **`.agents/CONTEXT.md` is optional and machine-local.** `mac` creates the four
 `CONTEXT.md` links only when it exists, so `sh mac` is required after you first
@@ -398,6 +412,13 @@ a derived skill carries, mirroring `rules-provenance.json` — see "Derived
 skills and rules". A rule loads on every matching path, so keep the body terse
 and push long-form material into a skill rather than growing the rule.
 
+`paths:` is the Claude Code shape and the source of truth. Cursor reads a
+generated `.cursor/rules/<name>.mdc` instead — `scripts/gen-cursor-rules`
+translates `paths:` into the bare `globs:` string Cursor wants. Author only the
+`.md`; re-run `sh mac` to refresh the Cursor copy, and `check-payload` verifies
+the two stay in sync
+([ADR 0018](docs/adr/0018-generate-cursor-rules-from-canonical-rules.md)).
+
 ### Vendored skills
 
 Third-party skills live in `.agents/skills/<name>/`, are recorded in
@@ -568,8 +589,9 @@ and description templates — use them.
   never run it casually to "check something."
 - `.gitignore` excludes `artifacts`, `*.swp`, `.claude/.cc-writes`,
   `.agents/*.local.md`, `.agents/CONTEXT.md`, `.agents/standup`,
-  `.agents/out-of-scope`, `.agents/.skills-lock.json`, and any nested `.claude`
-  directory under `.agents/` or `skills/`.
+  `.agents/out-of-scope`, `.agents/.skills-lock.json`, the two generated outputs
+  `.codex/config.toml` and `.cursor/rules`, and any nested `.claude` directory
+  under `.agents/` or `skills/`.
 - `mac` provisions nine real directories under `~/.agents/` — `standup`,
   `out-of-scope`, `lore`, `specs`, `plans`, `prds`, `slices`, `adr`, `handoffs`
   — not symlinks, because Codex's Seatbelt sandbox rejects symlinked writable

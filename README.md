@@ -52,7 +52,8 @@ less ~/laptop.log
 Keep the checkout up to date with `git pull`.
 Because `mac` links it rather than copying,
 edits to linked rules and skills take effect immediately;
-re-run `sh mac` only to pick up new packages or a newly added link.
+re-run `sh mac` only to pick up new packages, a newly added link,
+or an edited rule (Cursor reads a generated copy that `mac` refreshes).
 
 Optionally, [install thoughtbot/dotfiles][dotfiles].
 
@@ -397,12 +398,15 @@ required:
 
 ```sh
 shellcheck mac -e SC2039
-shellcheck scripts/check-payload
+shellcheck scripts/check-payload scripts/gen-cursor-rules
 sh scripts/check-payload
 ```
 
 Both must exit zero before you open a pull request; CI runs them on every PR in
 a job of their own. Warnings are advisory and may stand. Failures may not.
+`check-payload` also renders the Cursor rules with `scripts/gen-cursor-rules`
+into a temp dir and fails if a `.mdc`'s `globs:` drifts from its `rules/*.md`
+`paths:`, so an edited rule that forgets the Cursor half is caught here.
 
 A skill or rule adapted from someone else's work has to carry both halves of its
 provenance: an entry in `skills-provenance.json` or `rules-provenance.json`, and

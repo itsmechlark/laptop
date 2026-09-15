@@ -1,0 +1,51 @@
+#!/bin/sh
+
+# Render Cursor rule files (.mdc) from the canonical Claude-shaped rules/*.md.
+#
+# rules/*.md is the single source of truth: it carries `paths:` (a YAML list)
+# and Claude Code reads it directly. Cursor cannot share that file — it ignores
+# .md, reads only .mdc, and scopes with a bare comma-separated `globs:` string
+# that is invalid YAML for a **-leading pattern (a leading `*` is a YAML alias).
+# So the Cursor half is generated, the same way `mac` renders .codex/config.toml
+# from a template. `mac` runs this to produce the real output it symlinks into
+# ~/.cursor/rules; check-payload runs it into a temp dir to prove the
+# translation stays well-formed and in sync with the source.
+#
+# Usage: gen-cursor-rules [OUTDIR]   (OUTDIR defaults to .cursor/rules)
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+out="${1:-.cursor/rules}"
+
+mkdir -p "$out"
+rm -f "$out"/*.mdc
+
+for rule in rules/*.md; do
+  [ -f "$rule" ] || continue
+  name=$(basename "$rule" .md)
+
+  # paths: is a YAML sequence; Cursor's globs: is a bare comma-joined string,
+  # no quotes and no space after the comma.
+  globs=$(
+    awk 'NR == 1 && $0 != "---" { exit } NR == 1 { next } /^---$/ { exit } { print }' "$rule" |
+      sed -n 's/^  *- *//p' |
+      sed -e 's/"//g' -e "s/'//g" |
+      paste -sd, -
+  )
+
+  if [ -z "$globs" ]; then
+    printf '%s: no paths: entries to translate into Cursor globs\n' "$rule" >&2
+    exit 1
+  fi
+
+  {
+    printf -- '---\n'
+    printf 'globs: %s\n' "$globs"
+    printf 'alwaysApply: false\n'
+    printf -- '---\n'
+    # Everything after the source frontmatter, verbatim.
+    awk 'body { print } /^---$/ { c++; if (c == 2) body = 1 }' "$rule"
+  } >"$out/$name.mdc"
+done

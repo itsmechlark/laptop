@@ -28,8 +28,18 @@ size limits, resource links in both directions, anchor fragments (`#section`
 must match a heading or `<a id>`), global-standards section citations
 (`AGENTS.md §N` must resolve and name the section correctly), the `bin/srt`
 shim's disambiguated npx form (`--package=`, not a bare positional that makes srt
-wrap itself) plus valid `srt-settings.json`, and which
-`rules/` load for a given path (`spec/rules-cases.txt`).
+wrap itself) plus valid `srt-settings.json`, which
+`rules/` load for a given path (`spec/rules-cases.txt`), and that the generated
+Cursor rules stay in sync with their source.
+
+The Cursor check re-runs `scripts/gen-cursor-rules` into a temp dir — the same
+generator `mac` uses to render `.cursor/rules/*.mdc` from `rules/*.md` — and, for
+each rule, re-derives the expected `globs:` from that rule's `paths:` and
+compares. It fails if the generator errors, if an `.mdc` is missing, or if its
+`globs:` or `alwaysApply: false` line drifts from the source. `rules/*.md` is the
+canonical form; the `.mdc` set is generated and git-ignored, so this is the check
+that keeps the two dialects from diverging silently
+([ADR 0018](adr/0018-generate-cursor-rules-from-canonical-rules.md)).
 
 The vendored-edit rule is the single check that looks past `skills/`, and only
 at *which paths a commit touches* — never at a body's content. A vendored skill

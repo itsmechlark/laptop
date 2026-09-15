@@ -326,7 +326,12 @@ CURSOR_GLOBAL_DIR="$HOME/.cursor"
 mkdir -p "$CURSOR_GLOBAL_DIR"
 symlink_path "$PROJECT_DIR/.cursor/cli-config.json" "$CURSOR_GLOBAL_DIR/cli-config.json"
 symlink_path "$PROJECT_DIR/.cursor/hooks.json" "$CURSOR_GLOBAL_DIR/hooks.json"
-symlink_path "$AGENTS_GLOBAL_DIR/rules" "$CURSOR_GLOBAL_DIR/rules"
+# Cursor cannot read rules/*.md: it loads only .mdc and scopes with a bare
+# `globs:` string, not `paths:`. Render the .mdc set from the canonical rules —
+# git-ignored generated output, like .codex/config.toml — then link that.
+fancy_echo "Generating Cursor rules from rules/ ..."
+sh "$PROJECT_DIR/scripts/gen-cursor-rules" "$PROJECT_DIR/.cursor/rules"
+symlink_path "$PROJECT_DIR/.cursor/rules" "$CURSOR_GLOBAL_DIR/rules"
 symlink_path "$AGENTS_GLOBAL_DIR/skills" "$CURSOR_GLOBAL_DIR/skills"
 
 # Sandbox runtime (srt)
