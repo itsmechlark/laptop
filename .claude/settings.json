@@ -510,7 +510,8 @@
         "~/.nvm",
         "~/.rvm",
         "~/.cargo",
-        "~/Library/Preferences/.wrangler"
+        "~/Library/Preferences/.wrangler",
+        "~/.pulumi/plugins"
       ]
     },
     "credentials": {

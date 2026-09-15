@@ -139,6 +139,7 @@ glob_scan_max_depth = 8
 "~/.nvm" = "read"
 "~/.rvm" = "write"
 "~/.cargo" = "read"
+"~/.pulumi/plugins" = "read"
 "~/.ssh" = "deny"
 "~/.aws" = "deny"
 "~/.gnupg" = "deny"
