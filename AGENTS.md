@@ -616,6 +616,16 @@ and description templates — use them.
 - `skills-lock.json` at the root is the tracked file — edit that one. The
   `.agents/.skills-lock.json` symlink pointing back at it is a leftover from when
   `~/.agents` was itself a link to this repo, and is git-ignored.
+- Claude Code protects `~/.claude/projects/**` from sandboxed Bash even though
+  `sandbox.filesystem.allowWrite` lists `~/.claude` — an ordinary nested path
+  under `~/.claude` is writable, that subtree is not, and a deeper `allowWrite`
+  entry does not re-open it (verified inert). Claude's auto-memory lives there
+  (`~/.claude/projects/<slug>/memory/`), so an agent cannot `rm`-prune its own
+  memory in a sandboxed session: the Write tool reaches those files (it is
+  permission-governed, not sandboxed), `rm` does not. Retire a memory in place —
+  tombstone the body, drop its `MEMORY.md` pointer — and leave real deletion to
+  an out-of-band terminal
+  ([ADR 0018](docs/adr/0018-allow-sandboxed-pruning-of-claude-auto-memory.md)).
 - asdf is put on `PATH` via `${ASDF_DATA_DIR:-$HOME/.asdf}/shims` rather than
   sourcing `asdf.sh` — that was a deliberate fix (commit `0f46cb9`); don't
   regress it.
