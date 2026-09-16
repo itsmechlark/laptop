@@ -592,6 +592,29 @@ for raw_argv in split_commands(command):
 timeout = 3
 
 # -----------------------------------------------------------------------------
+# Plugins
+# -----------------------------------------------------------------------------
+
+[marketplaces.semaphoreio]
+source_type = "git"
+source = "https://github.com/semaphoreio/sem-ai.git"
+
+[marketplaces.mcp-apps]
+source_type = "git"
+source = "https://github.com/modelcontextprotocol/ext-apps.git"
+
+[marketplaces.pulumi-agent-skills]
+source_type = "git"
+source = "https://github.com/pulumi/agent-skills.git"
+
+[marketplaces.cloudflare]
+source_type = "git"
+source = "https://github.com/cloudflare/skills.git"
+
+[plugins."mcp-apps@mcp-apps"]
+enabled = true
+
+# -----------------------------------------------------------------------------
 # Memories
 # -----------------------------------------------------------------------------
 
