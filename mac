@@ -167,7 +167,7 @@ cask "gpg-suite-no-mail"
 
 # Databases
 brew "postgresql@17", restart_service: :changed
-brew "redis", restart_service: :changed
+brew "valkey", restart_service: :changed
 
 # Development Tools
 brew "agent-browser"

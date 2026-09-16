@@ -175,10 +175,10 @@ Programming languages, package managers, and configuration:
 Databases:
 
 * [Postgres] for storing relational data
-* [Redis] for storing key-value data
+* [Valkey] for storing key-value data
 
 [Postgres]: http://www.postgresql.org/
-[Redis]: http://redis.io/
+[Valkey]: https://valkey.io/
 
 It should take less than 15 minutes to install (depends on your machine).
 Erlang builds from source, which can add 30–60 minutes on the first run.
