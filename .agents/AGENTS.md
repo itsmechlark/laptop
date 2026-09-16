@@ -150,7 +150,7 @@ Commit messages, PR descriptions, ADRs, specs, tracker comments, and status upda
 - **Don't hard-wrap prose you submit through a tool.** Commit bodies, PR descriptions, and tracker comments are soft-wrapped by the host, so manual mid-paragraph newlines only waste width. Markdown files committed to a repository are the exception — match the wrapping already in the file.
 - **US English.** `behavior`, `license`, `judgment`, `labeled`. This governs prose you write, not identifiers you find — never "correct" a British spelling that is already a field name, a quoted source, or someone else's ticket title. A project that writes British English says so in its own `AGENTS.md`, and that overrides this.
 
-Audience sets the vocabulary and the length, never the honesty (§3). `git-commit`, `pull-request`, `draft-spec`, `standup`, and `triage` each apply this to their own artifact.
+Audience sets the vocabulary and the length, never the honesty (§3). `git-commit`, `pull-request`, `draft-spec`, `standup`, and `triage` each apply this to their own artifact. The bullets above are the standard; the full taxonomy behind them — the banned-word list, the named patterns, and a gate to run a draft against — is in the `sharpen-prose` skill, whose `references/` files are worth reading when prose reads wrong and the tell isn't named here.
 
 This section governs prose a person reads. Files written for a model to read — skill bodies, `rules/`, instruction files like this one — are exempt, and a word that would look like a tell in a PR description is not a defect to fix in one of them.
 

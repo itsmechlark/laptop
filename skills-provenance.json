@@ -638,6 +638,21 @@
           "note": "INITIAL PIN. Source is in-progress upstream. Adapted into a full skill: added structured summary format, when-to-use boundaries (vs fan-out), gotchas for background-agent limitations, and the report step. Since renamed from claude-handoff and generalized past Claude Code — the handoff became a dated artifact under docs/handoffs/ with a ~/.agents/handoffs/ fallback, and the launch step became client-agnostic across Claude Code, Codex, and Cursor (ADR 0016). Upstream remains Claude-only, so the divergence is wide; reconcile for ideas rather than by porting."
         }
       ]
+    },
+    "sharpen-prose": {
+      "sources": [
+        {
+          "origin": "petergyang/no-ai-slop",
+          "type": "github",
+          "url": "https://github.com/petergyang/no-ai-slop",
+          "path": "skills/no-ai-slop",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "000650b156983f5159695b441477f4e63b25dc85",
+          "reviewed": "2026-09-16",
+          "note": "INITIAL PIN. Every sentence is ours; what came from upstream is the taxonomy — the banned-word list, the eighteen named patterns, the edit/detect mode split, and the pass/fail gate that eval.md establishes. Classified adapted rather than inspired-by because that word list and pattern set are the part likely to grow upstream, and a ref is the only way to notice. Divergences to preserve on reconcile: the carve-out that voice preservation is inert on a generated draft (upstream assumes a human author throughout), examples rewritten around engineering artifacts instead of blog copy, the taxonomy positioned as the long form behind AGENTS.md §8 rather than a standalone standard, and eval.md recast as references/CHECKLIST.md with a self-directed robotic-rhythm check. Reconcile by porting new words and patterns into references/PATTERNS.md, not by adopting upstream's prose."
+        }
+      ]
     }
   }
 }
