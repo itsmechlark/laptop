@@ -208,7 +208,8 @@ glob_scan_max_depth = 8
 
 [permissions.developer.network]
 enabled = true
-mode = "limited"
+# Match Claude: restrict hosts, not HTTP methods on allowed hosts.
+mode = "full"
 # Preserves the supplied Claude setting for local-development workflows.
 # This is broader than the default Codex local/private-network guard.
 allow_local_binding = true
@@ -324,33 +325,56 @@ def split_commands(script, depth=0):
     if depth > 3:
         return []
 
-    try:
-        lexer = shlex.shlex(script, posix=True, punctuation_chars=";&|")
-        lexer.whitespace_split = True
-        lexer.commenters = ""
-        tokens = list(lexer)
-    except ValueError:
-        return []
-
     segments = []
     current = []
-    for token in tokens:
-        if token and all(ch in ";&|" for ch in token):
+    quote = None
+    index = 0
+    while index < len(script):
+        char = script[index]
+        if char == "\\" and quote != chr(39) and index + 1 < len(script):
+            if script[index + 1] != "\n":
+                current.extend(script[index:index + 2])
+            index += 2
+            continue
+        if char in {chr(34), chr(39)}:
+            if quote is None:
+                quote = char
+            elif quote == char:
+                quote = None
+        if quote is None and char == "#" and (not current or current[-1].isspace()):
+            newline = script.find("\n", index)
+            index = len(script) if newline == -1 else newline
+            continue
+        if quote is None and char in ";&|\n":
+            start = index
+            while index < len(script) and script[index] in ";&|\n":
+                index += 1
             if current:
-                segments.append(current)
+                segments.append(("".join(current), script[start:index]))
                 current = []
+            continue
         else:
-            current.append(token)
+            current.append(char)
+        index += 1
     if current:
-        segments.append(current)
+        segments.append(("".join(current), ""))
+
+    try:
+        segments = [(shlex.split(source), separator) for source, separator in segments]
+    except ValueError as error:
+        deny("Cannot parse the shell command for policy checks: " + str(error))
 
     result = []
-    for argv in segments:
+    downloaded_input = False
+    for argv, separator in segments:
         result.append(argv)
         normalized = normalize_argv(argv)
         if not normalized:
             continue
         exe = os.path.basename(normalized[0])
+        if downloaded_input and exe in {"sh", "bash", "zsh"}:
+            deny("Piping downloaded code to a shell interpreter is blocked. Download it for review before running it.")
+        downloaded_input = (downloaded_input or exe in {"curl", "wget"}) and separator.rstrip("\n") in {"|", "|&"}
         if exe not in {"sh", "bash", "zsh"}:
             continue
         for index, token in enumerate(normalized[1:], start=1):
@@ -579,6 +603,9 @@ use_memories = true
 # -----------------------------------------------------------------------------
 # Telemetry
 # -----------------------------------------------------------------------------
+
+[analytics]
+enabled = false
 
 [otel]
 log_user_prompt = false

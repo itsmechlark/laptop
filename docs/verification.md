@@ -145,6 +145,20 @@ Two checks are worth understanding before you change them:
 
 Warnings never fail the run. Failures always do.
 
+## Command policy regression tests
+
+Run `python3 spec/codex_policy_test.py -v` with Python 3.11 or newer and `jq`.
+The payload CI job runs the same tests separately from `check-payload`.
+They load the tracked Codex template and Cursor hooks and pass synthetic tool
+input through their command hooks. The supplied commands are never executed;
+the Codex command log is isolated in a temporary home directory.
+
+These tests cover multiline command boundaries, shell quoting, line
+continuations, download pipelines, parse failures, and safe commands that must
+remain available. They verify hook decisions, not the clients' full approval
+flow or OS sandbox. Use the `codex-config` validator and `codex sandbox` for
+configuration loading and runtime permission checks when changing that policy.
+
 ## Spelling
 
 `cspell` reads `cspell.json` at the root and checks Markdown, shell, JSON, and

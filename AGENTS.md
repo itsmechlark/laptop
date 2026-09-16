@@ -17,8 +17,8 @@ Two things live here:
    Code, Codex, and Cursor are three front-ends over one shared policy — see
    "Agent-client configuration parity".
 
-There is no build step, no package manager, and no application code. The only
-language is POSIX shell plus Markdown.
+There is no build step, no package manager, and no application code.
+Provisioning uses POSIX shell; verification also uses Python.
 
 The vocabulary this document leans on — `payload`, `published payload`,
 `first-party`, `flagged` — is defined in [`CONTEXT.md`](CONTEXT.md). Decisions
@@ -84,7 +84,8 @@ scripts/                # verification tooling; each relocates to the repo root 
   gen-cursor-rules      # renders .cursor/rules/*.mdc from rules/*.md (mac + check-payload)
   run-trigger-evals     # runs spec/trigger-evals; needs a logged-in claude CLI
   lib/run_eval_local.py # trigger-eval engine: drives claude -p against installed skills
-spec/                   # fixtures check-payload validates and reads
+spec/                   # verification tests and fixtures
+  codex_policy_test.py   # offline command-hook regressions (Python 3.11+ and jq)
   rules-cases.txt       # path -> which rules/ load for it
   invocability-fixture/ # deliberate violations; proves the check still fires
   orphan-fixture/       # unreachable references + stale anchors; proves the checks fire
@@ -240,13 +241,14 @@ Cursor's gaps, recorded here rather than dropped:
 
 ## Testing instructions
 
-There is no unit test suite. Verification is lint, a spell check, and a real run
+Verification is command-hook regression tests, lint, a spell check, and a real run
 — for the provisioner *and* for the payload it ships.
 
 ```sh
 shellcheck mac -e SC2039     # must be clean; SC2039 is excluded deliberately
 shellcheck scripts/check-payload     # must be clean; no exclusions
 sh scripts/check-payload             # static verification of skills/, rules/, clients
+python3 spec/codex_policy_test.py -v  # offline hook decisions; Python 3.11+ and jq
 sh scripts/check-payload --collisions  # report: which descriptions share vocabulary
 cspell lint --no-progress --dot "**/*"  # spelling; must be clean, CI enforces it
 ```
@@ -258,7 +260,8 @@ CI (`.github/workflows/tests.yml`, on push to `main`, every PR, and
 
 **`payload`** — `ubuntu-latest`, seconds, no Homebrew. Shellchecks
 `check-payload` and runs it (on PRs with `--since origin/<base>` for the
-vendored-edit check). Closes with the spell check — `cspell` comes from npm,
+vendored-edit check), plus the command-hook regression tests. Closes with the
+spell check — `cspell` comes from npm,
 pinned to the major `mac` installs from Homebrew.
 
 **`tests`** — the matrix of `macos-26` and `macos-15` with `fail-fast: false`:
@@ -310,8 +313,9 @@ always do.
 
 Same shell conventions as `mac` — `#!/bin/sh`, two-space indent, `fancy_echo`.
 Both wrappers `cd` to the repo root, so paths are repo-relative from any
-working directory. `scripts/lib/run_eval_local.py` is the one non-shell piece —
-Python parsing `claude -p` stream-json; keep it self-contained (stdlib only).
+working directory. `scripts/lib/run_eval_local.py` uses Python to parse
+`claude -p` stream-json; `spec/codex_policy_test.py` exercises command hooks.
+Keep both stdlib-only.
 
 `scripts/check-payload` differs from `mac` in two deliberate ways:
 

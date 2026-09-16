@@ -400,13 +400,20 @@ required:
 shellcheck mac -e SC2039
 shellcheck scripts/check-payload scripts/gen-cursor-rules
 sh scripts/check-payload
+python3 spec/codex_policy_test.py -v
 ```
 
-Both must exit zero before you open a pull request; CI runs them on every PR in
+All must exit zero before you open a pull request; CI runs them on every PR in
 a job of their own. Warnings are advisory and may stand. Failures may not.
 `check-payload` also renders the Cursor rules with `scripts/gen-cursor-rules`
 into a temp dir and fails if a `.mdc`'s `globs:` drifts from its `rules/*.md`
 `paths:`, so an edited rule that forgets the Cursor half is caught here.
+
+The command-policy tests require Python 3.11 or newer and `jq`. They feed
+synthetic commands to the Codex and Cursor hooks without executing those
+commands, checking multiline input, quoted text, and download-to-shell denials.
+Run one regression with `python3 spec/codex_policy_test.py
+CodexPolicyTest.test_newline_does_not_hide_force_push`.
 
 A skill or rule adapted from someone else's work has to carry both halves of its
 provenance: an entry in `skills-provenance.json` or `rules-provenance.json`, and
