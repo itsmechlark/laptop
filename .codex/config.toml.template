@@ -7,8 +7,8 @@
 # path there (no ~ expansion). Edit the template, not the generated file, then
 # re-run `sh mac`.
 
-model = "gpt-5.6"
-model_reasoning_effort = "high"
+model = "gpt-5.6-sol"
+model_reasoning_effort = "medium"
 plan_mode_reasoning_effort = "high"
 
 approval_policy = "on-request"
