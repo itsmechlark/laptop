@@ -14,7 +14,6 @@ plan_mode_reasoning_effort = "high"
 approval_policy = "on-request"
 approvals_reviewer = "user"
 default_permissions = "developer"
-sandbox_mode = "workspace-write"
 
 allow_login_shell = true
 
@@ -271,6 +270,279 @@ dangerously_allow_all_unix_sockets = false
 # the sandbox.
 [permissions.developer.network.unix_sockets]
 "__HOME__/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock" = "allow"
+
+# -----------------------------------------------------------------------------
+# MCP servers
+# -----------------------------------------------------------------------------
+
+[mcp_servers.elixir-ls]
+command = "elixir-ls-mcp"
+args = ["4328"]
+
+[mcp_servers."chrome-devtools"]
+command = "npx"
+args = ["-y", "chrome-devtools-mcp@latest"]
+env = { ASDF_NODEJS_VERSION = "v22.23.2" }
+disabled_tools = ["evaluate_script", "upload_file"]
+
+[mcp_servers."chrome-devtools".tools.new_page]
+approval_mode = "prompt"
+
+[mcp_servers.deepwiki]
+url = "https://mcp.deepwiki.com/mcp"
+
+[mcp_servers.excalidraw]
+url = "https://mcp.excalidraw.com/mcp"
+
+[mcp_servers."firefox-devtools"]
+command = "npx"
+args = ["-y", "@mozilla/firefox-devtools-mcp@latest"]
+env = { ASDF_NODEJS_VERSION = "v22.23.2", START_URL = "about:blank" }
+disabled_tools = ["evaluate_script", "upload_file_by_uid"]
+
+[mcp_servers."firefox-devtools".tools.new_page]
+approval_mode = "prompt"
+
+[mcp_servers."firefox-devtools".tools.install_extension]
+approval_mode = "prompt"
+
+[mcp_servers."firefox-devtools".tools.uninstall_extension]
+approval_mode = "prompt"
+
+[mcp_servers."firefox-devtools".tools.restart_firefox]
+approval_mode = "prompt"
+
+[mcp_servers.pulumi]
+command = "npx"
+args = ["-y", "mcp-remote", "https://mcp.ai.pulumi.com/mcp"]
+disabled_tools = ["deploy-to-aws", "neo-task-launcher", "neo-bridge", "pulumi-cli-up"]
+
+[mcp_servers.pulumi.tools."neo-continue-task"]
+approval_mode = "prompt"
+
+[mcp_servers.pulumi.tools."neo-reset-conversation"]
+approval_mode = "prompt"
+
+[mcp_servers.pulumi.tools."pulumi-cli-refresh"]
+approval_mode = "prompt"
+
+[mcp_servers.safari]
+command = "/usr/bin/safaridriver"
+args = ["--mcp"]
+disabled_tools = ["evaluate_script"]
+
+[mcp_servers."smartbear-bugsnag"]
+url = "https://bugsnag.mcp.smartbear.com/mcp"
+
+[mcp_servers."smartbear-bugsnag".tools.bugsnag_update_error]
+approval_mode = "prompt"
+
+# Claude exposes these connector/plugin tools as MCP namespaces. Codex models
+# connected app tools separately from explicit MCP servers, so mirror Claude's
+# deny/ask lists with per-tool app policy keyed by the surfaced namespace.
+[apps."plugin_mongodb_mongodb".tools."drop-database"]
+enabled = false
+
+[apps."plugin_mongodb_mongodb".tools."drop-collection"]
+enabled = false
+
+[apps."plugin_sem-ai_sem-ai".tools.project_delete]
+enabled = false
+
+[apps."plugin_sem-ai_sem-ai".tools.secret_delete]
+enabled = false
+
+[apps."plugin_sem-ai_sem-ai".tools.deploy_delete]
+enabled = false
+
+[apps."plugin_sem-ai_sem-ai".tools.agent_delete]
+enabled = false
+
+[apps."plugin_sem-ai_sem-ai".tools.group_delete]
+enabled = false
+
+[apps."plugin_sem-ai_sem-ai".tools.org_role_delete]
+enabled = false
+
+[apps."plugin_sem-ai_sem-ai".tools.notification_delete]
+enabled = false
+
+[apps."plugin_sem-ai_sem-ai".tools.task_delete]
+enabled = false
+
+[apps."plugin_sem-ai_sem-ai".tools."service-account_delete"]
+enabled = false
+
+[apps."plugin_sem-ai_sem-ai".tools.org_member_remove]
+enabled = false
+
+[apps."plugin_sem-ai_sem-ai".tools.project_member_remove]
+enabled = false
+
+[apps.github.tools.delete_file]
+enabled = false
+
+[apps.github.tools.delete_repository]
+enabled = false
+
+[apps."plugin_atlassian_atlassian".tools.createJiraIssue]
+approval_mode = "prompt"
+
+[apps."plugin_atlassian_atlassian".tools.editJiraIssue]
+approval_mode = "prompt"
+
+[apps."plugin_atlassian_atlassian".tools.addCommentToJiraIssue]
+approval_mode = "prompt"
+
+[apps."plugin_atlassian_atlassian".tools.transitionJiraIssue]
+approval_mode = "prompt"
+
+[apps."plugin_atlassian_atlassian".tools.createIssueLink]
+approval_mode = "prompt"
+
+[apps."plugin_atlassian_atlassian".tools.addWorklogToJiraIssue]
+approval_mode = "prompt"
+
+[apps."plugin_atlassian_atlassian".tools.createConfluencePage]
+approval_mode = "prompt"
+
+[apps."plugin_atlassian_atlassian".tools.updateConfluencePage]
+approval_mode = "prompt"
+
+[apps."plugin_atlassian_atlassian".tools.createConfluenceFooterComment]
+approval_mode = "prompt"
+
+[apps."plugin_atlassian_atlassian".tools.createConfluenceInlineComment]
+approval_mode = "prompt"
+
+[apps."plugin_sem-ai_sem-ai".tools.pipeline_promote]
+approval_mode = "prompt"
+
+[apps."plugin_sem-ai_sem-ai".tools.deploy_deactivate]
+approval_mode = "prompt"
+
+[apps."plugin_sem-ai_sem-ai".tools."service-account_deactivate"]
+approval_mode = "prompt"
+
+[apps."plugin_sem-ai_sem-ai".tools.secret_update]
+approval_mode = "prompt"
+
+[apps."plugin_sem-ai_sem-ai".tools.deploy_update]
+approval_mode = "prompt"
+
+[apps."plugin_sem-ai_sem-ai".tools.deploy_create]
+approval_mode = "prompt"
+
+[apps."plugin_sem-ai_sem-ai".tools."org_member_set-role"]
+approval_mode = "prompt"
+
+[apps."plugin_sem-ai_sem-ai".tools."project_member_set-role"]
+approval_mode = "prompt"
+
+[apps."plugin_sem-ai_sem-ai".tools.org_role_create]
+approval_mode = "prompt"
+
+[apps."plugin_sem-ai_sem-ai".tools.org_role_update]
+approval_mode = "prompt"
+
+[apps."plugin_sem-ai_sem-ai".tools."service-account_regenerate-token"]
+approval_mode = "prompt"
+
+[apps."plugin_sem-ai_sem-ai".tools.project_update]
+approval_mode = "prompt"
+
+[apps.github.tools.actions_run_trigger]
+approval_mode = "prompt"
+
+[apps.github.tools.assign_copilot_to_issue]
+approval_mode = "prompt"
+
+[apps.github.tools.request_copilot_review]
+approval_mode = "prompt"
+
+[apps.github.tools.assign_copilot_to_issue_with_intent]
+approval_mode = "prompt"
+
+[apps.github.tools.discussion_comment_write]
+approval_mode = "prompt"
+
+[apps.github.tools.create_gist]
+approval_mode = "prompt"
+
+[apps.github.tools.update_gist]
+approval_mode = "prompt"
+
+[apps.github.tools.add_issue_comment]
+approval_mode = "prompt"
+
+[apps.github.tools.issue_write]
+approval_mode = "prompt"
+
+[apps.github.tools.sub_issue_write]
+approval_mode = "prompt"
+
+[apps.github.tools.label_write]
+approval_mode = "prompt"
+
+[apps.github.tools.dismiss_notification]
+approval_mode = "prompt"
+
+[apps.github.tools.manage_notification_subscription]
+approval_mode = "prompt"
+
+[apps.github.tools.manage_repository_notification_subscription]
+approval_mode = "prompt"
+
+[apps.github.tools.mark_all_notifications_read]
+approval_mode = "prompt"
+
+[apps.github.tools.projects_write]
+approval_mode = "prompt"
+
+[apps.github.tools.add_comment_to_pending_review]
+approval_mode = "prompt"
+
+[apps.github.tools.add_reply_to_pull_request_comment]
+approval_mode = "prompt"
+
+[apps.github.tools.create_pull_request]
+approval_mode = "prompt"
+
+[apps.github.tools.merge_pull_request]
+approval_mode = "prompt"
+
+[apps.github.tools.pull_request_review_write]
+approval_mode = "prompt"
+
+[apps.github.tools.update_pull_request]
+approval_mode = "prompt"
+
+[apps.github.tools.update_pull_request_branch]
+approval_mode = "prompt"
+
+[apps.github.tools.create_pull_request_with_copilot]
+approval_mode = "prompt"
+
+[apps.github.tools.create_branch]
+approval_mode = "prompt"
+
+[apps.github.tools.create_or_update_file]
+approval_mode = "prompt"
+
+[apps.github.tools.create_repository]
+approval_mode = "prompt"
+
+[apps.github.tools.fork_repository]
+approval_mode = "prompt"
+
+[apps.github.tools.push_files]
+approval_mode = "prompt"
+
+[apps.github.tools.star_repository]
+approval_mode = "prompt"
+
+[apps.github.tools.unstar_repository]
+approval_mode = "prompt"
 
 # -----------------------------------------------------------------------------
 # Lifecycle hooks

@@ -45,7 +45,8 @@
       "pypi.org",
       "files.pythonhosted.org",
       "mcp.excalidraw.com",
-      "mcp.deepwiki.com"
+      "mcp.deepwiki.com",
+        "*.pulumi.com"
     ],
     "deniedDomains": [],
     "allowUnixSockets": [
