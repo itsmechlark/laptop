@@ -653,6 +653,43 @@
           "note": "INITIAL PIN. Every sentence is ours; what came from upstream is the taxonomy — the banned-word list, the eighteen named patterns, the edit/detect mode split, and the pass/fail gate that eval.md establishes. Classified adapted rather than inspired-by because that word list and pattern set are the part likely to grow upstream, and a ref is the only way to notice. Divergences to preserve on reconcile: the carve-out that voice preservation is inert on a generated draft (upstream assumes a human author throughout), examples rewritten around engineering artifacts instead of blog copy, the taxonomy positioned as the long form behind AGENTS.md §8 rather than a standalone standard, and eval.md recast as references/CHECKLIST.md with a self-directed robotic-rhythm check. Reconcile by porting new words and patterns into references/PATTERNS.md, not by adopting upstream's prose."
         }
       ]
+    },
+    "github-actions": {
+      "sources": [
+        {
+          "origin": "github/awesome-copilot",
+          "type": "github",
+          "url": "https://github.com/github/awesome-copilot",
+          "path": "skills/github-actions-hardening",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "4f4796f0bf30e105700f97ed8408c12b6aa95e06",
+          "reviewed": "2026-09-18",
+          "note": "Folded upstream's github-actions-hardening into the Security axis of a single first-party skill on 2026-09-18, consolidating its five references (triggers-and-privilege, injection, permissions-and-tokens, supply-chain, report-format) into references/SECURITY.md plus a shared references/REPORT.md serving both axes. DELIBERATE DIVERGENCE: the authoring-time conventions upstream carries as Steps 4-5 (set permissions:, SHA-pin third-party actions) were moved OUT of the skill into rules/github-actions.md, because they apply unprompted whenever a workflow file is edited and a skill only loads on request. Do not let a reconcile restore them here — the skill audits against those conventions, it does not state them. Upstream's emoji severity markers were dropped for plain words. Was vendored verbatim in skills-lock.json until this date; that lock entry was removed in the same change."
+        },
+        {
+          "origin": "github/awesome-copilot",
+          "type": "github",
+          "url": "https://github.com/github/awesome-copilot",
+          "path": "skills/github-actions-efficiency",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "4f4796f0bf30e105700f97ed8408c12b6aa95e06",
+          "reviewed": "2026-09-18",
+          "note": "Folded upstream's github-actions-efficiency into the Cost axis on 2026-09-18: its measure-guardrails-rank loop, five safe-change guardrails, matrix-breadth guidance, and live-validation rules became references/COST.md, and its reporting.md honesty rules were kept largely intact. DELIBERATE DIVERGENCE: upstream's review-rubric.md (a self-assessment of the skill's own output) was NOT imported — it scores scope discipline and token efficiency, which this payload checks at build time rather than asking the model to grade itself. Upstream also answers 'no workflows exist yet' by defining a baseline workflow; that path was narrowed to gathering requirements, because authoring belongs to rules/github-actions.md. Was vendored verbatim in skills-lock.json until this date."
+        },
+        {
+          "origin": "github/awesome-copilot",
+          "type": "github",
+          "url": "https://github.com/github/awesome-copilot",
+          "path": "skills/create-github-action-workflow-specification",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "4f4796f0bf30e105700f97ed8408c12b6aa95e06",
+          "reviewed": "2026-09-18",
+          "note": "Source of the section inventory behind references/DOCUMENTING.md on 2026-09-18 — specifically the mermaid execution-flow diagram (with its sequential/parallel/conditional forms and the subgraph threshold for larger pipelines), Related Specifications, secrets-and-variables, error handling, quality gates, and integration points. HEAVILY REDUCED: upstream's twenty fill-in headings were filtered against 'does the YAML already say this', which dropped Trigger Events, Execution Constraints, Runtime/Environmental Constraints, Version History (git has it), and the ID-numbered Requirements Matrix, Validation Criteria, and Performance Benchmarks (REQ-001/VLD-001/PERF-001 tables nobody maintains). Quality Gates was recast as Required checks because the fact that is genuinely absent from the YAML is branch protection. DELIBERATE DIVERGENCE: upstream writes to /spec/spec-process-cicd-<name>.md with six frontmatter keys; this writes a companion beside .github/workflows/ with none, because it is a committed repo document rather than one of ADR 0013's authored artifacts, and it stops rather than creating a directory the repo never opted into. Upstream's mermaid style fills were dropped. The skill itself was NOT vendored forward — its lock entry was removed on this date and only the section inventory survives."
+        }
+      ]
     }
   }
 }

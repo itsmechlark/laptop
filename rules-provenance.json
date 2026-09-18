@@ -63,6 +63,32 @@
         }
       ]
     },
+    "github-actions": {
+      "sources": [
+        {
+          "origin": "github/awesome-copilot",
+          "type": "github",
+          "url": "https://github.com/github/awesome-copilot",
+          "path": "skills/github-actions-hardening",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "4f4796f0bf30e105700f97ed8408c12b6aa95e06",
+          "reviewed": "2026-09-18",
+          "note": "Distilled the authoring-time half of upstream's github-actions-hardening into a path-scoped rule on 2026-09-18: the env:-rewrite for ${{ }} injection sinks, the explicit permissions: floor, the privileged-trigger prohibition, SHA-pinning, persist-credentials, secret hygiene, OIDC, and self-hosted runner exposure. DELIBERATE SPLIT: upstream ships this as a review skill; the conventions live here because they apply unprompted whenever a workflow file is opened, and the audit half stayed in the github-actions skill. A reconcile should route new authoring conventions here and new audit procedure there — not merge the two back together."
+        },
+        {
+          "origin": "github/awesome-copilot",
+          "type": "github",
+          "url": "https://github.com/github/awesome-copilot",
+          "path": "skills/github-actions-runtime-upgrade-conventions",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "4f4796f0bf30e105700f97ed8408c12b6aa95e06",
+          "reviewed": "2026-09-18",
+          "note": "Upstream's whole skill collapsed into two bullets of this rule on 2026-09-18 — latest stable major resolved to a SHA, one action per commit, re-run the workflow and read the log for new deprecation warnings. It was never a skill by this payload's definition: no request loads it, it fires when someone edits a workflow. DELIBERATE DIVERGENCE: upstream's PR-summary template and its 'how this complements Dependabot' section were dropped — pull-request owns the former, and the Dependabot recommendation lives in the github-actions skill's supply-chain findings. Was vendored verbatim in skills-lock.json until this date."
+        }
+      ]
+    },
     "rails": {
       "sources": [
         {

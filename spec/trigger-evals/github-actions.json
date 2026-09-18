@@ -1,0 +1,22 @@
+[
+  {"query": "review my CI — are these workflows actually safe? we just made the repo public", "should_trigger": true},
+  {"query": "our github actions bill went up 3x this quarter. work out what's burning minutes", "should_trigger": true},
+  {"query": "audit .github/workflows for security problems and give me the findings by severity", "should_trigger": true},
+  {"query": "why is pull_request_target dangerous here? we use it on the triage workflow to label PRs", "should_trigger": true},
+  {"query": "which of our jobs are wasting runner time? top 3, i don't want a wishlist", "should_trigger": true},
+  {"query": "is this workflow safe to merge — it downloads an artifact built from a fork PR", "should_trigger": true},
+  {"query": "we have 6 workflows and nobody knows which one gates which. document the pipeline", "should_trigger": true},
+  {"query": "go through our workflows and tell me which jobs have more GITHUB_TOKEN scope than they use", "should_trigger": true},
+  {"query": "add a CI workflow that runs rspec and rubocop on every PR", "should_trigger": false},
+  {"query": "bump actions/checkout to the latest major across all our workflows", "should_trigger": false},
+  {"query": "write a composite action that caches our bundler deps", "should_trigger": false},
+  {"query": "explain how the release workflow works, i inherited this repo last week", "should_trigger": false},
+  {"query": "review this branch before i merge it — does it follow the conventions we use here?", "should_trigger": false},
+  {"query": "did i introduce a vulnerability in the webhook receiver i just wrote?", "should_trigger": false},
+  {"query": "write the PR description for this change, it touches three workflows", "should_trigger": false},
+  {"query": "our test suite takes 11 minutes locally. speed it up", "should_trigger": false},
+  {"query": "the deploy job failed with a 403 from AWS on the last run. work out why", "should_trigger": false},
+  {"query": "set up dependabot for our npm dependencies", "should_trigger": false},
+  {"query": "is there an n+1 in the availability endpoint? it goes slow under load", "should_trigger": false},
+  {"query": "spec out the new billing flow, we agreed the approach yesterday", "should_trigger": false}
+]
