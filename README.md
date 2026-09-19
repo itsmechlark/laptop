@@ -111,6 +111,7 @@ GitHub tools:
 
 Development tools:
 
+* [actionlint] for validating GitHub Actions workflow files
 * [Agent Browser] for browser automation from agent workflows
 * [CSpell] for spell-checking code and prose
 * [ElixirLS] for Elixir language-server support in editors.
@@ -125,6 +126,7 @@ Development tools:
 * [1Password CLI] for reading secrets without pasting them
 * [Claude Code] and [Codex] for agentic coding
 
+[actionlint]: https://github.com/rhysd/actionlint
 [Agent Browser]: https://agent-browser.dev
 [CSpell]: https://cspell.org
 [ElixirLS]: https://github.com/elixir-lsp/elixir-ls

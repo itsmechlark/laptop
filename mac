@@ -170,6 +170,7 @@ brew "postgresql@17", restart_service: :changed
 brew "valkey", restart_service: :changed
 
 # Development Tools
+brew "actionlint"
 brew "agent-browser"
 brew "cspell"
 brew "elixir-ls"
