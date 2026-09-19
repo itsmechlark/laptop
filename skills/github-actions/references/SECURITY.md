@@ -21,6 +21,14 @@ missing and switches to `pull_request_target` — handing a write token and ever
 secret to arbitrary contributors. Read a `pull_request_target` as evidence
 someone already hit this.
 
+One repository setting reopens the fork row without any `pull_request_target`:
+**Settings → Actions → General → "Send secrets to workflows from fork pull
+requests"** and its write-token companion. Both are off by default; if either is
+on, fork `pull_request` runs get secrets or a write token and the row is no
+longer low-risk. It is an Actions-settings finding, not a YAML one, so it belongs
+in its own recommendation rather than mixed with a workflow edit — the user
+changes it in the UI, and only they can.
+
 ### Why `pull_request_target` is dangerous
 
 It checks out the *base* repository's workflow definition, so a fork cannot
@@ -128,6 +136,37 @@ expression points at, and rewrite any that a non-collaborator can set.
 Server-controlled values — `github.actor`, `github.repository`, `github.sha` —
 are not attacker-set, though the `env:` rewrite costs nothing there either.
 
+### The other sink: `$GITHUB_ENV` and `$GITHUB_OUTPUT`
+
+A step does not have to interpolate `${{ }}` to inject. Appending
+attacker-controlled data to the `$GITHUB_ENV` or `$GITHUB_OUTPUT` files sets
+variables that *every later step in the job* runs under, and a multiline value
+carries its own `KEY=value` lines:
+
+```yaml
+# VULNERABLE — a PR body of "innocent\nLD_PRELOAD=/tmp/evil.so" sets LD_PRELOAD
+- run: echo "TITLE=${{ github.event.pull_request.body }}" >> "$GITHUB_ENV"
+```
+
+The classic payloads are `LD_PRELOAD`, `NODE_OPTIONS`, and `PATH` — each turns a
+later step's normal command into code execution. The fix is a heredoc with a
+random delimiter the value cannot guess, so injected newlines cannot close it:
+
+```yaml
+- env:
+    BODY: ${{ github.event.pull_request.body }}
+  run: |
+    {
+      echo "TITLE<<__EOF_$(openssl rand -hex 16)__"
+      echo "$BODY"
+      echo "__EOF_$(openssl rand -hex 16)__"
+    } >> "$GITHUB_ENV"
+```
+
+Better still, do not route untrusted input through `$GITHUB_ENV` at all — keep it
+in a step-scoped `env:` var. Grep for `>> "$GITHUB_ENV"` and `>> "$GITHUB_OUTPUT"`
+the same way you grep for `${{`.
+
 ## 3. How wide is the token?
 
 The `GITHUB_TOKEN`'s scope is the blast radius when a step is compromised. With
@@ -178,6 +217,24 @@ another repo can assume the role.
 **Secret hygiene:** reference secrets only in the jobs that need them; never
 `echo` one or enable `set -x` in a step that handles one; never pass one to an
 unpinned third-party action.
+
+**Reusable workflows and `secrets: inherit`.** A `uses: ./.github/workflows/x.yml`
+or `uses: org/repo/.github/workflows/x.yml@ref` call can forward secrets two ways.
+`secrets: inherit` passes *every* secret the caller can see to the called
+workflow — fine for a first-party workflow in the same repo, a needless blast
+radius for a third-party one. Prefer naming the secrets the callee actually needs:
+
+```yaml
+jobs:
+  deploy:
+    uses: org/shared/.github/workflows/deploy.yml@<sha>
+    secrets:
+      DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}   # not: secrets: inherit
+```
+
+A third-party reusable workflow is someone else's code running with your secrets
+and token, exactly like a third-party action — pin it to a SHA (§4), never a
+mutable tag or branch.
 
 ## 4. Whose code is this running?
 

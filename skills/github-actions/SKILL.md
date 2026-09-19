@@ -6,10 +6,13 @@ argument-hint: "[workflow path, or the axis to audit — security or cost]"
 
 # GitHub Actions
 
-Audit workflows that exist. The conventions that apply while *writing* one live
-in `rules/github-actions.md`, which auto-loads on `.github/workflows/*.yml` and
-`**/action.yml` — this skill assumes them and reports where a workflow departs
-from them, with evidence.
+Audit workflows that exist, and report where they depart from the conventions in
+`rules/github-actions.md` — with evidence, never a patch.
+
+That rule is the standard this skill audits against. It auto-loads on workflow
+and action files in Claude Code and Cursor; **Codex does not read path-scoped
+rules at all**, so on that client read `rules/github-actions.md` before judging
+anything rather than assuming it is in context.
 
 ## When to use this skill
 
@@ -19,9 +22,11 @@ from them, with evidence.
 - CI minutes, runner spend, or PR wall-clock time is the complaint
 - A pipeline needs its prose companion written or refreshed
 
-Not for writing a new workflow — that is the rule, already in context when you
-open the file. Not for a vulnerability hunt across application code, which is
-`find-bugs`, and not for a merge verdict on a diff, which is `code-review`.
+Not for writing a new workflow — the conventions for that are in
+`rules/github-actions.md`, auto-loaded on workflow files in Claude Code and
+Cursor and read directly on Codex. Not for a vulnerability hunt across
+application code, which is `find-bugs`, and not for a merge verdict on a diff,
+which is `code-review`.
 
 ## The two axes
 
@@ -38,12 +43,27 @@ than one list: a security finding is usually *add a constraint*, a cost finding
 is usually *remove work*. A fix that does both — narrowing a trigger so a
 privileged job stops firing — is worth saying so explicitly.
 
-## Workflow
+## Running the audit
 
 ### 1. Establish what you can actually see
 
-Read every file under `.github/workflows/` and every local `action.yml`. Then
-try for run history, because half the cost axis is unprovable without it:
+Read every file under `.github/workflows/` and every local `action.yml`, then
+run `actionlint` over them — the mechanical pass the two judgment axes sit on
+top of:
+
+```sh
+actionlint
+```
+
+It parses each file, type-checks `${{ }}` expressions and context references,
+validates `needs:`/matrix wiring and runner labels, and runs shellcheck over
+every `run:` block. Report its output as its own mechanical findings, but a
+clean run is the floor, not the audit: `actionlint` does **not** flag the
+security axis's injection sinks — `${{ github.event.pull_request.title }}`
+spliced into `run:` is valid syntax — or any trust-boundary problem. Where it
+is not installed, say so and read statically, as you would for a missing `gh`.
+
+Then try for run history, because half the cost axis is unprovable without it:
 
 ```sh
 gh run list --limit 20
@@ -131,6 +151,11 @@ tier: [DOCUMENTING.md](references/DOCUMENTING.md).
   workflow ends up three years behind on an action with a known advisory —
   recommend Dependabot for the `github-actions` ecosystem alongside any pinning
   finding, never instead of it.
+- **A clean `actionlint` is not a clean audit.** It validates syntax,
+  expression types, and the shell inside `run:`, but it does not model the trust
+  boundary — `${{ github.event.pull_request.title }}` in a `run:` is valid to
+  actionlint and a CRITICAL to the security axis. Run it as the mechanical
+  floor, then still work both axes.
 
 ## References
 

@@ -28,6 +28,11 @@ the `github-actions` skill.
   `github.event.comment.body`, and commit messages and author fields. The same
   rule governs `actions/github-script` — pass through `env:` and read
   `process.env`, never interpolate into `script:`.
+- **Writing untrusted data to `$GITHUB_ENV` or `$GITHUB_OUTPUT` is the same
+  injection.** A bare `echo "KEY=$UNTRUSTED" >> "$GITHUB_ENV"` lets a multiline
+  value set variables a later step runs under — `LD_PRELOAD`, `NODE_OPTIONS`.
+  Validate the value, or write it with a heredoc guarded by a random delimiter,
+  never a raw append.
 - **Set `permissions:` explicitly.** Absent, the workflow inherits a repository
   default that may be write to everything. Start at `permissions: {}` or
   `contents: read`, then elevate per job to the one scope that job uses.
@@ -61,12 +66,21 @@ the `github-actions` skill.
 - Never echo a secret or enable shell tracing in a step that handles one, and
   keep secrets out of jobs that run untrusted code or unpinned third-party
   actions.
+- **`secrets: inherit` hands a called workflow every secret.** Pass only the
+  named secrets a reusable workflow needs, and pin a third-party reusable
+  workflow to a SHA like any other `uses:`.
 - Prefer OIDC over long-lived cloud credentials. A stored `AWS_ACCESS_KEY_ID`
   leaks permanently; a requested token expires in minutes. Scope the trust
   policy on the cloud side to the repository, and to the branch or environment
   where that is available.
 - Self-hosted runners persist between jobs, so never let a public fork's PR
   reach one.
+- **Validate every workflow with `actionlint`.** It parses the YAML,
+  type-checks `${{ }}` expressions and context references, checks `needs:` and
+  matrix wiring and runner labels, and runs shellcheck over each `run:` block —
+  the mechanical errors a green-looking file still carries. It does not flag
+  script injection or the trust-boundary problems above, so a clean run clears
+  the syntactic floor; it does not replace the review.
 
 ## Attribution
 

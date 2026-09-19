@@ -80,6 +80,22 @@ concurrency:
 The key must contain the lockfile hash, or a dependency bump restores a stale
 cache and the job fails in a way nobody attributes to caching.
 
+## Severity
+
+Every finding carries a severity in the report, and a cost finding earns its from
+the same daily-minutes estimate the ranking uses — not from how easy it is to fix:
+
+- **HIGH** — a dominant cost driver: the heavy job on the critical path, or the
+  matrix that runs on every change and dwarfs everything else in runner spend.
+- **MEDIUM** — measurable waste that is not the biggest line item: a missing
+  cache on a moderate job, an over-broad trigger firing something mid-weight.
+- **LOW** — minor waste worth noting once: no `concurrency` on a cheap workflow,
+  breadth a little wider than the decision needs.
+
+Severity ranks the finding; the measured or estimated minutes justify it, so give
+both. Where run history is missing, say the severity is from static analysis —
+the same caveat the report's first line already carries.
+
 ## Matrix breadth
 
 Match breadth to the decision being made, not to the maximum the platform
