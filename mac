@@ -231,6 +231,8 @@ bundle config set --global jobs $((number_of_cores - 1))
 fancy_echo "Installing latest Node ..."
 install_asdf_language "nodejs"
 
+append_to_zshrc "export TURBO_CONCURRENCY=$number_of_cores"
+
 fancy_echo "Installing latest Python ..."
 install_asdf_language "python"
 
