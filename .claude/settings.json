@@ -596,7 +596,7 @@
       "npx -y @anthropic-ai/sandbox-runtime *"
     ]
   },
-  "effortLevel": "high",
+  "effortLevel": "medium",
   "promptSuggestionEnabled": false,
   "awaySummaryEnabled": false,
   "tui": "fullscreen"
