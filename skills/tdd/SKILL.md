@@ -98,6 +98,8 @@ The ladder, top to bottom — use your stack's names for these:
 | A handler or endpoint's response, status, or routing | Integration test |
 | Logic in a unit — a function, method, calculation, validation | Unit test |
 
+**Reaching the top rung doesn't license a new end-to-end harness.** Where the repo already has one, drive the qualifying journey through it. Where it doesn't, don't scaffold one mid-loop — let the integration layer below carry the coverage and raise standing up an end-to-end suite as its own step, per `rules/testing-levels.md`.
+
 **Build directly only for inert glue.** A few things have no behavior of their own and get no test of their own — a route or binding line, an empty class that clears a "not defined" error, trivial markup an end-to-end content check already covers. You still add them only because a failing test one layer up demanded them. Everything with behavior gets its own failing test first; when in doubt, drop down and write the test.
 
 ### 5. Close out

@@ -42,11 +42,20 @@ Substitute the project's own prefix (`bundle exec`, `npx`, `pnpm`, `bin/`).
 | pytest | `pytest tests/test_order.py` | `pytest tests/test_order.py::TestOrder::test_refunds` |
 | Go | `go test ./order` | `go test ./order -run '^TestRefundsDeposit$'` |
 | Rust | `cargo test --test order` | `cargo test refunds_deposit -- --exact` |
+| Playwright | `playwright test e2e/checkout.spec.ts` | `playwright test e2e/checkout.spec.ts -g "refunds a deposit"` |
+| Cypress | `cypress run --spec cypress/e2e/checkout.cy.ts` | `cypress run --spec cypress/e2e/checkout.cy.ts --env grep="refunds a deposit"` |
 
 Two flags worth knowing wherever they exist: **fail-fast** (`--fail-fast`,
 `--bail`, `-x`, `-failfast`) keeps a long suite from burying the one failure you
 care about, and **seed/order** flags matter when a test passes alone but fails in
 the suite — see [Troubleshooting](#when-the-run-disagrees-with-itself).
+
+The two browser runners are slow, so the single-spec form matters more here than
+anywhere: add `--project=chromium` (Playwright) to pin one browser rather than
+running the whole matrix each loop, and Cypress per-test `grep=` needs the
+`@cypress/grep` plugin — without it, run the one spec file. They also run only
+against a harness the repo already has: don't stand one up mid-loop —
+`rules/testing-levels.md` carries that rule.
 
 ## Is this a red, or a broken test?
 
@@ -76,6 +85,13 @@ about to build?**
 | pytest | The `assert` introspection block under `FAILED` | `AttributeError` / `ImportError` naming the target | Collection and fixture errors — counted under `errors`, not `failed` |
 | Go | `t.Errorf` / `t.Fatalf` output | `undefined: RefundsDeposit` in the build failure | Any other build failure, or a panic from unrelated code |
 | Rust | ``assertion `left == right` failed`` | `E0425 cannot find function`, `E0433 failed to resolve` | Any other compile error, or an unrelated panic |
+| Playwright | `expect(locator).toBeVisible()` timed out, a `toHaveText` diff | The page, route, or element the journey drives isn't built yet — the locator matches nothing | `webServer` didn't boot, `ERR_CONNECTION_REFUSED` or a wrong `baseURL`, the browser binary isn't installed (`playwright install`), a selector typo |
+| Cypress | A `.should('be.visible')` that timed out retrying, an assertion diff | The element or route the journey drives isn't built yet — the selector never resolves | The app server isn't up (`start-server-and-test`), a wrong base URL, the browser binary missing (`cypress install`), a selector typo |
+
+**End to end is where a broken test most often masquerades as a red.** A timeout
+reads the same whether the feature is missing (red) or the app never came
+up (broken), so before trusting the failure confirm the server booted and the
+base URL resolves — a wrong port fails identically to a missing feature.
 
 **Go and Rust get two reds, not one.** A test can't run until it compiles, so
 the first red is the compile error naming the function that doesn't exist. Add
