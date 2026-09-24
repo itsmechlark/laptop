@@ -1,0 +1,23 @@
+#!/bin/sh
+# Trivy wrapper: a project ./trivy.yaml wins (Trivy reads it from the working
+# directory natively); with none present, fall back to the machine-wide config at
+# ~/.config/trivy/trivy.yaml, which Trivy cannot discover on its own. ~/.bin is
+# ahead of Homebrew on PATH, so resolve the real binary by prefix rather than via
+# PATH — `command trivy` would re-find this shim and loop.
+for prefix in /opt/homebrew /usr/local; do
+  if [ -x "$prefix/bin/trivy" ]; then
+    real="$prefix/bin/trivy"
+    break
+  fi
+done
+
+if [ -z "$real" ]; then
+  echo "trivy shim: real trivy not found under /opt/homebrew or /usr/local" >&2
+  exit 127
+fi
+
+if [ -f trivy.yaml ]; then
+  exec "$real" "$@"
+fi
+
+exec "$real" --config "$HOME/.config/trivy/trivy.yaml" "$@"

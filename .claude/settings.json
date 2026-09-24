@@ -298,7 +298,8 @@
       "Bash(ssh *)",
       "Bash(srt *)",
       "Bash(npx @anthropic-ai/sandbox-runtime *)",
-      "Bash(npx -y @anthropic-ai/sandbox-runtime *)"
+      "Bash(npx -y @anthropic-ai/sandbox-runtime *)",
+      "Bash(trivy *)"
     ],
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable",
@@ -389,6 +390,8 @@
         "nodejs.org",
         "registry.npmjs.org",
         "registry.yarnpkg.com",
+        "ghcr.io",
+        "mirror.gcr.io",
         "codeartifact.ap-northeast-1.amazonaws.com",
         "sts.amazonaws.com",
         "sts.ap-northeast-1.amazonaws.com",
@@ -493,6 +496,7 @@
       ],
       "allowRead": [
         "/opt/homebrew",
+        "~/.bin",
         "~/Codespace",
         "~/.agents",
         "~/.cache",
@@ -505,6 +509,7 @@
         "~/.zprofile",
         "~/.zshenv",
         "~/.config",
+        "~/.config/trivy",
         "~/.asdf",
         "~/.mix",
         "~/.nvm",
@@ -593,7 +598,8 @@
       "pulumi *",
       "srt *",
       "npx @anthropic-ai/sandbox-runtime *",
-      "npx -y @anthropic-ai/sandbox-runtime *"
+      "npx -y @anthropic-ai/sandbox-runtime *",
+      "trivy *"
     ]
   },
   "effortLevel": "medium",

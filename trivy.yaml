@@ -1,0 +1,19 @@
+# Machine-wide Trivy config. Tracked here, symlinked by `mac` to
+# ~/.config/trivy/trivy.yaml, and reached through the bin/trivy shim: a project's
+# own ./trivy.yaml wins (Trivy reads it natively), and this file is the fallback
+# for repos that ship none. Trivy has no built-in global-config discovery, so the
+# shim supplies this path explicitly — see docs/adr/0019.
+scan:
+  scanners:
+    - vuln
+    - secret
+    - misconfig
+  skip-dirs:
+    - "**/node_modules"
+    - "**/vendor"
+severity:
+  - HIGH
+  - CRITICAL
+vulnerability:
+  ignore-unfixed: true
+exit-code: 1

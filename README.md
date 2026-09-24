@@ -355,6 +355,29 @@ Why, and the blast-radius tradeoff: [ADR 0015].
 [sandbox-runtime]: https://github.com/anthropics/sandbox-runtime
 [ADR 0015]: docs/adr/0015-second-line-sandbox-for-unsafe-commands.md
 
+Scanning for vulnerabilities (Trivy)
+------------------------------------
+
+[Trivy] scans dependencies, images, and config for known vulnerabilities;
+the Definition of Done runs it at closeout when a change touches
+dependencies, lockfiles, or container images.
+
+Trivy reads a `trivy.yaml` from the current directory but has no notion of a
+machine-wide config. This repo adds one: `trivy.yaml` is tracked here and
+symlinked by `mac` to `~/.config/trivy/trivy.yaml`, reached through the
+`bin/trivy` shim (on `PATH` via `~/.bin`). A repo's own `./trivy.yaml` wins;
+with none present, the shim applies the global config — the fallback Trivy will
+not do itself. The defaults scan for `vuln`, `secret`, and `misconfig` at
+`HIGH`/`CRITICAL`, ignoring unfixed findings.
+
+Agents run `trivy` unsandboxed with an approval prompt on every use, like `srt`.
+The agent sandbox intercepts both TLS and DNS, so Trivy cannot download its
+vulnerability DB from inside an agent session. Seed the DB from a regular
+terminal first (`trivy image --download-db-only`); subsequent agent-session
+scans use the cached DB. Why, and the mechanism: [ADR 0019].
+
+[ADR 0019]: docs/adr/0019-global-trivy-config-with-project-fallback.md
+
 Contributing
 ------------
 

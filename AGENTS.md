@@ -77,8 +77,10 @@ skills-provenance.json  # source lineage for first-party derived skills (hand-ow
 rules-provenance.json   # source lineage for derived rules (hand-owned)
 cspell.json             # spell check: dictionaries, project words, ignore paths
 srt-settings.json       # srt (sandbox-runtime) config → ~/.srt-settings.json (global)
+trivy.yaml              # global Trivy config → ~/.config/trivy/trivy.yaml (fallback when a repo ships none)
 bin/elixir-ls-mcp       # shim → ~/.bin/elixir-ls-mcp: bridges ElixirLS MCP TCP to stdio
 bin/srt                 # shim → ~/.bin/srt: npx --package=@anthropic-ai/sandbox-runtime srt
+bin/trivy               # shim → ~/.bin/trivy: apply the global Trivy config only when no ./trivy.yaml exists
 scripts/                # verification tooling; each relocates to the repo root itself
   check-payload         # static verification of the payload (POSIX sh + jq)
   gen-cursor-rules      # renders .cursor/rules/*.mdc from rules/*.md (mac + check-payload)
@@ -136,8 +138,10 @@ skills/                 # published skills → ~/.agents/skills; first-party dir
 | `~/.cursor/rules` | `.cursor/rules` (rendered by `mac` from `rules/` via `scripts/gen-cursor-rules`) |
 | `~/.cursor/CONTEXT.md` | `~/.agents/CONTEXT.md` |
 | `~/.srt-settings.json` | `srt-settings.json` |
+| `~/.config/trivy/trivy.yaml` | `trivy.yaml` |
 | `~/.bin/elixir-ls-mcp` | `bin/elixir-ls-mcp` |
 | `~/.bin/srt` | `bin/srt` |
+| `~/.bin/trivy` | `bin/trivy` |
 
 `symlink_path` moves any pre-existing real file to `<path>.backup` before
 linking; check for stray `.backup` files if a link looks wrong.
@@ -217,6 +221,7 @@ Use this map to find the counterpart for a change:
 | Unix sockets | `sandbox.network.allowUnixSockets` | `config.toml` `[…network.unix_sockets]` | — |
 | Unsandboxed command escape | `sandbox.excludedCommands` | — (`approval_policy = "on-request"`) | — (commands run unsandboxed, prompt-gated) |
 | Second-line sandbox for unsafe commands (`srt`) | `permissions.ask` `Bash(srt *)` / `npx … *` (prompts each use); run un-nested via `sandbox.excludedCommands` | `rules/default.rules` `["srt"]` = `"prompt"` (shim form only — argv-prefix can't match the `npx` form); `on-request` approval escalates it out of Seatbelt so it runs un-nested (srt can't nest on macOS) | `approvalMode` prompts (`srt` unlisted) + `hooks.json` bypass early-return |
+| Unsandboxed vulnerability scanner (`trivy`) | `permissions.ask` `Bash(trivy *)` + `sandbox.excludedCommands` `trivy *` | `rules/default.rules` `["trivy"]` = `"prompt"`; `on-request` approval escalates it out of Seatbelt | `approvalMode` prompts (`trivy` unlisted); runs unsandboxed (no Cursor sandbox) |
 | `srt-settings.json` self-policy guard | `sandbox.filesystem.denyWrite` + `permissions.ask` `Edit(…srt-settings.json)` | `[…filesystem]` `~/.srt-settings.json = "read"` + `:workspace_roots` `srt-settings.json = "read"` | `permissions.deny` `Write(**/srt-settings.json)` |
 | Env-var scrubbing | `env` + `sandbox.credentials.envVars` | `config.toml` `[shell_environment_policy.filters]` | — |
 | Lifecycle hooks | `hooks.PreToolUse` | `config.toml` `[[hooks.PreToolUse]]` | `hooks.json` `beforeShellExecution` |

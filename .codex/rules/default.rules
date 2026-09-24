@@ -432,3 +432,19 @@ prefix_rule(
     justification = "The srt sandbox wrapper runs unsafe commands; each use requires approval.",
     match = ["srt npm install", "srt curl https://example.com"],
 )
+
+# -----------------------------------------------------------------------------
+# Require approval: unsandboxed vulnerability scanner (trivy)
+# -----------------------------------------------------------------------------
+
+# trivy (the bin/trivy shim) needs the real network to refresh its vulnerability
+# DB: the agent sandbox's TLS-terminating proxy is rejected by trivy's Go client,
+# so it runs unsandboxed. on-request approval escalates a prompted command out of
+# Seatbelt, so a single approval per use both gates it and un-nests it. See
+# AGENTS.md parity section and ADR 0019.
+prefix_rule(
+    pattern = ["trivy"],
+    decision = "prompt",
+    justification = "trivy runs unsandboxed to reach its vulnerability DB; each use requires approval.",
+    match = ["trivy fs .", "trivy image --download-db-only"],
+)

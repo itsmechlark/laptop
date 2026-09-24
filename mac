@@ -351,6 +351,14 @@ symlink_path "$PROJECT_DIR/srt-settings.json" "$HOME/.srt-settings.json"
 symlink_path "$PROJECT_DIR/bin/elixir-ls-mcp" "$HOME/.bin/elixir-ls-mcp"
 symlink_path "$PROJECT_DIR/bin/srt" "$HOME/.bin/srt"
 
+# Trivy: the machine-wide config Trivy cannot discover on its own, plus the
+# bin/trivy shim (on PATH via ~/.bin) that applies it only when a repo ships no
+# ./trivy.yaml. symlink_path does not create parents, so make the config dir
+# first. See docs/adr/0019 and AGENTS.md "Agent-client configuration parity".
+mkdir -p "$HOME/.config/trivy"
+symlink_path "$PROJECT_DIR/trivy.yaml" "$HOME/.config/trivy/trivy.yaml"
+symlink_path "$PROJECT_DIR/bin/trivy" "$HOME/.bin/trivy"
+
 # Root context map — optional, machine-local, git-ignored. Linked into ~/.agents
 # and every client only when it exists; copy .agents/references/CONTEXT-FORMAT.md
 # to .agents/CONTEXT.md to create one.
