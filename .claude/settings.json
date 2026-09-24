@@ -19,7 +19,6 @@
       "Read(~/.ssh/**)",
       "Read(~/.aws/**)",
       "Read(~/.gnupg/**)",
-      "Read(~/.config/gh/**)",
       "Read(~/.config/gcloud/**)",
       "Read(~/.azure/**)",
       "Read(~/.kube/**)",
@@ -377,6 +376,9 @@
     "failIfUnavailable": true,
     "allowUnsandboxedCommands": false,
     "network": {
+      "allowMachLookup": [
+        "com.apple.trustd*"
+      ],
       "allowedDomains": [
         "github.com",
         "*.github.com",
@@ -471,7 +473,6 @@
       ],
       "denyRead": [
         "~/",
-        "~/.config/gh",
         "~/.config/gcloud/**",
         "~/.claude/.credentials.json",
         "~/.claude/bash-log.txt",
