@@ -139,6 +139,7 @@ glob_scan_max_depth = 8
 # vuln scan depends on. See AGENTS.md "Agent-client configuration parity".
 "~/.config/trivy" = "read"
 "~/.asdf" = "write"
+"~/.tool-versions" = "write"
 "~/.mix" = "read"
 "~/.nvm" = "read"
 "~/.rvm" = "write"
