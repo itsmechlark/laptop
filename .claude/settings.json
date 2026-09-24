@@ -496,7 +496,12 @@
         "./**/id_dsa"
       ],
       "allowRead": [
+        "/etc/ssl/cert.pem",
         "/opt/homebrew",
+        "/opt/homebrew/etc/ca-certificates/cert.pem",
+        "/opt/homebrew/share/ca-certificates/cert.pem",
+        "/opt/homebrew/Cellar/ca-certificates/*/share/ca-certificates/cacert.pem",
+        "/opt/homebrew/etc/openssl@*/cert.pem",
         "~/.bin",
         "~/Codespace",
         "~/.agents",

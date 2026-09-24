@@ -81,6 +81,14 @@ glob_scan_max_depth = 8
 # Codex Specific
 "/System/Library/OpenSSL/openssl.cnf" = "read"
 
+# System CA certificates — explicit allows for SSL verification.
+# /opt/homebrew is already "read" above; these make the CA policy visible.
+"/etc/ssl/cert.pem" = "read"
+"/opt/homebrew/etc/ca-certificates/cert.pem" = "read"
+"/opt/homebrew/share/ca-certificates/cert.pem" = "read"
+"/opt/homebrew/Cellar/ca-certificates/*/share/ca-certificates/cacert.pem" = "read"
+"/opt/homebrew/etc/openssl@*/cert.pem" = "read"
+
 # Development/worktree area and selected tool/runtime state.
 "/opt/homebrew" = "read"
 # The bin/srt shim (npx @anthropic-ai/sandbox-runtime srt), on PATH via ~/.bin.
