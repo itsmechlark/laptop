@@ -6,7 +6,10 @@
     },
     "chrome-devtools": {
       "command": "npx",
-      "args": ["-y", "chrome-devtools-mcp@latest", "--no-usage-statistics"]
+      "args": ["-y", "chrome-devtools-mcp@latest", "--no-usage-statistics"],
+      "env": {
+        "ASDF_NODEJS_VERSION": "system"
+      }
     },
     "deepwiki": {
       "type": "http",
@@ -20,6 +23,7 @@
       "command": "npx",
       "args": ["-y", "@mozilla/firefox-devtools-mcp@latest"],
       "env": {
+        "ASDF_NODEJS_VERSION": "system",
         "START_URL": "about:blank"
       }
     },
