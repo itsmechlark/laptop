@@ -17,7 +17,7 @@ Read these first; the rest of this document elaborates. None may be violated wit
 
 This file holds cross-cutting, always-on standards, plus three kinds of material that live beside it.
 
-**Machine & fleet context loads only if you Read it.** Before starting work in any repo, Read `~/.agents/CONTEXT.md` when it exists — nothing auto-injects it the way this file is injected, so skipping the Read leaves you blind to where the machine's repos, tools, and deployments live. It maps this machine and its repos (locations, deployment URLs, shared vocabulary). Per-repo domain glossaries live in each repo's own `CONTEXT.md` (the `domain-modeling` skill), not here.
+**Machine & fleet context loads only if you Read it.** Before starting work in any repo, Read `~/.agents/CONTEXT.md` when it exists — nothing auto-injects it the way this file is injected, so skipping the Read leaves you blind to where the machine's repos, tools, and deployments live. It maps this machine and its repos (locations, deployment URLs, shared vocabulary). Per-repo domain glossaries live in each repo's own `CONTEXT.md` (the `domain-modeling` skill), not here. A repo may also carry a git-ignored `CONTEXT.local.md` beside the tracked one — terms that are yours rather than the team's. Read both when either exists, the local one layered over the tracked one, and never promote a term out of it without asking.
 
 **Stack-specific standards and task workflows load when relevant** — apply them without being reminded:
 

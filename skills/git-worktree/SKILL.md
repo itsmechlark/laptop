@@ -92,7 +92,7 @@ gh stack add <issue-key>-<type>-<slug>     # instead, when gh-stack manages the 
    ```sh
    wt=<worktree-abs-path>
    main="$(dirname "$(git -C "$wt" rev-parse --path-format=absolute --git-common-dir)")"
-   for rel in .claude/settings.local.json; do          # add .env / .env.local only to share them
+   for rel in .claude/settings.local.json CONTEXT.local.md CONTEXT-MAP.local.md; do   # add .env / .env.local only to share them
      [ -e "$main/$rel" ] || continue
      git -C "$wt" check-ignore -q "$rel" || continue   # only ever link git-ignored files
      mkdir -p "$wt/$(dirname "$rel")"
@@ -100,6 +100,8 @@ gh stack add <issue-key>-<type>-<slug>     # instead, when gh-stack manages the 
    done
    ```
    A symlink shares one source of truth; **copy** instead when the worktree needs to diverge (e.g. an `.env` with its own port or database).
+
+   `CONTEXT.local.md` and `CONTEXT-MAP.local.md` are the git-ignored glossary overlay `domain-modeling` maintains; a repo with several contexts keeps one per context directory, so add those paths too. The `check-ignore` gate means an overlay nobody has excluded yet is silently skipped — if it didn't link, the exclude entry is missing rather than the file.
 
 4. **Install dependencies** — `cd` into the worktree (a native tool already entered it), then run the install for its stack; see [Project setup](#project-setup). Prefer the repo's own bootstrap script (`bin/setup`, `bin/bootstrap`) when one exists.
 

@@ -30,6 +30,8 @@ Use these terms exactly — this skill exists because one word meaning two thing
 
 **Context map** — the root `CONTEXT-MAP.md`: which contexts exist, where each glossary lives, and how they relate. Present only when there is more than one context.
 
+**Local overlay** — a git-ignored `CONTEXT.local.md` (or `CONTEXT-MAP.local.md`) beside the tracked file, holding terms that are the reader's rather than the team's. Same format, lower authority, never committed.
+
 **Decision record (ADR)** — a numbered file under `docs/adr/` recording one decision, why it was made, and what it costs.
 
 ## Locate the context first
@@ -40,7 +42,9 @@ Before writing a term anywhere, work out which glossary owns it. This is the ste
 2. **Only a root `CONTEXT.md`, or neither?** Single context — the root file is the glossary. Create it when the first term is settled, not before.
 3. **Several contexts and the owner isn't obvious?** Ask. A term filed in the wrong context is worse than a term left out: it will be read as authoritative by exactly the people it misleads.
 
-Where these files sit, and what a map contains: [CONTEXT-FORMAT.md](references/CONTEXT-FORMAT.md).
+Then read the `*.local.md` overlay beside whichever file you landed on, when one exists — it may already define the term, or contradict the tracked file.
+
+Where these files sit, what a map contains, and how the overlay layers over them: [CONTEXT-FORMAT.md](references/CONTEXT-FORMAT.md).
 
 ## Sharpening the model
 
@@ -65,15 +69,23 @@ A relationship that survives a scenario is real; one that doesn't was wishful.
 
 **Write a settled term down inline.** A term is settled when all three hold: it has been used twice without hedging, no rival candidate is still in play, and you can state its boundary against its nearest neighbor. Then update `CONTEXT.md` immediately — don't batch, because a batch is a thing you forget. Keep it a glossary: no implementation detail, no spec, no scratch pad ([CONTEXT-FORMAT.md](references/CONTEXT-FORMAT.md)).
 
+**Send a term the team hasn't agreed to into the local overlay instead.** A codename you use but nobody else does, a client name you can't commit, vocabulary you're trying out before proposing it — those go in `CONTEXT.local.md`, not the tracked glossary. The bar for the tracked file is unchanged; the overlay is where a term waits, not a shortcut past the settling test. Format and precedence: [CONTEXT-FORMAT.md](references/CONTEXT-FORMAT.md).
+
 **Write an ADR the moment one is earned.** All three must hold — hard to reverse, surprising without context, and the result of a real trade-off. If any is missing, skip it. When all three hold, write it per [ADR-FORMAT.md](references/ADR-FORMAT.md) rather than offering to: waiting for permission is how the reasoning gets lost between deciding and committing. That is the house rule too (AGENTS.md §7 — durable decisions belong in an ADR, not buried in a PR description that rots). The gate is what makes writing-without-asking safe, and a number is spent permanently, so an ADR written on a maybe costs more than one never written.
 
-**Point `AGENTS.md` at each in-repo directory once.** A repo's first `CONTEXT.md` and first in-repo `docs/adr/` are invisible until the instruction file names them — no client discovers either on its own. Add one pointer when you create the directory, then stop: after that an individual ADR earns an inline mention only where the rule it explains would otherwise look arbitrary enough that someone "fixes" it. A citation per decision grows `AGENTS.md` without informing anyone. A globally-stored ADR is the exception: one that landed in `~/.agents/adr/` for want of a `docs/adr/` gets neither a pointer nor an inline citation — a repo reference to a file the team can't open is a dangling link. It becomes mentionable only once it moves into the repo ([ADR-FORMAT.md](references/ADR-FORMAT.md)).
+**Point `AGENTS.md` at each in-repo directory once.** A repo's first `CONTEXT.md` and first in-repo `docs/adr/` are invisible until the instruction file names them — no client discovers either on its own. Add one pointer when you create the directory, then stop: after that an individual ADR earns an inline mention only where the rule it explains would otherwise look arbitrary enough that someone "fixes" it. A citation per decision grows `AGENTS.md` without informing anyone. A globally-stored ADR is the exception: one that landed in `~/.agents/adr/` for want of a `docs/adr/` gets neither a pointer nor an inline citation — a repo reference to a file the team can't open is a dangling link. It becomes mentionable only once it moves into the repo ([ADR-FORMAT.md](references/ADR-FORMAT.md)). The local overlay is the same case for the same reason: `CONTEXT.local.md` is git-ignored and exists only on your machine, so naming it in the tracked `AGENTS.md` is a dangling link for everyone else. Point at `CONTEXT.md` and stop — the global standards already have every client read the overlay beside it.
 
 **Be pedantic about words.** Two people using the same term for two different things is the failure this skill exists to catch, and catching it is worth interrupting for.
 
 ## Gotchas
 
 - **`CONTEXT.md` here always means the project's glossary.** The root context map that the global standards have you read at session start — `~/.agents/CONTEXT.md`, symlinked into each client's config directory — is a different file with a different format. It maps the machine and its repos, holds no domain terms, and isn't version-controlled. Never write a term into it, and never write through the home symlink; edit the project's own `CONTEXT.md`, at the repo root or in its context's directory.
+
+- **Ignore the overlay in `.git/info/exclude`, not `.gitignore`.** Adding `CONTEXT.local.md` to the tracked `.gitignore` commits everyone who pulls the branch to a convention they never asked for, and shows up in review as unexplained churn. `.git/info/exclude` is per-clone and untracked, which is exactly the scope the file has — and it lives in the common git dir, so linked worktrees inherit it. Put it in the tracked `.gitignore` only once the team has adopted the convention.
+
+- **ADRs get no local tier.** `docs/adr/` is a numbered, shared trail; a git-ignored decision record is a contradiction, and spending a number on a file nobody else receives leaves a hole in the sequence. The private tier for a decision is `~/.agents/adr/`, which already exists for exactly this and keeps numbering per-repo so the file can move in later ([ADR-FORMAT.md](references/ADR-FORMAT.md)).
+
+- **Untracked is not private.** The overlay is excluded from commits, not encrypted, and it is read by every agent that opens the repo. Credentials, tokens, and PII stay out of it exactly as they stay out of the tracked file.
 
 - **A term the code doesn't use is fiction.** Settling on a word obliges one of two follow-ups: rename the identifiers to match, or record the code's word under `_Avoid_` and accept the gap deliberately. Renaming is behavior-preserving work that runs under the existing suite, not from here — and where the identifier has no coverage to run under, the behavior needs characterizing before it is safe to touch, which is `tdd`'s. Silence is the one option that isn't available: a glossary that disagrees with the code teaches the next reader the wrong thing, twice.
 

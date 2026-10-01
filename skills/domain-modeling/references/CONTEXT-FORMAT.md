@@ -41,6 +41,33 @@ _Avoid_: Client, buyer, account
 
 **Group under subheadings** when natural clusters emerge. A flat list is fine while the terms all belong to one cohesive area.
 
+## The local overlay
+
+A `CONTEXT.local.md` sits beside the tracked `CONTEXT.md` and is never committed. It holds terms that are real but not the team's to receive: a client or project name under NDA, an internal codename, vocabulary you're trying out before proposing it, a word your own tooling uses that the repo's glossary has no business defining. `CONTEXT-MAP.local.md` does the same beside a context map. Both use the structure above, unchanged — a heading, a short description, `## Language`.
+
+```
+/
+├── CONTEXT.md           ← tracked; the team's glossary
+└── CONTEXT.local.md     ← git-ignored; yours
+```
+
+**Read both, tracked first.** The overlay layers over the glossary rather than replacing it, so a term defined only in the overlay is simply additional. Where both define the same term, the overlay is what you work from and the disagreement is the news: either the tracked definition has drifted, or your private one has gone stale. Say which, rather than letting the two sit side by side.
+
+**Promotion is the user's call.** A term that has outgrown the overlay — the team now uses it, the NDA lapsed, the experiment won — moves into `CONTEXT.md` and is deleted from the overlay in the same edit. Never make that move unasked: the reason a term is local is rarely visible from the term.
+
+**Exclude it in `.git/info/exclude`**, not in the tracked `.gitignore`:
+
+```sh
+printf '%s\n' 'CONTEXT.local.md' 'CONTEXT-MAP.local.md' \
+  >> "$(git rev-parse --path-format=absolute --git-common-dir)/info/exclude"
+```
+
+That file is per-clone and untracked, which matches the scope of what it hides, and it lives in the common git dir so every linked worktree inherits it. A fleet-wide alternative is the global excludes file (`core.excludesFile`, usually `~/.config/git/ignore`) — same entries, once per machine. The tracked `.gitignore` is correct only once the team has adopted the convention and wants everyone's overlay ignored.
+
+**A fresh worktree won't have it.** Worktrees check out tracked files only, so the overlay is missing until it is linked back to the main checkout — `git-worktree` does this in its setup step, and the `git check-ignore` gate there is why the exclude entry has to exist first.
+
+**No local ADRs.** A decision that isn't the team's yet goes to `~/.agents/adr/<repo>-NNNN-slug.md` ([ADR-FORMAT.md](ADR-FORMAT.md)) — outside the repo, not git-ignored inside it. `SKILL.md` carries why.
+
 ## Single vs. multiple contexts
 
 **Single context** — the common case. One `CONTEXT.md` at the repo root, and one `docs/adr/` beside it:
