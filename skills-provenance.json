@@ -690,6 +690,21 @@
           "note": "Source of the section inventory behind references/DOCUMENTING.md on 2026-09-18 — specifically the mermaid execution-flow diagram (with its sequential/parallel/conditional forms and the subgraph threshold for larger pipelines), Related Specifications, secrets-and-variables, error handling, quality gates, and integration points. HEAVILY REDUCED: upstream's twenty fill-in headings were filtered against 'does the YAML already say this', which dropped Trigger Events, Execution Constraints, Runtime/Environmental Constraints, Version History (git has it), and the ID-numbered Requirements Matrix, Validation Criteria, and Performance Benchmarks (REQ-001/VLD-001/PERF-001 tables nobody maintains). Quality Gates was recast as Required checks because the fact that is genuinely absent from the YAML is branch protection. DELIBERATE DIVERGENCE: upstream writes to /spec/spec-process-cicd-<name>.md with six frontmatter keys; this writes a companion beside .github/workflows/ with none, because it is a committed repo document rather than one of ADR 0013's authored artifacts, and it stops rather than creating a directory the repo never opted into. Upstream's mermaid style fills were dropped. The skill itself was NOT vendored forward — its lock entry was removed on this date and only the section inventory survives."
         }
       ]
+    },
+    "gh-cli": {
+      "sources": [
+        {
+          "origin": "cli/cli",
+          "type": "github",
+          "url": "https://github.com/cli/cli",
+          "path": "skills/gh/SKILL.md",
+          "relationship": "adapted",
+          "license": "MIT",
+          "ref": "fc4b137cdef0a6bd28fd461b7cf9c84a5812a8cd",
+          "reviewed": "2026-10-02",
+          "note": "INITIAL PIN at tag v2.102.0. Forked from the GitHub CLI's own `gh` skill and renamed `gh` -> `gh-cli` (the dir and frontmatter name) to avoid colliding with the bare command and to sit beside the existing gh-stack skill. Upstream's technical content is ported faithfully; the divergences to preserve on reconcile are: (1) the subcommand catalogs were split by topic into references/PULL-REQUESTS.md, references/ISSUES.md, references/CONTENT.md, and references/ATTACHMENTS.md so SKILL.md stays under the 200-line split point and each first-party caller (pull-request, review-response, gh-stack, triage, code-review) reads only its own topic, with the cross-cutting patterns (JSON, pagination, search, gh api, auth) kept in SKILL.md; the PR file is largely first-party — upstream carried only scattered PR notes — and shows the canonical `gh api --method POST .../replies` review-thread reply the sandbox requires; (2) a new 'Under the sandbox' section cross-referencing ~/.agents/references/SANDBOX.md, which upstream has no reason to carry, and an auth note that a clean 401 is an expired token; (3) the description rewritten to lead with trigger phrases per this payload's skill convention; (4) the gh api fallback section now states that a field flag makes the call an implicit POST and to make --method explicit, which pairs with the implicit-POST approval gate added to the client configs in the same change; (5) restructured to this payload's agent-skills convention — a When-to-use section and a Gotchas section that distills the traps (no piping under the sandbox, implicit-POST gh api, bare search qualifiers, silent list truncation, -T collision, bot authors, expired-token 401) from the topical sections. Reconcile by porting new upstream flags/sections into SKILL.md or the matching references topic file, not by collapsing the topic split, dropping the sandbox section, or flattening the Gotchas back into prose."
+        }
+      ]
     }
   }
 }

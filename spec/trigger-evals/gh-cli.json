@@ -1,0 +1,18 @@
+[
+  {"query": "how do i get the labels and assignees for an issue out of gh as json i can parse", "should_trigger": true},
+  {"query": "gh pr list only gives me 30 rows, how do i get all the open PRs in this repo", "should_trigger": true},
+  {"query": "i need the review-thread comments on PR 412, gh pr view --comments doesn't show them", "should_trigger": true},
+  {"query": "what's the right way to run a gh search for open issues by author across a couple of repos", "should_trigger": true},
+  {"query": "how do i target a different repo with gh without cd-ing into it", "should_trigger": true},
+  {"query": "pull the body and state of issue 88 from the api with gh and jq-filter it inline", "should_trigger": true},
+  {"query": "i want to attach two screenshots to a gh pr comment with alt text", "should_trigger": true},
+  {"query": "how do i list a discussion's replies with gh discussion", "should_trigger": true},
+  {"query": "read a file out of another repo with gh without cloning it", "should_trigger": true},
+  {"query": "gh keeps truncating my issue list and i can't tell if i'm missing rows", "should_trigger": true},
+  {"query": "why does gh auth status say my token is invalid, i was logged in yesterday", "should_trigger": false},
+  {"query": "gh api returns 401 inside claude code but works in my own terminal", "should_trigger": false},
+  {"query": "open a PR for this branch with a title and body", "should_trigger": false},
+  {"query": "what's a good branching strategy for stacked PRs", "should_trigger": false},
+  {"query": "install the gh cli on this machine", "should_trigger": false},
+  {"query": "review this diff and tell me if it's safe to merge", "should_trigger": false}
+]
