@@ -7,8 +7,9 @@
 # path there (no ~ expansion). Edit the template, not the generated file, then
 # re-run `sh mac`.
 
-model = "gpt-5.5"
+model = "gpt-5.6-sol"
 model_reasoning_effort = "medium"
+model_context_window = 1000000
 plan_mode_reasoning_effort = "high"
 
 approval_policy = "on-request"
@@ -29,6 +30,7 @@ web_search = "cached"
 # Claude Code has no equivalent knob (it warns at 40k chars and skips
 # only past 4 MiB), so this is per-client tuning, not shared policy.
 project_doc_max_bytes = 65536
+project_doc_fallback_filenames = ["AGENTS.local.md", "CLAUDE.md", "CLAUDE.local.md"]
 
 [features]
 hooks = true
