@@ -321,6 +321,10 @@
           {
             "type": "command",
             "command": "cmd=$(jq -r '.tool_input.command'); case \"$cmd\" in *'worktree add'*) if printf '%s' \"$cmd\" | grep -qE '~/'; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Worktree paths must be absolute, not ~-prefixed: a ~ path does not match git worktree list and does not expand when quoted. Re-run with an absolute path like $HOME/Codespace/<repo>.worktrees/<name>.\"}}'; elif ! printf '%s' \"$cmd\" | grep -qE 'Codespace/[^/ ]+\\.worktrees/'; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Worktrees must live at $HOME/Codespace/<repo>.worktrees/<name>, e.g. $HOME/Codespace/example.worktrees/ABC-1234-feat-example. Re-run with that absolute path.\"}}'; fi;; esac"
+          },
+          {
+            "type": "command",
+            "command": "cmd=$(jq -r '.tool_input.command'); if printf '%s' \"$cmd\" | grep -qE '(^|[^[:alnum:]_.-])gh[[:space:]]+api([[:space:]]|$)' && ! printf '%s' \"$cmd\" | grep -qE 'gh[[:space:]]+api[[:space:]]+graphql([[:space:]]|$)' && printf '%s' \"$cmd\" | grep -qE '(^|[[:space:]])(-f|-F|--field|--raw-field|--input)([[:space:]]|=)' && ! printf '%s' \"$cmd\" | grep -qE '(^|[[:space:]])(-X|--method)([[:space:]]|=)'; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"gh api sends POST as soon as a field is added (-f/-F/--field/--raw-field/--input), so this is a mutating write that the approval rules do not gate in implicit form. Re-run with the method explicit: gh api --method POST ... (method flag immediately after api), which is approval-gated; or run it manually outside the agent.\"}}'; fi"
           }
         ]
       },

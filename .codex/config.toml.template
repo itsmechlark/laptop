@@ -877,6 +877,14 @@ for raw_argv in split_commands(command):
         sub_index, subcommand = first_subcommand(args, {"up", "update", "cancel", "import", "refresh", "new"})
         if subcommand is not None and sub_index != 0:
             deny("Pulumi mutation must use canonical `pulumi <subcommand>` form so the native approval rule cannot be bypassed. Change directory first instead of placing global options before the subcommand.")
+
+    if exe == "gh" and args[:1] == ["api"] and args[1:2] != ["graphql"]:
+        rest = args[1:]
+        short, long = option_flags(rest)
+        has_field = "f" in short or "F" in short or "--field" in long or "--raw-field" in long or "--input" in long
+        has_method = "X" in short or "--method" in long
+        if has_field and not has_method:
+            deny("gh api sends POST as soon as a field is added (-f/-F/--field/--raw-field/--input), so this is a mutating write the prefix rules do not catch in implicit form. Use the canonical `gh api --method POST ...` form with the method flag immediately after `api`, which is approval-gated, or run it manually outside Codex.")
 ''''
 timeout = 3
 

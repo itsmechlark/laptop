@@ -123,6 +123,28 @@ class CodexPolicyTest(unittest.TestCase):
     def test_malformed_shell_input_is_denied(self):
         self.assertEqual(self.decision("git push 'unterminated"), "deny")
 
+    def test_gh_api_implicit_post_is_denied(self):
+        for command in (
+            "gh api repos/o/r/issues/1/comments -f body=hi",
+            "gh api repos/o/r/pulls/1/comments --field body=hi",
+            "gh api -F body=@note.md repos/o/r/issues/1/comments",
+            "gh api --input payload.json repos/o/r/issues",
+            "gh api repos/o/r/issues --raw-field title=bug",
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(self.decision(command), "deny")
+
+    def test_gh_api_reads_and_explicit_methods_are_unaffected(self):
+        for command in (
+            "gh api repos/o/r/pulls/1/comments",
+            "gh api /user",
+            "gh api --method POST repos/o/r/issues -f title=bug",
+            "gh api -X POST repos/o/r/issues -f title=bug",
+            "gh api graphql -f query=xyz",
+        ):
+            with self.subTest(command=command):
+                self.assertIsNone(self.decision(command))
+
     def test_cursor_denies_download_piped_to_sh(self):
         config = json.loads((ROOT / ".cursor/hooks.json").read_text())
         guard = config["hooks"]["beforeShellExecution"][1]["command"]

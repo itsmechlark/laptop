@@ -304,6 +304,10 @@ prefix_rule(
     match = ["gh api graphql -f query={ viewer { login } }"],
 )
 
+# This catches only the explicit method form. `gh api` also POSTs implicitly as
+# soon as a field is added (-f/-F/--field/--raw-field/--input), which can appear
+# anywhere in argv, so the PreToolUse guard in config.toml.template denies that
+# form and points at the canonical `--method POST` shape this rule prompts on.
 prefix_rule(
     pattern = ["gh", "api", ["-X", "--method"], ["POST", "PUT", "PATCH", "DELETE"]],
     decision = "prompt",

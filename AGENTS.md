@@ -217,6 +217,7 @@ Use this map to find the counterpart for a change:
 | --- | --- | --- | --- |
 | Blocked commands | `permissions.deny` — `Bash(…)` | `rules/default.rules` — `"forbidden"` | `cli-config.json` `permissions.deny` — `Shell(…)` + `hooks.json` gate |
 | Approval-gated commands | `permissions.ask` — `Bash(…)` | `rules/default.rules` — `"prompt"` | `approvalMode: "allowlist"` prompts on unlisted |
+| Implicit-POST `gh api` (mutation via `-f`/`-F`/`--field`/`--raw-field`/`--input`) | `hooks.PreToolUse` denies the implicit form → canonical `gh api --method POST` (gated by `permissions.ask`) | `config.toml` PreToolUse guard denies the implicit form → canonical `--method POST` (gated by `rules` `"prompt"`) | — (prompt-by-default gates any unlisted `gh`) |
 | Unreadable secret paths | `permissions.deny` — `Read(…)` | `config.toml` filesystem `"deny"` | `cli-config.json` `permissions.deny` — `Read(…)` |
 | Writable / readable roots | `sandbox.filesystem.allowWrite` / `allowRead` | `config.toml` `[permissions.developer.filesystem]` | — (no sandbox roots; `permissions.deny` `Write(…)` guards policy files) |
 | Allowed network hosts | `sandbox.network.allowedDomains` | `config.toml` `[…network.domains]` | — (no egress allowlist) |
