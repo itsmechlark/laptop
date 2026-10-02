@@ -1,6 +1,6 @@
 ---
 name: sandbox-gotchas
-description: Workarounds for commands that fail under the macOS Seatbelt sandbox that Claude Code and Codex apply to each Bash command — gh CLI keychain auth, and Claude's pipe trap where piping an excluded command re-sandboxes it. Read when a command fails with "operation not permitted", HTTP 401, or a keychain/credential error that doesn't reproduce when the command runs on its own. Cursor runs unsandboxed and is unaffected.
+description: Workarounds for commands that fail under the macOS Seatbelt sandbox that Claude Code and Codex apply to each Bash command — gh CLI auth (telling an expired token apart from a sandbox keychain failure), and Claude's pipe/redirect trap where a pipe, redirect, or substitution re-sandboxes an excluded command. Read when a command fails with "operation not permitted", HTTP 401, or a keychain/credential error. Cursor runs unsandboxed and is unaffected.
 ---
 
 # Sandbox gotchas
@@ -22,52 +22,72 @@ reason the same command can work one way and fail another:
   approved, runs escalated out of Seatbelt. The fix on Codex is usually to
   approve the prompt, not to rewrite the command.
 
-## The pipe trap (Claude Code)
+## The pipe/redirect trap (Claude Code)
 
-A command in `excludedCommands` (e.g. `gh *`) runs unsandboxed **only when it
-runs on its own**. The moment it joins a pipeline, the whole pipeline inherits
-the sandbox profile from the non-excluded member (`head`, `jq`, `grep`, `tee`,
-`sort`, …), and the excluded command is sandboxed too.
+`excludedCommands` is matched against the **whole call**, and every segment has
+to match for the call to run unsandboxed. A pattern like `gh *` runs outside the
+sandbox **only as a single bare command**. Add almost any shell construct and
+the whole call — the excluded command included — is sandboxed again:
 
-```sh
-gh pr view 123 --json title,state        # unsandboxed — reaches the keychain, works
-gh pr view 123 --json title,state | jq   # sandboxed via jq — keychain blocked, fails
-```
-
-Redirection is **not** a pipe. `>` and `>>` are handled by the shell, so the
-command stays a bare excluded command:
+- a **pipe** to a non-excluded command (`jq`, `head`, `grep`, `tee`, `sort`, …)
+- a **redirect** (`>`, `>>`)
+- a **command substitution** (`$(...)`)
+- a leading **`cd`**, or chaining a non-excluded command with `&&` / `;`
 
 ```sh
-gh pr view 123 --json title,state > "$TMPDIR/pr.json"   # still bare gh — works
+gh pr view 123 --json title,state           # bare — runs unsandboxed
+gh pr view 123 --json title,state | jq      # sandboxed (jq isn't excluded)
+gh pr view 123 --json title,state > f.json  # sandboxed — a redirect re-sandboxes the call
 ```
 
-Then Read the file (the Read tool is permission-governed, not sandboxed).
+So there is **no** "redirect to a file, then Read it" trick — the redirect
+itself sandboxes `gh`. Keep it a single bare command, let the output come back on
+stdout (the harness captures it), and shape the output with `gh`'s own flags
+rather than piping.
 
-## gh CLI: keychain is unreachable when sandboxed
+## gh CLI: triage the token before blaming the sandbox
 
-`gh` stores its token in the macOS keychain (the `keyring` credential store).
-Inside the sandbox the keychain is unreachable, so a sandboxed `gh` fails to
-authenticate — typically HTTP 401, or `failed to load config: … operation not
-permitted` on `~/.config/gh/config.yml`. Adding `allowMachLookup` does not fix
-this; the keychain stays unreachable. The only path that works is running `gh`
-outside the sandbox.
+A `gh` failure has two unrelated causes, and the fix for one does nothing for the
+other. Triage first — run `gh` **bare** (no pipe, no redirect):
 
-**On Claude Code, never pipe `gh`.** Use its built-in flags instead of piping to
-another tool, so the command stays bare and unsandboxed:
+```sh
+gh auth status
+```
+
+**The token is expired or revoked** when `gh auth status` reports "The token in
+… is invalid", or a bare `gh api …` returns GitHub's own JSON
+`{"message":"Requires authentication", … "status":"401"}`. This is **not** a
+sandbox problem: a bare `gh` already runs outside the sandbox and reached the
+keychain fine — GitHub rejected the token itself. No sandbox setting fixes it,
+and neither does avoiding pipes. Re-authenticate outside the sandbox, then retry:
+
+```sh
+gh auth login -h github.com
+```
+
+A clean GitHub `401` from a bare command is this case, not the one below.
+
+**The sandbox is the cause** when `gh auth status` is healthy yet a command still
+fails with `failed to load config: … operation not permitted` on
+`~/.config/gh/config.yml`, a TLS trust failure (`x509: OSStatus -26276`), or an
+unexpectedly unauthenticated (rate-limited) response. `gh` keeps its token in the
+macOS keychain (the `keyring` store), which is unreachable in-sandbox;
+`allowMachLookup` does not change that. The fix is to keep `gh` a single bare
+command so `excludedCommands` runs it unsandboxed — no pipe, redirect, or
+substitution (see the pipe/redirect trap above). Shape output with `gh`'s own
+flags instead of piping:
 
 | Instead of | Use |
 | --- | --- |
 | `gh … \| jq '.field'` | `gh … --json field --jq '.field'` (gh embeds jq) |
 | `gh … \| head -n N` | `gh … --limit N`, or `--json`/`--template` to shape output |
 | `gh … \| grep X` | `gh … --json …` then filter with `--jq 'select(...)'` |
-| `gh … \| tee file` | `gh … > file` (shell redirect, not a pipe), then Read it |
-
-When post-processing genuinely can't be expressed in `gh`'s own flags, redirect
-to `$TMPDIR` and process the file in a separate step.
+| `gh … \| tee file` | run `gh …` bare and read its stdout — don't redirect |
 
 **On Codex**, approve the escalation prompt when `gh` asks for it; the escalated
-command reaches the keychain. Piping does not defeat this the way it does on
-Claude, because Codex escalates the whole command, not a listed name.
+command reaches the keychain. A pipe doesn't defeat this the way it does on
+Claude, because Codex escalates the whole command rather than matching a listed
+name. An expired token still needs `gh auth login` — escalation won't rescue it.
 
 ## When a bare command still fails: blocked Mach lookups
 
