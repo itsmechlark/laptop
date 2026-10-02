@@ -277,6 +277,7 @@ mkdir -p "$AGENTS_GLOBAL_DIR"
 symlink_path "$AGENTS_DIR/AGENTS.md" "$AGENTS_GLOBAL_DIR/AGENTS.md"
 symlink_path "$PROJECT_DIR/rules" "$AGENTS_GLOBAL_DIR/rules"
 symlink_path "$PROJECT_DIR/skills" "$AGENTS_GLOBAL_DIR/skills"
+symlink_path "$AGENTS_DIR/references" "$AGENTS_GLOBAL_DIR/references"
 symlink_path "$PROJECT_DIR/skills-lock.json" "$AGENTS_GLOBAL_DIR/.skills-lock.json"
 
 # Machine-local state that outlives a session: the standup journal, the

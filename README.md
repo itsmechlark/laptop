@@ -257,6 +257,18 @@ so all three clients read the same context.
 Per-repo domain glossaries stay in each repo's own `CONTEXT.md`;
 this one stops at the repo boundary.
 
+Sandbox troubleshooting (`~/.agents/references/SANDBOX.md`)
+----------------------------------------------------------
+
+`mac` symlinks `.agents/references/` into `~/.agents/references`,
+so every client can read `SANDBOX.md` on demand.
+It documents workarounds for commands that fail under the macOS Seatbelt
+sandbox that Claude Code and Codex apply to each Bash command —
+the `gh` CLI losing keychain access, and the pipe trap where an
+`excludedCommands` escape is cancelled the moment the command is piped.
+`.agents/AGENTS.md` points agents at it when a command hits the sandbox.
+Cursor runs unsandboxed, so none of it applies there.
+
 Standup journal (`~/.agents/standup/`)
 --------------------------------------
 

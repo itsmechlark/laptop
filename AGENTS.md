@@ -96,8 +96,9 @@ spec/                   # verification tests and fixtures
 .agents/
   AGENTS.md             # global engineering standards (shipped to ~/.claude/CLAUDE.md)
   CONTEXT.md            # root context map — machine-local, git-ignored (optional)
-  references/
+  references/           # prose shipped to ~/.agents/references, read on demand
     CONTEXT-FORMAT.md   # template for .agents/CONTEXT.md
+    SANDBOX.md          # sandbox failure workarounds (gh keychain, the pipe trap)
   skills/               # skill bodies: vendored + project-only (project-only = not linked from skills/)
 rules/                  # path-scoped language standards, auto-loaded by glob
 skills/                 # published skills → ~/.agents/skills; first-party dirs + symlinks into .agents/skills
@@ -121,6 +122,7 @@ skills/                 # published skills → ~/.agents/skills; first-party dir
 | `~/.agents/AGENTS.md` | `.agents/AGENTS.md` |
 | `~/.agents/rules` | `rules/` |
 | `~/.agents/skills` | `skills/` |
+| `~/.agents/references` | `.agents/references/` |
 | `~/.agents/.skills-lock.json` | `skills-lock.json` |
 | `~/.agents/CONTEXT.md` | `.agents/CONTEXT.md` (when present) |
 | `~/.claude/CLAUDE.md` | `~/.agents/AGENTS.md` |
@@ -219,6 +221,7 @@ Use this map to find the counterpart for a change:
 | Writable / readable roots | `sandbox.filesystem.allowWrite` / `allowRead` | `config.toml` `[permissions.developer.filesystem]` | — (no sandbox roots; `permissions.deny` `Write(…)` guards policy files) |
 | Allowed network hosts | `sandbox.network.allowedDomains` | `config.toml` `[…network.domains]` | — (no egress allowlist) |
 | Unix sockets | `sandbox.network.allowUnixSockets` | `config.toml` `[…network.unix_sockets]` | — |
+| Mach port lookups (TLS trust daemon) | `sandbox.network.allowMachLookup` | — (no knob; `network_proxy` + domains only) | — (unsandboxed) |
 | Unsandboxed command escape | `sandbox.excludedCommands` | — (`approval_policy = "on-request"`) | — (commands run unsandboxed, prompt-gated) |
 | Second-line sandbox for unsafe commands (`srt`) | `permissions.ask` `Bash(srt *)` / `npx … *` (prompts each use); run un-nested via `sandbox.excludedCommands` | `rules/default.rules` `["srt"]` = `"prompt"` (shim form only — argv-prefix can't match the `npx` form); `on-request` approval escalates it out of Seatbelt so it runs un-nested (srt can't nest on macOS) | `approvalMode` prompts (`srt` unlisted) + `hooks.json` bypass early-return |
 | Unsandboxed vulnerability scanner (`trivy`) | `permissions.ask` `Bash(trivy *)` + `sandbox.excludedCommands` `trivy *` | `rules/default.rules` `["trivy"]` = `"prompt"`; `on-request` approval escalates it out of Seatbelt | `approvalMode` prompts (`trivy` unlisted); runs unsandboxed (no Cursor sandbox) |
