@@ -308,7 +308,7 @@
       "~/.claude"
     ]
   },
-  "model": "claude-opus-4-6[1m]",
+  "model": "claude-sonnet-5-5[1m]",
   "hooks": {
     "PreToolUse": [
       {
