@@ -74,7 +74,7 @@ writing the next note.
 Both are near-universal in notes written before this convention, and both are
 waste:
 
-- **`date`** — the filename already begins with `YYYYMMDD-HHMM`. A second copy
+- **`date`** — the filename already begins with `YYYYMMDDHHMMSS`. A second copy
   is one more thing that can disagree with the first.
 - **`branch`** — dead within a week of the merge, and `prs` reaches the same
   work without going stale.
@@ -136,11 +136,11 @@ note in the conversation rather than creating it.
 ## Filename
 
 ```
-lore/YYYYMMDD-HHMM-<slug>.md
-~/.agents/lore/YYYYMMDD-HHMM-<slug>.md
+lore/<YYYYMMDDHHMMSS>-<kebab-slug>.md
+~/.agents/lore/<YYYYMMDDHHMMSS>-<kebab-slug>.md
 ```
 
-From `date +%Y%m%d-%H%M`, never from memory — leading zeros included. The slug
+From `date +%Y%m%d%H%M%S`, never from memory — leading zeros included. The kebab-slug
 is lowercase and hyphenated, and names the *subject*, not the genre: `kind`
 already carries the genre, so `-plan` and `-harden` suffixes are redundant.
 
