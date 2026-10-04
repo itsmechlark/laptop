@@ -40,9 +40,13 @@ lib/tablecheck/version.rb                   comments,gem,ruby
 spec/models/reservation_spec.rb             comments,rspec,ruby,testing-levels,testing
 spec/rails_helper.rb                        comments,rspec,ruby,testing-levels,testing
 spec/support/factories.rb                   comments,rspec,ruby,testing-levels,testing
+spec/performance/search_index_spec.rb       comments,performance-testing,rspec,ruby,testing-levels,testing
+lib/performance/report.rb                   comments,ruby
 lib/parser.ex                               comments,elixir
 mix.exs                                     comments,elixir
 test/parser_test.exs                        comments,elixir,testing-levels,testing
+test/performance/parser_test.exs            comments,elixir,performance-testing,testing-levels,testing
+bench/availability_bench.exs                comments,elixir,performance-testing
 app/components/menu.tsx                     comments,react-typescript
 src/hooks/use-cart.ts                       comments,react-typescript
 src/hooks/use-cart.test.ts                  comments,react-typescript,testing-levels,testing
@@ -50,6 +54,11 @@ __tests__/support/build-order.ts            comments,react-typescript,testing-le
 e2e/playwright/api/health.spec.ts           comments,react-typescript,testing-levels,testing
 e2e/support/target.ts                       comments,react-typescript,testing-levels,testing
 playwright.config.ts                        comments,react-typescript,testing-levels,testing
+src/search/rank.bench.ts                    comments,performance-testing,react-typescript
+k6/checkout.js                              comments,ember,performance-testing
+load/checkout.k6.ts                         comments,performance-testing,react-typescript
+src/search/rank.benchmark.ts                comments,performance-testing,react-typescript
+__tests__/performance/rank.test.ts          comments,performance-testing,react-typescript,testing-levels,testing
 app/routes/checkout.js                      comments,ember
 tests/unit/cart-test.js                     comments,ember,testing-levels,testing
 app/components/widget.jsx                   comments

@@ -28,7 +28,7 @@ paths:
 
 # Testing standards
 
-Framework-agnostic test discipline — RSpec, ExUnit, Vitest/Jest, QUnit alike. Which level a behavior belongs at is in `testing-levels.md`, which loads on these same paths; framework mechanics are in `rspec.md` and the testing bullets of `elixir.md`, `react-typescript.md`, and `ember.md`.
+Framework-agnostic test discipline — RSpec, ExUnit, Vitest/Jest, QUnit alike. Which level a behavior belongs at is in `testing-levels.md`, which loads on these same paths; scale, load, and benchmark tests are in `performance-testing.md`; framework mechanics are in `rspec.md` and the testing bullets of `elixir.md`, `react-typescript.md`, and `ember.md`.
 
 - **Mock only at the boundary.** The only doubles are third-party APIs and external services — network, the system clock, the filesystem. Double what sits outside the boundary under test and nothing inside it, and seed only the data the scenario needs. A test that mocks its subject or its internal collaborators asserts the mock, not the behavior.
 - **Never mock the datastore.** Databases, caches, and key-value stores get a real test-scoped instance, an in-memory database, or in-process bindings. A mocked query, transaction, or rollback asserts nothing about what it stands in for and hides exactly the bugs a persistence test exists to catch.
@@ -40,8 +40,8 @@ Framework-agnostic test discipline — RSpec, ExUnit, Vitest/Jest, QUnit alike. 
 - **No `sleep`.** For async work, wait on the condition — poll for the expected state, or use the framework's synchronization helpers — never a fixed delay. A fixed delay is either too short (flaky) or too slow (wasteful), and usually both.
 - **Keep examples isolated.** No shared mutable state that leaks between tests; set up per-test so any test can run alone and in any order.
 - **Flakiness is a defect, and retries hide it.** When a test is intermittent, look at the async boundary, the isolation, and the teardown — never at the retry count or the length of a wait.
-- **Every test runs in CI.** Nothing "manual only", nothing gated behind a local-only condition, nothing pending unless it was explicitly asked for.
+- **Every test runs in CI.** Nothing "manual only", nothing gated behind a local-only condition, nothing pending unless it was explicitly asked for. The performance suite is the one test set kept out of the default run, and it gets its own CI job instead (`performance-testing.md`).
 - **Test data is synthetic.** Never real user records — names, emails, photos, or anything copied out of production. Use a reserved domain (`@example.invalid`), and tag generated resources so they stay distinguishable from real data at a glance.
 - **Never commit credentials or session state.** Cookies, tokens, passwords, saved storage state, and authenticated profiles are generated per run into a git-ignored directory — a committed one is a leaked credential that also rots.
 - **Never bypass authentication, authorization, or validation for a test's convenience.** Set auth up through the interface a real client uses. A test build may change identifiers and suppress notifications; it may not skip a permission check or a domain constraint, because then the test stops covering the thing that matters.
-- **A test never writes to production.** A config flag or a target name doesn't authorize it; that takes a deliberate, isolated path with its own approval. Read-only smoke checks against production are fine.
+- **A test never writes to production.** A config flag or a target name doesn't authorize it; that takes a deliberate, isolated path with its own approval. Read-only smoke checks against production are fine; read-only load against production is not.

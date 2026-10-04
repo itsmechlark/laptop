@@ -28,7 +28,7 @@ paths:
 
 # Choosing a test level
 
-Which level a behavior belongs at, and what each level owes. The discipline that holds at every level — mocking, determinism, isolation, test data — is in `testing.md`, which loads on these same paths.
+Which level a behavior belongs at, and what each level owes. The discipline that holds at every level — mocking, determinism, isolation, test data — is in `testing.md`, which loads on these same paths. Performance tests sit outside these levels, in `performance-testing.md`.
 
 | Level | Covers | Drives it through |
 | --- | --- | --- |
@@ -44,3 +44,4 @@ Which level a behavior belongs at, and what each level owes. The discipline that
 - **Prefer accessible locators end to end** — role, label, visible text — with a stable test id only where semantics can't identify the element. Generated class names and positional selectors break on changes that break nothing for a user.
 - **Follow the repo's existing end-to-end surface.** Where a harness already exists — a `playwright.config`, a `cypress/`, Rails system specs — write the qualifying journey there as part of the change, like any other level. Where none exists, standing one up is a proposal, not a silent addition: name the journey worth it, let the lower levels carry the coverage meanwhile, and raise it separately.
 - If a change looks like it wants an end-to-end test and you decide against it, say which lower-level coverage stands in and what boundary an end-to-end test wouldn't have added.
+- **Performance tests belong in a dedicated suite that the default test run excludes.** Unit and integration tests hold none: no timing, throughput, memory, query-count, or data-volume assertion goes in them. `performance-testing.md` loads only inside that suite's paths, so before writing the first one, read it at `~/.agents/rules/performance-testing.md`.
