@@ -41,8 +41,8 @@ When <situation>, <who> can <what>, so <outcome that matters to them>.
 
 ## Success measures
 
-- <measure> — from <where it's already tracked>, moving from <today> toward
-  <target>
+- <measure> — from <the report or person that has it today>, moving from
+  <today> toward <target>
 
 ## Out of scope
 
@@ -84,7 +84,8 @@ only when the whole outcome is delivered — not when its first slice does.
 
 Two rules bound it. **The block belongs to the file, never to the delivered
 text** — a PRD published to a tracker or a wiki renders it as literal YAML under
-the user's name, so strip it there. And **the output directory's existing
+the user's name, so strip it there, and from the draft shown in the chat, which
+the PM pastes as-is. And **the output directory's existing
 convention wins**: where the documents already in the destination carry a
 different shape or none, match them and say so.
 
@@ -141,14 +142,19 @@ agreed — go and agree it rather than leaving the section thin.
 **Constraints.** Requirements the solution must satisfy whichever approach
 wins: retention rules, contractual commitments, a platform limit, a rollout
 that has to stay reversible (AGENTS.md §5, *Safe rollout, feature flags &
-migrations*). Where the work has an interface, accessibility belongs here —
+migrations*) — written for the PM as "it has to be possible to switch this
+off again". Where the work has an interface, accessibility belongs here —
 keyboard operation, labeled controls, and error states that say what to do next
-are requirements, not polish. See AGENTS.md §2, *Quality attributes (always
-design for these)*.
+are requirements, not polish (AGENTS.md §2, *Quality attributes (always design
+for these)*). Write it in plain words without waiting to be asked: "works with a
+keyboard and a screen reader; error messages say what to do next".
 
 **Open questions.** What is still genuinely undecided, each with what it
 changes and who can answer it. A question with no consequence attached is
-padding; a consequence with no owner never gets answered.
+padding; a consequence with no owner never gets answered. A technical answer
+the PM relayed — "we need a webhook" — goes here as a suggested approach for
+engineering to weigh, the one place a named mechanism is allowed, because it is
+recorded rather than decided.
 
 **Assumptions.** Everything the author supplied. This is the section that keeps
 a PRD honest: the reader cannot otherwise tell an invented user segment from a
@@ -165,9 +171,10 @@ researched one, and both look equally confident on the page.
 - [ ] Who this is for names a real segment, not "users"
 - [ ] The Outcome is in job-story form and **Done when** is observable behavior
 - [ ] Nothing in the document names a screen, an endpoint, a schema, a library,
-      or a vendor — the approach is still open
-- [ ] Every success measure identifies where the number comes from, or says the
-      instrumentation does not exist yet
+      or a vendor — the approach is still open — outside an open question that
+      records a suggested approach for engineering to weigh
+- [ ] Every success measure names the report or person the number comes from,
+      or says nobody counts it today and a way to count it is needed
 - [ ] Out of scope names something actually raised and set aside
 - [ ] Accessibility appears in Constraints wherever the work has an interface
 - [ ] No effort estimate, sprint, date, or team assignment anywhere
@@ -175,4 +182,7 @@ researched one, and both look equally confident on the page.
 - [ ] Everything the author supplied is in Assumptions, labeled — nothing
       invented is presented as researched
 - [ ] The project's own vocabulary is used throughout, no synonyms
+- [ ] The draft shown in the chat has no frontmatter block, and neither it nor
+      the questions before it carry engineering vocabulary — no file path, code
+      name, skill name, YAML, "Markdown", or "job story"
 - [ ] Nothing here re-decides something an existing ADR already settled
