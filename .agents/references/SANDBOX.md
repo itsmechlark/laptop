@@ -1,6 +1,6 @@
 ---
 name: sandbox-gotchas
-description: Workarounds for commands that fail under the macOS Seatbelt sandbox that Claude Code and Codex apply to each Bash command — gh CLI auth (telling an expired token apart from a sandbox keychain failure), and Claude's pipe/redirect trap where a pipe, redirect, or substitution re-sandboxes an excluded command, and the pnpm purge prompt that destroys node_modules when silenced. Read when a command fails with "operation not permitted", HTTP 401, or a keychain/credential error. Cursor runs unsandboxed and is unaffected.
+description: Workarounds for commands that fail under the macOS Seatbelt sandbox that Claude Code and Codex apply to each Bash command — gh CLI auth (telling an expired token apart from a sandbox keychain failure), Claude's pipe/redirect trap where a pipe, redirect, or substitution re-sandboxes an excluded command, and the pnpm purge prompt that destroys node_modules when silenced. Read when a command fails with "operation not permitted", HTTP 401, or a keychain/credential error. Cursor runs unsandboxed and is unaffected.
 ---
 
 # Sandbox gotchas
