@@ -1,6 +1,6 @@
 ---
 name: sandbox-gotchas
-description: Workarounds for commands that fail under the macOS Seatbelt sandbox that Claude Code and Codex apply to each Bash command — gh CLI auth (telling an expired token apart from a sandbox keychain failure), and Claude's pipe/redirect trap where a pipe, redirect, or substitution re-sandboxes an excluded command. Read when a command fails with "operation not permitted", HTTP 401, or a keychain/credential error. Cursor runs unsandboxed and is unaffected.
+description: Workarounds for commands that fail under the macOS Seatbelt sandbox that Claude Code and Codex apply to each Bash command — gh CLI auth (telling an expired token apart from a sandbox keychain failure), and Claude's pipe/redirect trap where a pipe, redirect, or substitution re-sandboxes an excluded command, and the pnpm purge prompt that destroys node_modules when silenced. Read when a command fails with "operation not permitted", HTTP 401, or a keychain/credential error. Cursor runs unsandboxed and is unaffected.
 ---
 
 # Sandbox gotchas
@@ -88,6 +88,27 @@ flags instead of piping:
 command reaches the keychain. A pipe doesn't defeat this the way it does on
 Claude, because Codex escalates the whole command rather than matching a listed
 name. An expired token still needs `gh auth login` — escalation won't rescue it.
+
+## pnpm: a purge prompt is not a flag to silence
+
+The sandbox denies writes inside any `.idea/` directory, and a few common
+packages (`iconv-lite@0.6.3`) ship one. A `node_modules` built outside the
+sandbox contains those files, but pnpm cannot recreate them in-sandbox.
+
+When pnpm reports that the modules directories "will be removed and reinstalled
+from scratch", that prompt is the only thing between you and a full purge. It
+appears even for `pnpm install --lockfile-only`. These all purge without asking,
+then fail on the `.idea` write and leave `node_modules` empty:
+
+- `--config.confirmModulesPurge=false` (it means "purge without asking")
+- `CI=true`
+- answering yes
+
+Recovery is a plain `pnpm install --frozen-lockfile` run outside the sandbox.
+
+For a dependency bump, edit the manifests or catalog, then ask the user to run
+`! pnpm install` themselves (answering `n` to any purge prompt), and run the
+gates in-sandbox afterwards. Do not regenerate the lockfile from the sandbox.
 
 ## When a bare command still fails: blocked Mach lookups
 
