@@ -153,6 +153,11 @@ They load the tracked Codex template and Cursor hooks and pass synthetic tool
 input through their command hooks. The supplied commands are never executed;
 the Codex command log is isolated in a temporary home directory.
 
+The tests also check that Codex uses the user's shell profile without replacing
+PATH. With Node installed, a subprocess probe starts the configured pnpm
+lifecycle shell with `-c 'exit 0'`; it does not start an application or access
+credentials.
+
 These tests cover multiline command boundaries, shell quoting, line
 continuations, download pipelines, parse failures, and safe commands that must
 remain available. They verify hook decisions, not the clients' full approval

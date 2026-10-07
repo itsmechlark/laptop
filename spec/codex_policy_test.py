@@ -2,6 +2,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import tempfile
 import tomllib
@@ -36,6 +37,35 @@ class CodexPolicyTest(unittest.TestCase):
 
     def test_analytics_are_disabled(self):
         self.assertFalse(self.config["analytics"]["enabled"])
+
+    def test_shell_profile_keeps_the_users_path(self):
+        policy = self.config["shell_environment_policy"]
+        self.assertTrue(policy["experimental_use_profile"])
+        self.assertNotIn("PATH", policy["set"])
+
+    def test_pnpm_lifecycle_shell_can_start(self):
+        tool_path = os.pathsep.join(("/opt/homebrew/bin", os.environ["PATH"]))
+        node = shutil.which("node", path=tool_path)
+        if node is None:
+            self.skipTest("Node is required for the lifecycle shell probe")
+        shell = self.config["shell_environment_policy"]["set"].get(
+            "NPM_CONFIG_SCRIPT_SHELL", "sh"
+        )
+        result = subprocess.run(
+            [node, "-e", """
+                const { spawnSync } = require('node:child_process');
+                const result = spawnSync(process.argv[1], ['-c', 'exit 0']);
+                if (result.error) {
+                    console.error(result.error.code);
+                    process.exit(1);
+                }
+                process.exit(result.status ?? 1);
+            """, shell],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     def decision(self, command):
         decisions = []

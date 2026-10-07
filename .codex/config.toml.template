@@ -45,7 +45,7 @@ memories = true
 [shell_environment_policy]
 inherit = "all"
 ignore_default_excludes = false
-experimental_use_profile = false
+experimental_use_profile = true
 
 [shell_environment_policy.filters]
 "DATABASE_URL" = "exclude"
@@ -63,6 +63,8 @@ experimental_use_profile = false
 "*_CREDENTIALS" = "exclude"
 
 [shell_environment_policy.set]
+# pnpm's bare `sh` lookup can stop at a sandbox-denied inherited PATH entry.
+NPM_CONFIG_SCRIPT_SHELL = "/bin/sh"
 WRANGLER_LOG_PATH = "/tmp/wrangler"
 
 # -----------------------------------------------------------------------------

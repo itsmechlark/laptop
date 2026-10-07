@@ -89,6 +89,20 @@ command reaches the keychain. A pipe doesn't defeat this the way it does on
 Claude, because Codex escalates the whole command rather than matching a listed
 name. An expired token still needs `gh auth login` — escalation won't rescue it.
 
+## pnpm: shell lookup fails before a lifecycle script starts
+
+Codex's root-deny filesystem profile can cause Node to return `spawn EPERM`
+when pnpm searches PATH for `sh`. An inaccessible PATH entry can stop lookup
+before `/bin/sh`, even though spawning `/bin/sh` by its absolute path works.
+On macOS, system tool directories inherited from the host can trigger this.
+
+The Codex template uses the user's shell profile and keeps its PATH. It sets
+`NPM_CONFIG_SCRIPT_SHELL=/bin/sh` so pnpm starts its lifecycle shell by absolute
+path. This is a Codex runtime adjustment for its root-deny profile; Claude and
+Cursor do not need this override. Credential denials, including `~/.npmrc`, stay
+in place. The pnpm warning about reading that file is separate from shell lookup
+failure. Other tools that search PATH can still encounter denied entries.
+
 ## pnpm: a purge prompt is not a flag to silence
 
 The sandbox denies writes inside any `.idea/` directory, and a few common
