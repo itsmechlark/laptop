@@ -347,7 +347,8 @@
     "code-simplifier@claude-plugins-official": true,
     "claude-md-management@claude-plugins-official": true,
     "mcp-apps@mcp-apps": true,
-    "ruby-lsp@claude-plugins-official": true
+    "ruby-lsp@claude-plugins-official": true,
+    "keepalive@agent-router-tools": true
   },
   "extraKnownMarketplaces": {
     "semaphoreio": {
@@ -373,6 +374,12 @@
         "source": "github",
         "repo": "cloudflare/skills"
       }
+    },
+    "agent-router-tools": {
+      "source": {
+        "source": "github",
+        "repo": "alexandernicholson/agent-router"
+      }
     }
   },
   "sandbox": {
@@ -380,9 +387,6 @@
     "failIfUnavailable": true,
     "allowUnsandboxedCommands": false,
     "network": {
-      "allowMachLookup": [
-        "com.apple.trustd*"
-      ],
       "allowedDomains": [
         "github.com",
         "*.github.com",
@@ -431,7 +435,10 @@
       "allowUnixSockets": [
         "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
       ],
-      "allowLocalBinding": true
+      "allowLocalBinding": true,
+      "allowMachLookup": [
+        "com.apple.trustd*"
+      ]
     },
     "filesystem": {
       "allowWrite": [
@@ -614,10 +621,21 @@
       "trivy *"
     ]
   },
+  "promptCacheTtl": "1h",
+  "subagentPromptCacheTtl": "5m",
   "effortLevel": "medium",
   "promptSuggestionEnabled": false,
   "awaySummaryEnabled": false,
   "tui": "fullscreen",
-  "promptCacheTtl": "1h",
-  "subagentPromptCacheTtl": "5m"
+  "pluginConfigs": {
+    "keepalive@agent-router-tools": {
+      "options": {
+        "cache_ttl": "1h",
+        "subagent_cache_ttl": "5m",
+        "teammate_cache_ttl": "5m",
+        "cache_upkeep": "warmcomp",
+        "teammate_cache_upkeep": "warmcomp"
+      }
+    }
+  }
 }
