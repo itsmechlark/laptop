@@ -617,5 +617,7 @@
   "effortLevel": "medium",
   "promptSuggestionEnabled": false,
   "awaySummaryEnabled": false,
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "promptCacheTtl": "1h",
+  "subagentPromptCacheTtl": "5m"
 }
