@@ -626,16 +626,16 @@
   "effortLevel": "medium",
   "promptSuggestionEnabled": false,
   "awaySummaryEnabled": false,
-  "tui": "fullscreen",
   "pluginConfigs": {
     "keepalive@agent-router-tools": {
       "options": {
-        "cache_ttl": "1h",
-        "subagent_cache_ttl": "5m",
+        "cache_ttl": "default",
+        "subagent_cache_ttl": "default",
         "teammate_cache_ttl": "5m",
         "cache_upkeep": "warmcomp",
         "teammate_cache_upkeep": "warmcomp"
       }
     }
-  }
+  },
+  "tui": "fullscreen"
 }
