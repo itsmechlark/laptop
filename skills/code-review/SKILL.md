@@ -223,6 +223,7 @@ On someone else's PR the verdict is where the review stops until the user says o
 
 | Issue | Solution |
 | --- | --- |
+| You're about to use the GitHub CLI (for example to fetch a PR diff) and want to avoid sandbox failures | Use the `gh-cli` skill first. It covers command shapes, structured output, and the keychain workaround that keep the CLI from tripping the sandbox. |
 | Diff output is truncated, or comes back empty | Empty means the ref is wrong, or the work is uncommitted and wants the working-tree path in **Scope the change** instead. Truncated means working from `--name-status` and reading files individually until the count you reviewed matches the count that changed. |
 | `--numstat` is dominated by a lockfile or generated file | Account for it, don't read it. Say which files you treated as generated, in case one of them isn't. |
 | The branch was force-pushed under you | Your line references are stale. Re-fetch, say which SHA you reviewed, and re-run the scope step. |

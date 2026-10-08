@@ -216,6 +216,7 @@ What's specific to a PR body is the reader's position: they have the diff and do
 
 | Issue | Solution |
 | --- | --- |
+| You're about to use the GitHub CLI and want to avoid sandbox failures | Use the `gh-cli` skill first. It covers command shapes, structured output, and the keychain workaround that keep the CLI from tripping the sandbox. |
 | `gh` is missing or `gh auth status` fails | Say what's missing and hand over the title plus the body file so the user can open it themselves. Don't silently fall back to a browser flow. |
 | A PR already exists for this branch | `gh pr view --json number,url,body` — edit that one rather than opening a second. |
 | `gh pr create` reports no upstream, or offers to push | Push first: `git push -u origin <branch>`. Pushing is a publish step, so it needs the same explicit go-ahead. |

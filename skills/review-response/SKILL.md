@@ -174,6 +174,7 @@ If you were wrong, say so once and move on. No apology paragraph, no defense of 
 
 | Issue | Solution |
 | --- | --- |
+| You're about to use the GitHub CLI and want to avoid sandbox failures | Use the `gh-cli` skill first. It covers command shapes, structured output, and the keychain workaround that keep the CLI from tripping the sandbox. |
 | `gh pr view` shows review bodies but not the inline comments | They're a separate endpoint: `gh api repos/{owner}/{repo}/pulls/<n>/comments --paginate`. |
 | A reply posts as a new top-level comment instead of in-thread | You used the issue-comment endpoint. Reply through `pulls/<n>/comments/<id>/replies` — [REPLIES.md](references/REPLIES.md). |
 | The comment references a file or symbol that doesn't exist | Check the base: the reviewer may be reading an older push, or the branch was rebased under them. Say which commit you're on. |

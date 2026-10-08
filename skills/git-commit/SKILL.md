@@ -177,6 +177,7 @@ The shape is `^([a-z0-9]+-[0-9]+-)?(feat|fix|chore|build|ci|docs|style|refactor|
 
 | Issue | Solution |
 | --- | --- |
+| You're about to use the GitHub CLI (for example to look up an issue for a reference) and want to avoid sandbox failures | Use the `gh-cli` skill first. It covers command shapes, structured output, and the keychain workaround that keep the CLI from tripping the sandbox. |
 | A pre-commit hook rewrote files during the commit | Re-stage exactly what it touched (`git add` those paths) and commit again, so the hook's output lands in the same commit rather than the next one. |
 | A pre-commit hook fails and blocks the commit | Report what it said and fix the underlying problem. Don't `--no-verify` unless the user asked for it. |
 | The subject and body ran together, or quoting mangled the message | The message went in inline. Write it to a file under `$TMPDIR` and use `git commit -F` with the full absolute path. |
