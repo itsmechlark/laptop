@@ -32,6 +32,7 @@ Each RSpec spec type realizes one of the levels in `rules/testing-levels.md`. Pi
 | Request spec | An HTTP endpoint through the stack — status, JSON or redirect, auth, params, the persisted effect | Integration |
 | System spec | A user journey through the browser, JavaScript-dependent behavior, a multi-step form | End to end |
 | Mailer / job / helper spec | The one unit's contract — the mail built, the work enqueued, the value returned | Unit, or Integration once it touches the database or a queue |
+| Migration spec | A data migration against the schema it ran on — the rows it changed, the rows it left alone — under `spec/migrations/`, one per migration version; shape-only migrations get none | Integration, pinned to its version (`rules/migration-testing.md`) |
 | Performance spec | A cost — query count, allocations, elapsed time, behavior at volume — under `spec/performance/` | None: a dedicated suite the default run excludes (`rules/performance-testing.md`) |
 
 - **Default to the lowest spec type that can see the behavior.** A calculation on a record is a model spec; reaching it through a request spec does not discharge its own coverage — a higher-level test never does (`rules/testing-levels.md`).
