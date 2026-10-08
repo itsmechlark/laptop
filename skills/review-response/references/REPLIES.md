@@ -21,6 +21,7 @@ matter how polite it is.
 | Can't verify here | the limitation, and a request for direction |
 | Right but out of scope | agreement, the follow-up link, why not now |
 | You pushed back and were wrong | the correction, in one line |
+| Reviewer walked through a failure scenario | the step that breaks and the evidence, or the repro result and the fix |
 
 ## Worked examples
 
@@ -69,6 +70,50 @@ alongside and deprecate the old one over a release — worth it?
 ```
 Grepped for callers and nothing hits this endpoint. Rather than build out the
 filters and export, I'd delete it. Is there usage I'm missing?
+```
+
+### Answering a failure scenario
+
+Answer by step number. The reviewer laid out a chain, so either point to the
+link that breaks or report what the repro did. A verdict on the whole chain
+("not an issue") makes them work it all out again to see where you disagree.
+
+A step that doesn't hold:
+
+```
+Steps 1–3 hold. Step 4 doesn't: the credit and the event record are written in
+one transaction (`apply_credit`, `handler.rb:42`), and the unique index on
+`event_id` rejects the second insert, so the retry rolls back. Your
+double-delivery test passes on 9c1e2ab. Worth keeping as a regression test?
+```
+
+A repro that fails:
+
+```
+Confirmed: your double-delivery test fails here with two credits. Moved the
+lookup back ahead of the credit and wrapped both in one transaction. The test
+is in the handler spec now.
+```
+
+A failure that predates the diff:
+
+```
+Steps hold, but step 3 is wrong about the before: the lookup already ran after
+the credit on main (`git blame` puts it in 4d7e0b1). Real bug, not this PR's.
+Opened #431 with your scenario. OK to keep it out of this diff?
+```
+
+When you push back with your own failure scenario, use the same shape. Give
+the trigger, the numbered steps, and the condition, so the reviewer can check
+each step instead of arguing with a conclusion.
+
+```
+Moving the lookup first reintroduces the bug this PR fixes:
+1. A delivery fails halfway, after the event is recorded but before the credit.
+2. The provider retries.
+3. The lookup finds the event and returns early, so the credit is never applied.
+Only on a mid-request failure, but that's the case the PR was opened for. I'd
+keep the order and make the two writes atomic instead. Does that work?
 ```
 
 ### Asking about an unclear comment

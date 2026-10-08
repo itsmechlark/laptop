@@ -36,6 +36,11 @@ forgotten.
 @bob's review was an approval with suggestions, so 4 is a suggestion rather than a gate.
 ```
 
+Where the comment laid out a failure scenario, the outcome names the result:
+"repro fails", "step 4 doesn't hold: the unique index rejects it", or "real, but
+it predates this PR". "Doesn't hold" with no step tells the user nothing they
+can check.
+
 Close with the question: post the questions and pushback now, and start on which
 fixes?
 

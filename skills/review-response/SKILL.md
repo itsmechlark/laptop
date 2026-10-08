@@ -92,6 +92,14 @@ Each item gets checked against the code, not against how confident the comment s
 - Does it contradict a decision already settled with the user, or another comment in the same review?
 - Would it build something nothing calls? `grep` for callers before implementing an endpoint "properly" — an unused one gets deleted, not built out (AGENTS.md §1, *Engineering mindset (plan & code like a staff engineer)*: don't add flexibility the task doesn't require).
 
+**A comment that walks through a failure scenario gets checked one step at a time.** "When X happens, then Y, so Z fails" is a chain, and it holds only if every link does. Three checks, in order:
+
+1. **Run the repro, if the reviewer gave one.** A failing test settles the item faster than reading does. If the repro fails for a different reason than the one claimed, that's a finding in itself.
+2. **Otherwise, walk the steps** and record the first one that doesn't hold. Usually it's a guard the reviewer didn't see, or a code path that never reaches the line they quoted.
+3. **Check the conditions and the before/after.** Can the "when" actually happen in this system, under its real configuration and traffic? Did this diff introduce the failure, or was it already there? A failure that predates the diff is real, but it's a follow-up rather than a blocker on this PR.
+
+The reply then names the step that breaks or the repro result ([REPLIES.md](references/REPLIES.md#answering-a-failure-scenario)). A scenario relayed from an AI reviewer and marked "please confirm" gets the same checks. The reviewer is asking you to settle it, so answer with the result, not with agreement.
+
 If you can't verify an item here, that's a finding, not a blocker — record the limitation and carry it into the next step.
 
 ### 4. Report the verification, before touching code
@@ -134,7 +142,7 @@ Write like an engineer discussing a change with a teammate, not like a subordina
 
 ## When to push back
 
-Push back when verification says the suggestion breaks existing behavior, is wrong for this stack or version, relies on context the reviewer doesn't have, adds something nothing needs, or contradicts a decision already made with the user. Lead with the evidence that convinced you, and offer the alternative you'd take instead.
+Push back when verification says the suggestion breaks existing behavior, is wrong for this stack or version, relies on context the reviewer doesn't have, adds something nothing needs, or contradicts a decision already made with the user. Lead with the evidence that convinced you, and offer the alternative you'd take instead. Where the pushback is "this would break something", show it the way a reviewer should: the trigger, the steps to the failure, and the condition it needs. A conclusion alone asks the reviewer to take your word for it.
 
 If the reviewer holds their position and you still disagree after checking again, stop trading replies. Say what you each believe and what would settle it, then take it to whoever owns the decision — the code owner, the person who made the original architectural call, or the user. Two people repeating themselves in a thread is not a tiebreak.
 
