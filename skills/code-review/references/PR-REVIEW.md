@@ -155,6 +155,64 @@ Where a finding is a design disagreement rather than a defect, say what you'd do
 instead and what it costs. "This is wrong" with no alternative is a veto, and a
 veto isn't a review.
 
+### A defect comment shows the failure
+
+A Critical or High defect, or any defect whose cause isn't visible in the hunk,
+needs more than "this isn't idempotent". The author knows the code better than
+you do. They'll believe a chain of steps they can check, not a conclusion they
+have to rebuild for themselves. Give the comment five parts, in this order:
+
+1. **Problem.** Name the two assumptions that disagree, in the domain's terms,
+   in one or two sentences. Point at the conflict, not just the line.
+2. **How it goes wrong.** Number the steps from a realistic trigger to the
+   failure someone can observe. Mark the step where this diff changes behavior
+   ("before this change … / now …") so the regression is pinned to the diff,
+   not to code that was already there. End on the blast radius: what else
+   stops, and who notices, and when.
+3. **When.** List the conditions that all have to hold, and say when the
+   failure is most likely: right after deploy, under load, on the first
+   backfill, under one configuration.
+4. **Evidence.** Give the failing test or probe, what it printed, and the
+   snippet, so the author can run it themselves. If you only read the code,
+   say so and post it as `question (blocking):` rather than `issue:`. An
+   unproven chain is a question you're asking, but it should keep the weight
+   it would carry if confirmed.
+5. **Suggestion.** The fix you'd take, as a suggestion. The branch is theirs.
+
+```markdown
+issue (blocking): the duplicate-delivery check now runs after the credit.
+
+**Problem.** The provider delivers webhooks at least once, but the handler now
+applies the credit before checking whether it has seen the event.
+
+**How it goes wrong**
+1. The provider sends `invoice.paid`, and the handler credits the account.
+2. The handler responds after the provider's timeout, so the provider retries.
+3. Before this change, the processed-events lookup ran first and returned early.
+4. Now the credit is applied first, so the retry credits the account again.
+5. The lookup then finds the event and returns 200. Nothing errors or alerts,
+   so the double credit only shows up at reconciliation.
+
+**When.** Any delivery that takes longer than the provider's timeout. Most
+likely under load, or during a deploy while workers restart mid-request.
+
+**Evidence.** Delivering the same payload twice in the handler's test records
+two credits (snippet below).
+
+**Suggestion.** Keep the lookup first, and write the event record in the same
+transaction as the credit.
+```
+
+A Medium or Low finding, or a nit, stays one or two lines. The five parts are
+for findings the author won't believe until they see the chain. Padding a nit
+into five sections buries the findings that need them.
+
+**Say where a scenario came from when you didn't derive it yourself.** That
+covers one from an AI reviewer, a teammate's notes, or a draft this skill wrote
+that the user is about to post as their own. Ask the author to confirm it rather
+than presenting it as settled. Saying how sure you are tells the author how much
+weight to give it before they read any further.
+
 ## 6. Posting the review
 
 **Draft, show the user, then ask.** Posting is outward-facing: it notifies the

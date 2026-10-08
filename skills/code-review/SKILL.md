@@ -136,6 +136,12 @@ A false positive is not a free miss. On your own diff it costs a minute; on some
 
 **Those four suppress false positives; one check runs the other way.** They use unchanged code to dismiss a finding — the counterpart uses it to raise one. Where the new path depends on a list the diff didn't touch — the rescued exceptions, the allowed statuses, the permitted params, the branches of a `case` — read it and ask whether it covers the population this change is about. A retry that rescues only errno constants does not retry the timeouts and DNS failures that make up most of the outage it was written for. Nothing in the diff points at that list; it is in scope because the new code's correctness rests on it.
 
+**Prove a Critical or High finding wherever a probe can reach it, rather than arguing for it.** Write the cheapest thing that fails: a test that replays the input, pins the clock, or seeds the bad state, or a REPL snippet. Keep it so it can go into the finding.
+- **On the user's own change**, the probe is the first red step of the fix. Hand it to `tdd` rather than throwing it away.
+- **On someone else's PR**, it goes in a scratch worktree and never on their branch. It never runs a fork's code ([PR-REVIEW.md](references/PR-REVIEW.md#4-running-the-branch)), so a fork's findings stay inferred.
+
+An inferred finding keeps its severity, but says it wasn't reproduced.
+
 **Don't report:** anything a linter or type-checker enforces; style, formatting, or naming the repo doesn't document; defense-in-depth wishes dressed as defects; framework behavior you didn't verify; a risk the repo documents as accepted; a finding already raised and answered in the PR's own threads. What you couldn't settle goes in the coverage line as *could not verify*, not into the findings table as a hedge.
 
 ## Long-term impact — escalate high-blast-radius changes
@@ -161,6 +167,13 @@ _Reviewed N of N changed files at [sha] — M lines changed, T of them in tests.
 | # | File | Line | Issue | Severity | Blocks |
 |---|------|------|-------|----------|--------|
 | 1 | [file] | [line] | [what breaks, and when] | 🔴 Critical | yes |
+
+_Critical and High only, one block each; on someone else's PR it becomes the inline comment ([shape](references/PR-REVIEW.md#a-defect-comment-shows-the-failure)):_
+
+**#1 — [the two assumptions that disagree]**
+1. [realistic trigger] → … → [the step this diff changed: before / now] → … → [observable failure, and what else stops]
+- When: [conditions that must all hold; when it is most likely]
+- Evidence: [probe and its result, or "inferred from reading, not reproduced"]
 
 ### Standards (conformance)
 | # | File | Line | Finding | Weight |
