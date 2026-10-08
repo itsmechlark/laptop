@@ -28,7 +28,7 @@ paths:
 
 # Testing standards
 
-Framework-agnostic test discipline — RSpec, ExUnit, Vitest/Jest, QUnit alike. Which level a behavior belongs at is in `testing-levels.md`, which loads on these same paths; scale, load, and benchmark tests are in `performance-testing.md`; whether a migration owes a test is in `migration-testing.md`; framework mechanics are in `rspec.md` and the testing bullets of `elixir.md`, `react-typescript.md`, and `ember.md`.
+Framework-agnostic test discipline — RSpec, ExUnit, Vitest/Jest, QUnit alike. Which level a behavior belongs at is in `testing-levels.md`, which loads on these same paths; scale, load, and benchmark tests are in `performance-testing.md`; whether a migration owes a test is in `testing-migration.md`; framework mechanics are in `rspec.md` and the testing bullets of `elixir.md`, `react-typescript.md`, and `ember.md`.
 
 - **Mock only at the boundary.** The only doubles are third-party APIs and external services — network, the system clock, the filesystem. Double what sits outside the boundary under test and nothing inside it, and seed only the data the scenario needs. A test that mocks its subject or its internal collaborators asserts the mock, not the behavior.
 - **Never mock the datastore.** Databases, caches, and key-value stores get a real test-scoped instance, an in-memory database, or in-process bindings. A mocked query, transaction, or rollback asserts nothing about what it stands in for and hides exactly the bugs a persistence test exists to catch.

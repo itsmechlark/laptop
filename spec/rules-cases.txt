@@ -19,7 +19,7 @@ app/helpers/reservations_helper.rb          comments,rails-view,rails,ruby
 app/components/badge_component.rb           comments,rails-view,rails,ruby
 config/routes.rb                            comments,rails-controller,rails,ruby
 config/initializers/sidekiq.rb              comments,rails,ruby
-db/migrate/20260101_add.rb                  comments,migration-testing,rails-migration,rails,ruby,schema-reference
+db/migrate/20260101_add.rb                  comments,rails-migration,rails,ruby,schema-reference,testing-migration
 db/schema.rb                                comments,rails-migration,rails,ruby,schema-reference
 db/structure.sql                            rails-migration,schema-reference
 db/seeds.rb                                 comments,rails-migration,rails,ruby
@@ -59,10 +59,10 @@ k6/checkout.js                              comments,ember,performance-testing
 load/checkout.k6.ts                         comments,performance-testing,react-typescript
 src/search/rank.benchmark.ts                comments,performance-testing,react-typescript
 __tests__/performance/rank.test.ts          comments,performance-testing,react-typescript,testing-levels,testing
-prisma/migrations/0007_fill/migration.sql   migration-testing
-__tests__/migrations/0007_backfill.test.ts  comments,migration-testing,react-typescript,testing-levels,testing
-spec/migrations/20260101_backfill_spec.rb   comments,migration-testing,rspec,ruby,testing-levels,testing
-priv/repo/migrations/20260101_add.exs       comments,elixir,migration-testing
+prisma/migrations/0007_fill/migration.sql   testing-migration
+__tests__/migrations/0007_backfill.test.ts  comments,react-typescript,testing-levels,testing-migration,testing
+spec/migrations/20260101_backfill_spec.rb   comments,rspec,ruby,testing-levels,testing-migration,testing
+priv/repo/migrations/20260101_add.exs       comments,elixir,testing-migration
 app/routes/checkout.js                      comments,ember
 tests/unit/cart-test.js                     comments,ember,testing-levels,testing
 app/components/widget.jsx                   comments
