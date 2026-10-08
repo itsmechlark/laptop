@@ -18,4 +18,17 @@ Whether a schema migration owes a test of its own, and the shape that test takes
 - **Assert what a safe deploy needs**: the rows that should change did; the rows that shouldn't compare equal to the snapshot; a write in the previous application version's shape still succeeds afterwards; and where the migration can run more than once — batched, resumable, or outside a transaction — a second run changes nothing.
 - **Apply once per file and keep examples read-only.** An example that must write — the previous-version write — does it inside a rolled-back transaction, so no example's outcome depends on order.
 - **One test file per migration, named by its version** — `<version>_<name>` mirrors to `<test root>/migrations/<version>_<name>` with the runner's test suffix. It is frozen with its migration: once merged, neither changes, and both go when the chain is squashed.
+- **Lay the file out as one group per migration, one example per outcome**, in whatever the runner calls them — `describe`/`it`, `context`/`test`, a suite and its cases. The group names the migration and holds the setup once; each example names one outcome in plain words and makes one assertion about it:
+
+  ```
+  describe "<version>_<name>"
+    # setup, once: scratch database at the previous version, seed, snapshot, apply the migration
+    it "changes the rows the selection matches"
+    it "leaves <reason a row is skipped> unchanged"
+    it "handles nulls and duplicates"
+    it "accepts a write in the previous version's shape"   # inside a rolled-back transaction
+    it "changes nothing on a second run"                   # only where the migration can rerun
+  ```
+
+  Names read as the migration's contract. A branch of the selection that has no example is a branch the migration is untested on.
 - **Where the framework has a separate home for data changes** — a post-deploy task rather than a schema migration — prefer it: the migration stays DDL, and the transform is tested like any job, against the current schema.
