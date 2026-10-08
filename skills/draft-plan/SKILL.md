@@ -107,7 +107,7 @@ These are plan failures, not style preferences. Each one costs a round trip the 
 
 ## The handoff
 
-Show the plan, save it where the user asks, and stop there. With no convention to follow, offer `docs/plans/<YYYYMMDDHHMMSS>-<kebab-slug>.md` **when that directory already exists** and `~/.agents/plans/<YYYYMMDDHHMMSS>-<kebab-slug>.md` when it doesn't — the plan then carries `metadata.repo`, the repository's name. Never create `docs/plans/` to make room for the file: the directory existing is how a repository opts in, and most repositories belong to other people. Name the path you actually wrote to.
+Show the plan, save it where the user asks, and stop there. With no convention to follow, offer `docs/plans/<YYYYMMDDHHMMSS>-<kebab-slug>.md` **when that directory already exists** and `~/.agents/plans/<YYYYMMDDHHMMSS>-<kebab-slug>.md` when it doesn't — the plan then carries `metadata.repo`, the repository's name. When the work is related to a ticket or GitHub issue, prefix the slug with the lowercased key or `gh-<number>` — e.g. `proj-482-teammate-invites` — and record it in `metadata.tickets`. Never create `docs/plans/` to make room for the file: the directory existing is how a repository opts in, and most repositories belong to other people. Name the path you actually wrote to.
 
 Then name the execution route instead of taking it:
 

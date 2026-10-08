@@ -11,7 +11,7 @@ Match the destination to what was asked, and nothing more:
 | The user asked for | Do this |
 | --- | --- |
 | A spec | Return the Markdown in the conversation. Nothing is written anywhere. |
-| A durable local document | Write it to the path or docs location **they named**. When they asked for a file but didn't name one, offer `docs/specs/<YYYYMMDDHHMMSS>-<kebab-slug>.md` **if that directory already exists**, and `~/.agents/specs/<YYYYMMDDHHMMSS>-<kebab-slug>.md` if it doesn't — then let them accept or redirect. Never write without confirmation, and never create `docs/specs/` to make room for the file. |
+| A durable local document | Write it to the path or docs location **they named**. When they asked for a file but didn't name one, offer `docs/specs/<YYYYMMDDHHMMSS>-<kebab-slug>.md` **if that directory already exists**, and `~/.agents/specs/<YYYYMMDDHHMMSS>-<kebab-slug>.md` if it doesn't — then let them accept or redirect. When the work is related to a ticket or GitHub issue, prefix the slug with the lowercased key or `gh-<number>` and record it in `metadata.tickets`. Never write without confirmation, and never create `docs/specs/` to make room for the file. |
 | An existing tracker item filled in | Hand the draft over for tracker work — see below. |
 | A new tracker item | Resolve the real project and state vocabulary first, then get explicit approval immediately before publishing. A whole breakdown is several creates rather than one — put the count in the question you ask. |
 | Publishing, with no tracker integration available | Leave it as Markdown and say publication was not performed. |

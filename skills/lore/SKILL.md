@@ -75,7 +75,7 @@ The link is deliberately one-directional: the successor names the predecessor, a
 
 ### 3. Write it
 
-Copy [templates/lore-note.md](templates/lore-note.md) to `<YYYYMMDDHHMMSS>-<kebab-slug>.md` under whichever directory step 1 settled on, taking the timestamp from `date +%Y%m%d%H%M%S` and never from memory.
+Copy [templates/lore-note.md](templates/lore-note.md) to `<YYYYMMDDHHMMSS>-<kebab-slug>.md` under whichever directory step 1 settled on, taking the timestamp from `date +%Y%m%d%H%M%S` and never from memory. When the work is related to a ticket or GitHub issue, prefix the slug with the lowercased key or `gh-<number>` — e.g. `proj-482-teammate-invites` — and record it in `metadata.tickets`.
 
 Fill the frontmatter, then the lead paragraph, then only the sections that have something in them. **Omit every empty section** — a heading with nothing under it is the filler this skill exists to prevent (AGENTS.md §8).
 

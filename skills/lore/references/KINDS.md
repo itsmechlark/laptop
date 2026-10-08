@@ -144,6 +144,13 @@ From `date +%Y%m%d%H%M%S`, never from memory — leading zeros included. The keb
 is lowercase and hyphenated, and names the *subject*, not the genre: `kind`
 already carries the genre, so `-plan` and `-harden` suffixes are redundant.
 
+When the work is related to or created because of a ticket or GitHub issue,
+**prefix the slug with the lowercased ticket key or `gh-<number>`** so the file
+sorts and greps with its tracker context:
+`20261008143000-proj-482-teammate-invites.md`,
+`20261008143000-gh-42-rename-saved-reports.md`. The same key belongs in
+`metadata.tickets`. When there is no ticket, the slug is the subject alone.
+
 ## Finding a note again
 
 There is no index file, on purpose: an index lists filenames and rots the moment
