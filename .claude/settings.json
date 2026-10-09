@@ -456,7 +456,8 @@
       "allowLocalBinding": true,
       "allowMachLookup": [
         "com.apple.trustd*"
-      ]
+      ],
+      "tlsTerminate": {}
     },
     "filesystem": {
       "allowWrite": [
