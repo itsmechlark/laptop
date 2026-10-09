@@ -5,6 +5,7 @@ __pycache__
 artifacts
 .claude/.cc-writes
 .claude/projects
+.claude/settings.*.json
 .agents/**/.claude
 skills/**/.claude
 .agents/**/.system
