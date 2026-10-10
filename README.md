@@ -264,8 +264,9 @@ Sandbox troubleshooting (`~/.agents/references/SANDBOX.md`)
 so every client can read `SANDBOX.md` on demand.
 It documents workarounds for commands that fail under the macOS Seatbelt
 sandbox that Claude Code and Codex apply to each Bash command —
-the `gh` CLI losing keychain access, and the pipe trap where an
-`excludedCommands` escape is cancelled the moment the command is piped.
+the `gh` CLI losing keychain access, the pipe trap where an
+`excludedCommands` escape is cancelled the moment the command is piped,
+pnpm's purge prompt, and `ps`/`pgrep` failing quietly so a wait loop exits early.
 `.agents/AGENTS.md` points agents at it when a command hits the sandbox.
 Cursor runs unsandboxed, so none of it applies there.
 

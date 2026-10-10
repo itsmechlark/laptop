@@ -98,7 +98,7 @@ spec/                   # verification tests and fixtures
   CONTEXT.md            # root context map — machine-local, git-ignored (optional)
   references/           # prose shipped to ~/.agents/references, read on demand
     CONTEXT-FORMAT.md   # template for .agents/CONTEXT.md
-    SANDBOX.md          # sandbox failure workarounds (gh keychain, the pipe trap)
+    SANDBOX.md          # sandbox failure workarounds (gh keychain, pipe trap, pnpm, ps/pgrep)
   skills/               # skill bodies: vendored + project-only (project-only = not linked from skills/)
 rules/                  # path-scoped language standards, auto-loaded by glob
 skills/                 # published skills → ~/.agents/skills; first-party dirs + symlinks into .agents/skills
@@ -431,6 +431,24 @@ translates `paths:` into the bare `globs:` string Cursor wants. Author only the
 `.md`; re-run `sh mac` to refresh the Cursor copy, and `check-payload` verifies
 the two stay in sync
 ([ADR 0018](docs/adr/0018-generate-cursor-rules-from-canonical-rules.md)).
+
+### `.agents/references/*.md`
+
+Prose shipped to every machine and read on demand by whichever agent hits the
+problem — Claude Code, Codex, Cursor, or a client this repo doesn't configure.
+Keep `SANDBOX.md` agnostic:
+
+- Describe each failure by its symptom and fix it in plain shell. A tool name,
+  flag, or prompt syntax from one client (`run_in_background`, `! cmd`,
+  `excludedCommands`) is not the fix; at most it is one way to apply it.
+- Every client-specific fact — a setting name, a config path, whether a client is
+  sandboxed — goes in the "Harness mechanics" table at the end, as a column per
+  client. A new client adds a column, not a paragraph.
+- A section's heading names a client only when the behavior is wholly that
+  client's. Say "verified under X" or "untested" rather than implying a claim
+  holds everywhere.
+- The frontmatter `description` and the pointer in `.agents/AGENTS.md` name
+  symptoms, not clients.
 
 ### Vendored skills
 
