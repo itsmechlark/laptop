@@ -324,7 +324,7 @@
       "~/.claude"
     ]
   },
-  "model": "claude-sonnet-5-5[1m]",
+  "model": "opusplan",
   "hooks": {
     "PreToolUse": [
       {
