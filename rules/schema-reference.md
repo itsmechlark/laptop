@@ -16,6 +16,7 @@ A schema reference is the prose companion beside a machine-readable schema — `
 
 - **The document existing is how a repository opts in.** Where there is none this rule is inert: don't create one, don't offer to generate one from the schema, and don't scatter the prose it would have held into schema comments instead.
 - **Keep your own change from making it wrong.** A model you added, renamed, or dropped belongs in the document in the same commit, written in the shape the document already uses — not the shape below.
+- **File a new model under the domain that owns it, not the feature that first uses it.** Ask where its truth and purpose live. A model several domains use is listed once, under its owner, and the others name it under Integration. A name or purpose that reads oddly beside its section's other models is the cue to check, though a shared prefix is not proof of ownership.
 - **Offer the rest; don't apply it.** Where the document drifts from the standard, surface it as a finding with the cost attached and stop there. Restructuring a schema reference is its own change, and it needs a yes.
 
 The standard worth offering:

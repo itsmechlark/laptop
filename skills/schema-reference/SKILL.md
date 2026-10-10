@@ -61,7 +61,7 @@ For Rails, read model names from `db/schema.rb`'s `create_table` calls instead â
 
 Sections are domains, not chapters: what the models are collectively *for*. Draft the list named rather than numbered; where the document numbers its sections today, renaming them is part of what step 3 puts up for a decision, not something to slip in alongside a content fix.
 
-Every model in the schema belongs to exactly one section. A model that seems to belong to two usually means the sections are cut wrong.
+Every model in the schema belongs to exactly one section. A model that seems to belong to two usually means the sections are cut wrong. A model several domains use goes under the domain that owns it, not the one that happened to use it first, and the others name it under Integration. A model's name does not settle this: a shared prefix such as `Member*` is common across domains.
 
 ### 3. Put the plan up before touching the document
 
