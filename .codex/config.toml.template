@@ -143,30 +143,33 @@ glob_scan_max_depth = 8
 "~/.zshrc" = "read"
 "~/.zprofile" = "read"
 "~/.zshenv" = "read"
-"~/.config" = "read"
+# Only the config dirs tooling needs; ~/.config as a whole would expose gh and
+# 1Password CLI credentials (denied explicitly below as well).
+"~/.config/git" = "read"
 # Machine-wide Trivy config, reached through the bin/trivy shim (~/.bin, read
-# above). Explicit though ~/.config already grants it — the read path the DoD
-# vuln scan depends on. See AGENTS.md "Agent-client configuration parity".
+# above) — the read path the DoD vuln scan depends on. See AGENTS.md
+# "Agent-client configuration parity".
 "~/.config/trivy" = "read"
 "~/.asdf" = "write"
 "~/.tool-versions" = "write"
 "~/.mix" = "read"
 "~/.nvm" = "read"
 "~/.rvm" = "write"
-"~/.cargo" = "read"
+"~/.cargo/bin" = "read"
+"~/.cargo/registry" = "read"
+"~/.cargo/git" = "read"
+"~/.cargo/config.toml" = "read"
 "~/.pulumi/plugins" = "read"
 "~/.ssh" = "deny"
 "~/.aws" = "deny"
 "~/.gnupg" = "deny"
 "~/.config/gcloud" = "deny"
+"~/.config/gh" = "deny"
+"~/.config/op" = "deny"
 "~/.azure" = "deny"
 "~/.kube" = "deny"
 "~/.claude/.credentials.json" = "deny"
-# Readable for CLI-config lookups, mirroring Claude's sandbox allowRead. Claude
-# opens this only to sandboxed bash and keeps its Read tool denied; Codex can't
-# split tool from shell, so its read tool can see the file (may hold an OAuth
-# token) too. See AGENTS.md "Agent-client configuration parity".
-"~/.claude.json" = "read"
+"~/.claude.json" = "deny"
 "~/.claude/bash-log.txt" = "deny"
 "~/.codex/bash-log.txt" = "deny"
 "~/.netrc" = "deny"
@@ -911,6 +914,10 @@ for raw_argv in split_commands(command):
             short, long = option_flags(tail)
             if "f" in short or "--force" in long or "--force-with-lease" in long or "--force-if-includes" in long:
                 deny("Force-style Git pushes are blocked. Use a normal push or perform the force push manually outside Codex.")
+            if "--mirror" in long:
+                deny("Mirror pushes overwrite or delete every remote ref and are blocked.")
+            if any(token.startswith("+") and len(token) > 1 for token in tail):
+                deny("A `+` refspec forces the push and is blocked. Use a normal push or perform the force push manually outside Codex.")
             if sub_index != 0:
                 deny("Git push must use canonical `git push ...` form so the native approval rule cannot be bypassed. Change directory first instead of placing Git global options before `push`.")
         elif subcommand == "commit" and sub_index != 0:
@@ -966,6 +973,11 @@ for raw_argv in split_commands(command):
         sub_index, subcommand = first_subcommand(args, {"up", "update", "cancel", "import", "refresh", "new"})
         if subcommand is not None and sub_index != 0:
             deny("Pulumi mutation must use canonical `pulumi <subcommand>` form so the native approval rule cannot be bypassed. Change directory first instead of placing global options before the subcommand.")
+
+    if exe == "gh" and args[:2] == ["auth", "status"]:
+        short, long = option_flags(args[2:])
+        if "t" in short or "--show-token" in long:
+            deny("Printing the GitHub CLI token is blocked. Credentials are injected for the hosts that need them.")
 
     if exe == "gh" and args[:1] == ["api"] and args[1:2] != ["graphql"]:
         rest = args[1:]

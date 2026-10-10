@@ -153,6 +153,36 @@ class CodexPolicyTest(unittest.TestCase):
     def test_malformed_shell_input_is_denied(self):
         self.assertEqual(self.decision("git push 'unterminated"), "deny")
 
+    def test_trailing_force_and_mirror_pushes_are_denied(self):
+        for command in (
+            "git push origin main --force",
+            "git push origin --mirror",
+            "git push origin +main",
+            "git -C /tmp/example push origin +main:main",
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(self.decision(command), "deny")
+
+    def test_plain_push_and_plus_in_branch_name_are_unaffected(self):
+        for command in (
+            "git push origin main",
+            "git push origin feature/c++-parser",
+        ):
+            with self.subTest(command=command):
+                self.assertIsNone(self.decision(command))
+
+    def test_gh_auth_status_token_flags_are_denied(self):
+        for command in (
+            "gh auth status -t",
+            "gh auth status --show-token",
+            "gh auth status --hostname github.com -t",
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(self.decision(command), "deny")
+
+    def test_gh_auth_status_without_token_is_unaffected(self):
+        self.assertIsNone(self.decision("gh auth status"))
+
     def test_gh_api_implicit_post_is_denied(self):
         for command in (
             "gh api repos/o/r/issues/1/comments -f body=hi",

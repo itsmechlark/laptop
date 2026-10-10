@@ -174,6 +174,24 @@ prefix_rule(
     match = ["gh repo delete owner/repo", "gh issue delete 123", "gh release delete v1.0", "gh ssh-key delete abc123"],
 )
 
+prefix_rule(
+    pattern = ["gh", "auth", "token"],
+    decision = "forbidden",
+    justification = "Printing the GitHub CLI token is blocked. Credentials are injected for the hosts that need them.",
+    match = ["gh auth token", "gh auth token --hostname github.com"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", "--mirror"],
+    decision = "forbidden",
+    justification = "Mirror pushes overwrite or delete every remote ref and are blocked.",
+    match = ["git push --mirror origin"],
+    not_match = [
+        # The PreToolUse hook catches this non-prefix placement.
+        "git push origin --mirror",
+    ],
+)
+
 # -----------------------------------------------------------------------------
 # Require approval: external writes / destructive local operations
 # -----------------------------------------------------------------------------
@@ -320,6 +338,13 @@ prefix_rule(
     decision = "prompt",
     justification = "Authentication state changes require approval.",
     match = ["gh auth login", "gh auth logout"],
+)
+
+prefix_rule(
+    pattern = ["gh", "alias"],
+    decision = "prompt",
+    justification = "gh aliases can wrap arbitrary shell commands and sidestep the approval rules.",
+    match = ["gh alias set co 'pr checkout'", "gh alias delete co"],
 )
 
 prefix_rule(
