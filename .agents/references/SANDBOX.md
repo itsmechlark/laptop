@@ -85,6 +85,7 @@ piping:
 | `gh … \| head -n N` | `gh … --limit N`, or `--json`/`--template` to shape output |
 | `gh … \| grep X` | `gh … --json …` then filter with `--jq 'select(...)'` |
 | `gh … \| tee file` | run `gh …` bare and read its stdout — don't redirect |
+| `echo '{"k":"v"}' \| gh api --method POST … --input -` | write body to `$TMPDIR/body.json` with `printf` or `jq`, then `gh api --method POST … --input "$TMPDIR/body.json"` (bare) |
 
 On an escalation harness, approve the prompt. An expired token still needs
 `gh auth login` — escalation won't rescue it.

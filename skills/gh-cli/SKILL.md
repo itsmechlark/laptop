@@ -32,6 +32,16 @@ commands do not expose.
   `gh api … -f body=…` is a mutating write. Make it explicit — `gh api --method
   POST …` — so it reads as the write it is (the agent sandboxes gate the implicit
   form by requiring this canonical shape).
+- **For complex POST bodies, write to `$TMPDIR` and use `--input`.** Piping a
+  body into `gh api` (`echo '…' | gh api --input -`) re-sandboxes `gh` under an
+  exclusion-list harness, breaking keychain access. Instead write the JSON with
+  `printf` or `jq` to a temp file, then pass it bare:
+  ```sh
+  jq -n '{body: $b}' --arg b "$body" > "$TMPDIR/gh-body.json"
+  gh api --method POST repos/{owner}/{repo}/issues --input "$TMPDIR/gh-body.json"
+  ```
+  `--input` reads the whole request body from the file; it is incompatible with
+  `-f`/`-F` field flags (use one or the other).
 - **Pass search qualifiers as bare tokens, not one quoted string.** `gh search
   issues repo:cli/cli is:open` works; `gh search issues "repo:cli/cli is:open"` is
   parsed as a single keyword and fails with `Invalid search query`. Quote only
