@@ -14,6 +14,7 @@ metadata:
   part-of: <the index/umbrella spec's slug, when this spec is one slice of a set — omit for a standalone spec>
   tickets: []
   adrs: []
+  # supersedes: [spec/old-name, prd/old-name]   # omit when not superseding; type-qualified slugs
   repo: <the repository's name — only in ~/.agents/specs/; delete this line in a repo's own docs/specs/>
 ---
 
@@ -79,8 +80,28 @@ where it goes stale the first time the set is re-cut.
 `metadata.status` moves through the lifecycle every planning artifact shares:
 `draft` (written, not yet agreed) → `accepted` (agreed; implementation may
 start) → `done` (the work it describes has shipped), with `superseded` for one
-a successor spec replaces — named in that successor's `metadata.supersedes`,
-the same one-directional link `lore` and ADRs use.
+a successor replaces.
+
+When superseding, the successor lists each predecessor in `metadata.supersedes`
+as a type-qualified slug: `spec/old-name`, `prd/old-name`, `plan/old-name`, or
+`slice/old-name`. The field is a list even for a single entry — omit the key
+entirely when not superseding. Cross-type entries are allowed: a spec may
+supersede a PRD when the spec absorbs its product framing.
+
+On the **superseded** document, add two frontmatter fields reactively (not in
+the template — they are added when the document is replaced, never upfront):
+
+```yaml
+status: superseded
+superseded-by: spec/new-name   # type-qualified slug of the successor
+```
+
+The body is frozen from that point; only the frontmatter changes. The two
+documents update in the same commit.
+
+Supersede rather than edit in place once the artifact is `accepted` or `done`,
+or once work has started against it. While still `draft` with no work underway,
+update in place instead.
 
 A spec is born `draft` and becomes `accepted` on confirmation — or when
 `feature-dev` starts building from it; the build marks it `done` once its slice

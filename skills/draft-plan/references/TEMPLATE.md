@@ -22,8 +22,28 @@ none, match them and say so instead of leaving two conventions in one directory.
 `metadata.status` moves through the lifecycle every planning artifact shares:
 `draft` (written, not yet agreed) → `accepted` (agreed; implementation may
 start) → `done` (the slice it plans has shipped), with `superseded` for one a
-successor plan replaces — named in that successor's `metadata.supersedes`, the
-same one-directional link `lore` and ADRs use.
+successor replaces.
+
+When superseding, the successor lists each predecessor in `metadata.supersedes`
+as a type-qualified slug: `plan/old-name`, `spec/old-name`, `prd/old-name`, or
+`slice/old-name`. The field is a list even for a single entry — omit the key
+entirely when not superseding. Cross-type entries are allowed: a plan may
+supersede a spec when replanning renders the spec's approach obsolete.
+
+On the **superseded** document, add two frontmatter fields reactively (not in
+the template — they are added when the document is replaced, never upfront):
+
+```yaml
+status: superseded
+superseded-by: plan/new-name   # type-qualified slug of the successor
+```
+
+The body is frozen from that point; only the frontmatter changes. The two
+documents update in the same commit.
+
+Supersede rather than edit in place once the artifact is `accepted`, or once
+work has started against it. A plan is born `accepted`, so any replacement
+supersedes rather than overwrites.
 
 A plan is written to be executed, so it is born `accepted`; `feature-dev`, or
 whoever executes it, flips it to `done` when the slice lands.
@@ -37,6 +57,7 @@ metadata:
   topic: <the join key, copied from the spec>
   spec: <docs/specs/<file>.md — or the tracker item, or the URL>
   stack: <languages, frameworks, and libraries a task will touch>
+  # supersedes: [plan/old-name]   # omit when not superseding; type-qualified slugs
   repo: <the repository's name — only in ~/.agents/plans/; delete this line in a repo's own docs/plans/>
 ---
 

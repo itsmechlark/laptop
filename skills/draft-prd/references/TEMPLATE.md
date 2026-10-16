@@ -13,6 +13,7 @@ metadata:
   status: draft
   topic: <the join key every artifact under this PRD will carry>
   tickets: []
+  # supersedes: [prd/old-name]   # omit when not superseding; type-qualified slugs
   repo: <the repository's name — only in ~/.agents/prds/; delete this line in a repo's own docs/prds/>
 ---
 
@@ -76,8 +77,27 @@ wrapping. It says when someone should open the PRD, not what it is titled.
 `metadata.status` moves through the lifecycle every planning artifact shares:
 `draft` (written, not yet agreed) → `accepted` (agreed; work may start) →
 `done` (the outcome it describes has shipped), with `superseded` for one a
-later PRD replaces — named in that successor's `metadata.supersedes`, the same
-one-directional link `lore` and ADRs use.
+successor replaces.
+
+When superseding, the successor lists each predecessor in `metadata.supersedes`
+as a type-qualified slug: `prd/old-name`, `spec/old-name`, `plan/old-name`, or
+`slice/old-name`. The field is a list even for a single entry — omit the key
+entirely when not superseding.
+
+On the **superseded** document, add two frontmatter fields reactively (not in
+the template — they are added when the document is replaced, never upfront):
+
+```yaml
+status: superseded
+superseded-by: prd/new-name   # type-qualified slug of the successor
+```
+
+The body is frozen from that point; only the frontmatter changes. The two
+documents update in the same commit.
+
+Supersede rather than edit in place once the artifact is `accepted` or `done`,
+or once work has started under it. While still `draft` with no work underway,
+update in place instead.
 
 A PRD is born `draft`, becomes `accepted` on confirmation, and reaches `done`
 only when the whole outcome is delivered — not when its first slice does.
