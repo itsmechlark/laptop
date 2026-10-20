@@ -115,6 +115,7 @@
       "mcp__mintlify-admin__destroy*",
       "mcp__mintlify-admin__purge*",
       "mcp__mintlify-admin__revoke*",
+      "mcp__plugin_cypress_cypress-cloud__delete*",
       "Bash(curl * | bash)",
       "Bash(curl * | sh)",
       "Bash(wget * | bash)",
@@ -244,6 +245,13 @@
       "mcp__plugin_atlassian_atlassian__createConfluenceFooterComment",
       "mcp__plugin_atlassian_atlassian__createConfluenceInlineComment",
       "mcp__smartbear-bugsnag__bugsnag_update_error",
+      "mcp__plugin_cypress_cypress-cloud__authenticate",
+      "mcp__plugin_cypress_cypress-cloud__complete_authentication",
+      "mcp__plugin_cypress_cypress-cloud__run*",
+      "mcp__plugin_cypress_cypress-cloud__create*",
+      "mcp__plugin_cypress_cypress-cloud__update*",
+      "mcp__plugin_cypress_cypress-cloud__cancel*",
+      "mcp__plugin_cypress_cypress-cloud__retry*",
       "mcp__mintlify-admin__create*",
       "mcp__mintlify-admin__update*",
       "mcp__mintlify-admin__edit*",
@@ -410,6 +418,12 @@
       "source": {
         "source": "github",
         "repo": "alexandernicholson/agent-router"
+      }
+    },
+    "cypress": {
+      "source": {
+        "source": "github",
+        "repo": "cypress-io/ai-toolkit"
       }
     }
   },
