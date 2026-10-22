@@ -689,5 +689,13 @@
       }
     }
   },
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "autoMode": {
+    "allow": [
+      "$defaults"
+    ],
+    "soft_deny": [
+      "$defaults"
+    ]
+  }
 }
