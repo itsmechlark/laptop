@@ -58,6 +58,8 @@ A small slice does not guarantee a small diff. Slicing controls *what* ships; no
 
 - **A new feature that changes existing behavior ships default-off.** Gate it behind a flag and keep the flag-off path behavior-preserving; keep any migration backward-compatible, expanding before it contracts (AGENTS.md §5, *Safe rollout, feature flags & migrations*). This is a Phase 3 acceptance criterion, not a Phase 6 afterthought — retrofitting a flag after the tests are written rewrites both.
 
+- **A loaded skill is not a finished phase.** The Skill tool hands back instructions; the phase is the work those instructions describe. Phase 5 is the one that slips: `code-review` loads, one `git diff` runs, `find-bugs` loads, and the run moves on without a report from either. The review is done when `code-review`'s Output block — files covered, three axes, Coverage, Verdict — is in the conversation, with any `find-bugs` findings folded into its Defects section. The slice is still uncommitted at this point, so review the working tree; a base-ref diff with nothing committed is empty.
+
 - **Never commit before the review's fixes are green.** Phase 5 edits code outside the red-green-refactor loop, so its fixes are the least-tested lines in the diff. Re-run everything after them, and if a fix changed behavior no test covers, add that test — failing first.
 
 - **The budget is a design constraint, not a gate you discover at the end.** Noticing a 900-line diff at the Phase 4 checkpoint means the last two hours went into code you're now deleting. Carry it from Phase 3.

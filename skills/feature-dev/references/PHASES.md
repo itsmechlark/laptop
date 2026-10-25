@@ -97,15 +97,17 @@ Keep the implementation lean while you build, and measure the diff against the b
 
 **Goal:** catch the bugs, quality issues, and convention violations TDD won't surface; fix them; then satisfy the full Definition of Done.
 
-TDD proves the slice does what the criteria demanded. It does not prove the code is simple, secure, or idiomatic. **Invoke `code-review`** over the slice's diff, scoped to the branch point — `git diff <base>...HEAD`, three dots, so the comparison is against the merge-base.
+TDD proves the slice does what the criteria demanded. It does not prove the code is simple, secure, or idiomatic. **Invoke `code-review` over the slice as uncommitted work.** Commits are deferred to Phase 6, so on a branch Phase 0 just cut the whole slice is in the working tree and `<base>...HEAD` is empty — an empty fixed-point diff is a stop in `code-review`, not a pass. Only when the branch already carries commits of this slice (a resumed or continued run) pass the branch point as its argument — the remote-tracking form of the ref Phase 0 cut from, or the parent branch on a stack — and tell it to pull the uncommitted work in alongside. Either way, untracked new files appear in no diff; make sure `git status --short` is part of the file set. Pass the acceptance criteria from Phase 3 as the spec.
+
+**Loading the skill is not running it.** The Skill tool returns `code-review`'s instructions, not a review; the review is the work you do next, following them through to their Output block. Phase 5 has not reviewed anything until that block exists in the conversation: the header line naming what was read (`HEAD` plus the dirty tree) and the files covered, the Defects, Standards, and Spec sections, Coverage, and a Verdict. A `git diff` followed by moving on is the failure this paragraph exists to name.
+
+**`find-bugs` runs inside the review, not after it.** On your own change `code-review`'s Defects axis makes `find-bugs` the default wherever the change touches concurrency, retries, money, auth, or tenancy; this workflow adds untrusted input and file paths to that list. Run its hunt there with the same scope — no argument for uncommitted work, the branch point when the review was given one — fold its findings into the Defects section and its "Could not verify" items into Coverage, and only then write the Verdict. Loading `find-bugs` does not end `code-review`'s workflow — return to it and finish the report. A slice on one of those surfaces whose report carries neither `find-bugs` findings nor its "No significant issues found." line skipped the pass.
 
 `code-review` returns findings and a per-axis verdict; **it does not edit code.** Applying the fixes is yours. Work its findings by axis:
 
 - **Defects** are blocking. Fix them, or state plainly why a finding is a false positive.
 - **Standards** findings are firm where the repo documents the convention and a judgment call where it doesn't.
 - **Spec** findings mean the code and the acceptance criteria disagree — decide which one is wrong before touching either.
-
-For a security-bearing slice — anything touching authentication, authorization, payments, untrusted input, or file paths — follow the review with `find-bugs`. It maps the attack surface and proves each finding reachable rather than returning a verdict, which is the pass a merge-focused review isn't trying to be.
 
 Then close out **Definition of Done** (AGENTS.md §4), because the fixes were written outside the red-green-refactor loop and are the least-tested lines in the diff:
 
@@ -117,7 +119,7 @@ Then close out **Definition of Done** (AGENTS.md §4), because the fixes were wr
 
 Summarize what changed: what the review fixed, anything it flagged and you deliberately left (with the reason), and which checks you ran. If you could not run one here, say which and why rather than skipping it silently.
 
-**Exit:** review findings resolved or explicitly deferred, every check green and named, and — for a UI slice — the browser pass run, declined, or ruled out.
+**Exit:** `code-review`'s full report on screen, with its Verdict and the tree it read; its findings resolved or explicitly deferred; every check green and named; and — for a UI slice — the browser pass run, declined, or ruled out.
 
 ## Phase 6: Commit the slice
 
