@@ -69,6 +69,8 @@ Agents that only **read** files share one checkout safely. The moment an agent *
 
 - **Paste the evidence, don't point at it.** "The failing tests" and "the file we changed" resolve to nothing in a fresh session. Anything the agent needs to locate the problem goes in the prompt verbatim.
 
+- **Hand over the evidence, never your conclusion.** An agent sent to investigate or review and told what you suspect comes back agreeing — it searches for confirmation, and its agreement then reads as independent corroboration. Give it the error output, the diff, the document; leave out the hypothesis, the suspected file, and "I think it's the cache". When you need a hypothesis tested, say so outright and ask for the evidence against it as well as for it.
+
 - **Independent domains still share the files nobody owns.** Lockfiles, `db/schema.rb`, migration timestamps, locale files, and barrel exports conflict on merge even when no source file overlaps. Name them in the constraints: one designated agent may touch them, or none may and you make the change yourself after merging.
 
 - **Keep the base commit still.** Base agent branches on your current branch, not the default branch — from the default branch they drag unrelated divergence into the merge. And don't rebase, amend, or force-push that base while agents are out: their branches then point at a commit that no longer exists, and every merge becomes a conflict you can't attribute.
