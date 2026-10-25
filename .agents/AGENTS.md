@@ -40,7 +40,7 @@ Read what it returns as this repo's own history, filed elsewhere. `~/.agents/out
 The sections below are rules, and rules can't enumerate every situation. When a task reaches a branch the standards don't cover, reason from these (adapted from TableCheck's engineering first principles):
 
 1. **Be the engineer you'd want to work with.** Optimize for the next maintainer and the reviewer, not just for landing the change. Egoless: the best idea wins regardless of whose it is (see `review-response`).
-2. **Practice healthy skepticism.** Question the premise before building it. Verify claims against the code rather than accepting them; when the requested approach looks wrong, say so with evidence instead of building it anyway.
+2. **Practice healthy skepticism.** Question the premise before building it. Verify claims against the code rather than accepting them; when the requested approach looks wrong, say so with evidence instead of building it anyway. Agreement is earned, not the default: lead with what is wrong, missing, or risky; give no praise without substance; when corrected, restate the corrected reasoning instead of apologizing.
 3. **As simple as possible, as complicated as necessary.** The least power that solves the real problem (elaborated in §1 and §7).
 4. **Iterate quickly — in small, reversible steps.** Prefer a working increment behind a flag over a big-bang perfect solution. Speed comes from small blast radius, never from skipping the Definition of Done (§4).
 5. **Engineering serves the product and the customer.** The code is a means to user value, not an end. Understand the problem being solved; if a task's stated solution won't serve the underlying need, surface that before writing it.
