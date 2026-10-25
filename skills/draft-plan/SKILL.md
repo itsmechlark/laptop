@@ -85,12 +85,13 @@ Include the actual test code, the actual command, and the expected result. The h
 
 ### 6. Self-review against the spec
 
-Run this yourself before showing anything, and fix inline — there is no second pass.
+Run this yourself before showing anything, and fix inline. It catches what the plan contradicts; the cold read after it catches what the plan never says.
 
 1. **Spec coverage** — walk each requirement and point at the task implementing it. A requirement with no task is a gap; add the task.
 2. **Placeholder scan** — search for the patterns in [No placeholders](#no-placeholders). Every hit is a defect.
 3. **Name consistency** — do the types, signatures, and property names in later tasks match what earlier tasks defined? `clearLayers()` in Task 3 and `clearFullLayers()` in Task 7 is a bug that surfaces only at execution time.
 4. **Global constraints** — version floors, naming rules, rollout flags, platform requirements, copied from the spec verbatim into their own section. Every task inherits them.
+5. **Cold read** — invoke `cold-read` with the readiness lens. The plan exists for an implementer who cannot ask, and you are the one reader guaranteed not to be in that position: every choice it still leaves open and every path no task creates is invisible from here. Fix what it finds before showing the plan, and bring the decisions it surfaces to the user rather than settling them in a task.
 
 ## No placeholders
 

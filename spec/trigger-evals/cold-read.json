@@ -1,0 +1,22 @@
+[
+  {"query": "get a fresh pair of eyes on this spec before i send it to the contractor — someone who wasn't in our conversation", "should_trigger": true},
+  {"query": "cold read this implementation plan: could an agent with no context execute it without coming back to ask me anything?", "should_trigger": true},
+  {"query": "have an agent that hasn't seen any of this read the handoff and tell me what it can't follow", "should_trigger": true},
+  {"query": "does this PRD stand on its own for someone who wasn't in the meeting? i want an unbiased read, not yours", "should_trigger": true},
+  {"query": "before this design doc goes out, check with a fresh agent whether it proposes building anything the codebase already has", "should_trigger": true},
+  {"query": "we wrote the rollout plan in this thread. spin up a reader with zero context and see which decisions it still leaves open", "should_trigger": true},
+  {"query": "sanity check this design doc with fresh eyes — would a new hire understand every term in it?", "should_trigger": true},
+  {"query": "you've been in this conversation too long to judge the spec. get someone cold to read it", "should_trigger": true},
+  {"query": "poke holes in this plan before i commit to it", "should_trigger": false},
+  {"query": "grill me on the caching approach for availability, i think it's right but i'm not sure", "should_trigger": false},
+  {"query": "review this branch before i merge it — does it follow the conventions we actually use in this repo?", "should_trigger": false},
+  {"query": "hunt for security holes in what i just wrote — the webhook receiver is public facing", "should_trigger": false},
+  {"query": "can you write up what we agreed above as a spec the team can pick up", "should_trigger": false},
+  {"query": "write the task-by-task implementation plan for the refund slice so a subagent can execute it", "should_trigger": false},
+  {"query": "explain what the deposit calculator does, i inherited it", "should_trigger": false},
+  {"query": "the reviewer left comments on my design doc PR and i disagree with half of them. help me respond", "should_trigger": false},
+  {"query": "tighten the prose in this PR description, it reads like a model wrote it", "should_trigger": false},
+  {"query": "update the spec doc to match what i actually built, it drifted", "should_trigger": false},
+  {"query": "proofread the README for typos and broken links", "should_trigger": false},
+  {"query": "help me think through what we should build for group bookings — i don't have an approach yet", "should_trigger": false}
+]

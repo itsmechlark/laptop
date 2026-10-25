@@ -82,6 +82,8 @@ Four rules decide the prose, because this file outlives the moment it describes:
 - **Scope it to the latest task.** Earlier work is in git history and in the superseded handoffs. Don't carry a section, a decision, or a gate result forward because the previous handoff had one.
 - **Don't edit a handoff once written, except to flip its `status`.** A dated record that gets rewritten is not a record. The correction is the next handoff.
 
+Once the file is written, invoke `cold-read` on it with the comprehension and readiness lenses — whether or not step 5 launches anything, since the next session reads this file either way. The agent you launch reads exactly what the cold reader reads, so a gap the reader finds is one the next session would have hit alone, with nobody to ask (principle 5). Fix the file before step 5 — this is still writing it, not the after-the-fact edit the last rule forbids.
+
 ### 4. Settle which agent
 
 The user names it — "hand this to codex", "for cursor". **Their choice wins even when you are a different client.** With none named, use the client you are running in: it is the one whose auth, config, and permissions you know are working.

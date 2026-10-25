@@ -403,7 +403,7 @@ written into the skill: `triage`'s draft-show-then-ask, `standup`'s never-send
 ([ADR 0003](docs/adr/0003-model-invocation-flag-is-claude-only.md)).
 
 Mid-chain skills that others call constantly — `draft-spec`, `draft-plan`,
-`slice`, `tdd`, `explain`, `grilling`, `code-review` — are better left
+`slice`, `tdd`, `explain`, `grilling`, `code-review`, `cold-read` — are better left
 invocable, because every caller pays the indirection. When one of those also
 has an expensive next step, the body carries the stop instead: `draft-plan`
 ends at the saved plan and never executes it.

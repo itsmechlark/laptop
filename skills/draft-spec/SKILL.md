@@ -59,6 +59,8 @@ The conversation, the repository, the glossary, the ADRs, and the confirmed fram
 
 Use the fixed template and keep its section order: [TEMPLATE.md](references/TEMPLATE.md), which also carries what belongs in each section and the self-check to run before showing the draft.
 
+Then invoke `cold-read` with the comprehension and reuse lenses. The spec is written for people who weren't in the conversation, and you are the one reader who was: a term the conversation defined, a decision it settled out loud, a "new" capability the code already has — none of them look missing from here. Fix what the read finds, contest what it gets wrong, and put the decisions it surfaces to the user alongside the draft — never into it as if settled.
+
 ### 5. Publish only where asked
 
 The spec is a draft until the user has seen the exact Markdown and confirmed it. Where it goes after that — conversation, a file at a path the user named or the `docs/specs/<YYYYMMDDHHMMSS>-<kebab-slug>.md` fallback they accept, an existing tracker item, a new one — is [PUBLISHING.md](references/PUBLISHING.md). When the work is related to a ticket or GitHub issue, prefix the slug with the lowercased key or `gh-<number>` — e.g. `proj-482-teammate-invites` — and record it in `metadata.tickets`. Assume no tracker, no project key, and no label vocabulary until you have read the real ones.

@@ -705,6 +705,18 @@
           "note": "INITIAL PIN at tag v2.102.0. Forked from the GitHub CLI's own `gh` skill and renamed `gh` -> `gh-cli` (the dir and frontmatter name) to avoid colliding with the bare command and to sit beside the existing gh-stack skill. Upstream's technical content is ported faithfully; the divergences to preserve on reconcile are: (1) the subcommand catalogs were split by topic into references/PULL-REQUESTS.md, references/ISSUES.md, references/CONTENT.md, and references/ATTACHMENTS.md so SKILL.md stays under the 200-line split point and each first-party caller (pull-request, review-response, gh-stack, triage, code-review) reads only its own topic, with the cross-cutting patterns (JSON, pagination, search, gh api, auth) kept in SKILL.md; the PR file is largely first-party — upstream carried only scattered PR notes — and shows the canonical `gh api --method POST .../replies` review-thread reply the sandbox requires; (2) a new 'Under the sandbox' section cross-referencing ~/.agents/references/SANDBOX.md, which upstream has no reason to carry, and an auth note that a clean 401 is an expired token; (3) the description rewritten to lead with trigger phrases per this payload's skill convention; (4) the gh api fallback section now states that a field flag makes the call an implicit POST and to make --method explicit, which pairs with the implicit-POST approval gate added to the client configs in the same change; (5) restructured to this payload's agent-skills convention — a When-to-use section and a Gotchas section that distills the traps (no piping under the sandbox, implicit-POST gh api, bare search qualifiers, silent list truncation, -T collision, bot authors, expired-token 401) from the topical sections. Reconcile by porting new upstream flags/sections into SKILL.md or the matching references topic file, not by collapsing the topic split, dropping the sandbox section, or flattening the Gotchas back into prose."
         }
       ]
+    },
+    "cold-read": {
+      "sources": [
+        {
+          "origin": "google/elephant-goldfish-model",
+          "type": "github",
+          "url": "https://github.com/google/elephant-goldfish-model",
+          "relationship": "inspired-by",
+          "license": "Apache-2.0",
+          "note": "The Goldfish idea only: a zero-context subagent reads a document the authoring session cannot see past. The three lenses distill three of EGM's rubrics (re-implementation-standard -> comprehension, implementation-readiness-standard -> readiness, zoom-out-standard's reuse search -> reuse), and the fix/contest triage and one-re-read cap come from egm-resolve and egm-review. Deliberately NOT carried: the five-stage pipeline, the synthesizer, per-skill persona files, structured-question gates, and isolation from instruction files (omitClaudeMd) — a cold reader here keeps the global standards and loses only the conversation."
+        }
+      ]
     }
   }
 }

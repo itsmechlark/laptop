@@ -1,7 +1,18 @@
 # Spec document reviewer
 
 A self-review checklist to run after writing a spec document during the
-architectural path. Fix issues inline — no separate review cycle needed.
+architectural path. Fix issues inline.
+
+This pass reads the spec *with* the conversation, which is what lets it find a
+settled decision the document dropped. The same memory hides the opposite
+failure — a term or decision that feels written down because it was said out
+loud. That one only a reader without the conversation catches: `cold-read`.
+
+- **Spec written through `draft-spec`** — its cold read has already run. If
+  this checklist's fixes change what the spec *decides* rather than how it says
+  it, that read is stale: spend `cold-read`'s one re-read on the revised spec.
+- **Spec written directly** — invoke `cold-read` yourself with the
+  comprehension and reuse lenses once this checklist is done.
 
 ## When to run
 
@@ -93,14 +104,15 @@ but the reasoning wasn't captured, add a brief note on why.
 
 ## Presenting to the user
 
-After the self-review, ask the user to review the spec. A spec is a Markdown
+After the self-review and the cold read, ask the user to review the spec, and
+put the cold read's open questions to them alongside it. A spec is a Markdown
 draft in the conversation unless the user named a location for it — don't
 promise a file that doesn't exist, and don't invent a path to make the sentence
 read better:
 
 > "Spec drafted below — I've reviewed it for placeholders, consistency, scope,
-> and ambiguity. Please take a look and let me know if you want any changes
-> before we move to implementation planning."
+> and ambiguity, and had a fresh agent read it cold. Please take a look and let
+> me know if you want any changes before we move to implementation planning."
 
 Swap "drafted below" for "written to `<path>`" only when you actually wrote a
 file there.

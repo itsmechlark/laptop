@@ -71,6 +71,8 @@ Anything you end up supplying yourself is an assumption, not an answer — it go
 
 Use the template and keep its section order: [TEMPLATE.md](references/TEMPLATE.md), which carries what belongs in each section and the self-check to run before showing the draft.
 
+Then invoke `cold-read` with the comprehension lens. A PRD is read by a product manager, a designer, and an engineer who were not in this interview, and the interview is exactly what makes a missing "who" or an unexplained term invisible from here. Fix what it finds; anything it surfaces that only the user can answer goes under **Open questions**, not into the document as an answer.
+
 Length is a feature. A PRD that a product manager, a designer, and an engineer will each read in full is worth more than a thorough one they skim, and the sections exist to be cut when they hold nothing (AGENTS.md §8, *Writing for a human reader*). Write `None` only where the absence is the news — no non-goals is never the news, and an empty **Out of scope** means the boundary hasn't been drawn yet.
 
 ### 4. Confirm, then hand off

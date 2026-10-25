@@ -23,7 +23,7 @@ Track progress (e.g. with tasks) and complete items in order.
 6. Write spec — invoke `draft-spec` to formalize the validated design, or write
    to a user-specified location
 7. Self-review the spec — run the [SPEC-REVIEW.md](SPEC-REVIEW.md) checklist
-   before handing it to the user
+   and the cold read it routes to before handing it to the user
 8. User reviews written spec — ask the user to review before proceeding
 9. Transition to implementation — `slice` to decompose the work, or
    `feature-dev` for the full build workflow
@@ -133,10 +133,13 @@ the architectural checklist above:
 - **Self-review the spec** — run the [SPEC-REVIEW.md](SPEC-REVIEW.md)
   checklist: scan for placeholders, check internal consistency, verify scope is
   implementable as one unit, and resolve ambiguous requirements. Fix issues
-  inline — no separate review cycle.
-- **User reviews the spec** — ask the user to review before proceeding:
-  > "Spec drafted and self-reviewed. Please take a look and let me know if you
-  > want any changes before we move to implementation planning."
+  inline. Then make sure the spec has been read cold — SPEC-REVIEW.md says
+  when `draft-spec` already did it and when the read is yours to run.
+- **User reviews the spec** — ask the user to review before proceeding, and
+  bring the questions the cold read raised:
+  > "Spec drafted, self-reviewed, and read cold by a fresh agent. Please take a
+  > look and let me know if you want any changes before we move to
+  > implementation planning."
 
   Say "written to `<path>`" only if you actually wrote a file there.
 - **Transition to implementation** — invoke `slice` to decompose the work into

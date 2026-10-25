@@ -207,3 +207,5 @@ conversation, run the other pass too — `brainstorming`'s
 produced it and catches what the document lost: a decision that was settled and
 never written down, an internal contradiction, a placeholder. Shape and
 completeness are different failures, and this checklist only finds the first.
+Neither pass can see what only a stranger misses; that is the `cold-read` the
+skill runs once this check passes.
