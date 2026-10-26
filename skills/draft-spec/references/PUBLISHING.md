@@ -16,6 +16,12 @@ Match the destination to what was asked, and nothing more:
 | A new tracker item | Resolve the real project and state vocabulary first, then get explicit approval immediately before publishing. A whole breakdown is several creates rather than one — put the count in the question you ask. |
 | Publishing, with no tracker integration available | Leave it as Markdown and say publication was not performed. |
 
+When the spec has a parent slice in a local slice list, filing it also edits that
+list: one `Spec: <name>` line on the slice's entry, and nothing else. Say so in
+the confirmation — "writes the spec, and adds a `Spec:` line to slice C1 in
+`<path>`" — because it touches a second file. A slice list that lives on a
+tracker is not edited; the spec's `part-of` is the only link.
+
 Never claim a file exists that you didn't write. "Spec drafted below" and "spec
 written to `docs/specs/foo.md`" are different sentences; use the true one.
 

@@ -98,7 +98,7 @@ A slice that fails either test is too big or isn't a slice. Worked examples of b
 Format every slice as a job story: **When** [situation], **I want** [what], **so** [outcome].
 
 ```
-[Short name]
+[ID] — [Short name]
 When [specific situation], I want [what they need to do]
 so [the outcome that matters to them].
 Ships when: [observable behavior — what a user can do, not what the code does].
@@ -109,7 +109,12 @@ Acceptance criteria:
 Depends on: [an earlier slice whose behavior must already be live, or "none"].
 Shares files with: [a sibling slice that edits the same files, and the plan — stack, serialize, or re-cut — when a repo makes this knowable; omit otherwise].
 Risk / learning: [what this slice tests or de-risks, or "low risk"].
+Spec: [the `name` of the spec written for this slice; added when that spec exists, omitted before].
 ```
+
+`[ID]` is a short label — `S1`, `C2` — unique within the list and written exactly as a spec cites it: `metadata.part-of: slice/<list-name>#S1`. It is never renumbered after a re-cut, and the ID of a slice that was dropped is not given to a new one.
+
+`Spec:` is a locator and nothing else: the spec's `name`, with no clause after it saying what the spec refines, widens, or reframes. That is the spec's to say, and a sentence about it here is a second copy that goes stale when the spec changes. It is added when the spec is filed, as a pointer — not a re-cut — so it does not supersede an `accepted` list.
 
 `Ships when:` is the demonstration — the one path you'd show someone to prove the slice is live. The criteria are everything that has to hold for that to be true, including the boundaries and failures nobody demos. Three placeholders is not a quota: write as many as the behavior has, and no speculative ones.
 
@@ -133,7 +138,7 @@ After the list, give a one-paragraph sequencing rationale.
 
 A sequence agreed in conversation dies with it, and it's the artifact the next two weeks run on. Past one slice, ask where the list should live and write it there — a Markdown file at a path the user names, job stories verbatim so the criteria survive. With no path named, offer `docs/slices/<YYYYMMDDHHMMSS>-<kebab-slug>.md` **when that directory already exists** and `~/.agents/slices/<YYYYMMDDHHMMSS>-<kebab-slug>.md` when it doesn't — never a directory created for the purpose, since a repository opts in by already having somewhere for this. Take the timestamp from `date +%Y%m%d%H%M%S`, never from memory. When the work is related to a ticket or GitHub issue, prefix the slug with the lowercased key or `gh-<number>` — e.g. `proj-482-teammate-invites` — and record it in `metadata.tickets`. A list filed at the global root carries `metadata.repo`, the repository's name. One slice sharpened in three questions needs no file: say what you'd write, and let them decide.
 
-The file opens with the frontmatter block every artifact in this chain carries, so the specs and plans written under these slices join back to it by `metadata.topic` — the shape, and the two rules bounding it, are in [EXAMPLES.md](references/EXAMPLES.md).
+The file opens with the frontmatter block every artifact in this chain carries, so the specs and plans written under these slices join back to it by `metadata.topic` — the shape, and the two rules bounding it, are in [EXAMPLES.md](references/EXAMPLES.md). Say once, under the title, that where a spec exists for a slice it governs that slice's criteria; the entries then carry no per-entry caveat.
 
 This step files nothing and specs nothing. Putting the list on a tracker is an outward-facing write and a separate yes: ask where it goes, keep the dependency order, and say the count before creating anything. `triage` works those items once they exist, and is user-invoked, so read and follow its `SKILL.md`. `draft-spec` writes slice one up properly when a contractor or an unattended agent has to work it cold.
 

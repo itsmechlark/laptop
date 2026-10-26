@@ -67,7 +67,7 @@ risk are the same slice, and nothing has to be reordered to de-risk early.
 ### Slice 1 — Invite one teammate by email
 
 ```
-Invite by email
+S1 — Invite by email
 When I've just created an account and my colleagues can't see any of it,
 I want to send one person an invitation by email
 so they can sign in and start working in the same account today.
@@ -82,7 +82,12 @@ Acceptance criteria:
       shows an explanation rather than an error page
 Depends on: none.
 Risk / learning: tests the whole invite loop, including whether anyone accepts.
+Spec: invite-by-email
 ```
+
+The `Spec:` line appears once the spec is written — here `invite-by-email` is the
+spec's `name`, and that spec's frontmatter points back with
+`part-of: slice/teammate-invites#S1`.
 
 One thin path through every layer: form, record, email, accept, membership. No
 roles, no list, no resend. It is unquestionably incomplete and it is
@@ -91,7 +96,7 @@ unquestionably shippable.
 ### Slice 2 — See and revoke what's pending
 
 ```
-Pending invites
+S2 — Pending invites
 When I've invited three people and can't remember which of them replied,
 I want to see who's still outstanding and take an invite back
 so I stop chasing people who already joined and can undo a typo'd address.
@@ -102,7 +107,7 @@ Acceptance criteria:
 - [ ] Revoking removes it from the list, and the link then shows "no longer
       valid" instead of granting access
 - [ ] An invite that has been accepted moves out of pending and into members
-Depends on: Invite by email.
+Depends on: S1.
 Risk / learning: low risk.
 ```
 
@@ -113,7 +118,7 @@ which is what makes them two slices rather than one.
 ### Slice 3 — Choose the role at invite time
 
 ```
-Invite with a role
+S3 — Invite with a role
 When I'm inviting a bookkeeper who should never touch settings,
 I want to pick their role while I'm sending the invitation
 so I don't have to remember to downgrade them after they accept.
@@ -124,7 +129,7 @@ Acceptance criteria:
 - [ ] The default is unchanged when no role is chosen
 - [ ] A role removed from the account between sending and accepting falls back
       to the default rather than failing the acceptance
-Depends on: Invite by email.
+Depends on: S1.
 Risk / learning: low risk — the permission model already exists.
 ```
 
@@ -134,7 +139,7 @@ so these two could go to different people, or to `fan-out`.
 ### Slice 4 — Auto-join by verified email domain
 
 ```
-Domain auto-join
+S4 — Domain auto-join
 When someone from our company signs up with their work email and I never got
 round to inviting them,
 I want them to join our account automatically
@@ -145,7 +150,7 @@ Acceptance criteria:
 - [ ] A signup at the verified domain lands in the existing account
 - [ ] A signup at a lookalike domain does not
 - [ ] With the flag off, signup behaves exactly as it does today
-Depends on: Invite by email — reuses the membership-creation path it shipped.
+Depends on: S1 — reuses the membership-creation path it shipped.
 Risk / learning: highest-consequence slice — a wrong match puts a stranger
 inside someone's account. Ships default-off and gets enabled per account.
 ```
@@ -172,7 +177,7 @@ Push: "Is this one thing, or two?" — it turned out renaming and duplicating ha
 been quietly bundled together. Duplicating became its own slice for later.
 
 ```
-Rename a saved report
+S1 — Rename a saved report
 When I've built a report called "Copy of Copy of Q3" and can't find it in a
 list of forty,
 I want to rename it in place
@@ -223,24 +228,24 @@ Two slices off the same skeleton, both `Depends on: none`, both shippable in
 either order — and both editing the same runtime module and its config:
 
 ```
-Capture dead-letter failures
+S1 — Capture dead-letter failures
 When a deployed job exhausts its retries, I want the poison job preserved
 so an operator can investigate it instead of losing it silently.
 Ships when: a job failing past its retry budget lands in the dead-letter queue.
 Depends on: none.
-Shares files with: Serialize the scheduler — both edit the runtime jobs
+Shares files with: S2 — both edit the runtime jobs
 consumer, its environment types, and the worker config. Serialize: land this
 first, rebase the other.
 Risk / learning: fixes an active data-loss bug.
 ```
 
 ```
-Serialize the scheduler
+S2 — Serialize the scheduler
 When a scheduled run fires while a prior one is still going, I want the scheduler
 to run exclusively so the deployed schedule is safe to turn on.
 Ships when: two overlapping scheduled runs serialize, and only one does the work.
 Depends on: none.
-Shares files with: Capture dead-letter failures — same runtime consumer,
+Shares files with: S1 — same runtime consumer,
 environment types, and worker config. Serialize behind it, or stack this PR on
 its branch.
 Risk / learning: unblocks the deployed schedule.

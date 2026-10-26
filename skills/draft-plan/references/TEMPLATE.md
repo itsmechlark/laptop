@@ -7,8 +7,10 @@ fixed, and both are written for a reader who has this document and nothing else.
 
 Every plan opens with this. `metadata.spec` is not optional — the plan argues
 from the spec, so the spec travels with it, and an implementer reads both. It
-sits in the frontmatter rather than the body because a path repeated in two
-places is a path that can disagree with itself; the same goes for `stack`.
+sits in the frontmatter rather than the body because a reference repeated in two
+places is one that can disagree with itself; the same goes for `stack`. It is a
+type-qualified slug, not a path: a path carries a timestamp and breaks when the
+spec moves from `~/.agents/specs/` into a repository's `docs/specs/`.
 
 `metadata.topic` is copied from the spec unchanged. It is the join key that ties
 this plan to the spec above it and the lore notes written after it, and copying
@@ -55,7 +57,7 @@ description: <one line, under 120 characters — when a reader should open this>
 metadata:
   status: accepted
   topic: <the join key, copied from the spec>
-  spec: <docs/specs/<file>.md — or the tracker item, or the URL>
+  spec: <spec/<name> — or the tracker item, or the URL>
   stack: <languages, frameworks, and libraries a task will touch>
   # supersedes: [plan/old-name]   # omit when not superseding; type-qualified slugs
   repo: <the repository's name — only in ~/.agents/plans/; delete this line in a repo's own docs/plans/>

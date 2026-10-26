@@ -11,7 +11,7 @@ description: <one line, under 120 characters — when a reader should open this>
 metadata:
   status: draft
   topic: <the join key, same as the PRD and slice list this came from>
-  part-of: <the index/umbrella spec's slug, when this spec is one slice of a set — omit for a standalone spec>
+  part-of: <the parent document, type-qualified: slice/<list-name>#<id>, or spec/<index-name> — omit for a standalone spec>
   tickets: []
   adrs: []
   # supersedes: [spec/old-name, prd/old-name]   # omit when not superseding; type-qualified slugs
@@ -69,13 +69,34 @@ Three keys, the same block a PRD, a plan, an ADR, and a lore note carry.
 `metadata.topic` is what threads them: a spec inherits it from the PRD or slice
 list it came from, and the plan written under this spec repeats it.
 
-When a spec is one slice of a set, `part-of` names the set's index spec — the
-umbrella that carries the slice list and the build-order table. Often the index
-spec's `name` *is* the shared `topic`, so `topic` already threads the members and
-`part-of` makes the parent explicit for a reader who opened one child cold. Keep
-the dependency and merge order between members in the index's slice table and the
-`slice` list's `Shares files with:`, not copied into each child's frontmatter,
-where it goes stale the first time the set is re-cut.
+The two keys answer different questions, and neither stands in for the other.
+
+- **`topic`** is a cluster key: "show me everything about this work." It is a
+  bare kebab-case word, not a pointer to any document, chosen once at the PRD or
+  slice list and copied unchanged by every artifact under it — PRD, slice list,
+  specs, plans, lore, ADRs. It is the only key that finds them across types.
+- **`part-of`** is a parent pointer: "which document do I sit under." It is a
+  type-qualified slug with one value, the nearest parent. A spec written for one
+  slice of a list points at that slice, `slice/<list-name>#<id>`; a spec that is
+  one member of an index spec points at the index, `spec/<index-name>`; a
+  standalone spec omits it. It never names the whole slice list when a slice is
+  the parent, and it never repeats `topic`.
+
+A link is a locator and nothing else, in frontmatter and in the body. Say what
+this spec changes about its parent in Problem Statement and Solution, where it
+can be read without the parent — never in a clause after a pointer, and never as
+a paragraph explaining the parent's labels to a cold reader. The slice ID in
+`part-of` is that explanation.
+
+When the spec is filed as a local file, add `Spec: <name>` to the parent slice's
+entry in the slice list, with nothing after it — in the same write the user
+confirmed, and named in that confirmation ([PUBLISHING.md](PUBLISHING.md)). A
+slice list with no IDs gets them added first, as that edit's only other change;
+never cite the whole list as the parent, and never invent an ID the list does
+not carry. Keep the dependency and merge order
+between members in the index's slice table and the slice list's `Shares files
+with:`, not copied into each child's frontmatter, where it goes stale the first
+time the set is re-cut.
 
 `metadata.status` moves through the lifecycle every planning artifact shares:
 `draft` (written, not yet agreed) → `accepted` (agreed; implementation may
