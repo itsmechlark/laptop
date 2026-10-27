@@ -161,6 +161,7 @@ The common case is not a blank page. A slice shipped, or a build ran over its sc
 
 - **Don't re-ask the skeleton question.** It's answered — something is live. The question now is what the next most valuable thing is *given* what users are doing with it.
 - **Start from what shipping taught.** "What did you learn that you didn't know when we cut these?" is the whole re-entry interview when the answer is substantive, and one question is often all it takes.
+- **Mark the shipped slice done.** For each criterion that was verified, change `- [ ]` to `- [x]`. When every criterion in a slice is checked, the slice is done — say so plainly. When the whole list is done, set `metadata.status: done`.
 - **Re-run [the two tests](#2-shape-the-slices) on every remaining slice.** A shipped slice turns `Depends on:` entries into satisfied ones, which can free two slices to run in parallel — or expose one that was only shippable as part of the piece that already went out.
 - **Delete slices the feedback killed.** A slice nobody wants any more is not a slice to reshape. Say it's gone and why, so it doesn't reappear next quarter as an obligation.
 - **Scope discovered mid-build re-cuts the remainder.** When a build overran because the slice was really two, the fix is to ship the smaller piece and re-cut what's left — never to append the overflow to the end of the list, which quietly grows the sequence past the point anyone still believes it.

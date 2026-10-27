@@ -39,6 +39,13 @@ A list is filed only after the user has agreed the sequence, so it is born
 remainder in place is an edit, not a supersession — a new file is warranted
 only when the whole sequence is re-thought.
 
+**Acceptance criteria are live state, not a template.** Each criterion starts
+as `- [ ]` (unverified). As behavior is confirmed, change it to `- [x]`. A
+slice whose every criterion is checked is done. A spec reaching `status: done`
+does not check the slice's criteria — the slice file is the record of what was
+verified, and it's updated directly when the behavior is confirmed, not inferred
+from a sibling document.
+
 **No slice count.** This skill re-cuts a list whenever one slice ships or
 overruns, and a number in the frontmatter would go stale on the first re-cut
 with nothing to catch it. The list below is the count.
