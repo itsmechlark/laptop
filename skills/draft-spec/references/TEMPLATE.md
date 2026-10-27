@@ -40,10 +40,18 @@ The solution to that problem, from the user's perspective.
 - Rollout, observability, security, or idempotency constraints
 - The load the design was sized against, and what breaks first beyond it
 
+When a decision section covers several distinct areas (monolith, a frontend, an
+API contract, rollout), name each with a `### Sub-section` heading rather than a
+standalone bold line. A sub-section heading is discoverable and renders as
+structure; a standalone bold line is decoration.
+
 ## Alternatives Considered
 
-Options the conversation raised and declined, one line each, with the reason:
-cost, technical complexity, or extensibility for a phase already anticipated.
+- **Name of the option**: why it was declined — cost, technical complexity, or
+  extensibility for a phase already anticipated.
+
+When nothing was weighed, say so in one sentence rather than leaving the section
+empty.
 
 ## Testing Decisions
 
@@ -51,6 +59,9 @@ cost, technical complexity, or extensibility for a phase already anticipated.
 - The happy path, edge cases, failure states, authorization boundaries, and
   compatibility cases that matter
 - Prior art: the test types, helpers, fixtures, or conventions already used here
+
+When testing spans multiple engines or repos, name each with a `### Engine`
+heading so prior art and cases stay co-located with the boundary they cover.
 
 ## Out of Scope
 
