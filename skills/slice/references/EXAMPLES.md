@@ -66,23 +66,28 @@ risk are the same slice, and nothing has to be reordered to de-risk early.
 
 ### Slice 1 — Invite one teammate by email
 
-```
-S1 — Invite by email
+```markdown
+## S1 — Invite by email
+
 When I've just created an account and my colleagues can't see any of it,
 I want to send one person an invitation by email
 so they can sign in and start working in the same account today.
-Ships when: an owner enters an email address, the recipient gets a message,
+
+**Ships when:** an owner enters an email address, the recipient gets a message,
 clicks it, signs up, and lands in the account with the default role.
-Acceptance criteria:
+
+### Acceptance criteria
+
 - [ ] An owner invites an address that has no account, and the invitee lands in
       the right account after signing up
 - [ ] Inviting an address that already belongs to this account is rejected with
       a message saying so
 - [ ] An invite link that has already been used, or is older than the expiry,
       shows an explanation rather than an error page
-Depends on: none.
-Risk / learning: tests the whole invite loop, including whether anyone accepts.
-Spec: invite-by-email
+
+**Depends on:** none.
+**Risk / learning:** tests the whole invite loop, including whether anyone accepts.
+**Spec:** invite-by-email
 ```
 
 The `Spec:` line appears once the spec is written — here `invite-by-email` is the
@@ -95,20 +100,25 @@ unquestionably shippable.
 
 ### Slice 2 — See and revoke what's pending
 
-```
-S2 — Pending invites
+```markdown
+## S2 — Pending invites
+
 When I've invited three people and can't remember which of them replied,
 I want to see who's still outstanding and take an invite back
 so I stop chasing people who already joined and can undo a typo'd address.
-Ships when: the members screen lists pending invites with their sent date, and
+
+**Ships when:** the members screen lists pending invites with their sent date, and
 revoking one makes its link stop working.
-Acceptance criteria:
+
+### Acceptance criteria
+
 - [ ] Pending invites appear with the address and the date sent
 - [ ] Revoking removes it from the list, and the link then shows "no longer
       valid" instead of granting access
 - [ ] An invite that has been accepted moves out of pending and into members
-Depends on: S1.
-Risk / learning: low risk.
+
+**Depends on:** S1.
+**Risk / learning:** low risk.
 ```
 
 `Depends on:` names slice 1 because there is nothing to list until invites
@@ -117,20 +127,25 @@ which is what makes them two slices rather than one.
 
 ### Slice 3 — Choose the role at invite time
 
-```
-S3 — Invite with a role
+```markdown
+## S3 — Invite with a role
+
 When I'm inviting a bookkeeper who should never touch settings,
 I want to pick their role while I'm sending the invitation
 so I don't have to remember to downgrade them after they accept.
-Ships when: the invite form offers the account's roles, and the accepted member
+
+**Ships when:** the invite form offers the account's roles, and the accepted member
 arrives with the role that was chosen.
-Acceptance criteria:
+
+### Acceptance criteria
+
 - [ ] An invite sent as a restricted role produces a member with that role
 - [ ] The default is unchanged when no role is chosen
 - [ ] A role removed from the account between sending and accepting falls back
       to the default rather than failing the acceptance
-Depends on: S1.
-Risk / learning: low risk — the permission model already exists.
+
+**Depends on:** S1.
+**Risk / learning:** low risk — the permission model already exists.
 ```
 
 Depends on slice 1, not on slice 2. Two independent branches off the skeleton,
@@ -138,20 +153,25 @@ so these two could go to different people, or to `fan-out`.
 
 ### Slice 4 — Auto-join by verified email domain
 
-```
-S4 — Domain auto-join
+```markdown
+## S4 — Domain auto-join
+
 When someone from our company signs up with their work email and I never got
 round to inviting them,
 I want them to join our account automatically
 so onboarding stops depending on me noticing.
-Ships when: with the flag on for a pilot account, a signup at a verified domain
+
+**Ships when:** with the flag on for a pilot account, a signup at a verified domain
 joins that account with the default role instead of creating a new one.
-Acceptance criteria:
+
+### Acceptance criteria
+
 - [ ] A signup at the verified domain lands in the existing account
 - [ ] A signup at a lookalike domain does not
 - [ ] With the flag off, signup behaves exactly as it does today
-Depends on: S1 — reuses the membership-creation path it shipped.
-Risk / learning: highest-consequence slice — a wrong match puts a stranger
+
+**Depends on:** S1 — reuses the membership-creation path it shipped.
+**Risk / learning:** highest-consequence slice — a wrong match puts a stranger
 inside someone's account. Ships default-off and gets enabled per account.
 ```
 
@@ -176,21 +196,26 @@ other three shipped and quiet first.
 Push: "Is this one thing, or two?" — it turned out renaming and duplicating had
 been quietly bundled together. Duplicating became its own slice for later.
 
-```
-S1 — Rename a saved report
+```markdown
+## S1 — Rename a saved report
+
 When I've built a report called "Copy of Copy of Q3" and can't find it in a
 list of forty,
 I want to rename it in place
 so the list stays something I can scan.
-Ships when: a user renames a report from the list and the new name persists
+
+**Ships when:** a user renames a report from the list and the new name persists
 across a reload.
-Acceptance criteria:
+
+### Acceptance criteria
+
 - [ ] A renamed report keeps its data, schedule, and share links
 - [ ] An empty name is rejected, and the old name is kept
 - [ ] A name that duplicates another report of the same owner is allowed, and
       both stay distinguishable by their dates
-Depends on: none.
-Risk / learning: low risk.
+
+**Depends on:** none.
+**Risk / learning:** low risk.
 ```
 
 "Keeps its share links" is the criterion worth having. It is the thing a
@@ -227,28 +252,32 @@ from.
 Two slices off the same skeleton, both `Depends on: none`, both shippable in
 either order — and both editing the same runtime module and its config:
 
-```
-S1 — Capture dead-letter failures
+```markdown
+## S1 — Capture dead-letter failures
+
 When a deployed job exhausts its retries, I want the poison job preserved
 so an operator can investigate it instead of losing it silently.
-Ships when: a job failing past its retry budget lands in the dead-letter queue.
-Depends on: none.
-Shares files with: S2 — both edit the runtime jobs
-consumer, its environment types, and the worker config. Serialize: land this
-first, rebase the other.
-Risk / learning: fixes an active data-loss bug.
+
+**Ships when:** a job failing past its retry budget lands in the dead-letter queue.
+
+**Depends on:** none.
+**Shares files with:** S2 — both edit the runtime jobs consumer, its environment
+types, and the worker config. Serialize: land this first, rebase the other.
+**Risk / learning:** fixes an active data-loss bug.
 ```
 
-```
-S2 — Serialize the scheduler
+```markdown
+## S2 — Serialize the scheduler
+
 When a scheduled run fires while a prior one is still going, I want the scheduler
 to run exclusively so the deployed schedule is safe to turn on.
-Ships when: two overlapping scheduled runs serialize, and only one does the work.
-Depends on: none.
-Shares files with: S1 — same runtime consumer,
-environment types, and worker config. Serialize behind it, or stack this PR on
-its branch.
-Risk / learning: unblocks the deployed schedule.
+
+**Ships when:** two overlapping scheduled runs serialize, and only one does the work.
+
+**Depends on:** none.
+**Shares files with:** S1 — same runtime consumer, environment types, and worker
+config. Serialize behind it, or stack this PR on its branch.
+**Risk / learning:** unblocks the deployed schedule.
 ```
 
 Both pass the two tests and neither waits on the other's behavior, so

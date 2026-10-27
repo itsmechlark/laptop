@@ -97,19 +97,24 @@ A slice that fails either test is too big or isn't a slice. Worked examples of b
 
 Format every slice as a job story: **When** [situation], **I want** [what], **so** [outcome].
 
-```
-[ID] — [Short name]
+```markdown
+## [ID] — [Short name]
+
 When [specific situation], I want [what they need to do]
 so [the outcome that matters to them].
-Ships when: [observable behavior — what a user can do, not what the code does].
-Acceptance criteria:
+
+**Ships when:** [observable behavior — what a user can do, not what the code does].
+
+### Acceptance criteria
+
 - [ ] [happy path]
 - [ ] [edge case or boundary]
 - [ ] [error state, if applicable]
-Depends on: [an earlier slice whose behavior must already be live, or "none"].
-Shares files with: [a sibling slice that edits the same files, and the plan — stack, serialize, or re-cut — when a repo makes this knowable; omit otherwise].
-Risk / learning: [what this slice tests or de-risks, or "low risk"].
-Spec: [the `name` of the spec written for this slice; added when that spec exists, omitted before].
+
+**Depends on:** [an earlier slice whose behavior must already be live, or "none"].
+**Shares files with:** [a sibling slice that edits the same files, and the plan — stack, serialize, or re-cut — when a repo makes this knowable; omit otherwise].
+**Risk / learning:** [what this slice tests or de-risks, or "low risk"].
+**Spec:** [the `name` of the spec written for this slice; added when that spec exists, omitted before].
 ```
 
 `[ID]` is a short label — `S1`, `C2` — unique within the list and written exactly as a spec cites it: `metadata.part-of: slice/<list-name>#S1`. It is never renumbered after a re-cut, and the ID of a slice that was dropped is not given to a new one.
