@@ -330,13 +330,8 @@ CURSOR_GLOBAL_DIR="$HOME/.cursor"
 mkdir -p "$CURSOR_GLOBAL_DIR"
 symlink_path "$PROJECT_DIR/.cursor/cli-config.json" "$CURSOR_GLOBAL_DIR/cli-config.json"
 symlink_path "$PROJECT_DIR/.cursor/hooks.json" "$CURSOR_GLOBAL_DIR/hooks.json"
-# Local overlay — machine-local, git-ignored, never shipped. Skills and rules
-# placed under .agents/local/ by the operator (e.g. via tablekit-config skills
-# install --dir .agents/local/skills) are linked into skills/ and rules/ so
-# every client discovers them through the existing ~/.agents/skills symlink.
-# Overlay names must not collide with first-party or vendored entries. Each
-# linked path is registered in .git/info/exclude (per-clone, not tracked) so
-# git never sees it. The block is idempotent: re-running changes nothing.
+
+# Local Overlay
 LOCAL_DIR="$AGENTS_DIR/local"
 GIT_EXCLUDE="$(git -C "$PROJECT_DIR" rev-parse --git-common-dir 2>/dev/null)/info/exclude"
 if [ -d "$LOCAL_DIR/skills" ]; then
@@ -358,7 +353,10 @@ if [ -d "$LOCAL_DIR/skills" ]; then
         "$name" "$name"
       continue
     fi
-    symlink_path "$target" "$link"
+    # Use ln directly: symlink_path checks existence of $target from CWD, but
+    # overlay targets are relative to the link location, not CWD, so that check
+    # always fails. The SKILL.md guard above already confirmed the source exists.
+    [ -L "$link" ] || ln -s "$target" "$link"
 
     if [ -n "$GIT_EXCLUDE" ] && [ -f "$GIT_EXCLUDE" ]; then
       entry="/skills/$name"
@@ -386,7 +384,7 @@ if [ -d "$LOCAL_DIR/rules" ]; then
         "$name" "$name"
       continue
     fi
-    symlink_path "$target" "$link"
+    [ -L "$link" ] || ln -s "$target" "$link"
 
     if [ -n "$GIT_EXCLUDE" ] && [ -f "$GIT_EXCLUDE" ]; then
       entry="/rules/$name"
