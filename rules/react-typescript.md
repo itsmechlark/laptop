@@ -17,3 +17,4 @@ The TypeScript bullets apply to any `.ts`/`.tsx`. The React ones are deliberatel
 - **Never swallow a promise rejection or render a silent failure.** Surface an error state the user can act on and report the error to the project's monitoring service.
 - **In a monorepo, respect project boundaries.** Shared code goes in a shared package; don't reach across another app's internals.
 - Test with a fast runner plus Testing Library, and end-to-end with a browser runner. `testing.md` and `testing-levels.md` load on the test files themselves.
+- **For deeper React and Next.js performance guidance** — waterfalls, bundle optimization, server-side patterns, re-render reduction — use the `vercel-react-best-practices` skill. For component API design and composition patterns (compound components, render props, context), use `vercel-composition-patterns`. For React Native and Expo, use `vercel-react-native-skills`.
