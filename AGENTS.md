@@ -90,12 +90,16 @@ spec/                   # verification tests and fixtures
   codex_policy_test.py   # offline command-hook regressions (Python 3.11+ and jq)
   rules-cases.txt       # path -> which rules/ load for it
   invocability-fixture/ # deliberate violations; proves the check still fires
+  local-overlay-fixture/ # placeholder; local overlay detection is self-tested inline in check-payload
   orphan-fixture/       # unreachable references + stale anchors; proves the checks fire
   srt-shim-fixture/     # a self-wrapping, unpinned bin/srt; proves the shim check fires
   trigger-evals/*.json  # query sets for skill triggering (run by hand, not CI)
 .agents/
   AGENTS.md             # global engineering standards (shipped to ~/.claude/CLAUDE.md)
   CONTEXT.md            # root context map — machine-local, git-ignored (optional)
+  local/                # machine-local overlay — git-ignored; see "Local overlay skills and rules"
+    skills/<name>/      # overlaid skills linked into skills/ by mac
+    rules/<name>.md     # overlaid rules linked into rules/ by mac
   references/           # prose shipped to ~/.agents/references, read on demand
     CONTEXT-FORMAT.md   # template for .agents/CONTEXT.md
     SANDBOX.md          # sandbox failure workarounds (gh keychain, pipe trap, pnpm, ps/pgrep)
@@ -125,6 +129,8 @@ skills/                 # published skills → ~/.agents/skills; first-party dir
 | `~/.agents/references` | `.agents/references/` |
 | `~/.agents/.skills-lock.json` | `skills-lock.json` |
 | `~/.agents/CONTEXT.md` | `.agents/CONTEXT.md` (when present) |
+| `skills/<name>` | `../.agents/local/skills/<name>` (when present; git-excluded) |
+| `rules/<name>.md` | `../.agents/local/rules/<name>.md` (when present; git-excluded) |
 | `~/.claude/CLAUDE.md` | `~/.agents/AGENTS.md` |
 | `~/.claude/rules` | `~/.agents/rules` |
 | `~/.claude/skills` | `~/.agents/skills` |
@@ -155,12 +161,13 @@ the change is already live for every client — directories are linked, not
 copied. Why links rather than copies:
 [ADR 0001](docs/adr/0001-symlink-the-payload-instead-of-copying.md).
 
-Only four changes need `sh mac` again:
+Only five changes need `sh mac` again:
 
 1. Adding a **new top-level link**.
 2. Editing `.codex/config.toml.template` — see below.
 3. Editing a `rules/*.md` — Cursor reads a generated copy, see below.
 4. Creating `.agents/CONTEXT.md` for the first time — see below.
+5. Adding or removing an entry under `.agents/local/` — see "Local overlay skills and rules" below.
 
 **Always edit via the repo path, never the home symlink.** The sandbox allows
 writes to this repository but restricts the home dotdirs (`~/.claude/`,
@@ -522,6 +529,35 @@ live in `.agents/skills/<name>/` but are deliberately **not** linked from
 first-party — that word says who wrote a skill, not whether it ships.
 `update-provenance` is one: scoped to this repo's own skills and rules.
 
+### Local overlay skills and rules
+
+Internal (non-public) skills and rules that must not be tracked can live in
+`.agents/local/skills/<name>/` and `.agents/local/rules/<name>.md`. The
+top-level `.agents/local/` is excluded in `.gitignore`; individual linked names
+are excluded by `.git/info/exclude` so `git status` stays clean. `mac` links
+each overlay entry into `skills/` or `rules/` with a relative target and
+registers the name in the per-clone exclude file. Links are idempotent; dangling
+links (from a removed overlay entry) are pruned on the next run.
+
+The canonical way to populate the overlay is `tablekit-config skills install`:
+
+```sh
+cd ~/Codespace/portal-frontend   # any project with @tablecheck/tablekit-*
+npx tablekit-config skills install tablekit-css tablekit-react \
+  --dir ~/Codespace/laptop/.agents/local/skills
+sh ~/Codespace/laptop/mac
+```
+
+Refresh with `npx tablekit-config skills update --dir ...` and re-run `mac`.
+
+`check-payload` identifies overlay links by their `readlink` target and skips
+them in every linting loop — they never appear in CI, which runs without the
+overlay. An overlay skill is global and pinned to the package version it was
+last exported from. Projects that vendor their own copy (e.g.
+`portal-frontend/.claude/skills/`) take precedence because the project scope
+wins over the user scope in Claude Code's resolution order. See
+[ADR 0023](docs/adr/0023-local-overlay-for-internal-skills-and-rules.md).
+
 ### Markdown
 
 Match the surrounding file. `README.md` uses setext underlined headings and
@@ -620,9 +656,10 @@ and description templates — use them.
   never run it casually to "check something."
 - `.gitignore` excludes `artifacts`, `*.swp`, `.claude/.cc-writes`,
   `.agents/*.local.md`, `.agents/CONTEXT.md`, `.agents/standup`,
-  `.agents/out-of-scope`, `.agents/.skills-lock.json`, the two generated outputs
-  `.codex/config.toml` and `.cursor/rules`, and any nested `.claude` directory
-  under `.agents/` or `skills/`.
+  `.agents/out-of-scope`, `.agents/.skills-lock.json`, `.agents/local` (the
+  overlay store), the two generated outputs `.codex/config.toml` and
+  `.cursor/rules`, and any nested `.claude` directory under `.agents/` or
+  `skills/`.
 - `mac` provisions nine real directories under `~/.agents/` — `standup`,
   `out-of-scope`, `lore`, `specs`, `plans`, `prds`, `slices`, `adr`, `handoffs`
   — not symlinks, because Codex's Seatbelt sandbox rejects symlinked writable
@@ -657,6 +694,10 @@ and description templates — use them.
   tombstone the body, drop its `MEMORY.md` pointer — and leave real deletion to
   an out-of-band terminal
   ([ADR 0018](docs/adr/0018-allow-sandboxed-pruning-of-claude-auto-memory.md)).
+- **Local overlay links are git-excluded, not tracked.** A worktree or fresh
+  checkout has no overlay links; `mac` must be re-run (just the linking block
+  suffices) to restore them. `check-payload` skips overlay entries, so CI is
+  unaffected.
 - asdf is put on `PATH` via `${ASDF_DATA_DIR:-$HOME/.asdf}/shims` rather than
   sourcing `asdf.sh` — that was a deliberate fix (commit `0f46cb9`); don't
   regress it.

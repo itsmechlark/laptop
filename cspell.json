@@ -181,6 +181,7 @@
         "sysconf",
         "sysmond",
         "tablecheck",
+        "tablekit",
         "tablesolution",
         "tfstate",
         "thoughtbot",

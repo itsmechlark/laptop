@@ -83,6 +83,13 @@ A skill that maintains this repo and is deliberately not linked from `skills/`,
 so it never ships. Its body sits in `.agents/skills/<name>/` where a vendored
 body sits; the missing link is the whole difference.
 
+**Local overlay**:
+Machine-local, git-ignored skills and rules stored in `.agents/local/skills/`
+and `.agents/local/rules/` and linked into `skills/` and `rules/` by `mac`.
+Their content never reaches the repo or CI. Individual linked names are excluded
+via `.git/info/exclude`; the store root is excluded via `.gitignore`.
+_See_: [ADR 0023](docs/adr/0023-local-overlay-for-internal-skills-and-rules.md)
+
 **Handoff**:
 One skill naming another to route work it shouldn't do itself, written
 `` `X` skill `` or `` skill `X` ``. Not the file `agent-handoff` writes — that

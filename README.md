@@ -257,6 +257,34 @@ so all three clients read the same context.
 Per-repo domain glossaries stay in each repo's own `CONTEXT.md`;
 this one stops at the repo boundary.
 
+Internal skills and rules (`.agents/local/`)
+--------------------------------------------
+
+Skills and rules that belong to private codebases — for example component-library
+docs exported from a private npm package — can live in `.agents/local/skills/`
+and `.agents/local/rules/`. The directory is git-ignored; `mac` links each entry
+into `skills/` and `rules/` and registers the name in `.git/info/exclude` so
+git never tracks it. Every client sees the overlay through the existing
+`~/.agents/skills` symlink; nothing else needs changing.
+
+Populate the overlay from any project that depends on the package:
+
+```sh
+cd ~/Codespace/portal-frontend   # any project with @tablecheck/tablekit-*
+npx tablekit-config skills install tablekit-css tablekit-react \
+  --dir ~/Codespace/laptop/.agents/local/skills
+sh ~/Codespace/laptop/mac
+```
+
+Refresh with `npx tablekit-config skills update --dir ...` and re-run `mac`.
+`check-payload` skips overlay entries entirely — CI runs without the overlay
+and is unaffected.
+
+Why this structure rather than vendoring into `skills-lock.json` or a separate
+dir: [ADR 0023].
+
+[ADR 0023]: docs/adr/0023-local-overlay-for-internal-skills-and-rules.md
+
 Sandbox troubleshooting (`~/.agents/references/SANDBOX.md`)
 ----------------------------------------------------------
 

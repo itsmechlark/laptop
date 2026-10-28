@@ -14,10 +14,14 @@ reason isn't obvious from the message it prints.
 **Scope is the published payload**: `skills/`, `rules/`, and the client configs.
 Bodies under `.agents/skills/` are not scanned directly — what is linked from
 `skills/` gets checked through that symlink, and what isn't linked is
-project-only and off the checker's books. Vendored skills are the one asymmetry:
-they're reachable through `skills/`, but their content isn't ours to edit, so
-shape findings about them are warnings rather than failures. Re-vendor upstream
-instead of splitting a long vendored `SKILL.md` in place.
+project-only and off the checker's books. Two asymmetries exist: vendored skills
+(symlinks into `.agents/skills/`, recorded in `skills-lock.json`) produce
+warnings rather than failures for shape findings, because their content isn't
+ours to edit; local overlay entries (symlinks into `.agents/local/`, detected by
+`readlink` target) are skipped entirely, because CI runs without the overlay and
+their content is machine-local. A self-test in `check-payload` verifies the
+detection pattern before the loops that depend on it. Re-vendor upstream instead
+of splitting a long vendored `SKILL.md` in place.
 
 Within that scope it mechanizes the half of the `agent-skills` review checklist
 a machine can settle, plus cross-file invariants this document declares:

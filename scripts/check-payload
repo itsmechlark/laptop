@@ -90,7 +90,14 @@ frontmatter() {
 }
 
 frontmatter_field() {
-  frontmatter "$1" | sed -n "s/^$2: *//p" | head -1 | sed 's/^["'\'']//; s/["'\'']$//'
+  # Handles both inline ("field: value") and block-scalar ("field:\n  value")
+  # YAML, returning the first non-empty content line in either case.
+  frontmatter "$1" | awk -v f="$2" '
+    $0 ~ "^" f ": " { sub("^" f ": *", ""); print; exit }
+    $0 ~ "^" f ":$" { in_block=1; next }
+    in_block && /^[[:space:]]/ { sub(/^[[:space:]]+/, ""); print; exit }
+    in_block { exit }
+  ' | head -1 | sed 's/^["'\'']//; s/["'\'']$//'
 }
 
 # Fenced examples are documentation, not live links or instructions. The
@@ -101,7 +108,8 @@ without_fences() {
 
 skill_names() {
   for dir in skills/*/; do
-    [ -f "${dir}SKILL.md" ] && basename "$dir"
+    name=$(basename "$dir")
+    [ -f "${dir}SKILL.md" ] && ! is_local_skill "$name" && printf '%s\n' "$name"
   done
 }
 
@@ -115,6 +123,19 @@ is_skill() {
 is_vendored() {
   [ -L "skills/$1" ]
 }
+
+# Local overlay entries reach skills/ or rules/ via a symlink whose target
+# begins with ../.agents/local/. Their content is machine-local and never
+# tracked, so CI never sees them and they are excluded from all linting.
+#
+# _is_local_link takes any path so the self-test can pass a temp symlink
+# without touching skills/. is_local_skill and is_local_rule compose it.
+_is_local_link() {
+  [ -L "$1" ] &&
+    case "$(readlink "$1")" in ../.agents/local/*) true ;; *) false ;; esac
+}
+is_local_skill() { _is_local_link "skills/$1"; }
+is_local_rule() { _is_local_link "rules/$1.md"; }
 
 # A skill carrying disable-model-invocation cannot be reached by the Skill
 # tool, which is what makes "invoke `X`" unexecutable for a flagged X.
@@ -268,6 +289,7 @@ fancy_echo "Checking bundled resource links ..."
 
 for md in skills/*/SKILL.md skills/*/references/*.md; do
   [ -f "$md" ] || continue
+  is_local_skill "$(basename "$(dirname "$md")")" && continue
   dir=$(dirname "$md")
 
   without_fences "$md" |
@@ -299,7 +321,9 @@ scan_anchors() {
   root="${1:-skills}"
   for md in "$root"/*/SKILL.md "$root"/*/references/*.md; do
     [ -f "$md" ] || continue
-    [ "$root" = skills ] && is_vendored "$(basename "$(dirname "$md")")" && continue
+    skill_dir_name=$(basename "$(dirname "$md")")
+    [ "$root" = skills ] && is_vendored "$skill_dir_name" && continue
+    [ "$root" = skills ] && is_local_skill "$skill_dir_name" && continue
     dir=$(dirname "$md")
 
     without_fences "$md" | grep -oE '\]\([^) ]*#[^) ]+\)' |
@@ -387,6 +411,7 @@ scan_orphan_references() {
     name=$(basename "$ref")
     skill_dir=$(dirname "$(dirname "$ref")")
     [ "$root" = skills ] && is_vendored "$(basename "$skill_dir")" && continue
+    [ "$root" = skills ] && is_local_skill "$(basename "$skill_dir")" && continue
 
     md="$skill_dir/SKILL.md"
     grep -q "references/$name" "$md" 2>/dev/null && continue
@@ -537,6 +562,7 @@ done
 scan_invocability() {
   for md in "$@"; do
     [ -f "$md" ] || continue
+    is_local_skill "$(basename "$(dirname "$md")")" && continue
 
     without_fences "$md" |
       # cspell:ignore nvoke -- the case-insensitive stem of the pattern below
@@ -723,8 +749,9 @@ else
   check_orphan_records "$rules_provenance" rules "rules/" ".md"
   for rule in rules/*.md; do
     [ -f "$rule" ] || continue
-    check_attribution "$rule" "$rules_provenance" rules \
-      "$(basename "$rule" .md)" no
+    rule_base=$(basename "$rule" .md)
+    is_local_rule "$rule_base" && continue
+    check_attribution "$rule" "$rules_provenance" rules "$rule_base" no
   done
 fi
 
@@ -744,7 +771,9 @@ standards=.agents/AGENTS.md
 scan_citations() {
   for md in "$@"; do
     [ -f "$md" ] || continue
-    is_vendored "$(printf '%s' "$md" | cut -d/ -f2)" && continue
+    _cite_skill=$(printf '%s' "$md" | cut -d/ -f2)
+    is_vendored "$_cite_skill" && continue
+    is_local_skill "$_cite_skill" && continue
 
     grep -oE 'AGENTS\.md §[0-9]+(,? \(?\*[^*]+\*\)?)?' "$md" |
       while IFS= read -r cite; do
@@ -786,6 +815,8 @@ fancy_echo "Checking rules frontmatter ..."
 
 for rule in rules/*.md; do
   [ -f "$rule" ] || continue
+  rule_base=$(basename "$rule" .md)
+  is_local_rule "$rule_base" && continue
   if ! head -1 "$rule" | grep -q '^---$'; then
     fail "$rule: no YAML frontmatter — the rule will never auto-load"
     continue
@@ -830,6 +861,7 @@ else
     for rule in rules/*.md; do
       [ -f "$rule" ] || continue
       rule_name=$(basename "$rule" .md)
+      is_local_rule "$rule_name" && continue
       globs=$(frontmatter "$rule" | sed -n 's/^  *- *//p' | tr -d '"'"'")
       for glob in $globs; do
         ere=$(glob_to_ere "$glob")
@@ -866,6 +898,7 @@ else
   for rule in rules/*.md; do
     [ -f "$rule" ] || continue
     name=$(basename "$rule" .md)
+    is_local_rule "$name" && continue
     mdc="$cursor_out/$name.mdc"
     if [ ! -f "$mdc" ]; then
       fail "$rule: gen-cursor-rules produced no $name.mdc"
@@ -983,11 +1016,38 @@ for f in $hits; do
   fail "$f: contains a credential-shaped string"
 done
 
+# ------------------------------------------ local overlay detection self-test
+
+# The is_local_skill and is_local_rule helpers skip machine-local overlay links
+# silently. A broken pattern match looks clean (all entries pass), so verify
+# the detection before the loops that depend on it.
+fancy_echo "Self-testing local overlay link detection ..."
+
+_link="${TMPDIR:-/tmp}/check-payload-local-overlay-test.$$"
+ln -s "../.agents/local/skills/dummy" "$_link"
+if _is_local_link "$_link"; then
+  printf "  ok    overlay target detected\n"
+else
+  fail "local overlay detection broken: ../.agents/local/... target not recognized"
+fi
+# A first-party or vendored link must not match.
+ln -sf "../.agents/skills/other" "$_link"
+if ! _is_local_link "$_link"; then
+  printf "  ok    non-overlay target not falsely matched\n"
+else
+  fail "local overlay detection broken: ../.agents/skills/... target falsely matched"
+fi
+rm -f "$_link"
+
 # ----------------------------------------------------------- symlink health
 
 fancy_echo "Checking symlinks and vendored linkage ..."
 
 for entry in skills/*; do
+  name=$(basename "$entry")
+  # Local overlay links are machine-local; they may not exist on every machine
+  # (e.g. CI) and are pruned by `mac` when removed. Skip them here.
+  is_local_skill "$name" && continue
   if [ -L "$entry" ] && [ ! -e "$entry" ]; then
     fail "$entry: dangling symlink"
   fi
