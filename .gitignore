@@ -17,3 +17,4 @@ skills/**/.system
 .agents/.skills-lock.json
 .codex/config.toml
 .cursor/rules
+.agents/local
