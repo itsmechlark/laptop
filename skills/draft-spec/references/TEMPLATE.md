@@ -236,8 +236,9 @@ requirement, so it belongs in the stories.
 feature's intent and not to this spec's delivery. Name what, and why it waits —
 a dependency, a risk, something the first release will teach. Out of Scope is
 not expected to come back under this banner; Deferred is. When a deferred item is
-big enough to ship alone, cutting it is `slice`'s work, and the entry only
-points at the result.
+big enough to ship alone, cutting it is `slice`'s work. If the result lands in
+a different list the entry points at it; if it lands in the list that holds the
+entry, the entry is removed.
 
 **Further Notes.** Everything that is true but unresolved: assumptions you had
 to invent, open questions, dependencies on other work, rollout sequencing. An
@@ -264,8 +265,14 @@ left in place. A gap the stories now cover is a requirement, and a deferred item
 pulled into the decisions is no longer deferred; leaving either behind makes the
 spec contradict itself.
 
-An entry that something outside this spec handles — another spec, or a slice in
-a slice list — stays and gains `Addressed by:` with a locator and nothing else:
+The same goes for the spec's parent slice list. An entry in that list which this
+spec's slice handles is removed from the list in the edit that files the spec,
+whether the entry came before the slice or with it, and it is not linked to
+`spec/<name>` or to the slice. The confirmation names that removal as an edit to
+the list.
+
+An entry that something outside this spec and its parent list handles — another
+spec, or a slice in a different slice list — stays and gains `Addressed by:` with a locator and nothing else:
 `spec/<name>` or `slice/<list-name>#<id>`, the type-qualified slugs `part-of`
 uses, or the tracker key when the user gave one. What the handler changes goes
 in the handler's own Problem Statement, so no clause follows the link, and the
@@ -302,8 +309,9 @@ spec takes it without being superseded.
       postponed, not undecided (Further Notes) and not excluded (Out of Scope)
 - [ ] A spec with a parent slice in a local list has neither section; its
       entries are shown as an edit to that list instead
-- [ ] No entry is handled by this same spec; every `Addressed by:` is a locator
-      for a document that exists, with nothing after it
+- [ ] No entry is handled by this same spec or its parent slice list; every
+      `Addressed by:` is a locator for a different document that exists, with
+      nothing after it
 - [ ] Every invented assumption is in Further Notes, labeled — nothing you
       supplied yourself is presented as decided
 - [ ] The project's own vocabulary is used throughout, no synonyms

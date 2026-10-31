@@ -233,8 +233,9 @@ carries none. Filled in for the invite list:
 ```
 
 The first entry is a gap because the behavior ships and the shortfall is known
-and accepted. It carries `Addressed by:` because a spec was written for it
-afterward, and nothing follows the locator. The second is deferred because it is
+and accepted. It carries `Addressed by:` because a spec of its own, filed under
+no slice in this list, was written for it afterward, and nothing follows the
+locator. The second is deferred because it is
 wanted and not cut; once someone cut it into a list of its own, the entry
 pointed there instead of being deleted.
 
@@ -243,6 +244,12 @@ with its own ID and the Deferred entry would be removed the moment that slice wa
 written, with no link: the list itself carries it now. The same goes for a gap
 that S3 closed. Neither entry belongs under a slice's criteria, which say what
 must be true for the slice to ship, not what is known to be missing.
+
+The order does not matter. Suppose S1 had shipped and its address-mismatch gap
+was already recorded when the owner decided to close it with a new slice, S5.
+The entry leaves in the same edit that adds S5, even though S1 is done. Leaving
+it with `Addressed by: slice/invites#S5` would point the list at itself and
+leave it describing one shortfall twice, as a gap and as a slice.
 
 ## A small feature, sharpened
 

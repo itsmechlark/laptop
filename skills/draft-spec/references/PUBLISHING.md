@@ -27,10 +27,15 @@ spec's `part-of` is the only link, and the spec keeps its own Known Gaps and
 Deferred sections.
 
 A spec that handles a Known Gaps or Deferred entry recorded in another local
-document — a slice list, or an earlier spec — edits that document the same way:
-one `Addressed by: spec/<name>` line on the entry, and nothing else. Name it in
-the confirmation, because it touches a second file. An entry on a tracker is not
-edited.
+document — a different slice list, or an earlier spec — edits that document the
+same way: one `Addressed by: spec/<name>` line on the entry, and nothing else.
+Name it in the confirmation, because it touches a second file. An entry on a
+tracker is not edited.
+
+The spec's own parent list is the exception. An entry there that the spec's
+slice handles is deleted in the same write, not linked, because the list already
+carries the slice. Name the deletion in the confirmation. Only an entry the
+parent slice does not handle gets a link.
 
 Never claim a file exists that you didn't write. "Spec drafted below" and "spec
 written to `docs/specs/foo.md`" are different sentences; use the true one.
