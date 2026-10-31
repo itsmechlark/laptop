@@ -4,6 +4,7 @@
     "language": "en-US",
     "useGitignore": true,
     "ignorePaths": [
+        ".agents/skills",
         ".git/**",
         "artifacts/**",
         "node_modules/**"
