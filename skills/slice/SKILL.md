@@ -137,6 +137,13 @@ Filled-in examples of every field: [EXAMPLES.md](references/EXAMPLES.md).
 
 After the list, give a one-paragraph sequencing rationale.
 
+**Then ask what the list knowingly leaves out** — once, after the sequence has settled, in the user's words rather than yours. Two kinds of answer come back, and they are kept apart:
+
+- **Known Gaps** — something a shipped slice can't do that a user can still run into. "What will someone hit in the first week that this doesn't handle?"
+- **Deferred** — something the user wants that isn't cut into this list yet. "What did we leave off that you still want, just not now?"
+
+Record what they say and no more; a gap you noticed in the code is a question to put to them, not an entry (see [Gotchas](#gotchas)).
+
 **Always close with:** "Look at your first slice. Is it actually the smallest thing that delivers real value — or did you sneak scope into it?" Wait for the answer; it is the last chance to catch a skeleton with scope hidden in it. After a multi-slice session, add one sentence on what the answer reveals about how they scope work.
 
 ### 4. Capture the list before it evaporates
@@ -144,6 +151,10 @@ After the list, give a one-paragraph sequencing rationale.
 A sequence agreed in conversation dies with it, and it's the artifact the next two weeks run on. Past one slice, ask where the list should live and write it there — a Markdown file at a path the user names, job stories verbatim so the criteria survive. With no path named, offer `docs/slices/<YYYYMMDDHHMMSS>-<kebab-slug>.md` **when that directory already exists** and `~/.agents/slices/<YYYYMMDDHHMMSS>-<kebab-slug>.md` when it doesn't — never a directory created for the purpose, since a repository opts in by already having somewhere for this. Take the timestamp from `date +%Y%m%d%H%M%S`, never from memory. When the work is related to a ticket or GitHub issue, prefix the slug with the lowercased key or `gh-<number>` — e.g. `proj-482-teammate-invites` — and record it in `metadata.tickets`. A list filed at the global root carries `metadata.repo`, the repository's name. One slice sharpened in three questions needs no file: say what you'd write, and let them decide.
 
 The file opens with the frontmatter block every artifact in this chain carries, so the specs and plans written under these slices join back to it by `metadata.topic` — the shape, and the two rules bounding it, are in [EXAMPLES.md](references/EXAMPLES.md). Say once, under the title, that where a spec exists for a slice it governs that slice's criteria; the entries then carry no per-entry caveat.
+
+Where the user named gaps or deferrals, the file closes with `## Known Gaps` and `## Deferred` after the last slice. A spec written under one of these slices puts its own gaps and deferrals here too instead of in the spec, so the list is the one place to read what the work ships without. An entry about one slice opens with that slice's ID in bold. Omit a heading with nothing under it, and never write `None`.
+
+**An entry that something in this same list now handles is removed, not linked** — a deferred item cut into a slice gets a fresh ID and leaves Deferred, and a gap a slice closes leaves Known Gaps. `Addressed by:` is for a handler outside the list, a spec or a slice in another list: a locator with nothing after it, for the same reason `Spec:` is, added once that document exists, on an entry that stays. Appending entries or links is not a re-cut, so it doesn't supersede an `accepted` list. The same holds in the other direction: a new list that handles an entry recorded in another local document adds the one `Addressed by:` line there, and the confirmation names that second file. Entry shape and filled-in examples: [EXAMPLES.md](references/EXAMPLES.md#known-gaps-and-deferred).
 
 This step files nothing and specs nothing. Putting the list on a tracker is an outward-facing write and a separate yes: ask where it goes, keep the dependency order, and say the count before creating anything. `triage` works those items once they exist, and is user-invoked, so read and follow its `SKILL.md`. `draft-spec` writes slice one up properly when a contractor or an unattended agent has to work it cold.
 
@@ -163,8 +174,9 @@ The common case is not a blank page. A slice shipped, or a build ran over its sc
 - **Start from what shipping taught.** "What did you learn that you didn't know when we cut these?" is the whole re-entry interview when the answer is substantive, and one question is often all it takes.
 - **Mark the shipped slice done.** For each criterion that was verified, change `- [ ]` to `- [x]`. When every criterion in a slice is checked, the slice is done — say so plainly. When the whole list is done, set `metadata.status: done`.
 - **Re-run [the two tests](#2-shape-the-slices) on every remaining slice.** A shipped slice turns `Depends on:` entries into satisfied ones, which can free two slices to run in parallel — or expose one that was only shippable as part of the piece that already went out.
+- **Revisit Known Gaps and Deferred.** Shipping shows whether a gap bit anyone and whether a deferral still matters. Cut what is now wanted into a slice and remove its entry; delete what nobody wants, saying why.
 - **Delete slices the feedback killed.** A slice nobody wants any more is not a slice to reshape. Say it's gone and why, so it doesn't reappear next quarter as an obligation.
-- **Scope discovered mid-build re-cuts the remainder.** When a build overran because the slice was really two, the fix is to ship the smaller piece and re-cut what's left — never to append the overflow to the end of the list, which quietly grows the sequence past the point anyone still believes it.
+- **Scope discovered mid-build re-cuts the remainder.** When a build overran because the slice was really two, the fix is to ship the smaller piece and re-cut what's left — never to append the overflow to the end of the list, which quietly grows the sequence past the point anyone still believes it. Overflow that is wanted but not now goes under Deferred, outside the sequence.
 
 ## Gotchas
 
@@ -192,6 +204,10 @@ The common case is not a blank page. A slice shipped, or a build ran over its sc
 
 - **Never answer your own questions from what you read in the codebase.** Grounding tells you what exists; it tells you nothing about who needs this or what done looks like. Slices derived from the code describe the code, and the acceptance criteria then assert your assumptions instead of the user's needs.
 
+- **Deferred is not where slices go to avoid the two tests.** A wanted piece that can ship alone is a slice, sequenced; one nobody wants is deleted, with the reason ([Re-slicing](#re-slicing-after-something-shipped)). Deferred holds only what is wanted and not yet cut, which carries no order and no commitment.
+
+- **A gap you spotted is a question, not an entry.** Known Gaps and Deferred record what the user accepted and postponed; an entry you supplied reads as their decision. Ask, then write what they said.
+
 ## Troubleshooting
 
 | Issue | Solution |
@@ -212,7 +228,7 @@ The common case is not a blank page. A slice shipped, or a build ran over its sc
 
 Read this when you need it, not upfront.
 
-- [EXAMPLES.md](references/EXAMPLES.md) — one epic sliced end to end with its sequencing rationale, one small feature sharpened into a single job story, and a build order caught pretending to be a slice list
+- [EXAMPLES.md](references/EXAMPLES.md) — one epic sliced end to end with its sequencing rationale, one small feature sharpened into a single job story, a build order caught pretending to be a slice list, and the Known Gaps and Deferred sections that close a list, with their `Addressed by:` links
 
 ## Attribution
 

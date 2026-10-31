@@ -2,7 +2,12 @@
 
 Section order is fixed. Every section appears, even when the honest content is
 one line — a missing section reads as an oversight, and a reader can't tell
-"nothing is out of scope" from "nobody thought about scope".
+"nothing is out of scope" from "nobody thought about scope". The exception is
+**Known Gaps** and **Deferred**, which appear only when the conversation
+produced something for them: a gap written to fill the heading is an invented
+requirement, and an empty heading costs the reader a stop. A spec with a parent
+slice in a local slice list carries neither — its entries go in that list, as set out under
+[Known Gaps and Deferred in a slice's spec](#known-gaps-and-deferred-in-a-slices-spec).
 
 ```markdown
 ---
@@ -67,6 +72,20 @@ heading so prior art and cases stay co-located with the boundary they cover.
 
 What this spec explicitly does not cover, including adjacent slices that must
 not be pulled into the implementation.
+
+## Known Gaps
+
+<optional — omit the heading when there are none, and when part-of names a slice in a local list: those entries go in that list>
+
+- <what a user or operator can still hit, and why it ships anyway>
+  Addressed by: <spec/name, or slice/list-name#id — only once something outside this spec handles it>
+
+## Deferred
+
+<optional — omit the heading when there are none, and when part-of names a slice in a local list: those entries go in that list>
+
+- <what is wanted, and why not now>
+  Addressed by: <same forms>
 
 ## Further Notes
 
@@ -203,10 +222,59 @@ during implementation. It should contain at least one thing the conversation
 raised and deliberately set aside; if nothing comes to mind, the boundary was
 never actually agreed.
 
+**Known Gaps.** A limitation the spec knowingly ships with: a case that behaves
+badly or not at all, which a user or operator can still reach, and why that is
+acceptable for now. Write it in outcome language, because the people who have to
+accept it are the product team — "invitees who sign up under a different address
+land in a new account", not "the lookup keys on the original email". It has
+three neighbors. Out of Scope is a boundary the spec never claimed to cover, so
+nothing is missing there. Further Notes holds what is still undecided, where a
+gap has been decided and accepted. And a shortfall the spec is meant to fix is a
+requirement, so it belongs in the stories.
+
+**Deferred.** Work the conversation wanted and postponed. It belongs to the
+feature's intent and not to this spec's delivery. Name what, and why it waits —
+a dependency, a risk, something the first release will teach. Out of Scope is
+not expected to come back under this banner; Deferred is. When a deferred item is
+big enough to ship alone, cutting it is `slice`'s work, and the entry only
+points at the result.
+
 **Further Notes.** Everything that is true but unresolved: assumptions you had
 to invent, open questions, dependencies on other work, rollout sequencing. An
 assumption recorded here is cheap to correct; the same assumption stated
 confidently in the Solution is expensive.
+
+## Known Gaps and Deferred in a slice's spec
+
+When `part-of` names a slice in a local slice list, the spec has no Known Gaps
+or Deferred section. Its entries belong to the list, tagged with the slice's ID,
+so the work's shortfalls and postponements are read in one place and not
+scattered across every spec written under it. Show them with the draft as the
+edit they are — "adds to Known Gaps under S1 in `<path>`" — and file them with
+the spec, in the same confirmed write as the `Spec:` line
+([PUBLISHING.md](PUBLISHING.md)).
+
+Where the slice list lives on a tracker it is not edited, so the spec keeps the
+two sections itself and the rest of this file applies to them.
+
+## Linking a gap or deferral to what handles it
+
+An entry that this same spec handles is removed. A gap the stories now cover is
+a requirement, and a deferred item pulled into the decisions is no longer
+deferred; leaving either behind makes the spec contradict itself.
+
+An entry that something outside this spec handles — another spec, or a slice in
+a slice list — stays and gains `Addressed by:` with a locator and nothing else:
+`spec/<name>` or `slice/<list-name>#<id>`, the type-qualified slugs `part-of`
+uses, or the tracker key when the user gave one. What the handler changes goes
+in the handler's own Problem Statement, so no clause follows the link, and the
+link runs one way only. The entry stays so the spec still shows what it shipped
+without and where that went.
+
+The line goes on only once the handler exists. An entry with no link is
+unowned, which is an honest state; don't invent a handler to fill it. Adding the
+line is a pointer and not a change to the decision, so an `accepted` or `done`
+spec takes it without being superseded.
 
 ## Self-check before showing the draft
 
@@ -228,6 +296,13 @@ confidently in the Solution is expensive.
 - [ ] Testing Decisions name observable behavior and identify prior art, or say
       none exists
 - [ ] Out of Scope names something the conversation actually set aside
+- [ ] Known Gaps and Deferred appear only when the conversation produced
+      entries — no empty heading, no `None` — and each entry was accepted or
+      postponed, not undecided (Further Notes) and not excluded (Out of Scope)
+- [ ] A spec with a parent slice in a local list has neither section; its
+      entries are shown as an edit to that list instead
+- [ ] No entry is handled by this same spec; every `Addressed by:` is a locator
+      for a document that exists, with nothing after it
 - [ ] Every invented assumption is in Further Notes, labeled — nothing you
       supplied yourself is presented as decided
 - [ ] The project's own vocabulary is used throughout, no synonyms

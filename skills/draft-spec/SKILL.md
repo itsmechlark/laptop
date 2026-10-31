@@ -53,7 +53,7 @@ This is the only confirmation gate before the draft, and it is deliberately chea
 
 ### 3. Synthesize, don't interview
 
-The conversation, the repository, the glossary, the ADRs, and the confirmed frame are the source of truth. Preserve uncertainty honestly: unresolved choices go in **Further Notes**, not into a confident sentence. Keep what the user wants separate from how the code will do it, and on a product-facing tracker keep the narrative in outcome language with implementer detail confined to its own section (AGENTS.md §3, *Jira vs. Pull Requests — audience separation*).
+The conversation, the repository, the glossary, the ADRs, and the confirmed frame are the source of truth. Preserve uncertainty honestly: unresolved choices go in **Further Notes**, not into a confident sentence. A limitation the conversation accepted goes in **Known Gaps** and work it postponed goes in **Deferred** — neither is an unresolved choice, and neither is out of scope. When the spec has a parent slice in a local slice list, both belong in that list, not the spec. Keep what the user wants separate from how the code will do it, and on a product-facing tracker keep the narrative in outcome language with implementer detail confined to its own section (AGENTS.md §3, *Jira vs. Pull Requests — audience separation*).
 
 ### 4. Write the spec
 
@@ -63,7 +63,7 @@ Then invoke `cold-read` with the comprehension and reuse lenses. The spec is wri
 
 ### 5. Publish only where asked
 
-The spec is a draft until the user has seen the exact Markdown and confirmed it. Where it goes after that — conversation, a file at a path the user named or the `docs/specs/<YYYYMMDDHHMMSS>-<kebab-slug>.md` fallback they accept, an existing tracker item, a new one — is [PUBLISHING.md](references/PUBLISHING.md). When the work is related to a ticket or GitHub issue, prefix the slug with the lowercased key or `gh-<number>` — e.g. `proj-482-teammate-invites` — and record it in `metadata.tickets`. Assume no tracker, no project key, and no label vocabulary until you have read the real ones. A spec written for a slice carries `metadata.part-of: slice/<list-name>#<id>`, and once it is filed the slice's entry gets a bare `Spec: <name>` line — the link rules are in [TEMPLATE.md](references/TEMPLATE.md#the-frontmatter).
+The spec is a draft until the user has seen the exact Markdown and confirmed it. Where it goes after that — conversation, a file at a path the user named or the `docs/specs/<YYYYMMDDHHMMSS>-<kebab-slug>.md` fallback they accept, an existing tracker item, a new one — is [PUBLISHING.md](references/PUBLISHING.md). When the work is related to a ticket or GitHub issue, prefix the slug with the lowercased key or `gh-<number>` — e.g. `proj-482-teammate-invites` — and record it in `metadata.tickets`. Assume no tracker, no project key, and no label vocabulary until you have read the real ones. A spec written for a slice carries `metadata.part-of: slice/<list-name>#<id>`, and once it is filed the slice's entry gets a bare `Spec: <name>` line — the link rules are in [TEMPLATE.md](references/TEMPLATE.md#the-frontmatter). A spec that handles a Known Gaps or Deferred entry recorded in another document gets linked from that entry the same way — [TEMPLATE.md](references/TEMPLATE.md#linking-a-gap-or-deferral-to-what-handles-it).
 
 A user who wants the draft challenged rather than confirmed goes to `grilling`, which interviews a document claim by claim — what each one implies, where it is weak, what was weighed against it. Only when they ask for it. This is not the reopened interview [Gotchas](#gotchas) warns about: that one asks requirements questions instead of writing the spec, where this one questions a document that already exists. Running it unprompted turns synthesis back into an interview, just at the end rather than the start.
 
@@ -72,6 +72,8 @@ A user who wants the draft challenged rather than confirmed goes to `grilling`, 
 - **Don't reopen the interview.** The failure mode this skill exists to avoid is answering a request to write things down with a fresh round of requirements questions. If the conversation converged, the questions are already answered; if it didn't, say so (see [Is it settled enough to write?](#is-it-settled-enough-to-write)) instead of drafting around the gap one question at a time.
 
 - **An invented detail is indistinguishable from a decided one once it's in the document.** Actors, edge-case behavior, API shapes, schema fields, rollout plans — a spec is read as authoritative by exactly the people who weren't in the conversation. Anything you supplied yourself belongs in **Further Notes**, labeled.
+
+- **Known Gaps and Deferred hold what was accepted and postponed, not what you noticed.** A gap you spotted in the design is a question for the user, and a deferral you proposed is a scope decision made for them — both read as settled once written. Take them from the conversation; anything else goes to **Further Notes** as an open question. An entry the spec's own stories or decisions cover is not a gap or a deferral at all — leave it out rather than linking the spec to itself.
 
 - **No file paths, diffs, or code snippets.** They are stale before the first commit and they turn a spec into a plan the implementer can't argue with. The single exception is a compact type, state machine, reducer, or payload shape when the shape *is* the decision — include only the decision-rich part, and say it came from a prototype. When the implementer genuinely can't argue back — a cold subagent, one arm of a parallel dispatch, a contractor — that trade is worth making, and `draft-plan` makes it deliberately in a separate, disposable document rather than by loosening this rule here.
 
@@ -91,7 +93,7 @@ Precise, collaborative, and honest about uncertainty. The goal is a spec that su
 
 Read these as needed for the task in hand, not both upfront.
 
-- [TEMPLATE.md](references/TEMPLATE.md) — the spec template, what each section holds, and the self-check before showing a draft
+- [TEMPLATE.md](references/TEMPLATE.md) — the spec template, what each section holds (including the optional Known Gaps and Deferred, and how an entry links to what handles it), and the self-check before showing a draft
 - [PUBLISHING.md](references/PUBLISHING.md) — where a finished spec goes, tracker handoff, and shipping the spec as its own pull request
 
 ## Attribution

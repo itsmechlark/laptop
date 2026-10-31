@@ -17,10 +17,20 @@ Match the destination to what was asked, and nothing more:
 | Publishing, with no tracker integration available | Leave it as Markdown and say publication was not performed. |
 
 When the spec has a parent slice in a local slice list, filing it also edits that
-list: one `Spec: <name>` line on the slice's entry, and nothing else. Say so in
-the confirmation — "writes the spec, and adds a `Spec:` line to slice C1 in
-`<path>`" — because it touches a second file. A slice list that lives on a
-tracker is not edited; the spec's `part-of` is the only link.
+list: one `Spec: <name>` line on the slice's entry, plus any Known Gaps and
+Deferred entries the conversation produced, appended under the list's sections
+with the slice's ID (a missing section is added at the end of the file), and
+nothing else. Say so in the confirmation — "writes the spec, adds a `Spec:` line
+to slice C1 in `<path>`, and adds one Known Gaps entry under C1" — because it
+touches a second file. A slice list that lives on a tracker is not edited; the
+spec's `part-of` is the only link, and the spec keeps its own Known Gaps and
+Deferred sections.
+
+A spec that handles a Known Gaps or Deferred entry recorded in another local
+document — a slice list, or an earlier spec — edits that document the same way:
+one `Addressed by: spec/<name>` line on the entry, and nothing else. Name it in
+the confirmation, because it touches a second file. An entry on a tracker is not
+edited.
 
 Never claim a file exists that you didn't write. "Spec drafted below" and "spec
 written to `docs/specs/foo.md`" are different sentences; use the true one.

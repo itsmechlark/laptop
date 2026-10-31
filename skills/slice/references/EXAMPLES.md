@@ -1,9 +1,10 @@
 # Worked examples
 
-Three walkthroughs: an epic cut into a sequence, a small feature sharpened into
-one job story, and a build order caught pretending to be a slice list. The
-domains are stand-ins — what carries across is the shape of the cut and the
-reasoning that produced it.
+Four walkthroughs: an epic cut into a sequence, with the gaps and deferrals its
+list records; a small feature sharpened into one job story; a build order caught
+pretending to be a slice list; and two slices that are independent by value but
+collide at the merge. The domains are stand-ins — what carries across is the
+shape of the cut and the reasoning that produced it.
 
 ## The captured list's frontmatter
 
@@ -195,6 +196,53 @@ Roles come third because the permission model already exists, so the slice is
 mostly wiring. Domain auto-join is last despite being the most-requested item —
 it is the one slice whose failure mode is a security incident, and it wants the
 other three shipped and quiet first.
+
+### Known Gaps and Deferred
+
+Asked what the invite list knowingly ships without, the owner named two things,
+and two sections close the file. The shape:
+
+```markdown
+## Known Gaps
+
+- **S1** — [what a user can still hit, and why it ships anyway]
+  Addressed by: [spec/<name>, or slice/<list-name>#<id>]
+
+## Deferred
+
+- [what is wanted, and why not now]
+  Addressed by: [same forms]
+```
+
+An entry about one slice opens with its ID in bold; one about the whole list
+carries none. Filled in for the invite list:
+
+```markdown
+## Known Gaps
+
+- **S1** — An invitee who signs up under a different address than the one
+  invited lands in a new account, not the inviting one. Rare enough to ship
+  with.
+  Addressed by: spec/invite-address-mismatch
+
+## Deferred
+
+- Inviting a whole team from a CSV. Wanted for larger accounts, but whether
+  one-at-a-time invites are a real obstacle won't be known until S1 is live.
+  Addressed by: slice/bulk-invites#B1
+```
+
+The first entry is a gap because the behavior ships and the shortfall is known
+and accepted. It carries `Addressed by:` because a spec was written for it
+afterward, and nothing follows the locator. The second is deferred because it is
+wanted and not cut; once someone cut it into a list of its own, the entry
+pointed there instead of being deleted.
+
+Had the owner wanted CSV invites inside this list, it would be a fifth slice
+with its own ID and the Deferred entry would be removed, with no link: the list
+itself carries it now. The same goes for a gap that S3 closed. Neither entry
+belongs under a slice's criteria, which say what must be true for the slice to
+ship, not what is known to be missing.
 
 ## A small feature, sharpened
 
