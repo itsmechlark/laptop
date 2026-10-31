@@ -59,7 +59,7 @@ When the project tracks work in an issue tracker, append the key in square brack
 
 ### 3. Write the description
 
-Follow [Description format](#description-format) for the structure and [Voice and tone](#voice-and-tone) for how it should read. Write it to a file under `$TMPDIR` and note the **full absolute path** — you'll pass that path to the host CLI in step 5. Using the resolved path rather than the `$TMPDIR` variable keeps the body out of shell quoting and sidesteps `$TMPDIR` resolving differently across shell invocations.
+Follow [Description format](#description-format) for the structure and [Voice and tone](#voice-and-tone) for how it should read. Write it to a file under `$TMPDIR` and note the **full absolute path** — you'll pass that path to the host CLI in step 6. Using the resolved path rather than the `$TMPDIR` variable keeps the body out of shell quoting and sidesteps `$TMPDIR` resolving differently across shell invocations.
 
 ### 4. Self-check
 
@@ -71,10 +71,20 @@ Read your own body once before posting:
 - No section reads as a task log ("then I also…", "addressed feedback").
 - The repo's own template sections and checkboxes are filled.
 - No unmerged sibling PR edits the same files — or if one does, the merge order is in Risks & rollout and the PR is opened as a draft.
+- Every criterion checked and every spec marked `done` is backed by the diff, not by the PR being finished.
 - Nothing fabricated: no invented issue link, reviewer, label, screenshot, or test you didn't write.
 - The whole body reads in under a minute.
 
-### 5. Open or update the PR
+### 5. Record what shipped on the spec and slice
+
+When the branch implements a spec or a slice, update their records before opening. Skip the step when it implements neither.
+
+- **Spec:** `metadata.status` goes from `accepted` to `done` once the diff delivers everything the spec asks for.
+- **Slice:** check each acceptance criterion the diff verifiably satisfies. When every criterion is checked the slice is done, and when every slice in the list is done so is the list.
+
+Finding the files, what counts as met or verified, and where each edit lands: [SPEC-AND-SLICE.md](references/SPEC-AND-SLICE.md).
+
+### 6. Open or update the PR
 
 Only after you've been asked to. Then:
 
@@ -86,9 +96,9 @@ Only after you've been asked to. Then:
 
 **Updating an existing PR:** `gh pr edit <number> --body-file <file>` (and `--title`), same rules and same file-based body. The description always describes the branch as it will land, not the journey it took: when review changes the work, rewrite the affected bullets in place. Never append "Update:" or "Addressed review feedback" paragraphs — a body that accumulates its own review changelog is exactly the bloat the Summary budget exists to prevent.
 
-### 6. Report what you did
+### 7. Report what you did
 
-Share the PR URL, and if you made a judgment call worth knowing about ("opened as a draft — CI still running", "based on `develop`, not `main`", "dropped three Summary bullets the diff already covers"), say so in a sentence.
+Share the PR URL. Name any spec or slice you marked, or left alone and why ("spec still `accepted` — the retry path isn't in this PR", "slice S2 done, list still open", "edit to `docs/specs/…` is uncommitted"). If you made a judgment call worth knowing about ("opened as a draft — CI still running", "based on `develop`, not `main`", "dropped three Summary bullets the diff already covers"), say so in a sentence.
 
 ## Description format
 
@@ -208,6 +218,8 @@ What's specific to a PR body is the reader's position: they have the diff and do
 
 - **A draft is the quiet state, and readiness is the notification.** Opening a draft requests no review; marking it ready (`gh pr ready <number>`) pings every CODEOWNERS reviewer. Don't flip it to tick a checklist — that's the same publish action as opening one.
 
+- **Marking a spec or criterion done is a claim about the diff.** Check a criterion only when a test or a verification you can name shows it, and mark the spec `done` only when every story and decision in it is delivered. A partial PR leaves both open; an overstated `done` is how a list later hides work nobody did.
+
 - **The 72-character cap measures the Conventional Commits portion.** A trailing `[ISSUE-KEY]` is exempt, so don't compress a clear description to make room for the key.
 
 - **A body that won't fit the bullet budget is a PR that's too big.** Widening the budget hides the problem; say the PR should be split and show the split ([SPLITTING.md](references/SPLITTING.md)). The diff says the same thing earlier: much past ~300 lines of production code — the same budget `feature-dev` carries per slice — and the split is worth proposing before you write the body at all.
@@ -233,6 +245,7 @@ What's specific to a PR body is the reader's position: they have the diff and do
 ## References
 
 - [SPLITTING.md](references/SPLITTING.md) — turning one wide branch into a set of narrow PRs: deciding the set, cutting each off the default branch, when to stack and how to keep a stack landable, and sequencing cleanup last. Read it when the work in hand is more than one PR; the workflow above covers a single PR.
+- [SPEC-AND-SLICE.md](references/SPEC-AND-SLICE.md) — locating the spec and slice list a branch implements, when a spec is met and a criterion verified, and where the status edit lands. Read it when step 5 applies.
 
 ## Attribution
 
