@@ -23,5 +23,10 @@
   {"query": "add some logging to the webhook dispatcher so i can see what it's doing in prod", "should_trigger": false},
   {"query": "we use 'hold' and 'lock' interchangeably across the reservation code and it's confusing everyone. sort out the terminology", "should_trigger": false},
   {"query": "summarize what i worked on today across these two repos, i need to post an update", "should_trigger": false},
-  {"query": "is there an n+1 query in the availability endpoint? it's slow under load", "should_trigger": false}
+  {"query": "is there an n+1 query in the availability endpoint? it's slow under load", "should_trigger": false},
+  {"query": "what actually happens when a guest cancels inside 24 hours? i'm a PM, no code please", "should_trigger": true},
+  {"query": "can restaurant staff refund part of a deposit today? i just need to know what the product does", "should_trigger": true},
+  {"query": "how does the waitlist work from the guest's side, and what do staff see? explain it in plain language, i'm not technical", "should_trigger": true},
+  {"query": "write up requirements for letting staff refund part of a deposit", "should_trigger": false},
+  {"query": "turn this customer feedback about late cancellations into a one-pager", "should_trigger": false}
 ]
