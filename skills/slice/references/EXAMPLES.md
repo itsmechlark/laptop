@@ -239,10 +239,10 @@ wanted and not cut; once someone cut it into a list of its own, the entry
 pointed there instead of being deleted.
 
 Had the owner wanted CSV invites inside this list, it would be a fifth slice
-with its own ID and the Deferred entry would be removed, with no link: the list
-itself carries it now. The same goes for a gap that S3 closed. Neither entry
-belongs under a slice's criteria, which say what must be true for the slice to
-ship, not what is known to be missing.
+with its own ID and the Deferred entry would be removed the moment that slice was
+written, with no link: the list itself carries it now. The same goes for a gap
+that S3 closed. Neither entry belongs under a slice's criteria, which say what
+must be true for the slice to ship, not what is known to be missing.
 
 ## A small feature, sharpened
 

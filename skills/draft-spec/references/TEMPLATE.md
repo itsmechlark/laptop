@@ -259,9 +259,10 @@ two sections itself and the rest of this file applies to them.
 
 ## Linking a gap or deferral to what handles it
 
-An entry that this same spec handles is removed. A gap the stories now cover is
-a requirement, and a deferred item pulled into the decisions is no longer
-deferred; leaving either behind makes the spec contradict itself.
+An entry that this same spec handles is removed the moment it is written, never
+left in place. A gap the stories now cover is a requirement, and a deferred item
+pulled into the decisions is no longer deferred; leaving either behind makes the
+spec contradict itself.
 
 An entry that something outside this spec handles — another spec, or a slice in
 a slice list — stays and gains `Addressed by:` with a locator and nothing else:
