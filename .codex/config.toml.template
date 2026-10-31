@@ -420,6 +420,22 @@ approval_mode = "auto"
 [mcp_servers."mintlify-admin".tools.diff]
 approval_mode = "auto"
 
+[mcp_servers.postgres]
+command = "npx"
+args = ["-y", "@microsoft/postgres-mcp", "run"]
+
+[mcp_servers.postgres.tools.postgres_mcp_modify]
+approval_mode = "prompt"
+
+[mcp_servers.postgres.tools.postgres_mcp_bulk_load_csv]
+approval_mode = "prompt"
+
+[mcp_servers.postgres.tools.postgres_mcp_add_connection]
+approval_mode = "prompt"
+
+[mcp_servers.postgres.tools.postgres_mcp_remove_connection]
+approval_mode = "prompt"
+
 [mcp_servers.pulumi]
 command = "npx"
 args = ["-y", "mcp-remote", "https://mcp.ai.pulumi.com/mcp"]
