@@ -1,6 +1,6 @@
 ---
 name: git-worktree
-description: Create, place, set up, and remove git worktrees with a consistent layout. Use before starting code edits to ensure work happens in an isolated worktree — and when setting up, creating, adding, entering, or cleaning up a git worktree for any repo. Covers detecting whether you are already in a worktree, the sibling-folder location and branch-based naming, symlinking git-ignored local agent config (e.g. .claude/settings.local.json), auto-installing dependencies for the worktree's stack, working inside an isolated session, and the absolute-path requirement.
+description: Create, place, set up, and remove git worktrees with a consistent layout. Use before starting code edits to ensure work happens in an isolated worktree — and when setting up, creating, adding, entering, or cleaning up a git worktree for any repo. Covers detecting whether you are already in a worktree, the sibling-folder location and branch-based naming, symlinking git-ignored .env files, skills, and local agent config (e.g. .claude/settings.local.json) — including per-package ones in a monorepo — recording the linked paths in the repo's instructions, auto-installing dependencies for the worktree's stack, working inside an isolated session, and the absolute-path requirement.
 ---
 
 # Git worktrees
@@ -12,7 +12,7 @@ Create a worktree in a dedicated sibling folder, wire up its local config and de
 - **Before making code edits** — check if you're already in a worktree; if not, create one so edits land on an isolated branch, not the main checkout
 - Setting up or creating a worktree to develop a branch in isolation
 - Deciding where a worktree should live and what to name it
-- Getting a fresh worktree ready to run — its local agent config and installed dependencies
+- Getting a fresh worktree ready to run — its git-ignored config (`.env` files, skills, local agent config, at any depth in a monorepo) and installed dependencies
 - Working inside a worktree — especially a session that refuses some shell commands
 - Cleaning up a worktree and its stale entries when finished
 
@@ -88,22 +88,54 @@ gh stack add <issue-key>-<type>-<slug>     # instead, when gh-stack manages the 
 
    A native worktree tool works too — Claude Code's `EnterWorktree` takes an absolute `path`, manages its own placement, and enters an isolated session; mind its command vetting under [Gotchas](#gotchas).
 
-3. **Link git-ignored local config** so the agent behaves as it does in the main checkout. A fresh worktree has only tracked files, so machine-local config (e.g. `.claude/settings.local.json`) is missing. Symlink each such file from the main checkout by absolute target — but only when it's git-ignored, so the link never shadows a tracked file or dirties `git status`. Run this from a normal shell (it targets the worktree explicitly, so cwd doesn't matter); inside an isolated session, issue the individual `ln -sfn` links instead — the loop won't pass command vetting:
+3. **Link git-ignored local config** so the agent behaves as it does in the main checkout. A fresh worktree has only tracked files, so everything machine-local is missing: `.env` files, `.claude/settings.local.json`, the glossary overlay, and git-ignored skills. Symlink each from the main checkout by absolute target — but only when it's git-ignored, so the link never shadows a tracked file or dirties `git status`.
+
+   Don't hardcode root paths. Ask git for the ignored entries, so a monorepo's nested `.gitignore` files (`apps/web/.env.local`, `packages/api/.claude/settings.local.json`), `.git/info/exclude`, and the global excludes file all count, then keep the ones whose name marks them as local config. Run this from a normal shell (it targets the worktree explicitly, so cwd doesn't matter); inside an isolated session, run the `ls-files` line alone and issue one `ln -sfn` per path it lists — the loop won't pass command vetting:
    ```sh
    wt=<worktree-abs-path>
    main="$(dirname "$(git -C "$wt" rev-parse --path-format=absolute --git-common-dir)")"
-   for rel in .claude/settings.local.json CONTEXT.local.md CONTEXT-MAP.local.md; do   # add .env / .env.local only to share them
-     [ -e "$main/$rel" ] || continue
-     git -C "$wt" check-ignore -q "$rel" || continue   # only ever link git-ignored files
+   link() {   # $1: repo-relative path; a directory keeps its trailing slash
+     rel="${1%/}"
+     case "$rel" in ""|/*|..|../*|*/..|*/../*) return 0 ;; esac   # stay inside the repo
+     [ -e "$main/$rel" ] || [ -L "$main/$rel" ] || return 0
+     [ -e "$wt/$rel" ] && [ ! -L "$wt/$rel" ] && return 0         # never clobber a real path
+     git -C "$wt" check-ignore -q "$1" || return 0                # ignored on this branch too
      mkdir -p "$wt/$(dirname "$rel")"
      ln -sfn "$main/$rel" "$wt/$rel"
+   }
+   git -C "$main" ls-files --others --ignored --exclude-standard --directory |
+   while IFS= read -r entry; do
+     case "/${entry%/}" in
+       */.env|*/.env.*) ;;                                                          # env files, any package
+       */.claude/settings.local.json|*/CONTEXT.local.md|*/CONTEXT-MAP.local.md) ;;
+       */skills|*/skills/*) ;;                                                      # ignored skills and overlay links
+       */.claude|*/.agents|*/.cursor|*/.codex) ;;                                   # agent dir ignored wholesale
+       *) continue ;;                                                               # node_modules, _build, caches
+     esac
+     link "$entry"
    done
    ```
-   A symlink shares one source of truth; **copy** instead when the worktree needs to diverge (e.g. an `.env` with its own port or database).
+   `--directory` collapses a wholly-ignored directory to one entry, so git never walks `node_modules` and an ignored `.claude/skills/` links as one directory. The allowlist keeps dependency and build directories out on purpose — a linked `node_modules` would break the worktree's own install in step 4.
 
-   `CONTEXT.local.md` and `CONTEXT-MAP.local.md` are the git-ignored glossary overlay `domain-modeling` maintains; a repo with several contexts keeps one per context directory, so add those paths too. The `check-ignore` gate means an overlay nobody has excluded yet is silently skipped — if it didn't link, the exclude entry is missing rather than the file.
+   **Keep the trailing slash when you check a directory.** The worktree doesn't have the directory yet, and git reads a nonexistent path as a file, so a dir-only pattern like `.claude/skills/` matches `.claude/skills/` and not `.claude/skills`. Passing `"$1"`, not `"$rel"`, to `check-ignore` is what makes the gate pass for a directory.
+
+   A symlink shares one source of truth, so linking is the default for `.env` files too. **Copy** instead when the worktree needs to diverge (e.g. an `.env` with its own port or database).
+
+   `CONTEXT.local.md` and `CONTEXT-MAP.local.md` are the git-ignored glossary overlay `domain-modeling` maintains; a repo with several contexts keeps one per context directory, and the discovery finds each. The `check-ignore` gate means an overlay nobody has excluded yet is silently skipped — if it didn't link, the exclude entry is missing rather than the file.
+
+   **Also link what the repo's instructions list.** If the worktree's `AGENTS.md` (or `CLAUDE.md`) has a `## Worktree setup` section, feed its bullets through the same `link` function, which skips the name allowlist but keeps the existence check, the `check-ignore` gate, and the stay-inside-the-repo guard. That is how a repo shares a local file the name patterns can't recognize. Read the tracked copy in the worktree, since that is the one that ships:
+   ```sh
+   sed -n '/^## Worktree setup/,/^## /s/^- `\(.*\)`$/\1/p' "$wt/AGENTS.md" |
+   while IFS= read -r entry; do link "$entry"; done
+   ```
 
 4. **Install dependencies** — `cd` into the worktree (a native tool already entered it), then run the install for its stack; see [Project setup](#project-setup). Prefer the repo's own bootstrap script (`bin/setup`, `bin/bootstrap`) when one exists.
+
+5. **Offer to record the linked paths** so the next session starts with them in context instead of rediscovering them. Compare what you linked against the repo's `## Worktree setup` section; when the set differs (new paths, or listed paths no longer in the main checkout), show the proposed section and ask before writing. Say nothing when nothing changed.
+   - Edit `AGENTS.md` when present — never a `CLAUDE.md` that symlinks to it — else `CLAUDE.md`, else the instruction file the repo already uses. Don't create one unasked.
+   - The section is one lead line ("Git-ignored paths a new worktree links from the main checkout:") and one bullet per path, sorted, each path repo-relative and wrapped in backticks (a directory keeps its trailing slash) — the read side in step 3 parses exactly that shape.
+   - Paths only. A `.env` entry names the file, never a value.
+   - Make the edit in the worktree, so it ships with the branch, and tell the user it is a tracked change.
 
 ### Clean up when done
 
@@ -112,6 +144,7 @@ Run from the main checkout — you can't remove a worktree your shell is sitting
 git worktree remove <path>     # add --force only to discard uncommitted changes
 git worktree prune             # clear stale entries
 ```
+Removal deletes the symlinks and leaves their targets in the main checkout untouched. A *copied* `.env` goes with the worktree.
 
 ## Project setup
 
@@ -134,8 +167,9 @@ Detect the stack by its manifest and run the matching install. Run it **inside t
 - **Already isolated is not isolated *for this task*.** A worktree still carrying a finished-but-unmerged unit of work is the wrong place to start the next one, and `git worktree add -b` defaults its start-point to `HEAD` — so the next branch silently inherits the last one. The [pre-edit guard](#pre-edit-guard) catches it; [Choosing the base](#choosing-the-base) says where to go instead.
 - **Never create a worktree inside the repository checkout** or in a nonstandard hidden location — a nested worktree gets swept into the parent repo's `git status` and tree-walking tooling and can be committed by accident. The sibling `.worktrees/` folder avoids that. (Entering an *existing* worktree by its path is fine.)
 - **Always pass an absolute path, never a `~`-prefixed one.** A `~` path doesn't match `git worktree list` and doesn't expand when quoted; use `$HOME/…` or a full `/Users/…` path.
-- **Only symlink files that are git-ignored** — run `git check-ignore -q` first. Ignored status is shared with the main checkout, so a file ignored there is ignored in the worktree too; symlink a *tracked* path and you shadow the real file and dirty `git status`.
-- **An isolated session vets every Bash command and refuses what it can't prove stays inside the worktree.** Claude Code's `EnterWorktree` rejects even benign, non-git diagnostics that use `env <flag>`, subshells `( … )`, `for`/`while` loops, pipelines, or bare `$VAR` (the refusal reads "runs env with …" or "too complex to verify …", and can't be disabled in settings). When isolated, keep each command plain and atomic — or skip isolation and operate in place with `git -C <worktree> …` / `cd <worktree>`, where complex shell runs normally. The step-3 loop is a normal-shell convenience for exactly this reason.
+- **Only symlink files that are git-ignored** — run `git check-ignore -q` against the *worktree* first. The main checkout's ignore rules don't bind the worktree's branch: if that branch's `.gitignore` differs, a path ignored in main may be tracked or untracked-visible there, and a link would shadow the real file and dirty `git status`. Nested `.gitignore` files in a monorepo count, which is why the step-3 discovery asks git instead of listing root paths.
+- **The step-3 loop needs a main checkout to link from.** It finds one as the parent of `--git-common-dir`. A bare-repo layout has none (the common dir *is* the repo), so `ls-files` fails there; skip the linking and say so rather than guessing a source.
+- **An isolated session vets every Bash command and refuses what it can't prove stays inside the worktree.** Claude Code's `EnterWorktree` rejects even benign, non-git diagnostics that use `env <flag>`, subshells `( … )`, `for`/`while` loops, pipelines, or bare `$VAR` (the refusal reads "runs env with …" or "too complex to verify …", and can't be disabled in settings). When isolated, keep each command plain and atomic — or skip isolation and operate in place with `git -C <worktree> …` / `cd <worktree>`, where complex shell runs normally. The step-3 loop is a normal-shell convenience for exactly this reason; isolated, run the discovery alone and link each listed path with its own `ln -sfn`.
 
 ## Building wide in a scratch worktree
 
