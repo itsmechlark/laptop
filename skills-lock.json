@@ -19,6 +19,12 @@
       "skillPath": "skills/create-agentsmd/SKILL.md",
       "computedHash": "bfbdbb76b17cca970d1d624e36ce72b6847860d740581c8865da796c1fef8552"
     },
+    "ember-best-practices": {
+      "source": "ember-tooling/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ember-best-practices/SKILL.md",
+      "computedHash": "add0485fbbb0775d8410f112d7c993b31f337b6302cece8ecaad522f9534307c"
+    },
     "find-skills": {
       "source": "vercel-labs/skills",
       "sourceType": "github",
