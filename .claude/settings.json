@@ -702,7 +702,9 @@
   "tui": "fullscreen",
   "autoMode": {
     "allow": [
-      "$defaults"
+      "Edit",
+      "Write",
+      "NotebookEdit"
     ],
     "soft_deny": [
       "$defaults"
