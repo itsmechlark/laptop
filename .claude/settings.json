@@ -660,8 +660,10 @@
     },
     "excludedCommands": [
       "gh *",
+      "git add *",
       "git cherry-pick *",
       "git checkout *",
+      "git commit *",
       "git fetch *",
       "git ls-remote *",
       "git merge *",

@@ -51,20 +51,27 @@ stdout, and shape the output with `gh`'s own flags rather than piping.
 
 ## git in a worktree: ref writes are blocked
 
-Git stores per-worktree state — `ORIG_HEAD`, `MERGE_HEAD`, `CHERRY_PICK_HEAD`,
-`REVERT_HEAD`, and rebase progress — inside the main repository's
-`.git/worktrees/<name>/` directory, not under the worktree's own working tree.
-Some sandboxes make this path read-only for worktrees the current session did
-not create, so any git command that writes a ref lock file there fails:
+Git stores per-worktree state — the index, `ORIG_HEAD`, `MERGE_HEAD`,
+`CHERRY_PICK_HEAD`, `REVERT_HEAD`, and rebase progress — inside the main
+repository's `.git/worktrees/<name>/` directory, not under the worktree's own
+working tree. Some sandboxes make this path read-only for worktrees the current
+session did not create, so any git command that writes a lock file there fails:
+
+```
+fatal: Unable to create '…/.git/worktrees/<name>/index.lock': Operation not permitted
+```
+
+or, for ref-writing commands:
 
 ```
 fatal: update_ref failed for ref 'ORIG_HEAD': cannot lock ref 'ORIG_HEAD':
 Unable to create '…/.git/worktrees/<name>/ORIG_HEAD.lock': Operation not permitted
 ```
 
-The affected commands are those that update per-worktree refs: `merge`, `rebase`,
-`cherry-pick`, `pull`, `reset`, `revert`. The main working tree is unaffected —
-its refs live under `.git/` directly, inside the writable workspace.
+The affected commands include `add`, `commit` (index lock), and `merge`,
+`rebase`, `cherry-pick`, `pull`, `reset`, `revert` (ref locks). The main
+working tree is unaffected — its per-worktree files live under `.git/` directly,
+inside the writable workspace.
 
 Get the command out of the sandbox by the harness's escape route (above): on an
 exclusion-list harness, the git subcommand must be on the list and the command
