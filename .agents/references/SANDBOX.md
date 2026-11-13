@@ -1,6 +1,6 @@
 ---
 name: sandbox-gotchas
-description: Workarounds for shell commands that fail under a macOS Seatbelt sandbox, whichever agent runs them — gh CLI auth (telling an expired token apart from a sandbox keychain failure), the pipe/redirect trap where a pipe re-sandboxes an excluded command, the pnpm purge prompt that destroys node_modules when silenced, and process lookups (ps, pgrep) that fail quietly, so use lsof or kill -0. Read when a command fails with "operation not permitted", HTTP 401, or a keychain/credential error, or when a loop that waits on a process returns immediately. An agent that runs unsandboxed needs only the gh token triage.
+description: Workarounds for shell commands that fail under a macOS Seatbelt sandbox, whichever agent runs them — gh CLI auth (telling an expired token apart from a sandbox keychain failure), the pipe/redirect trap where a pipe re-sandboxes an excluded command, git ref-writing commands that fail in worktrees the session did not create, the pnpm purge prompt that destroys node_modules when silenced, and process lookups (ps, pgrep) that fail quietly, so use lsof or kill -0. Read when a command fails with "operation not permitted", HTTP 401, or a keychain/credential error, or when a loop that waits on a process returns immediately. An agent that runs unsandboxed needs only the gh token triage.
 ---
 
 # Sandbox gotchas
@@ -48,6 +48,28 @@ gh pr view 123 --json title,state > f.json  # sandboxed — a redirect re-sandbo
 So there is **no** "redirect to a file, then read it" trick — the redirect
 itself sandboxes `gh`. Keep it a single bare command, let the output come back on
 stdout, and shape the output with `gh`'s own flags rather than piping.
+
+## git in a worktree: ref writes are blocked
+
+Git stores per-worktree state — `ORIG_HEAD`, `MERGE_HEAD`, `CHERRY_PICK_HEAD`,
+`REVERT_HEAD`, and rebase progress — inside the main repository's
+`.git/worktrees/<name>/` directory, not under the worktree's own working tree.
+Some sandboxes make this path read-only for worktrees the current session did
+not create, so any git command that writes a ref lock file there fails:
+
+```
+fatal: update_ref failed for ref 'ORIG_HEAD': cannot lock ref 'ORIG_HEAD':
+Unable to create '…/.git/worktrees/<name>/ORIG_HEAD.lock': Operation not permitted
+```
+
+The affected commands are those that update per-worktree refs: `merge`, `rebase`,
+`cherry-pick`, `pull`, `reset`, `revert`. The main working tree is unaffected —
+its refs live under `.git/` directly, inside the writable workspace.
+
+Get the command out of the sandbox by the harness's escape route (above): on an
+exclusion-list harness, the git subcommand must be on the list and the command
+must be bare (no pipe — see the pipe trap). On an escalation harness, approve the
+prompt.
 
 ## gh CLI: triage the token before blaming the sandbox
 
@@ -173,6 +195,7 @@ agent follows whichever row matches how it runs shell commands.
 | Escape route | `sandbox.excludedCommands` in `.claude/settings.json` (matched per whole call) | `approval_policy = "on-request"`: approve the prompt and the command runs escalated | none needed |
 | Background-job facility | `run_in_background` re-invokes the agent on exit | none | none |
 | Mach lookup allowlist | `sandbox.network.allowMachLookup` (holds `com.apple.trustd*`) | none; config is `network_proxy` plus `domains`/`unix_sockets` | n/a |
+| `.git/worktrees` writes (other session's worktrees) | read-only; escape via `excludedCommands` | untested; approval escalation is the escape route if affected | allowed |
 | `.idea/` writes in the workspace | denied (built-in protected path) | untested; the profile grants workspace writes | allowed |
 | `pnpm` shell lookup | unaffected | needs `NPM_CONFIG_SCRIPT_SHELL=/bin/sh`, set in `.codex/config.toml.template` | unaffected |
 | Lifting the sandbox | `dangerouslyDisableSandbox` is disabled here | the escalation prompt is the route | n/a |
