@@ -75,7 +75,7 @@ Agents that only **read** files share one checkout safely. The moment an agent *
 
 - **Keep the base commit still.** Base agent branches on your current branch, not the default branch — from the default branch they drag unrelated divergence into the merge. And don't rebase, amend, or force-push that base while agents are out: their branches then point at a commit that no longer exists, and every merge becomes a conflict you can't attribute.
 
-- **Don't use the Agent tool's own `isolation: "worktree"` option.** It bypasses the placement, config-linking, and hook conventions in `git-worktree`; create the worktrees with that skill instead.
+- **Don't use the Agent tool's own `isolation: "worktree"` option.** It branches from the default branch instead of yours and skips the config linking in `git-worktree`; create the worktrees with that skill instead.
 
 - **An agent that doesn't commit strands its work.** Its changes sit in a worktree nobody merges. The prompt must say to commit on its branch before finishing.
 

@@ -162,6 +162,11 @@ PATH. With Node installed, a subprocess probe starts the configured pnpm
 lifecycle shell with `-c 'exit 0'`; it does not start an application or access
 credentials.
 
+Claude's worktree hooks in `.claude/settings.json` are covered too: the Bash and
+`EnterWorktree` guards get the same synthetic input, and the `WorktreeCreate`
+hook — the one test that runs `git` — creates real worktrees in a throwaway
+repository under a temporary `HOME`. It skips when `git` is missing.
+
 These tests cover multiline command boundaries, shell quoting, line
 continuations, download pipelines, parse failures, and safe commands that must
 remain available. They verify hook decisions, not the clients' full approval

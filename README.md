@@ -478,6 +478,8 @@ into a temp dir and fails if a `.mdc`'s `globs:` drifts from its `rules/*.md`
 The command-policy tests require Python 3.11 or newer and `jq`. They feed
 synthetic commands to the Codex and Cursor hooks without executing those
 commands, checking multiline input, quoted text, and download-to-shell denials.
+Claude's worktree hooks are tested the same way, except that the
+`WorktreeCreate` hook runs `git` against a throwaway repository.
 Run one regression with `python3 spec/codex_policy_test.py
 CodexPolicyTest.test_newline_does_not_hide_force_push`.
 

@@ -86,7 +86,7 @@ gh stack add <issue-key>-<type>-<slug>     # instead, when gh-stack manages the 
 
    **Name `<start-point>` explicitly whenever the branch you're leaving has unmerged commits.** [Choosing the base](#choosing-the-base) settles which branch it is — and whether this work belongs in a worktree at all. Omitted, it falls back to the current branch, and that default is right only when nothing in flight matters.
 
-   A native worktree tool works too — Claude Code's `EnterWorktree` takes an absolute `path`, manages its own placement, and enters an isolated session; mind its command vetting under [Gotchas](#gotchas).
+   A native worktree tool works too, and under a sandbox that keeps `.git/worktrees` read-only it is the only way to create one — see "git in a worktree" in `~/.agents/references/SANDBOX.md`. In Claude Code, `EnterWorktree` with `name` set to the branch creates it through the `WorktreeCreate` hook at `$HOME/Codespace/<repo>.worktrees/<name>` — checking out the branch if it exists, else cutting it from `origin/HEAD` — and enters an isolated session; `path` enters one that already exists. It takes no start-point, so when [Choosing the base](#choosing-the-base) needs a different one, hand the user the `git worktree add` to run, then enter it by `path`. Mind its command vetting under [Gotchas](#gotchas).
 
 3. **Link git-ignored local config** so the agent behaves as it does in the main checkout. A fresh worktree has only tracked files, so everything machine-local is missing: `.env` files, `.claude/settings.local.json`, the glossary overlay, and git-ignored skills. Symlink each from the main checkout by absolute target — but only when it's git-ignored, so the link never shadows a tracked file or dirties `git status`.
 

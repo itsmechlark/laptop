@@ -1,6 +1,6 @@
 ---
 name: sandbox-gotchas
-description: Workarounds for shell commands that fail under a macOS Seatbelt sandbox, whichever agent runs them — gh CLI auth (telling an expired token apart from a sandbox keychain failure), the pipe/redirect trap where a pipe re-sandboxes an excluded command, git ref-writing commands that fail in worktrees the session did not create, the pnpm purge prompt that destroys node_modules when silenced, and process lookups (ps, pgrep) that fail quietly, so use lsof or kill -0. Read when a command fails with "operation not permitted", HTTP 401, or a keychain/credential error, or when a loop that waits on a process returns immediately. An agent that runs unsandboxed needs only the gh token triage.
+description: Workarounds for shell commands that fail under a macOS Seatbelt sandbox, whichever agent runs them — gh CLI auth (telling an expired token apart from a sandbox keychain failure), the pipe/redirect trap where a pipe re-sandboxes an excluded command, git ref-writing commands that fail in worktrees the session did not create, git worktree add failing on .git/worktrees, the pnpm purge prompt that destroys node_modules when silenced, and process lookups (ps, pgrep) that fail quietly, so use lsof or kill -0. Read when a command fails with "operation not permitted", HTTP 401, or a keychain/credential error, or when a loop that waits on a process returns immediately. An agent that runs unsandboxed needs only the gh token triage.
 ---
 
 # Sandbox gotchas
@@ -77,6 +77,20 @@ Get the command out of the sandbox by the harness's escape route (above): on an
 exclusion-list harness, the git subcommand must be on the list and the command
 must be bare (no pipe — see the pipe trap). On an escalation harness, approve the
 prompt.
+
+Creating a worktree is the exception the exclusion list does not cover. `git
+worktree add` writes a new `.git/worktrees/<name>/`, and a sandbox can keep that
+read-only even for an excluded, bare command:
+
+```
+fatal: could not create directory of '.git/worktrees/<name>': Operation not permitted
+```
+
+Create it through the harness's own worktree mechanism, which grants the session
+write access to the worktree it makes, or have the user run the `git worktree
+add` themselves and then enter the existing path. Expect `git worktree move` and
+`remove` on a worktree the session did not create to fail the same way
+(untested).
 
 ## gh CLI: triage the token before blaming the sandbox
 
@@ -203,6 +217,7 @@ agent follows whichever row matches how it runs shell commands.
 | Background-job facility | `run_in_background` re-invokes the agent on exit | none | none |
 | Mach lookup allowlist | `sandbox.network.allowMachLookup` (holds `com.apple.trustd*`) | none; config is `network_proxy` plus `domains`/`unix_sockets` | n/a |
 | `.git/worktrees` writes (other session's worktrees) | read-only; escape via `excludedCommands` | untested; approval escalation is the escape route if affected | allowed |
+| Creating a worktree | `git worktree add` stays sandboxed despite `excludedCommands`; use `EnterWorktree` with `name` — the `WorktreeCreate` hook in `.claude/settings.json` places it at `$HOME/Codespace/<repo>.worktrees/<name>` | untested; approval escalation is the escape route if affected | `git worktree add` (unsandboxed) |
 | `.idea/` writes in the workspace | denied (built-in protected path) | untested; the profile grants workspace writes | allowed |
 | `pnpm` shell lookup | unaffected | needs `NPM_CONFIG_SCRIPT_SHELL=/bin/sh`, set in `.codex/config.toml.template` | unaffected |
 | Lifting the sandbox | `dangerouslyDisableSandbox` is disabled here | the escalation prompt is the route | n/a |

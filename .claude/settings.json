@@ -363,7 +363,7 @@
           },
           {
             "type": "command",
-            "command": "cmd=$(jq -r '.tool_input.command'); case \"$cmd\" in *'worktree add'*) if printf '%s' \"$cmd\" | grep -qE '~/'; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Worktree paths must be absolute, not ~-prefixed: a ~ path does not match git worktree list and does not expand when quoted. Re-run with an absolute path like $HOME/Codespace/<repo>.worktrees/<name>.\"}}'; elif ! printf '%s' \"$cmd\" | grep -qE 'Codespace/[^/ ]+\\.worktrees/'; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Worktrees must live at $HOME/Codespace/<repo>.worktrees/<name>, e.g. $HOME/Codespace/example.worktrees/ABC-1234-feat-example. Re-run with that absolute path.\"}}'; fi;; esac"
+            "command": "cmd=$(jq -r '.tool_input.command'); if printf '%s' \"$cmd\" | grep -qE '(^|[;&|(])[[:space:]]*([^[:space:];&|()]*/)?git([[:space:]]+(-[Cc][[:space:]]+[^[:space:]]+|--[a-z-]+=[^[:space:]]+))*[[:space:]]+worktree[[:space:]]+add([[:space:]]|$)'; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"git worktree add cannot run here: the Claude Code sandbox keeps .git/worktrees read-only even for excluded commands. Use EnterWorktree with name set to the branch (e.g. ABC-1234-feat-example); the WorktreeCreate hook creates it at $HOME/Codespace/<repo>.worktrees/<name>, checking out the branch if it exists or cutting it from origin/HEAD. For a different start point, ask the user to run the absolute-path git worktree add with ! and then EnterWorktree with path.\"}}'; fi"
           },
           {
             "type": "command",
@@ -376,7 +376,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "p=$(jq -r '.tool_input.path // empty'); if [ -z \"$p\" ]; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Do not create worktrees with EnterWorktree (.claude/worktrees). Create with git worktree add $HOME/Codespace/<repo>.worktrees/<name> <branch>, then enter it with EnterWorktree path.\"}}'; elif printf '%s' \"$p\" | grep -qE '^~'; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"EnterWorktree needs an absolute path; a ~-prefixed path does not match git worktree list. Re-run with an absolute path like $HOME/Codespace/<repo>.worktrees/<name>.\"}}'; fi"
+            "command": "p=$(jq -r '.tool_input.path // empty'); if printf '%s' \"$p\" | grep -qE '^~'; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"EnterWorktree needs an absolute path; a ~-prefixed path does not match git worktree list. Re-run with an absolute path like $HOME/Codespace/<repo>.worktrees/<name>.\"}}'; fi"
+          }
+        ]
+      }
+    ],
+    "WorktreeCreate": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "input=$(cat); name=$(printf '%s' \"$input\" | jq -r '.name // empty'); cwd=$(printf '%s' \"$input\" | jq -r '.cwd // empty'); case \"$name\" in ''|-*|*..*|*' '*) echo \"WorktreeCreate: invalid worktree name '$name'\" >&2; exit 1;; esac; common=$(git -C \"$cwd\" rev-parse --path-format=absolute --git-common-dir) || { echo \"WorktreeCreate: $cwd is not inside a git repository\" >&2; exit 1; }; main=$(dirname \"$common\"); dir=\"$HOME/Codespace/$(basename \"$main\").worktrees/$(printf '%s' \"$name\" | tr '/' '-')\"; if [ -e \"$dir/.git\" ] && [ \"$(git -C \"$dir\" rev-parse --path-format=absolute --git-common-dir)\" = \"$common\" ]; then if [ \"$(git -C \"$dir\" symbolic-ref --quiet --short HEAD)\" = \"$name\" ]; then echo \"$dir\"; exit 0; fi; echo \"WorktreeCreate: $dir already exists and is not on branch $name\" >&2; exit 1; fi; if git -C \"$main\" show-ref --verify --quiet \"refs/heads/$name\"; then git -C \"$main\" worktree add \"$dir\" \"$name\" >&2 || exit 1; else base=$(git -C \"$main\" symbolic-ref --quiet --short refs/remotes/origin/HEAD || echo HEAD); git -C \"$main\" worktree add -b \"$name\" \"$dir\" \"$base\" >&2 || exit 1; fi; echo \"$dir\""
           }
         ]
       }

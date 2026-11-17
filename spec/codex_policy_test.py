@@ -223,5 +223,135 @@ class CodexPolicyTest(unittest.TestCase):
         self.assertEqual(output.get("permission"), "deny")
 
 
+class ClaudeHooksCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        hooks = json.loads((ROOT / ".claude/settings.json").read_text())["hooks"]
+        cls.bash_hooks = [
+            hook["command"]
+            for group in hooks["PreToolUse"]
+            if group.get("matcher") == "Bash"
+            for hook in group["hooks"]
+        ]
+        cls.enter_hooks = [
+            hook["command"]
+            for group in hooks["PreToolUse"]
+            if group.get("matcher") == "EnterWorktree"
+            for hook in group["hooks"]
+        ]
+        cls.create_hook = hooks["WorktreeCreate"][0]["hooks"][0]["command"]
+
+    def run_hook(self, command, payload, home=None):
+        env = {**os.environ, "HOME": home} if home else os.environ
+        return subprocess.run(
+            ["sh", "-c", command],
+            input=json.dumps(payload),
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=30,
+        )
+
+    def decision(self, hooks, tool_input):
+        for command in hooks:
+            if "bash-log.txt" in command:
+                continue
+            stdout = self.run_hook(command, {"tool_input": tool_input}).stdout
+            if stdout.strip():
+                return json.loads(stdout)["hookSpecificOutput"]["permissionDecision"]
+        return None
+
+
+class ClaudeWorktreeGuardTest(ClaudeHooksCase):
+    def test_git_worktree_add_in_bash_is_redirected(self):
+        for command in (
+            "git worktree add /abs/repo.worktrees/x x",
+            "  git worktree add -b x /abs/x main",
+            "cd /r && git -C /r worktree add /x",
+            "/usr/bin/git -c core.hooksPath=/dev/null worktree add /x",
+            "git --git-dir=/r/.git worktree add /x",
+            "(git worktree add /x)",
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(self.decision(self.bash_hooks, {"command": command}), "deny")
+
+    def test_text_mentioning_worktree_add_is_unaffected(self):
+        for command in (
+            "git worktree list",
+            "grep -n 'git worktree add' skills/git-worktree/SKILL.md",
+            "echo git worktree added",
+            "legit worktree add /x",
+        ):
+            with self.subTest(command=command):
+                self.assertIsNone(self.decision(self.bash_hooks, {"command": command}))
+
+    def test_enter_worktree_creates_by_name_but_rejects_tilde_paths(self):
+        self.assertIsNone(self.decision(self.enter_hooks, {"name": "ABC-1-feat-x"}))
+        self.assertIsNone(self.decision(self.enter_hooks, {"path": "/abs/repo.worktrees/x"}))
+        self.assertEqual(self.decision(self.enter_hooks, {"path": "~/x"}), "deny")
+
+
+@unittest.skipUnless(shutil.which("git"), "git is required for the WorktreeCreate hook")
+class ClaudeWorktreeCreateHookTest(ClaudeHooksCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.home = os.path.realpath(tmp.name)
+        self.repo = Path(self.home, "Codespace", "repo")
+        self.repo.mkdir(parents=True)
+        for args in (
+            ["init", "-q", "-b", "main"],
+            ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "init"],
+            ["branch", "existing"],
+        ):
+            subprocess.run(["git", "-C", str(self.repo), *args], check=True)
+
+    def create(self, name, cwd=None):
+        return self.run_hook(
+            self.create_hook, {"name": name, "cwd": str(cwd or self.repo)}, self.home
+        )
+
+    def branch_of(self, path):
+        return subprocess.run(
+            ["git", "-C", path, "branch", "--show-current"],
+            capture_output=True, text=True, check=True,
+        ).stdout.strip()
+
+    def test_places_new_branch_under_codespace_worktrees(self):
+        result = self.create("feat/new")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        path = result.stdout.strip().splitlines()[-1]
+        self.assertEqual(path, f"{self.home}/Codespace/repo.worktrees/feat-new")
+        self.assertEqual(self.branch_of(path), "feat/new")
+
+    def test_checks_out_an_existing_branch(self):
+        result = self.create("existing")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.branch_of(result.stdout.strip()), "existing")
+
+    def test_reuses_its_own_worktree_from_inside_another(self):
+        first = self.create("feat/a").stdout.strip()
+        again = self.create("feat/a", cwd=first)
+        self.assertEqual(again.returncode, 0, again.stderr)
+        self.assertEqual(again.stdout.strip(), first)
+
+    def test_refuses_a_directory_on_a_different_branch(self):
+        self.assertEqual(self.create("feat/a").returncode, 0)
+        result = self.create("feat-a")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.stdout.strip(), "")
+        self.assertIn("not on branch feat-a", result.stderr)
+
+    def test_rejects_unsafe_names_and_non_repositories(self):
+        for name in ("", "-x", "../evil", "a b"):
+            with self.subTest(name=name):
+                result = self.create(name)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(result.stdout.strip(), "")
+        result = self.create("x", cwd=self.home)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("not inside a git repository", result.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()
