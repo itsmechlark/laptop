@@ -18,7 +18,7 @@ Draft to work on: `$ARGUMENTS`. If nothing came with the invocation, ask for the
 - Filler, hedging, or a closing flourish needs to come out of prose that is otherwise fine
 - Another skill is drafting its own artifact and needs a pattern it can't name — read [PATTERNS.md](references/PATTERNS.md) directly, without this workflow
 
-Not for writing a draft from scratch. A PRD is `draft-prd`, an engineering spec is `draft-spec`, a commit message is `git-commit`, a PR description is `pull-request`, a status update is `standup`. Each produces its own artifact against its own template; this skill only edits prose that already exists.
+Not for writing a draft from scratch. A PRD is `draft-prd`, an engineering spec is `draft-spec`, a commit message is `git-commit`, a PR description is `pull-request`, a status update is `standup`, a tracker comment is `triage`, a review reply is `review-response`. Each produces its own artifact against its own template; this skill only edits prose that already exists.
 
 ## Two modes
 

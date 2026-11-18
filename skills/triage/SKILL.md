@@ -39,6 +39,7 @@ Comments, label changes, and closes are outward-facing and land in a reporter's 
 
 - **Draft, show, then ask.** Show the exact text and the exact state change before it goes out. Approval for one comment is not standing permission for the next.
 - **Never close an item or apply `wontfix` without explicit approval**, even when the analysis is obvious.
+- **Hold the comment to AGENTS.md §8 (*Writing for a human reader*).** When a draft reads wrong and §8 doesn't name the tell, look it up in the `sharpen-prose` skill's [PATTERNS.md](../sharpen-prose/references/PATTERNS.md) — the pattern list only, not that skill's edit workflow.
 - Every comment posted during triage opens with:
 
   ```

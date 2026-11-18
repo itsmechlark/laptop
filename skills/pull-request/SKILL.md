@@ -192,7 +192,7 @@ Failure modes, the flag gating the change and its default, migration and rollbac
 
 ## Voice and tone
 
-An engineer briefing a teammate, not a language model: no hype adjectives, no throat-clearing ("This PR aims to"), no narrating the diff back, varied sentence length, and body prose as ordinary paragraphs with no hard-wrapped lines. AGENTS.md §8 (*Writing for a human reader*) is the full standard and applies to every artifact, not just this one.
+An engineer briefing a teammate, not a language model: no hype adjectives, no throat-clearing ("This PR aims to"), no narrating the diff back, varied sentence length, and body prose as ordinary paragraphs with no hard-wrapped lines. AGENTS.md §8 (*Writing for a human reader*) is the full standard and applies to every artifact, not just this one. When the body reads wrong and §8 doesn't name the tell, look it up in the `sharpen-prose` skill's [PATTERNS.md](../sharpen-prose/references/PATTERNS.md) — the pattern list only, not that skill's edit workflow.
 
 What's specific to a PR body is the reader's position: they have the diff and don't have your reasoning. Write the half they can't get from the code.
 

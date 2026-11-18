@@ -124,7 +124,7 @@ Include a body whenever there's a *why* worth recording — which is most of the
 
 ## Voice and tone
 
-A careful engineer explaining a decision to a teammate, never a language model: no hype adjectives, no throat-clearing ("This change aims to"), no summarizing the diff back as a list of file edits, varied sentence length. AGENTS.md §8 (*Writing for a human reader*) is the full standard and applies to every artifact, not just this one.
+A careful engineer explaining a decision to a teammate, never a language model: no hype adjectives, no throat-clearing ("This change aims to"), no summarizing the diff back as a list of file edits, varied sentence length. AGENTS.md §8 (*Writing for a human reader*) is the full standard and applies to every artifact, not just this one. When a message reads wrong and §8 doesn't name the tell, look it up in the `sharpen-prose` skill's [PATTERNS.md](../sharpen-prose/references/PATTERNS.md) — the pattern list only, not that skill's edit workflow.
 
 What's specific to a commit message is the reader — someone skimming history months from now, without the branch, the ticket, or you to ask. That's why the body explains the *why* in plain language.
 

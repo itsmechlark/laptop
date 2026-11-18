@@ -120,7 +120,7 @@ The principles that decide the wording:
 - **Outcomes over tasks.** "Users can now reset their own password" beats "implemented the password reset controller". The reader cares what changed for them.
 - **Honest over optimistic.** A small concern raised early builds trust. The same concern arriving as a surprise spends it.
 - **No filler.** "Continued working on the billing integration" is not an update. Name what changed, or say the day produced no visible progress and why.
-- **Their words.** Match the register the user wrote in during the conversation — including how formal they are, and what they call things. AGENTS.md §8 (*Writing for a human reader*) is the standard: no hype adjectives, no throat-clearing, no uniformly-hedged sentences of identical length.
+- **Their words.** Match the register the user wrote in during the conversation — including how formal they are, and what they call things. AGENTS.md §8 (*Writing for a human reader*) is the standard: no hype adjectives, no throat-clearing, no uniformly-hedged sentences of identical length. When the update reads wrong and §8 doesn't name the tell, look it up in the `sharpen-prose` skill's [PATTERNS.md](../sharpen-prose/references/PATTERNS.md) — the pattern list only, not that skill's edit workflow, and never at the cost of the user's own words.
 
 ### 5. Read it back, then hand it over
 

@@ -87,7 +87,7 @@ A user who wants the draft challenged rather than confirmed goes to `grilling`, 
 
 ## Tone
 
-Precise, collaborative, and honest about uncertainty. The goal is a spec that survives handoff into a codebase that keeps changing — not paperwork that makes an underspecified request look complete.
+Precise, collaborative, and honest about uncertainty. The goal is a spec that survives handoff into a codebase that keeps changing — not paperwork that makes an underspecified request look complete. AGENTS.md §8 (*Writing for a human reader*) is the prose standard; when the draft reads wrong and §8 doesn't name the tell, look it up in the `sharpen-prose` skill's [PATTERNS.md](../sharpen-prose/references/PATTERNS.md) — the pattern list only, not that skill's edit workflow.
 
 ## References
 

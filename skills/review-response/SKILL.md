@@ -137,6 +137,7 @@ Write like an engineer discussing a change with a teammate, not like a subordina
 - Don't hedge a position you've verified. Distinguish real uncertainty from politeness.
 - Stay neutral when pushing back. Defensiveness reads as a status contest, and the reviewer stops raising things.
 - Keep it short. Don't restate the diff or the review thread back at someone who wrote it.
+- When a draft reads wrong and §8 doesn't name the tell, look it up in the `sharpen-prose` skill's [PATTERNS.md](../sharpen-prose/references/PATTERNS.md) — the pattern list only, not that skill's edit workflow. A genuinely open question closing a pushback is not a rhetorical setup: [REPLIES.md](references/REPLIES.md) ends pushback that way on purpose, and cutting it turns the reply into a refusal.
 
 **Never draft a reply that is validation with no technical content.** "You're absolutely right!", "Great point!", "Let me implement that now" — each is a reply that could have been a fix. The test is whether the reply carries the fix or a reasoned position; if it carries neither, it's empty. Courtesy riding along with substance is fine. [REPLIES.md](references/REPLIES.md) has the worked contrast.
 
