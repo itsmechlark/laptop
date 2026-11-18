@@ -51,6 +51,14 @@ gh pr view 123 --json title,state | jq      # sandboxed (jq isn't excluded)
 gh pr view 123 --json title,state > f.json  # sandboxed — a redirect re-sandboxes the call
 ```
 
+**Never pipe, redirect, or wrap a command on the exclusion list.** It was
+excluded because it needs something the sandbox blocks — credentials, the
+network, a keychain, per-worktree git state. Wrapped, it runs sandboxed without
+that and fails, often with an error that doesn't mention the sandbox. Run it as
+a single bare call and shape its output with its own flags. The "Excluded
+commands" row in [Harness mechanics](#harness-mechanics) lists what is on each
+harness's list.
+
 To run an excluded command in another directory, change directory in its own
 call, confirm where you are (`git rev-parse --show-toplevel`), then run the
 command bare. That only works where the harness keeps the working directory
@@ -241,6 +249,7 @@ agent follows whichever row matches how it runs shell commands.
 | --- | --- | --- | --- |
 | Sandboxed | yes | yes | no |
 | Escape route | `sandbox.excludedCommands` in `.claude/settings.json` (matched per whole call) | `approval_policy = "on-request"`: approve the prompt and the command runs escalated | none needed |
+| Excluded commands — never pipe, redirect, or wrap these | `gh *`; `git add *`, `git apply --cached *`, `git branch -M *`, `git branch -m *`, `git cherry-pick *`, `git checkout *`, `git commit *`, `git fetch *`, `git ls-remote *`, `git merge *`, `git mv *`, `git pull *`, `git push *`, `git rebase *`, `git reset *`, `git restore *`, `git revert *`, `git rm *`, `git stash *`, `git switch *`, `git worktree *`; `pulumi *`; `srt *`, `npx @anthropic-ai/sandbox-runtime *`, `npx -y @anthropic-ai/sandbox-runtime *`; `trivy *` | none; escalation covers the whole command, so a pipe does not defeat it | none; nothing is sandboxed |
 | Exclusion matching (verified) | a bare subcommand with no arguments matches (`git fetch` under `git fetch *`); `git -C`, `--no-pager`, `-c`, and most `VAR=` prefixes miss, though `GIT_TERMINAL_PROMPT=0` is stripped first. An excluded call skips the shell's own startup errors, a quick tell for which side it ran on | n/a | n/a |
 | Working directory between calls | kept in the main session; reset for subagents, so a subagent can't `cd` then run a bare command | untested | untested |
 | Background-job facility | `run_in_background` re-invokes the agent on exit | none | none |
