@@ -363,7 +363,7 @@
           },
           {
             "type": "command",
-            "command": "cmd=$(jq -r '.tool_input.command'); if printf '%s' \"$cmd\" | grep -qE '(^|[;&|(])[[:space:]]*([^[:space:];&|()]*/)?git([[:space:]]+(-[Cc][[:space:]]+[^[:space:]]+|--[a-z-]+=[^[:space:]]+))*[[:space:]]+worktree[[:space:]]+add([[:space:]]|$)'; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"git worktree add cannot run here: the Claude Code sandbox keeps .git/worktrees read-only even for excluded commands. Use EnterWorktree with name set to the branch (e.g. ABC-1234-feat-example); the WorktreeCreate hook creates it at $HOME/Codespace/<repo>.worktrees/<name>, checking out the branch if it exists or cutting it from origin/HEAD. For a different start point, ask the user to run the absolute-path git worktree add with ! and then EnterWorktree with path.\"}}'; fi"
+            "command": "cmd=$(jq -r '.tool_input.command'); if printf '%s' \"$cmd\" | grep -qE '(^|[;&|(])[[:space:]]*([^[:space:];&|()]*/)?git([[:space:]]+(-[Cc][[:space:]]+[^[:space:]]+|--[a-z-]+=[^[:space:]]+))*[[:space:]]+worktree[[:space:]]+add([[:space:]]|$)'; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"git worktree add cannot run here: the Claude Code sandbox keeps .git/worktrees read-only even for excluded commands. Use EnterWorktree with name set to the branch (e.g. ABC-1234-feat-example); the WorktreeCreate hook creates it at $HOME/Codespace/<repo>.worktrees/<name>, checking out the branch if it exists or cutting it from origin/HEAD. For a different start point, create the branch first with git branch <name> <start-point>, then EnterWorktree with name set to it.\"}}'; fi"
           },
           {
             "type": "command",
@@ -671,6 +671,9 @@
     "excludedCommands": [
       "gh *",
       "git add *",
+      "git apply --cached *",
+      "git branch -M *",
+      "git branch -m *",
       "git cherry-pick *",
       "git checkout *",
       "git commit *",
