@@ -1,6 +1,6 @@
 ---
 name: sandbox-gotchas
-description: Workarounds for shell commands that fail under a macOS Seatbelt sandbox, whichever agent runs them — gh CLI auth (telling an expired token apart from a sandbox keychain failure), the pipe/redirect trap where a pipe re-sandboxes an excluded command, git ref-writing commands that fail in worktrees the session did not create, git worktree add failing on .git/worktrees, the pnpm purge prompt that destroys node_modules when silenced, and process lookups (ps, pgrep) that fail quietly, so use lsof or kill -0. Read when a command fails with "operation not permitted", HTTP 401, or a keychain/credential error, or when a loop that waits on a process returns immediately. An agent that runs unsandboxed needs only the gh token triage.
+description: Workarounds for shell commands that fail under a macOS Seatbelt sandbox, whichever agent runs them — gh CLI auth (telling an expired token apart from a sandbox keychain failure), the pipe/redirect trap where a pipe, a leading cd, or git -C re-sandboxes an excluded command, git index- and ref-writing commands that fail in worktrees the session did not create, git worktree add and remove failing on .git/worktrees, the pnpm purge prompt that destroys node_modules when silenced, and process lookups (ps, pgrep) that fail quietly, so use lsof or kill -0. Read when a command fails with "operation not permitted", HTTP 401, or a keychain/credential error, or when a loop that waits on a process returns immediately. An agent that runs unsandboxed needs only the gh token triage.
 ---
 
 # Sandbox gotchas
@@ -38,6 +38,12 @@ command included — is sandboxed again:
 - a **redirect** (`>`, `>>`)
 - a **command substitution** (`$(...)`)
 - a leading **`cd`**, or chaining a non-excluded command with `&&` / `;`
+- anything between the program and its subcommand, so `git -C <dir> commit`,
+  `git --no-pager fetch`, and `git -c k=v push` all miss a `git commit *` /
+  `git fetch *` / `git push *` pattern
+- a **`VAR=value`** prefix (`GIT_SEQUENCE_EDITOR=true git rebase …`) — a
+  harness may strip a few well-known ones before matching, but don't rely on
+  which
 
 ```sh
 gh pr view 123 --json title,state           # bare — runs unsandboxed
@@ -45,11 +51,17 @@ gh pr view 123 --json title,state | jq      # sandboxed (jq isn't excluded)
 gh pr view 123 --json title,state > f.json  # sandboxed — a redirect re-sandboxes the call
 ```
 
+To run an excluded command in another directory, change directory in its own
+call, confirm where you are (`git rev-parse --show-toplevel`), then run the
+command bare. That only works where the harness keeps the working directory
+between calls. Where it doesn't, no bare form reaches the other directory: leave
+the write to a session that can, and say so.
+
 So there is **no** "redirect to a file, then read it" trick — the redirect
 itself sandboxes `gh`. Keep it a single bare command, let the output come back on
 stdout, and shape the output with `gh`'s own flags rather than piping.
 
-## git in a worktree: ref writes are blocked
+## git in a worktree: index, ref, and worktree writes are blocked
 
 Git stores per-worktree state — the index, `ORIG_HEAD`, `MERGE_HEAD`,
 `CHERRY_PICK_HEAD`, `REVERT_HEAD`, and rebase progress — inside the main
@@ -68,15 +80,21 @@ fatal: update_ref failed for ref 'ORIG_HEAD': cannot lock ref 'ORIG_HEAD':
 Unable to create '…/.git/worktrees/<name>/ORIG_HEAD.lock': Operation not permitted
 ```
 
-The affected commands include `add`, `commit` (index lock), and `merge`,
-`rebase`, `cherry-pick`, `pull`, `reset`, `revert` (ref locks). The main
-working tree is unaffected — its per-worktree files live under `.git/` directly,
-inside the writable workspace.
+Anything that writes the index, a per-worktree ref, or the worktree's `HEAD`
+is affected: `add`, `apply --cached`, `commit`, `rm`, `mv`, `restore`, `stash`,
+`merge`, `rebase`, `cherry-pick`, `pull`, `fetch` (`FETCH_HEAD`), `reset`,
+`revert`, `checkout`, `switch`, and `branch -m` on a checked-out branch, along
+with rarer ones such as `am`, `bisect`, and `update-index`. Read-only commands —
+`status`, `diff`, `log`, `show` — are unaffected, wrapped or not. The main
+working tree is unaffected too, because its per-worktree files live under `.git/`
+directly — which is why a wrapped write command that works in the main checkout
+fails the first time it runs in a worktree.
 
 Get the command out of the sandbox by the harness's escape route (above): on an
 exclusion-list harness, the git subcommand must be on the list and the command
-must be bare (no pipe — see the pipe trap). On an escalation harness, approve the
-prompt.
+must be bare (no pipe — see the pipe trap). A subcommand that isn't on the list
+fails however it's written; report it rather than rephrasing it. On an
+escalation harness, approve the prompt.
 
 Creating a worktree is the exception the exclusion list does not cover. `git
 worktree add` writes a new `.git/worktrees/<name>/`, and a sandbox can keep that
@@ -88,13 +106,18 @@ fatal: could not create directory of '.git/worktrees/<name>': Operation not perm
 
 Create it through the harness's own worktree mechanism, which grants the session
 write access to the worktree it makes. When the branch needs a start-point
-other than `origin/HEAD`, create the branch first with `git branch <name>
-<start-point>` (which runs in the sandbox — it writes refs, not
-`.git/worktrees`), then let the mechanism check it out. Otherwise have the user
-run the `git worktree add` themselves and enter the existing path.
-Expect `git worktree move` and
-`remove` on a worktree the session did not create to fail the same way
-(untested).
+other than the mechanism's default, create the branch first with `git branch
+<name> <start-point>` (it writes only a shared ref, not `.git/worktrees`, so it
+works sandboxed), then let the mechanism check it out. Otherwise have the user
+run the `git worktree add` themselves and enter the existing path. If the
+mechanism bases new branches on a remote-tracking ref, fetch first — the local
+ref is only as fresh as the last fetch.
+
+`git worktree move`, `remove`, and `prune` fail the same way. Try a bare `git
+worktree remove <abs-path>` from the main checkout, and if it fails, either
+remove the worktree through the mechanism that made it or hand the user the
+command. Deleting the branch afterwards (`git branch -d`) writes only a shared
+ref and works sandboxed.
 
 ## gh CLI: triage the token before blaming the sandbox
 
@@ -218,10 +241,13 @@ agent follows whichever row matches how it runs shell commands.
 | --- | --- | --- | --- |
 | Sandboxed | yes | yes | no |
 | Escape route | `sandbox.excludedCommands` in `.claude/settings.json` (matched per whole call) | `approval_policy = "on-request"`: approve the prompt and the command runs escalated | none needed |
+| Exclusion matching (verified) | a bare subcommand with no arguments matches (`git fetch` under `git fetch *`); `git -C`, `--no-pager`, `-c`, and most `VAR=` prefixes miss, though `GIT_TERMINAL_PROMPT=0` is stripped first. An excluded call skips the shell's own startup errors, a quick tell for which side it ran on | n/a | n/a |
+| Working directory between calls | kept in the main session; reset for subagents, so a subagent can't `cd` then run a bare command | untested | untested |
 | Background-job facility | `run_in_background` re-invokes the agent on exit | none | none |
 | Mach lookup allowlist | `sandbox.network.allowMachLookup` (holds `com.apple.trustd*`) | none; config is `network_proxy` plus `domains`/`unix_sockets` | n/a |
 | `.git/worktrees` writes (other session's worktrees) | read-only; escape via `excludedCommands` | untested; approval escalation is the escape route if affected | allowed |
-| Creating a worktree | `git worktree add` stays sandboxed despite `excludedCommands`; use `EnterWorktree` with `name` — the `WorktreeCreate` hook in `.claude/settings.json` places it at `$HOME/Codespace/<repo>.worktrees/<name>` | untested; approval escalation is the escape route if affected | `git worktree add` (unsandboxed) |
+| Creating a worktree | `git worktree add` stays sandboxed despite `excludedCommands`; use `EnterWorktree` with `name` — the `WorktreeCreate` hook in `.claude/settings.json` places it at `$HOME/Codespace/<repo>.worktrees/<name>`, cutting new branches from `origin/HEAD` without fetching. A second `name` is refused until `ExitWorktree` leaves the first | untested; approval escalation is the escape route if affected | `git worktree add` (unsandboxed) |
+| Removing a worktree | `ExitWorktree` with `remove` applies only to the worktree this session entered by `name` and hasn't exited; untested for a hook-made one, since no `WorktreeRemove` hook is configured. Otherwise the user runs `git worktree remove` | untested | `git worktree remove` (unsandboxed) |
 | `.idea/` writes in the workspace | denied (built-in protected path) | untested; the profile grants workspace writes | allowed |
 | `pnpm` shell lookup | unaffected | needs `NPM_CONFIG_SCRIPT_SHELL=/bin/sh`, set in `.codex/config.toml.template` | unaffected |
 | Lifting the sandbox | `dangerouslyDisableSandbox` is disabled here | the escalation prompt is the route | n/a |
