@@ -30,27 +30,35 @@ start-point. For a fan-out that answer is always **your current branch**, and
 the reason is this skill's: if you're already on `feat-xyz`, an agent branching
 from the default branch will bring unrelated divergence back with its merge.
 
+Name each branch to `git-commit`'s convention with the fan-out's own type —
+`feat-fan-out-agent-1` — so an agent's commit step doesn't stop on the name.
+
 ```sh
 base_branch="$(git branch --show-current)"
 
-git worktree add <repo>.worktrees/fan-out-agent-1 -b fan-out/agent-1 "$base_branch"
-git worktree add <repo>.worktrees/fan-out-agent-2 -b fan-out/agent-2 "$base_branch"
+git worktree add <repo>.worktrees/feat-fan-out-agent-1 -b feat-fan-out-agent-1 "$base_branch"
+git worktree add <repo>.worktrees/feat-fan-out-agent-2 -b feat-fan-out-agent-2 "$base_branch"
 ```
 
 Under a sandbox that keeps `.git/worktrees` read-only, `git worktree add` fails
-even as a bare command. Create the branches first so the `WorktreeCreate` hook
-can check them out:
+even as a bare command. Create the branches first, then let the harness's own
+worktree mechanism check each one out. In Claude Code that is `EnterWorktree`,
+whose `WorktreeCreate` hook finds the existing branch:
 
 ```sh
-base_branch="$(git branch --show-current)"
-
-git branch fan-out/agent-1 "$base_branch"
-git branch fan-out/agent-2 "$base_branch"
-# then: EnterWorktree with name = fan-out/agent-1   (hook finds the branch)
-# then: EnterWorktree with name = fan-out/agent-2
+git branch --show-current                       # note it: <base-branch>
+git branch feat-fan-out-agent-1 <base-branch>
+git branch feat-fan-out-agent-2 <base-branch>
+# then, per agent: EnterWorktree with name = feat-fan-out-agent-N
+#                  link config + install deps (git-worktree steps 3–4)
+#                  ExitWorktree with action = "keep"
 ```
 
-See "git in a worktree" in `~/.agents/references/SANDBOX.md`.
+**Exit between worktrees.** Claude Code refuses `EnterWorktree` with `name`
+while the session is already inside one, so each creation needs an
+`ExitWorktree` with `keep` before the next — and the last one returns you to
+your own branch, where the merge below happens. See "git in a worktree" in
+`~/.agents/references/SANDBOX.md`.
 
 **Then finish the setup — link the git-ignored local config and install the
 dependencies — in every worktree, before any agent is dispatched.** A fresh
@@ -83,14 +91,25 @@ Its dependencies and local config are already installed — don't reinstall them
 Then: [task description with full context]
 
 Run the tests covering your change, then commit on this branch before you
-finish. Do not push, open a pull request, merge, or switch branches.
+finish. Run git as bare commands — `git add <paths>`, `git commit -F <abs-path>`
+— never `git -C`, `cd … &&`, or a pipe: wrapped, they fail on a lock file under
+.git/worktrees. Before your first commit, run `git rev-parse --show-toplevel`
+on its own; if it doesn't print <absolute-worktree-path>, don't commit — leave
+the changes uncommitted in the worktree and say so in your report.
+Do not push, open a pull request, merge, or switch branches.
 When done, return: [expected output]
 ```
 
-The full set of constraints every fan-out prompt carries is in
-[PROMPTS.md](PROMPTS.md). An agent that finishes without committing leaves its
-work in a worktree nobody merges — recoverable with `git -C <worktree-path>`,
-but only if you notice.
+The location check is there because a subagent's working directory can reset
+between shell calls. In that case a bare `git commit` runs in your checkout and
+lands the agent's work on your branch, while a wrapped one fails. The agent
+can't fix that from inside, so it leaves the commit to you. The full set of
+constraints every fan-out prompt carries is in [PROMPTS.md](PROMPTS.md).
+
+**Commit what an agent left uncommitted before merging anything.** `git -C
+<worktree-path> status` shows it; then `cd` into the worktree in its own call and
+commit with bare commands per `git-commit`. An agent's uncommitted work is
+otherwise left in a worktree nobody merges.
 
 ## After they return: merge and verify
 
@@ -98,11 +117,11 @@ Each agent committed on its own branch. Merge those into your current branch,
 whichever it is.
 
 ```sh
-git log ..fan-out/agent-1 --oneline
-git diff ...fan-out/agent-1 --stat
+git log ..feat-fan-out-agent-1 --oneline
+git diff ...feat-fan-out-agent-1 --stat
 
-git merge fan-out/agent-1
-git merge fan-out/agent-2
+git merge feat-fan-out-agent-1
+git merge feat-fan-out-agent-2
 ```
 
 A clean merge is the evidence that the partition held. **A conflict means it
@@ -123,6 +142,10 @@ their union.
 
 ## Cleanup
 
-Remove worktrees and branches per `git-worktree`. One caveat it can't state for
-you: **a worktree can't be removed while your shell is inside it** — run cleanup
-with `git -C <main-checkout>`, or leave first.
+Remove worktrees and branches per `git-worktree`, after the merge has landed.
+**A worktree can't be removed while your shell is inside it**, so `cd` back to
+the main checkout first. Try a bare `git worktree remove <abs-path>`; if a
+sandbox refuses it with `Operation not permitted`, hand the user the commands.
+In Claude Code, `ExitWorktree` can't remove them either, since each was exited
+with `keep`. Delete the merged `feat-fan-out-agent-N` branches yourself with
+`git branch -d`.

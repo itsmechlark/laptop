@@ -89,9 +89,9 @@ Agents that only **read** files share one checkout safely. The moment an agent *
 
 - **An agent failed or came back inconclusive** — investigate that domain yourself. Re-dispatching the same prompt repeats the same failure; you now know more about the problem than the prompt did.
 
-- **An agent reports success but there's nothing to merge** — it never committed. Recover from its worktree with `git -C <worktree-path>` before removing anything.
+- **An agent reports success but there's nothing to merge** — it never committed. Before removing anything, `cd` into its worktree and commit there with bare git commands; `git -C <worktree-path> commit` fails on a lock file under a sandbox.
 
-- **A worktree won't remove** — you're inside it. Run cleanup with `git -C <main-checkout>` or leave the worktree first.
+- **A worktree won't remove** — you're inside it, so `cd` back to the main checkout first. If `git worktree remove` then fails with `Operation not permitted`, the sandbox keeps `.git/worktrees` read-only: hand the user the command.
 
 - **An agent went well outside its scope** — the prompt stated what was in scope but not what was off-limits. Revert, add the boundary, dispatch again.
 

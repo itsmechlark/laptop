@@ -66,7 +66,8 @@ When done, return:
 ```
 
 For an agent that edits files, two more instructions are mandatory — entering
-its worktree first and committing before it finishes. Both are in
+its worktree first, and committing before it finishes once a location check
+confirms the commit will land in that worktree. Both are in
 [WORKTREES.md](WORKTREES.md).
 
 ## Quality checklist
