@@ -42,7 +42,7 @@ Build a real picture of the diff before grouping. Run these together:
 
 Read the diff for the *why*, not just the *what* — you're about to explain it to a future reader. If there's nothing to commit, say so and stop; never create an empty commit.
 
-**Check the branch before the grouping.** Run `git branch --show-current` and hold it against the [Branch naming](#branch-naming) convention below. On the repository's **default branch** — and the work isn't a deliberate direct commit — say so and offer a convention-named branch, asking before you switch. On a **non-default branch that breaks the convention** (an uppercase key, a `<key>/<slug>` slash form, or a missing `<type>` segment) flag it and offer `git branch -m <corrected>` while the branch is unpushed; once it's pushed, say so and leave it, since renaming orphans the remote and breaks any open PR. An off-standard name usually means `git-worktree`'s pre-edit guard never ran — the step that would have named the branch to standard in the first place.
+**Check the branch before the grouping.** Run `git branch --show-current` and hold it against the regex in [BRANCH-NAMING.md](references/BRANCH-NAMING.md). On the repository's **default branch** — and the work isn't a deliberate direct commit — say so and offer a convention-named branch, asking before you switch. On a **non-default branch that breaks the convention** (an uppercase key, a `<key>/<slug>` slash form, or a missing `<type>` segment) flag it and offer `git branch -m <corrected>` while the branch is unpushed; once it's pushed, say so and leave it, since renaming orphans the remote and breaks any open PR. An off-standard name usually means `git-worktree`'s pre-edit guard never ran — the step that would have named the branch to standard in the first place.
 
 **Read the diff for secrets while you're in it.** Credentials, tokens, key material, a `.env` or keystore that shouldn't be tracked. This is the last cheap moment: once committed, the fix is rotation plus history surgery, not a follow-up commit.
 
@@ -148,13 +148,7 @@ docs: fix typo in installation instructions
 
 ## Branch naming
 
-Name branches `<type>-<short-slug>`, optionally prefixed with an issue key when the project tracks work in an issue tracker: `[<issue-key>-]<type>-<short-slug>`. The whole name is **lowercase**, every segment joined by a single hyphen — no slashes, no `<key>/<slug>` shorthand.
-
-- `<issue-key>` — the tracker key, **lowercased** (Jira `HDR-1190` → `hdr-1190`); dev-panel branch detection matches case-insensitively, so the ticket link still resolves.
-- `<type>` — the Conventional Commit type the work maps to (`feat`, `fix`, `chore`, …), lowercase, and **required**: a name with no type segment isn't to convention.
-- `<short-slug>` — a few lowercase, hyphen-separated words describing the change.
-
-The shape is `^([a-z0-9]+-[0-9]+-)?(feat|fix|chore|build|ci|docs|style|refactor|perf|test)-[a-z0-9-]+$`. Examples: `feat-getting-started`, `hdr-1190-feat-durable-hydra-allocation-retry`. A `<key>/<slug>` form like `HDR-1190/durable-hydra-allocation-retry` fails it twice — the slash, and the absent type. Branch from the repository's default branch unless told otherwise.
+`[<issue-key>-]<type>-<short-slug>`, all lowercase, hyphen-joined, no slashes — `feat-getting-started`, `hdr-1190-feat-durable-hydra-allocation-retry`. The `<type>` segment is required. The segment rules, the regex to check a name against, and renaming an off-convention branch are in [BRANCH-NAMING.md](references/BRANCH-NAMING.md).
 
 ## Gotchas
 
@@ -195,6 +189,7 @@ The shape is `^([a-z0-9]+-[0-9]+-)?(feat|fix|chore|build|ci|docs|style|refactor|
 
 ## References
 
+- [BRANCH-NAMING.md](references/BRANCH-NAMING.md) — the branch-name convention: segment rules, the regex, and renaming an off-convention branch. Read it when naming a branch or when step 1 finds one that looks wrong.
 - [REWRITING.md](references/REWRITING.md) — rewriting commits that already exist: the pushed/unpushed safe-set check, the undo point, the non-interactive equivalent of every `rebase -i` operation, and the rebase failure modes. Read it when the ask is about an existing commit; the workflow above covers everything else.
 
 ## Attribution
