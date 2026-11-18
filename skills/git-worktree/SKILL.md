@@ -36,7 +36,7 @@ default="$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null)"   # e.g. origin/
 ahead="${default:+$(git rev-list --count "$default"..HEAD)}"      # what this branch already carries
 ```
 
-**An empty `ahead` is not zero.** It means `origin/HEAD` is unset locally — a local-only repo, a fresh clone, a remote not named `origin` — so run `git remote set-head origin -a` and probe again. Don't write the count as `$(git rev-list --count "$default"..HEAD)` unguarded: with `$default` empty that reads as `HEAD..HEAD` and returns a confident `0`, which sends the guard down the "proceed" path in exactly the case it exists to catch.
+**An empty `ahead` is not zero.** It means `origin/HEAD` is unset locally — a local-only repo, a fresh clone, a remote not named `origin` — so set it and probe again. `git remote set-head origin -a` asks the remote, which a sandbox can block for a private repository; the bare `git ls-remote --symref origin HEAD` gets the same answer through the escape list, and `git remote set-head origin <branch>` then records it without touching the network. Don't write the count as `$(git rev-list --count "$default"..HEAD)` unguarded: with `$default` empty that reads as `HEAD..HEAD` and returns a confident `0`, which sends the guard down the "proceed" path in exactly the case it exists to catch.
 
 - **In a worktree, continuing the work its branch carries** (git-dir ≠ git-common-dir, superproject empty) → proceed with edits.
 - **In a worktree already carrying another unit's work — unmerged commits (`ahead` > 0), uncommitted changes, or both — and this is a *different* unit of work** → stop. Being in *a* worktree is not the same as being isolated for *this* task: commit here and the new work lands on the previous unit's branch, where the two can no longer be reviewed, rebased, or reverted apart. Resolve the start-point per [Choosing the base](#choosing-the-base), then create the branch or worktree it points to.
@@ -88,9 +88,11 @@ gh stack add <issue-key>-<type>-<slug>     # instead, when gh-stack manages the 
 
    A native worktree tool works too, and under a sandbox that keeps `.git/worktrees` read-only it is the only way to create one — see "git in a worktree" in `~/.agents/references/SANDBOX.md`. In Claude Code, `EnterWorktree` with `name` set to the branch creates it through the `WorktreeCreate` hook at `$HOME/Codespace/<repo>.worktrees/<name>` — checking out the branch if it exists, else cutting it from `origin/HEAD` — and enters an isolated session; `path` enters one that already exists.
 
+   **Run a bare `git fetch` first.** The hook cuts a new branch from the local `origin/HEAD` ref and does not fetch, so a stale clone bases new work on whatever the remote looked like at the last fetch.
+
    The hook takes no start-point argument, but it checks out an existing branch as-is. When [Choosing the base](#choosing-the-base) needs a start-point other than `origin/HEAD`, create the branch first and then let the hook check it out:
    ```sh
-   git branch <branch> <start-point>              # runs in the sandbox (no .git/worktrees write)
+   git branch <branch> <start-point>              # writes a ref, not .git/worktrees — works sandboxed
    # then: EnterWorktree with name = <branch>     # hook finds the branch and checks it out
    ```
    Mind its command vetting under [Gotchas](#gotchas).
@@ -150,8 +152,11 @@ Run from the main checkout — you can't remove a worktree your shell is sitting
 ```sh
 git worktree remove <path>     # add --force only to discard uncommitted changes
 git worktree prune             # clear stale entries
+git branch -d <branch>         # once merged; -D only when the user says to drop it
 ```
 Removal deletes the symlinks and leaves their targets in the main checkout untouched. A *copied* `.env` goes with the worktree.
+
+**Under a sandbox that keeps `.git/worktrees` read-only, `remove` and `prune` can fail just as `add` does.** Try them bare first. On `Operation not permitted`, hand the user the commands with the absolute path (`! git worktree remove <abs-path>`). In Claude Code, `ExitWorktree` with `action: "remove"` is the other route, but only for the worktree this session is still in. That route is untested for a hook-made worktree, and it keeps the branch either way. `git branch -d` works sandboxed. Never `rm` the directory to force it — that leaves a stale `.git/worktrees` entry and can take uncommitted work with it.
 
 ## Project setup
 
@@ -176,7 +181,8 @@ Detect the stack by its manifest and run the matching install. Run it **inside t
 - **Always pass an absolute path, never a `~`-prefixed one.** A `~` path doesn't match `git worktree list` and doesn't expand when quoted; use `$HOME/…` or a full `/Users/…` path.
 - **Only symlink files that are git-ignored** — run `git check-ignore -q` against the *worktree* first. The main checkout's ignore rules don't bind the worktree's branch: if that branch's `.gitignore` differs, a path ignored in main may be tracked or untracked-visible there, and a link would shadow the real file and dirty `git status`. Nested `.gitignore` files in a monorepo count, which is why the step-3 discovery asks git instead of listing root paths.
 - **The step-3 loop needs a main checkout to link from.** It finds one as the parent of `--git-common-dir`. A bare-repo layout has none (the common dir *is* the repo), so `ls-files` fails there; skip the linking and say so rather than guessing a source.
-- **An isolated session vets every Bash command and refuses what it can't prove stays inside the worktree.** Claude Code's `EnterWorktree` rejects even benign, non-git diagnostics that use `env <flag>`, subshells `( … )`, `for`/`while` loops, pipelines, or bare `$VAR` (the refusal reads "runs env with …" or "too complex to verify …", and can't be disabled in settings). When isolated, keep each command plain and atomic — or skip isolation and operate in place with `git -C <worktree> …` / `cd <worktree>`, where complex shell runs normally. The step-3 loop is a normal-shell convenience for exactly this reason; isolated, run the discovery alone and link each listed path with its own `ln -sfn`.
+- **An isolated session vets every Bash command and refuses what it can't prove stays inside the worktree.** Claude Code's `EnterWorktree` rejects even benign, non-git diagnostics that use `env <flag>`, subshells `( … )`, `for`/`while` loops, pipelines, or bare `$VAR` (the refusal reads "runs env with …" or "too complex to verify …", and can't be disabled in settings). When isolated, keep each command plain and atomic — or skip isolation and `cd <worktree>` in its own call, where complex shell runs normally. The step-3 loop is a normal-shell convenience for exactly this reason; isolated, run the discovery alone and link each listed path with its own `ln -sfn`.
+- **`git -C <worktree>` is for reading, never for writing.** The worktree's index and HEAD live in the main repository's `.git/worktrees/<name>/`, which the sandbox keeps read-only for any worktree this session didn't create. Only a bare `git add`/`commit`/`switch`/… matches the escape list, so `git -C <wt> commit`, `cd <wt> && git commit`, or a `--no-pager`/`-c` option before the subcommand all fail on a `.lock` file. `cd` in one call, then run the bare command — that needs a session that keeps its working directory between calls, which a subagent may not. `git status`, `diff`, and `log` with `-C` are fine.
 
 ## Building wide in a scratch worktree
 
