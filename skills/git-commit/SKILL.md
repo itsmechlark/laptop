@@ -64,11 +64,12 @@ Commit the groups one at a time. For each:
 - Mixed file (hunks belong to different groups): stage only the relevant hunks — write them to a patch and apply with `git apply --cached <patch>` (interactive `git add -p` isn't available here). Verify with `git diff --staged` before committing.
 - Never `git add .` or `git add -A` blindly — that defeats the grouping.
 - Respect pre-commit hooks; if a hook modifies files or fails, surface what happened rather than fighting it. Don't `--no-verify` unless the user asked.
+- **Run every git command that writes — `add`, `apply --cached`, `commit`, `branch -m` — bare and top-level, from inside the checkout.** No `git -C <dir>`, no `cd <dir> &&`, no `--no-pager` or `-c key=value` before the subcommand, no pipe, no `VAR=value` prefix. In a worktree, the index and HEAD live under the main repository's `.git/worktrees/<name>/`, which a sandbox can keep read-only; the bare form is the one its escape list recognizes, and a wrapped one fails on `index.lock` — only in a worktree, so it looks like a worktree bug. To work in another directory, `cd` there in its own call and confirm with `git rev-parse --show-toplevel` before writing; a subagent's directory can reset between calls, and then the commit is the lead's to make. Read-only commands (`status`, `diff`, `log`) are unaffected.
 - Don't push. This workflow only creates new commits from uncommitted work; rewriting a commit that already exists is the separate workflow below.
 
 ### 4. Write and commit the message
 
-Write each group's message to a file and commit with `git commit -F <file>` (or repeated `-m` flags) — avoid inline heredocs/quoting that can mangle the subject/body split. Write the temp file to `$TMPDIR` and pass the **full absolute path** to `git commit -F` — `$TMPDIR` resolves differently across shell invocations, so a variable reference in the command may not find the file you wrote.
+Write each group's message to a file and commit with `git commit -F <file>` (or repeated `-m` flags) — avoid inline heredocs/quoting that can mangle the subject/body split. Write the temp file to `$TMPDIR` in one call, then commit in a **separate** call that passes the **full absolute path** — chaining the write and the commit with `&&` wraps the commit, and a `$TMPDIR` reference in the commit call may expand to a different directory (see [Gotchas](#gotchas)).
 
 Follow [Commit message format](#commit-message-format) for the structure and [Voice and tone](#voice-and-tone) for how it should read.
 
@@ -157,7 +158,7 @@ The shape is `^([a-z0-9]+-[0-9]+-)?(feat|fix|chore|build|ci|docs|style|refactor|
 
 ## Gotchas
 
-- **Pass the full absolute path to `git commit -F`** — `$TMPDIR` resolves differently across shell invocations (the file lives at `/tmp/claude-501/` but the variable may expand to `/var/folders/…/T/`), so a `$TMPDIR` reference in the command won't find the file. Write to `$TMPDIR`, then use the resolved path in the command.
+- **Pass the full absolute path to `git commit -F`.** A sandbox that lets `git commit` out runs it with the user's own environment, so `$TMPDIR` in that call expands to `/var/folders/…/T/` while the sandboxed call that wrote the file saw `/tmp/claude-501/…`. Write to `$TMPDIR`, print the resolved path, and put that literal path in the commit command.
 
 - **A pre-commit hook that reformats files leaves its own fix unstaged** — the commit captures the pre-hook content, so the next commit carries a stray formatting diff. Re-stage what the hook touched and commit again; reaching for `--no-verify` hides the problem instead.
 
@@ -181,6 +182,7 @@ The shape is `^([a-z0-9]+-[0-9]+-)?(feat|fix|chore|build|ci|docs|style|refactor|
 | A pre-commit hook rewrote files during the commit | Re-stage exactly what it touched (`git add` those paths) and commit again, so the hook's output lands in the same commit rather than the next one. |
 | A pre-commit hook fails and blocks the commit | Report what it said and fix the underlying problem. Don't `--no-verify` unless the user asked for it. |
 | The subject and body ran together, or quoting mangled the message | The message went in inline. Write it to a file under `$TMPDIR` and use `git commit -F` with the full absolute path. |
+| `git add`, `git commit`, or `git apply --cached` fails with `index.lock: Operation not permitted` under `.git/worktrees/` | The command was wrapped (`git -C`, `cd … &&`, a pipe, a leading option or variable): `cd` into the worktree in its own call, then re-run it bare. If it was already bare, the subcommand isn't on the sandbox's escape list — report that rather than rephrasing it. Mechanics: "git in a worktree" in `~/.agents/references/SANDBOX.md`. |
 | One file's hunks belong to different groups | Write the hunks for this group to a patch and `git apply --cached <patch>`; confirm with `git diff --staged`. Interactive `git add -p` isn't available here. |
 | The repo's history doesn't use Conventional Commits | Match the repo. Its own consistent convention outranks this default — say which one you followed. |
 | Unclear which issue the change references | Omit the reference. Don't guess a number or key; ask if the repo's convention requires one. |
