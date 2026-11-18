@@ -456,6 +456,9 @@ Keep `SANDBOX.md` agnostic:
   holds everywhere.
 - The frontmatter `description` and the pointer in `.agents/AGENTS.md` name
   symptoms, not clients.
+- The "Excluded commands" row copies `sandbox.excludedCommands` verbatim — it is
+  how an agent knows which commands it must never pipe or wrap. Any change to
+  that list updates the row in the same commit.
 
 ### Vendored skills
 
