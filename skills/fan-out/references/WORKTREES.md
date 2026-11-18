@@ -37,10 +37,20 @@ git worktree add <repo>.worktrees/fan-out-agent-1 -b fan-out/agent-1 "$base_bran
 git worktree add <repo>.worktrees/fan-out-agent-2 -b fan-out/agent-2 "$base_branch"
 ```
 
-Under a sandbox that keeps `.git/worktrees` read-only, these fail even as bare
-commands — see "git in a worktree" in `~/.agents/references/SANDBOX.md`. Hand
-the user the commands with `$base_branch` and the absolute paths filled in, and
-continue once they report the worktrees exist.
+Under a sandbox that keeps `.git/worktrees` read-only, `git worktree add` fails
+even as a bare command. Create the branches first so the `WorktreeCreate` hook
+can check them out:
+
+```sh
+base_branch="$(git branch --show-current)"
+
+git branch fan-out/agent-1 "$base_branch"
+git branch fan-out/agent-2 "$base_branch"
+# then: EnterWorktree with name = fan-out/agent-1   (hook finds the branch)
+# then: EnterWorktree with name = fan-out/agent-2
+```
+
+See "git in a worktree" in `~/.agents/references/SANDBOX.md`.
 
 **Then finish the setup — link the git-ignored local config and install the
 dependencies — in every worktree, before any agent is dispatched.** A fresh

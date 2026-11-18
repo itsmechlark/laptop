@@ -87,8 +87,12 @@ fatal: could not create directory of '.git/worktrees/<name>': Operation not perm
 ```
 
 Create it through the harness's own worktree mechanism, which grants the session
-write access to the worktree it makes, or have the user run the `git worktree
-add` themselves and then enter the existing path. Expect `git worktree move` and
+write access to the worktree it makes. When the branch needs a start-point
+other than `origin/HEAD`, create the branch first with `git branch <name>
+<start-point>` (which runs in the sandbox — it writes refs, not
+`.git/worktrees`), then let the mechanism check it out. Otherwise have the user
+run the `git worktree add` themselves and enter the existing path.
+Expect `git worktree move` and
 `remove` on a worktree the session did not create to fail the same way
 (untested).
 
