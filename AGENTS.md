@@ -10,12 +10,12 @@ Two things live here:
 1. **`mac`** — a single POSIX `sh` script that installs Homebrew packages, asdf
    language runtimes, and databases. It is idempotent: it installs, upgrades, or
    skips based on what's already on the machine, and is safe to re-run.
-2. **Agent configuration** — `.agents/`, `rules/`, `skills/`, `.claude/`,
-   `.codex/`, `.cursor/`. The `mac` script symlinks these into `~/.agents`,
-   `~/.claude`, `~/.codex`, and `~/.cursor`, so this repo is the single source of
-   truth for how coding agents behave on every machine that has run it. Claude
-   Code, Codex, and Cursor are three front-ends over one shared policy — see
-   "Agent-client configuration parity".
+2. **Agent configuration** — `.agents/`, `rules/`, `skills/`, `agents/`,
+   `.claude/`, `.codex/`, `.cursor/`. The `mac` script symlinks these into
+   `~/.agents`, `~/.claude`, `~/.codex`, and `~/.cursor`, so this repo is the
+   single source of truth for how coding agents behave on every machine that has
+   run it. Claude Code, Codex, and Cursor are three front-ends over one shared
+   policy — see "Agent-client configuration parity".
 
 There is no build step, no package manager, and no application code.
 Provisioning uses POSIX shell; verification also uses Python.
@@ -84,11 +84,13 @@ bin/trivy               # shim → ~/.bin/trivy: apply the global Trivy config o
 scripts/                # verification tooling; each relocates to the repo root itself
   check-payload         # static verification of the payload (POSIX sh + jq)
   gen-cursor-rules      # renders .cursor/rules/*.mdc from rules/*.md (mac + check-payload)
+  gen-codex-agents      # renders .codex/generated-agents/*.toml from agents/*.md
   run-trigger-evals     # runs spec/trigger-evals; needs a logged-in claude CLI
   lib/run_eval_local.py # trigger-eval engine: drives claude -p against installed skills
 spec/                   # verification tests and fixtures
   codex_policy_test.py   # offline command-hook regressions (Python 3.11+ and jq)
   rules-cases.txt       # path -> which rules/ load for it
+  agents-fixture/       # every agent-definition violation; proves the check fires
   invocability-fixture/ # deliberate violations; proves the check still fires
   local-overlay-fixture/ # placeholder; local overlay detection is self-tested inline in check-payload
   orphan-fixture/       # unreachable references + stale anchors; proves the checks fire
@@ -105,11 +107,13 @@ spec/                   # verification tests and fixtures
     SANDBOX.md          # sandbox failure workarounds (gh keychain, pipe trap, pnpm, ps/pgrep)
   skills/               # skill bodies: vendored + project-only (project-only = not linked from skills/)
 rules/                  # path-scoped language standards, auto-loaded by glob
+agents/                 # subagents → ~/.agents/agents → ~/.claude, ~/.cursor
 skills/                 # published skills → ~/.agents/skills; first-party dirs + symlinks into .agents/skills
 .claude/settings.json   # Claude Code settings (permissions, sandbox, hooks, plugins)
 .codex/                 # Codex config — mirrors .claude/settings.json
   config.toml.template  # permissions, sandbox, env scrub, hooks — mac renders git-ignored config.toml
   rules/default.rules   # prefix rules — mirror of the Claude deny/ask lists
+  generated-agents/     # .toml agents — mac renders from agents/, git-ignored
 .cursor/                # Cursor CLI config — mirrors the same policy
   cli-config.json       # permissions.deny lists, approvalMode, attribution-off
   hooks.json            # beforeShellExecution: command log + destructive-command gate
@@ -128,21 +132,25 @@ skills/                 # published skills → ~/.agents/skills; first-party dir
 | `~/.agents/skills` | `skills/` |
 | `~/.agents/references` | `.agents/references/` |
 | `~/.agents/.skills-lock.json` | `skills-lock.json` |
+| `~/.agents/agents` | `agents/` |
 | `~/.agents/CONTEXT.md` | `.agents/CONTEXT.md` (when present) |
 | `skills/<name>` | `../.agents/local/skills/<name>` (when present; git-excluded) |
 | `rules/<name>.md` | `../.agents/local/rules/<name>.md` (when present; git-excluded) |
 | `~/.claude/CLAUDE.md` | `~/.agents/AGENTS.md` |
 | `~/.claude/rules` | `~/.agents/rules` |
 | `~/.claude/skills` | `~/.agents/skills` |
+| `~/.claude/agents` | `~/.agents/agents` |
 | `~/.claude/settings.json` | `.claude/settings.json` |
 | `~/.claude/CONTEXT.md` | `~/.agents/CONTEXT.md` |
 | `~/.codex/AGENTS.md` | `~/.agents/AGENTS.md` |
 | `~/.codex/rules` | `.codex/rules/` |
 | `~/.codex/skills` | `~/.agents/skills` |
+| `~/.codex/agents` | `.codex/generated-agents` (rendered from `agents/`) |
 | `~/.codex/config.toml` | `.codex/config.toml` (rendered by `mac` from `.codex/config.toml.template`) |
 | `~/.codex/CONTEXT.md` | `~/.agents/CONTEXT.md` |
 | `~/.cursor/cli-config.json` | `.cursor/cli-config.json` |
 | `~/.cursor/hooks.json` | `.cursor/hooks.json` |
+| `~/.cursor/agents` | `~/.agents/agents` |
 | `~/.cursor/rules` | `.cursor/rules` (rendered by `mac` from `rules/` via `scripts/gen-cursor-rules`) |
 | `~/.cursor/CONTEXT.md` | `~/.agents/CONTEXT.md` |
 | `~/.srt-settings.json` | `srt-settings.json` |
@@ -161,13 +169,14 @@ the change is already live for every client — directories are linked, not
 copied. Why links rather than copies:
 [ADR 0001](docs/adr/0001-symlink-the-payload-instead-of-copying.md).
 
-Only five changes need `sh mac` again:
+Only six changes need `sh mac` again:
 
 1. Adding a **new top-level link**.
 2. Editing `.codex/config.toml.template` — see below.
 3. Editing a `rules/*.md` — Cursor reads a generated copy, see below.
 4. Creating `.agents/CONTEXT.md` for the first time — see below.
 5. Adding or removing an entry under `.agents/local/` — see "Local overlay skills and rules" below.
+6. Editing an `agents/*.md` — Codex reads a generated copy, see below.
 
 **Always edit via the repo path, never the home symlink.** The sandbox allows
 writes to this repository but restricts the home dotdirs (`~/.claude/`,
@@ -193,6 +202,9 @@ mac` to regenerate — edits to the generated `.mdc` files are overwritten. The
 Claude copy needs no re-run; it reads `rules/` through its own live symlink. Why
 generated rather than a second frontmatter key:
 [ADR 0018](docs/adr/0018-generate-cursor-rules-from-canonical-rules.md).
+
+**`.codex/generated-agents/` is generated** from `agents/*.md` by
+`scripts/gen-codex-agents`, like `.cursor/rules/` above.
 
 **`.agents/CONTEXT.md` is optional and machine-local.** `mac` creates the four
 `CONTEXT.md` links only when it exists, so `sh mac` is required after you first
@@ -235,6 +247,7 @@ Use this map to find the counterpart for a change:
 | Unsandboxed vulnerability scanner (`trivy`) | `permissions.ask` `Bash(trivy *)` + `sandbox.excludedCommands` `trivy *` | `rules/default.rules` `["trivy"]` = `"prompt"`; `on-request` approval escalates it out of Seatbelt | `approvalMode` prompts (`trivy` unlisted); runs unsandboxed (no Cursor sandbox) |
 | `srt-settings.json` self-policy guard | `sandbox.filesystem.denyWrite` + `permissions.ask` `Edit(…srt-settings.json)` | `[…filesystem]` `~/.srt-settings.json = "read"` + `:workspace_roots` `srt-settings.json = "read"` | `permissions.deny` `Write(**/srt-settings.json)` |
 | Env-var scrubbing | `env` + `sandbox.credentials.envVars` | `config.toml` `[shell_environment_policy.filters]` | — |
+| Subagent read-only | `agents/*.md` `tools` | — (body only) | `agents/*.md` `readonly` |
 | Lifecycle hooks | `hooks.PreToolUse` | `config.toml` `[[hooks.PreToolUse]]` | `hooks.json` `beforeShellExecution` |
 
 Model choice, reasoning effort, and `enabledPlugins` are per-client tuning, not
@@ -254,6 +267,7 @@ Cursor's gaps, recorded here rather than dropped:
 | No MCP drop-tool denies | Claude's MongoDB `drop-*` denials have no counterpart — that MCP is not wired into Cursor |
 | `sandbox.mode` / `networkAccess` omitted | Accepted enum values are undocumented; left unset to avoid breaking the config |
 | srt bypasses substring gates | `beforeShellExecution` skips the destructive checks for an unchained `srt`/`npx-srt` command (top-level `;` `|` `>` or a newline still fall through), then defers to the approval prompt — `srt` is not allowlisted, so it is not auto-run. srt's own sandbox is the boundary |
+| Subagent `tools` ignored | Read-only rests on `readonly`, which `check-payload` requires |
 
 ## Testing instructions
 
@@ -439,6 +453,12 @@ translates `paths:` into the bare `globs:` string Cursor wants. Author only the
 the two stay in sync
 ([ADR 0018](docs/adr/0018-generate-cursor-rules-from-canonical-rules.md)).
 
+### `agents/<name>.md`
+
+An agent wraps skills, never restates them, and never needs the user. Which
+frontmatter each client honors, and what `check-payload` enforces:
+[ADR 0024](docs/adr/0024-subagents-wrap-skills-for-fresh-context-work.md).
+
 ### `.agents/references/*.md`
 
 Prose shipped to every machine and read on demand by whichever agent hits the
@@ -596,10 +616,10 @@ formats belong to the `domain-modeling` skill.
   with …" footer. `.claude/settings.json` sets `attribution.commit` to empty to
   enforce this.
 - Conventional Commits, imperative mood. The agent payload and provisioner —
-  `.agents/`, `.claude/`, `.codex/`, `.cursor/`, `rules/`, `skills/`, `mac`,
-  `skills-lock.json`, `skills-provenance.json`, and `rules-provenance.json` —
-  are **production code**,
-  not documentation, even where they're written in Markdown. Changes to them
+  `.agents/`, `.claude/`, `.codex/`, `.cursor/`, `rules/`, `skills/`, `agents/`,
+  `mac`, `skills-lock.json`, `skills-provenance.json`, and
+  `rules-provenance.json` — are **production code**, not documentation, even
+  where they're written in Markdown. Changes to them
   take a code type (`feat`, `fix`, `refactor`, `chore`, …), never `docs`.
   Reserve `docs` for the human-facing docs that describe the repo rather than
   ship from it: `README.md`, this `AGENTS.md`, `SECURITY.md`, the root
@@ -660,9 +680,9 @@ and description templates — use them.
 - `.gitignore` excludes `artifacts`, `*.swp`, `.claude/.cc-writes`,
   `.agents/*.local.md`, `.agents/CONTEXT.md`, `.agents/standup`,
   `.agents/out-of-scope`, `.agents/.skills-lock.json`, `.agents/local` (the
-  overlay store), the two generated outputs `.codex/config.toml` and
-  `.cursor/rules`, and any nested `.claude` directory under `.agents/` or
-  `skills/`.
+  overlay store), the three generated outputs `.codex/config.toml`,
+  `.codex/generated-agents`, and `.cursor/rules`, and any nested `.claude`
+  directory under `.agents/` or `skills/`.
 - `mac` provisions nine real directories under `~/.agents/` — `standup`,
   `out-of-scope`, `lore`, `specs`, `plans`, `prds`, `slices`, `adr`, `handoffs`
   — not symlinks, because Codex's Seatbelt sandbox rejects symlinked writable

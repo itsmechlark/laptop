@@ -23,8 +23,8 @@ Install
 
 Clone this repository to a stable location and enter it.
 `mac` symlinks directories out of the checkout
-(`.agents/`, `rules/`, `skills/`, and the client config) into your home,
-so the clone has to stay put:
+(`.agents/`, `rules/`, `skills/`, `agents/`, and the client config) into your
+home, so the clone has to stay put:
 
 ```sh
 git clone https://github.com/itsmechlark/laptop.git
@@ -285,6 +285,24 @@ dir: [ADR 0023].
 
 [ADR 0023]: docs/adr/0023-local-overlay-for-internal-skills-and-rules.md
 
+Subagents (`agents/`)
+---------------------
+
+Seven role subagents wrap the skills for work that is better done in a fresh
+context: `reviewer` and `bug-hunter` read a diff they did not write,
+`cold-reader` reads a document it did not draft, `implementer` builds one
+planned task test-first in a worktree, `spec-writer` writes up an agreed design,
+`explainer` maps unfamiliar code, and `review-responder` drafts replies to PR
+feedback without posting them. Anything that asks you a question or needs your
+approval stays in the main conversation.
+
+`mac` links `agents/` to `~/.claude/agents` and `~/.cursor/agents`, and renders
+a TOML copy for Codex with `scripts/gen-codex-agents`, linked to
+`~/.codex/agents`. Read-only is enforced differently in each client;
+the details, and why there is no orchestrator agent, are in [ADR 0024].
+
+[ADR 0024]: docs/adr/0024-subagents-wrap-skills-for-fresh-context-work.md
+
 Sandbox troubleshooting (`~/.agents/references/SANDBOX.md`)
 ----------------------------------------------------------
 
@@ -458,13 +476,14 @@ Tip: Make a fresh virtual machine with the installation of macOS completed and
 your user created and first launch complete. Then duplicate that machine to test
 the script each time on a fresh install that's ready to go.
 
-**Changes to the agent configuration** — anything under `skills/`, `rules/`, or
-the per-client config directories — are tested by `check-payload`. No VM
-required:
+**Changes to the agent configuration** — anything under `skills/`, `rules/`,
+`agents/`, or the per-client config directories — are tested by
+`check-payload`. No VM required:
 
 ```sh
 shellcheck mac -e SC2039
-shellcheck scripts/check-payload scripts/gen-cursor-rules
+shellcheck scripts/check-payload scripts/gen-cursor-rules \
+  scripts/gen-codex-agents
 sh scripts/check-payload
 python3 spec/codex_policy_test.py -v
 ```
@@ -474,6 +493,11 @@ a job of their own. Warnings are advisory and may stand. Failures may not.
 `check-payload` also renders the Cursor rules with `scripts/gen-cursor-rules`
 into a temp dir and fails if a `.mdc`'s `globs:` drifts from its `rules/*.md`
 `paths:`, so an edited rule that forgets the Cursor half is caught here.
+It does the same for the Codex agents, rendering `agents/*.md` with
+`scripts/gen-codex-agents` and parsing the TOML, and it checks each agent
+definition: a preloaded skill that is missing or flagged, a body that never
+names the `SKILL.md` it preloads, a read-only agent that Cursor would let write,
+or a field that grants capability on Claude Code alone.
 
 The command-policy tests require Python 3.11 or newer and `jq`. They feed
 synthetic commands to the Codex and Cursor hooks without executing those

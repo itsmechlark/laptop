@@ -16,5 +16,6 @@ skills/**/.system
 .agents/out-of-scope
 .agents/.skills-lock.json
 .codex/config.toml
+.codex/generated-agents
 .cursor/rules
 .agents/local

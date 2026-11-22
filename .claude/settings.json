@@ -14,6 +14,8 @@
   },
   "permissions": {
     "deny": [
+      "Edit(**/.codex/generated-agents/**)",
+      "Edit(~/.codex/agents/**)",
       "Read(/**/.env)",
       "Read(/**/.env.*)",
       "Read(~/.ssh/**)",
@@ -535,6 +537,10 @@
         "./.codex/config.toml.template",
         "~/.codex/rules",
         "./.codex/rules",
+        "~/.codex/agents/**",
+        "./.codex/generated-agents/**",
+        "~/.codex/agents",
+        "./.codex/generated-agents",
         "~/.cursor/cli-config.json",
         "./.cursor/cli-config.json",
         "~/.cursor/hooks.json",

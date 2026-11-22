@@ -50,7 +50,7 @@ Template, the mandatory constraints, quality checklist, and the prompt failure m
 
 **Issue every agent call in a single response.** Calls made together run in parallel; one call per response runs them in series and buys nothing.
 
-Choose each agent's type by role from whatever the host offers — a general-purpose agent for fix-and-investigate work, a read-only explorer for search and investigation, a review-oriented one for reading code rather than changing it. When the roster is unfamiliar, general-purpose is the safe default; an agent that inherits your conversation is almost never what fan-out wants, since a clean slate is the point.
+Choose each agent's type by role from whatever the host offers — a general-purpose agent for fix-and-investigate work, a read-only explorer for search and investigation, a review-oriented one for reading code rather than changing it. This payload ships role agents for the common cases: `implementer` builds one specified task test-first inside a worktree you prepared, `explainer` maps code read-only, and `reviewer` and `bug-hunter` read a diff. When the roster is unfamiliar, general-purpose is the safe default; an agent that inherits your conversation is almost never what fan-out wants, since a clean slate is the point.
 
 Agents that only **read** files share one checkout safely. The moment an agent *runs* something — the test suite, a build, a formatter, a generator — it writes to the tree (`tmp/`, `log/`, coverage output), binds ports, and touches the dev database, so two of those collide with no source edit between them. Isolate them exactly like agents that **edit files**, which always need a worktree each even when the files differ: [WORKTREES.md](references/WORKTREES.md).
 

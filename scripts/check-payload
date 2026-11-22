@@ -920,6 +920,191 @@ else
 fi
 rm -rf "$cursor_out"
 
+# ------------------------------------------------------------ agent definitions
+
+# agents/*.md is read by Claude Code and Cursor through ~/.claude/agents and
+# ~/.cursor/agents, and by Codex as TOML rendered by scripts/gen-codex-agents
+# (ADR 0024). Each client honors a different subset of the frontmatter, and the
+# gaps fail silently: Claude Code skips a preloaded skill that is missing or
+# flagged with only a debug-log line, Cursor ignores `tools` and enforces
+# read-only only through `readonly`, and neither Codex nor Cursor preloads
+# `skills` at all.
+
+# A frontmatter list field in either shape Claude Code accepts — inline
+# "field: a, b" or a YAML block list — one item per line.
+frontmatter_list() {
+  frontmatter "$1" | awk -v f="$2" '
+    $0 ~ "^" f ": *[^[:space:]]" {
+      sub("^" f ": *", ""); n = split($0, items, /, */)
+      for (i = 1; i <= n; i++) print items[i]
+      exit
+    }
+    $0 ~ "^" f ":$" { in_block = 1; next }
+    in_block && /^[[:space:]]+- / { sub(/^[[:space:]]+- */, ""); print; next }
+    in_block { exit }
+  '
+}
+
+# Whether a tool survives both the `tools` allowlist (absent means every tool)
+# and the `disallowedTools` denylist, the way Claude Code resolves the pair.
+agent_grants() {
+  allowed=$(frontmatter_list "$1" tools)
+  if [ -n "$allowed" ] && ! printf '%s\n' "$allowed" | grep -qx "$2"; then
+    return 1
+  fi
+  ! frontmatter_list "$1" disallowedTools | grep -qx "$2"
+}
+
+# Reports one problem per line; the caller counts. Takes the agents root so the
+# fixture can exercise it against a tree with known answers.
+scan_agents() {
+  root=$1
+
+  # Claude Code scans an agents directory recursively; the generator and this
+  # check read only the top level, so a nested agent would ship unchecked and
+  # never reach Codex.
+  for entry in "$root"/*; do
+    [ -e "$entry" ] || continue
+    case "$entry" in
+      *.md) [ -f "$entry" ] && continue ;;
+    esac
+    printf "%s: agents/ holds only flat .md files — a nested or other entry loads on Claude Code unchecked and never reaches Codex\n" "$entry"
+  done
+
+  for agent in "$root"/*.md; do
+    [ -f "$agent" ] || continue
+    stem=$(basename "$agent" .md)
+    fm=$(frontmatter "$agent")
+    body=$(awk 'body { print } /^---$/ { c++; if (c == 2) body = 1 }' "$agent")
+
+    name=$(frontmatter_field "$agent" name)
+    [ "$name" = "$stem" ] ||
+      printf "%s: name '%s' does not match the filename\n" "$agent" "$name"
+
+    # gen-codex-agents copies name and description verbatim into TOML, so a
+    # quoted or block-scalar value would reach Codex with its YAML syntax intact.
+    printf '%s\n' "$fm" | grep -q '^description:' ||
+      printf "%s: missing description\n" "$agent"
+    for field in name description; do
+      if printf '%s\n' "$fm" | grep -qE "^$field:[[:space:]]*(\$|[\"'>|])"; then
+        printf "%s: write %s as a plain one-line value — gen-codex-agents copies it verbatim\n" "$agent" "$field"
+      fi
+    done
+
+    model=$(frontmatter_field "$agent" model)
+    if [ -n "$model" ] && [ "$model" != inherit ]; then
+      printf "%s: model '%s' — Claude Code and Cursor read the same file and name models differently; use inherit\n" "$agent" "$model"
+    fi
+
+    # Commands run by hooks, MCP servers started per agent, a permission mode:
+    # each grants capability on Claude Code alone, from a file no other
+    # client's policy mirrors.
+    for field in hooks mcpServers permissionMode; do
+      if printf '%s\n' "$fm" | grep -q "^$field:"; then
+        printf "%s: sets %s, a Claude-only capability grant with no counterpart in the other clients\n" "$agent" "$field"
+      fi
+    done
+
+    for skill in $(frontmatter_list "$agent" skills); do
+      if ! is_skill "$skill"; then
+        printf "%s: preloads '%s', which is not a skill\n" "$agent" "$skill"
+      elif is_flagged "$skill"; then
+        printf "%s: preloads flagged skill '%s' — Claude Code skips it with only a debug-log warning\n" "$agent" "$skill"
+      fi
+      case "$body" in
+        *"~/.agents/skills/$skill/SKILL.md"*) ;;
+        *) printf "%s: preloads '%s' but the body never names ~/.agents/skills/%s/SKILL.md — Codex and Cursor do not preload\n" "$agent" "$skill" "$skill" ;;
+      esac
+    done
+
+    writes=no
+    for tool in Edit Write NotebookEdit; do
+      agent_grants "$agent" "$tool" && writes=yes
+    done
+    readonly_flag=$(frontmatter_field "$agent" readonly)
+    if [ "$writes" = no ] && [ "$readonly_flag" != true ]; then
+      printf "%s: Claude Code withholds Edit, Write, and NotebookEdit but readonly is not true — Cursor ignores tools and would let it write\n" "$agent"
+    elif [ "$writes" = yes ] && [ "$readonly_flag" = true ]; then
+      printf "%s: readonly: true but Claude Code still grants a write tool\n" "$agent"
+    fi
+
+    case "$body" in
+      *"'''"*) printf "%s: body contains ''' and cannot be rendered as a Codex TOML literal string\n" "$agent" ;;
+    esac
+  done
+}
+
+fancy_echo "Self-testing the agent definition check ..."
+
+# Thirteen deliberate violations across three files and a nested directory, at
+# least one of each kind. If the check stopped firing, a broken definition
+# would pass exactly like a good one — and on Claude Code the commonest break,
+# a skipped preload, is invisible at runtime too.
+agents_fixture=spec/agents-fixture/agents
+if [ ! -d "$agents_fixture" ]; then
+  fail "$agents_fixture is missing — the agent definition check cannot be self-verified"
+else
+  detected=$(scan_agents "$agents_fixture" | wc -l | tr -d ' ')
+  if [ "$detected" -eq 13 ]; then
+    printf "  ok    fixture: all thirteen agent-definition violations detected\n"
+  else
+    fail "agent definition check is broken: fixture yielded $detected of 13 expected detections"
+  fi
+fi
+
+fancy_echo "Checking agent definitions ..."
+
+agents_report=$(scan_agents agents)
+if [ -n "$agents_report" ]; then
+  printf '%s\n' "$agents_report" | while IFS= read -r line; do
+    printf "  FAIL  %s\n" "$line"
+  done
+  failures=$((failures + $(printf '%s\n' "$agents_report" | wc -l | tr -d ' ')))
+fi
+
+fancy_echo "Checking Codex agent generation ..."
+
+codex_out="${TMPDIR:-/tmp}/check-payload-codex.$$"
+rm -rf "$codex_out"
+if ! sh scripts/gen-codex-agents "$codex_out" >/dev/null 2>&1; then
+  fail "scripts/gen-codex-agents failed to render agents/ into Codex TOML"
+else
+  for agent in agents/*.md; do
+    [ -f "$agent" ] || continue
+    stem=$(basename "$agent" .md)
+    [ -f "$codex_out/$stem.toml" ] ||
+      fail "$agent: gen-codex-agents produced no $stem.toml"
+  done
+  # TOML validity needs a parser; tomllib ships with Python 3.11+, which the
+  # command-policy tests already require. Absent, say so rather than pass.
+  if python3 -c 'import tomllib' 2>/dev/null; then
+    toml_report=$(python3 -I - "$codex_out" <<'PY'
+import pathlib, sys, tomllib
+for path in sorted(pathlib.Path(sys.argv[1]).glob("*.toml")):
+    try:
+        data = tomllib.loads(path.read_text())
+    except tomllib.TOMLDecodeError as err:
+        print(f"{path.name}: invalid TOML ({err})")
+        continue
+    if data.get("name") != path.stem:
+        print(f"{path.name}: name {data.get('name')!r} does not match the filename")
+    for key in ("description", "developer_instructions"):
+        if not str(data.get(key, "")).strip():
+            print(f"{path.name}: empty {key}")
+PY
+)
+    if [ -n "$toml_report" ]; then
+      printf '%s\n' "$toml_report" | while IFS= read -r line; do
+        printf "  FAIL  codex agents: %s\n" "$line"
+      done
+      failures=$((failures + $(printf '%s\n' "$toml_report" | wc -l | tr -d ' ')))
+    fi
+  else
+    warn "python3 with tomllib (3.11+) not found — generated Codex agent TOML not parsed"
+  fi
+fi
+rm -rf "$codex_out"
+
 # -------------------------------------------------------------- srt shim form
 
 # bin/srt runs srt through npx. It must disambiguate the package from the command
@@ -1004,14 +1189,14 @@ fancy_echo "Checking payload hygiene ..."
 
 # Machine-specific paths and credential-shaped strings must not reach a file
 # that ships to every machine.
-hits=$(grep -rlE "/(Users|home)/[a-z][a-z0-9_-]*/" skills rules \
+hits=$(grep -rlE "/(Users|home)/[a-z][a-z0-9_-]*/" skills rules agents \
   2>/dev/null | grep -v '/\.git/' || true)
 for f in $hits; do
   fail "$f: contains a machine-specific home path"
 done
 
 hits=$(grep -rlE '(sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{16,}|xox[baprs]-[A-Za-z0-9]{8,})' \
-  skills rules 2>/dev/null || true)
+  skills rules agents 2>/dev/null || true)
 for f in $hits; do
   fail "$f: contains a credential-shaped string"
 done

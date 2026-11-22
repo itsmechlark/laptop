@@ -50,7 +50,7 @@ The prompt for each lens is in [templates/reader-prompt.md](templates/reader-pro
 ## Workflow
 
 1. **Pick the lenses** and name them to the user in one line before dispatching.
-2. **Dispatch** a fresh agent per lens with the filled prompt. It must be able to read whole files and search the code; tell it it is read-only, which the prompt does. A search-only explorer that returns excerpts is the wrong type, and so is any agent that inherits this conversation.
+2. **Dispatch** a fresh agent per lens with the filled prompt — the `cold-reader` agent where the host has it, since it is read-only by definition. Any other agent must be able to read whole files and search the code; tell it it is read-only, which the prompt does. A search-only explorer that returns excerpts is the wrong type, and so is any agent that inherits this conversation.
 3. **Triage every finding** into exactly one of:
    - **Fix** — the document is missing something it should say.
    - **Contest** — the finding is wrong. Name the line of the document or the file in the code that answers it.

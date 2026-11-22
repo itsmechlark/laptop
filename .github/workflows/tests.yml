@@ -19,7 +19,7 @@ jobs:
       - name: Install shellcheck
         run: sudo apt-get update && sudo apt-get install -y shellcheck
       - name: Run shellcheck
-        run: shellcheck scripts/check-payload scripts/run-trigger-evals scripts/gen-cursor-rules
+        run: shellcheck scripts/check-payload scripts/run-trigger-evals scripts/gen-cursor-rules scripts/gen-codex-agents
       - name: Byte-compile the trigger-eval engine
         # Catch syntax errors even though the eval needs a live model and
         # cannot run here.

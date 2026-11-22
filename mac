@@ -279,6 +279,7 @@ symlink_path "$PROJECT_DIR/rules" "$AGENTS_GLOBAL_DIR/rules"
 symlink_path "$PROJECT_DIR/skills" "$AGENTS_GLOBAL_DIR/skills"
 symlink_path "$AGENTS_DIR/references" "$AGENTS_GLOBAL_DIR/references"
 symlink_path "$PROJECT_DIR/skills-lock.json" "$AGENTS_GLOBAL_DIR/.skills-lock.json"
+symlink_path "$PROJECT_DIR/agents" "$AGENTS_GLOBAL_DIR/agents"
 
 # Machine-local state that outlives a session: the standup journal, the
 # cross-repo rejection knowledge base, and the fallback home for every durable
@@ -310,6 +311,9 @@ mkdir -p "$CLAUDE_GLOBAL_DIR"
 symlink_path "$AGENTS_GLOBAL_DIR/AGENTS.md" "$CLAUDE_GLOBAL_DIR/CLAUDE.md"
 symlink_path "$AGENTS_GLOBAL_DIR/rules" "$CLAUDE_GLOBAL_DIR/rules"
 symlink_path "$AGENTS_GLOBAL_DIR/skills" "$CLAUDE_GLOBAL_DIR/skills"
+# Subagent definitions, shared with Cursor below; Codex gets its own TOML
+# rendering (ADR 0024).
+symlink_path "$AGENTS_GLOBAL_DIR/agents" "$CLAUDE_GLOBAL_DIR/agents"
 symlink_path "$PROJECT_DIR/.claude/settings.json" "$CLAUDE_GLOBAL_DIR/settings.json"
 symlink_path "$PROJECT_DIR/.mcp.json" "$HOME/.mcp.json"
 
@@ -324,6 +328,13 @@ symlink_path "$AGENTS_GLOBAL_DIR/skills" "$CODEX_GLOBAL_DIR/skills"
 # tracked template, substituting the home-directory placeholder with $HOME.
 sed "s|__HOME__|$HOME|g" "$PROJECT_DIR/.codex/config.toml.template" > "$PROJECT_DIR/.codex/config.toml"
 symlink_path "$PROJECT_DIR/.codex/config.toml" "$CODEX_GLOBAL_DIR/config.toml"
+# Codex cannot read agents/*.md: it wants one TOML file per agent. Render the
+# set from the canonical Markdown — git-ignored generated output, like
+# .cursor/rules — then link that. Not into .codex/agents/: inside this repo that
+# is a project-scope agents directory for both Codex and Cursor.
+fancy_echo "Generating Codex agents from agents/ ..."
+sh "$PROJECT_DIR/scripts/gen-codex-agents" "$PROJECT_DIR/.codex/generated-agents"
+symlink_path "$PROJECT_DIR/.codex/generated-agents" "$CODEX_GLOBAL_DIR/agents"
 
 # Cursor
 CURSOR_GLOBAL_DIR="$HOME/.cursor"
@@ -417,6 +428,10 @@ fancy_echo "Generating Cursor rules from rules/ ..."
 sh "$PROJECT_DIR/scripts/gen-cursor-rules" "$PROJECT_DIR/.cursor/rules"
 symlink_path "$PROJECT_DIR/.cursor/rules" "$CURSOR_GLOBAL_DIR/rules"
 symlink_path "$AGENTS_GLOBAL_DIR/skills" "$CURSOR_GLOBAL_DIR/skills"
+# Cursor also reads ~/.claude/agents and ~/.codex/agents, but ~/.cursor/agents
+# outranks both, so the Markdown — the only form carrying readonly — wins any
+# same-name tie with the Codex TOML.
+symlink_path "$AGENTS_GLOBAL_DIR/agents" "$CURSOR_GLOBAL_DIR/agents"
 
 # Sandbox runtime (srt)
 # Machine-wide second-line sandbox for running unsafe commands, wrapped by the

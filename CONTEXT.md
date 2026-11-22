@@ -17,7 +17,7 @@ _Avoid_: cargo
 
 **Published payload**:
 The part of the payload `check-payload` takes as its subject: `skills/`,
-`rules/`, and the client configs. Narrower than the payload, because a
+`rules/`, `agents/`, and the client configs. Narrower than the payload, because a
 project-only skill is reachable from neither.
 
 **Global standards**:
@@ -94,6 +94,12 @@ _See_: [ADR 0023](docs/adr/0023-local-overlay-for-internal-skills-and-rules.md)
 One skill naming another to route work it shouldn't do itself, written
 `` `X` skill `` or `` skill `X` ``. Not the file `agent-handoff` writes — that
 is a **handoff file**, and the two senses share nothing but the word.
+
+**Subagent**:
+A role definition under `agents/` that wraps one or more skills for work done in
+a fresh context. Never interviews the user; it returns questions instead. The
+only approved action it takes is a commit its caller's brief authorizes.
+_Avoid_: agent (alone — it also means the client, and `.agents/`)
 
 **Flagged skill**:
 A skill carrying `disable-model-invocation: true`; the complement is

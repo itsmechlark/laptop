@@ -77,6 +77,7 @@
       "Write(~/.claude/settings.local.json)",
       "Write(~/.codex/config.toml)",
       "Write(~/.codex/rules/**)",
+      "Write(~/.codex/agents/**)",
       "Write(~/.srt-settings.json)",
       "Write(**/srt-settings.json)",
       "Write(~/.bin/srt)",
