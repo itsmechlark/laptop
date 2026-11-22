@@ -160,7 +160,10 @@ Two checks are worth understanding before you change them:
   denials rather than a hardcoded list, so adding a deny to
   `.claude/settings.json` *forces* the Codex and Cursor mirrors instead of
   relying on a reviewer noticing. A subject with no possible counterpart goes in
-  the script's `parity_exempt` with its reason — never deleted.
+  the script's `parity_exempt` with its reason — never deleted. It also fails a
+  `Read(/…)` with a single leading slash: Claude resolves that against the
+  settings file, which is linked into `~/.claude`, so the rule guards only that
+  directory while looking mirrored.
 - **The self-tests guard the checks whose clean result is indistinguishable from
   a broken one** — invocability and reference reachability are both silent when
   the payload is fine, and the invocability bug they exist for shipped for

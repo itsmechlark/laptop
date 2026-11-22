@@ -1344,6 +1344,15 @@ else
     [ -f "$cfg" ] || fail "$cfg is missing — client parity cannot be verified"
   done
 
+  # A single leading slash is relative to the settings file, and this one is
+  # linked to ~/.claude/settings.json, so Read(/**/.env) only guards ~/.claude.
+  # The subject reduction below strips that slash and would report it as mirrored.
+  slash_rules=$(jq -r '.permissions.deny[], .permissions.ask[] |
+    select(test("^Read\\(/[^/]"))' "$claude")
+  for rule in $slash_rules; do
+    fail "$claude: $rule resolves against ~/.claude, not the filesystem — use ** or //"
+  done
+
   # Read(~/.ssh/**) -> .ssh, Read(**/*.pem) -> .pem, Read(**/config/master.key)
   # -> master.key: reduce each glob to its distinctive final segment.
   subjects=$(jq -r '.permissions.deny[] | select(startswith("Read("))' "$claude" |
