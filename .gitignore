@@ -18,4 +18,5 @@ skills/**/.system
 .codex/config.toml
 .codex/generated-agents
 .cursor/rules
+.cursor/generated-agents
 .agents/local

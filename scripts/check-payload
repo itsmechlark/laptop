@@ -922,9 +922,9 @@ rm -rf "$cursor_out"
 
 # ------------------------------------------------------------ agent definitions
 
-# agents/*.md is read by Claude Code and Cursor through ~/.claude/agents and
-# ~/.cursor/agents, and by Codex as TOML rendered by scripts/gen-codex-agents
-# (ADR 0024). Each client honors a different subset of the frontmatter, and the
+# agents/*.md is read by Claude Code through ~/.claude/agents, by Cursor as a
+# Markdown copy rendered by scripts/gen-cursor-agents, and by Codex as TOML
+# rendered by scripts/gen-codex-agents (ADR 0024, ADR 0025). Each client honors a different subset of the frontmatter, and the
 # gaps fail silently: Claude Code skips a preloaded skill that is missing or
 # flagged with only a debug-log line, Cursor ignores `tools` and enforces
 # read-only only through `readonly`, and neither Codex nor Cursor preloads
@@ -991,10 +991,21 @@ scan_agents() {
       fi
     done
 
+    # `model` is Claude Code's: an alias or inherit. gen-cursor-agents resets it
+    # to inherit and gen-codex-agents leaves it out, so a full model ID would be
+    # pinned on Claude alone and age there unnoticed (ADR 0025).
     model=$(frontmatter_field "$agent" model)
-    if [ -n "$model" ] && [ "$model" != inherit ]; then
-      printf "%s: model '%s' — Claude Code and Cursor read the same file and name models differently; use inherit\n" "$agent" "$model"
-    fi
+    case "$model" in
+      "" | inherit | sonnet | opus | haiku | fable) ;;
+      *) printf "%s: model '%s' — use a Claude Code alias (sonnet, opus, haiku, fable) or inherit\n" "$agent" "$model" ;;
+    esac
+
+    # `effort` reaches Claude Code as-is and Codex as model_reasoning_effort.
+    effort=$(frontmatter_field "$agent" effort)
+    case "$effort" in
+      "" | low | medium | high | xhigh | max) ;;
+      *) printf "%s: effort '%s' is not one of low, medium, high, xhigh, max\n" "$agent" "$effort" ;;
+    esac
 
     # Commands run by hooks, MCP servers started per agent, a permission mode:
     # each grants capability on Claude Code alone, from a file no other
@@ -1036,7 +1047,7 @@ scan_agents() {
 
 fancy_echo "Self-testing the agent definition check ..."
 
-# Thirteen deliberate violations across three files and a nested directory, at
+# Fourteen deliberate violations across three files and a nested directory, at
 # least one of each kind. If the check stopped firing, a broken definition
 # would pass exactly like a good one — and on Claude Code the commonest break,
 # a skipped preload, is invisible at runtime too.
@@ -1045,10 +1056,10 @@ if [ ! -d "$agents_fixture" ]; then
   fail "$agents_fixture is missing — the agent definition check cannot be self-verified"
 else
   detected=$(scan_agents "$agents_fixture" | wc -l | tr -d ' ')
-  if [ "$detected" -eq 13 ]; then
-    printf "  ok    fixture: all thirteen agent-definition violations detected\n"
+  if [ "$detected" -eq 14 ]; then
+    printf "  ok    fixture: all fourteen agent-definition violations detected\n"
   else
-    fail "agent definition check is broken: fixture yielded $detected of 13 expected detections"
+    fail "agent definition check is broken: fixture yielded $detected of 14 expected detections"
   fi
 fi
 
@@ -1104,6 +1115,36 @@ PY
   fi
 fi
 rm -rf "$codex_out"
+
+fancy_echo "Checking Cursor agent generation ..."
+
+# Cursor reads the generated copy, not agents/ itself: `model` reset to inherit
+# because Cursor takes no Claude alias, `effort` dropped because Cursor has no
+# such field, everything else — `readonly` above all — passed through (ADR
+# 0025). Rendering here proves the copy keeps that shape.
+cursor_agents_out="${TMPDIR:-/tmp}/check-payload-cursor-agents.$$"
+rm -rf "$cursor_agents_out"
+if ! sh scripts/gen-cursor-agents "$cursor_agents_out" >/dev/null 2>&1; then
+  fail "scripts/gen-cursor-agents failed to render agents/ for Cursor"
+else
+  for agent in agents/*.md; do
+    [ -f "$agent" ] || continue
+    rendered="$cursor_agents_out/$(basename "$agent")"
+    if [ ! -f "$rendered" ]; then
+      fail "$agent: gen-cursor-agents produced no $(basename "$agent")"
+      continue
+    fi
+    case "$(frontmatter_field "$rendered" model)" in
+      "" | inherit) ;;
+      *) fail "$rendered: model is not inherit — Cursor takes no Claude alias" ;;
+    esac
+    frontmatter "$rendered" | grep -q '^effort:' &&
+      fail "$rendered: still carries effort, a field Cursor does not define"
+    [ "$(frontmatter_field "$rendered" readonly)" = "$(frontmatter_field "$agent" readonly)" ] ||
+      fail "$rendered: readonly differs from $agent"
+  done
+fi
+rm -rf "$cursor_agents_out"
 
 # -------------------------------------------------------------- srt shim form
 

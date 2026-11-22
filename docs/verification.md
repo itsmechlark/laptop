@@ -51,7 +51,8 @@ The agent check reads `agents/*.md` the way each client does
 when `agents/` holds anything but flat `.md` files (Claude Code scans
 subdirectories; the generator does not), a name differs from its filename, the
 description is missing, a name or description is quoted or a block scalar (the
-generator copies both verbatim), `model` is anything but `inherit`, the file
+generator copies both verbatim), `model` is neither a Claude Code alias nor
+`inherit`, `effort` is not a level Claude Code defines, the file
 sets `hooks`, `mcpServers`, or `permissionMode` (capability only Claude Code
 grants), a preloaded skill is missing or flagged (Claude Code skips it with only
 a debug-log line), the body never names a preloaded skill's `SKILL.md` path
@@ -60,7 +61,10 @@ a debug-log line), the body never names a preloaded skill's `SKILL.md` path
 (Claude enforces one, Cursor the other), or the body cannot be a TOML literal
 string. It then renders the Codex TOML with `scripts/gen-codex-agents`
 into a temp dir and parses each file with Python's `tomllib`; without Python
-3.11+ that parse is a warning, not a pass.
+3.11+ that parse is a warning, not a pass. Last, it renders Cursor's copy with
+`scripts/gen-cursor-agents` and fails if a rendered `model` is not `inherit`,
+an `effort` survives, or `readonly` differs from the source
+([ADR 0025](adr/0025-per-agent-models-are-claude-only.md)).
 
 The vendored-edit rule is the single check that looks past `skills/`, and only
 at *which paths a commit touches* — never at a body's content. A vendored skill
@@ -82,7 +86,7 @@ Five checks self-test against fixtures carrying deliberate violations:
 invocability against `spec/invocability-fixture/SKILL.md` (four kinds),
 reference-reachability and anchors against `spec/orphan-fixture/` (two each),
 the srt shim form against `spec/srt-shim-fixture/srt` (two), and agent
-definitions against `spec/agents-fixture/agents/` (thirteen). A
+definitions against `spec/agents-fixture/agents/` (fourteen). A
 different count fails the run. Don't "fix" those fixtures; their violations are
 the assertion.
 
@@ -115,7 +119,7 @@ than no fixture: it reports success.
 | `spec/orphan-fixture/skills/alpha/` | An unlinked reference and a fence-only one, beside a legally one-hop file | Must yield exactly 2 detections, or the run fails |
 | `spec/orphan-fixture/skills/alpha/SKILL.md` | A stale intra-file anchor and a stale cross-file one, beside an anchor that resolves | Must yield exactly 2 detections, or the run fails |
 | `spec/srt-shim-fixture/srt` | A bare-positional npx form (srt wraps itself) and no version pin | Must yield exactly 2 detections, or the run fails |
-| `spec/agents-fixture/agents/` | At least one violation of each agent-definition kind, across three files and a nested directory | Must yield exactly 13 detections, or the run fails |
+| `spec/agents-fixture/agents/` | At least one violation of each agent-definition kind, across three files and a nested directory | Must yield exactly 14 detections, or the run fails |
 | `spec/trigger-evals/<skill>.json` | `[{"query": …, "should_trigger": …}, …]` | Shape, labels, and target skill — see below |
 
 An eval set fails when it is invalid JSON, empty, has missing/empty `query` or

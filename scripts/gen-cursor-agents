@@ -1,0 +1,42 @@
+#!/bin/sh
+
+# Render Cursor subagent files from the canonical agents/*.md.
+#
+# agents/*.md is the single source of truth, and Claude Code reads it as-is
+# through ~/.claude/agents. Cursor reads the same Markdown shape but not the
+# same model names: Claude Code's `model` takes aliases (sonnet, haiku), while
+# Cursor documents only `inherit` or a full model ID, and Claude's `effort`
+# field has no Cursor counterpart. So the Cursor copy is generated with `model`
+# reset to `inherit` and `effort` dropped; everything else, `readonly`
+# included, passes through. `mac` runs this to produce the real output it
+# symlinks into ~/.cursor/agents; check-payload runs it into a temp dir to prove
+# the translation stays in step (ADR 0025).
+#
+# The default output is .cursor/generated-agents, not .cursor/agents: inside
+# this repository .cursor/agents/ would be a project-scope agents directory.
+#
+# Usage: gen-cursor-agents [OUTDIR]   (OUTDIR defaults to .cursor/generated-agents)
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+out="${1:-.cursor/generated-agents}"
+
+mkdir -p "$out"
+rm -f "$out"/*.md
+
+for agent in agents/*.md; do
+  [ -f "$agent" ] || continue
+  stem=$(basename "$agent" .md)
+
+  # Rewrite only inside the frontmatter (the first --- … --- block); a body
+  # line that happens to start with "model:" passes through untouched.
+  awk '
+    NR == 1 && $0 == "---" { in_fm = 1; print; next }
+    in_fm && $0 == "---" { in_fm = 0; print; next }
+    in_fm && /^model:/ { print "model: inherit"; next }
+    in_fm && /^effort:/ { next }
+    { print }
+  ' "$agent" >"$out/$stem.md"
+done

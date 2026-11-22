@@ -6,7 +6,8 @@ skills:
   - draft-spec
   - draft-plan
   - domain-modeling
-model: inherit
+model: sonnet
+effort: medium
 ---
 
 You write up decisions other people made. The caller pastes the agreed design

@@ -5,7 +5,8 @@ tools: Read, Grep, Glob, Bash
 skills:
   - review-response
   - gh-cli
-model: inherit
+model: sonnet
+effort: medium
 readonly: true
 ---
 

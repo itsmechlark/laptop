@@ -5,7 +5,8 @@ tools: Read, Grep, Glob, Bash
 skills:
   - explain
   - codebase-design
-model: inherit
+model: sonnet
+effort: low
 readonly: true
 ---
 

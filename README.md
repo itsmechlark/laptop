@@ -296,12 +296,19 @@ planned task test-first in a worktree, `spec-writer` writes up an agreed design,
 feedback without posting them. Anything that asks you a question or needs your
 approval stays in the main conversation.
 
-`mac` links `agents/` to `~/.claude/agents` and `~/.cursor/agents`, and renders
-a TOML copy for Codex with `scripts/gen-codex-agents`, linked to
-`~/.codex/agents`. Read-only is enforced differently in each client;
-the details, and why there is no orchestrator agent, are in [ADR 0024].
+`mac` links `agents/` to `~/.claude/agents` and renders a copy for each other
+client: Markdown for Cursor (`scripts/gen-cursor-agents`, linked to
+`~/.cursor/agents`) and TOML for Codex (`scripts/gen-codex-agents`, linked to
+`~/.codex/agents`). Read-only is enforced differently in each client; the
+details, and why there is no orchestrator agent, are in [ADR 0024].
+
+On Claude Code, `explainer`, `cold-reader`, `review-responder`, and
+`spec-writer` run on Sonnet rather than your session's model. Cursor keeps your
+session's model for all of them, and Codex only takes the lower effort level
+`explainer` sets ([ADR 0025]).
 
 [ADR 0024]: docs/adr/0024-subagents-wrap-skills-for-fresh-context-work.md
+[ADR 0025]: docs/adr/0025-per-agent-models-are-claude-only.md
 
 Sandbox troubleshooting (`~/.agents/references/SANDBOX.md`)
 ----------------------------------------------------------
@@ -483,7 +490,7 @@ the script each time on a fresh install that's ready to go.
 ```sh
 shellcheck mac -e SC2039
 shellcheck scripts/check-payload scripts/gen-cursor-rules \
-  scripts/gen-codex-agents
+  scripts/gen-codex-agents scripts/gen-cursor-agents
 sh scripts/check-payload
 python3 spec/codex_policy_test.py -v
 ```
@@ -493,8 +500,8 @@ a job of their own. Warnings are advisory and may stand. Failures may not.
 `check-payload` also renders the Cursor rules with `scripts/gen-cursor-rules`
 into a temp dir and fails if a `.mdc`'s `globs:` drifts from its `rules/*.md`
 `paths:`, so an edited rule that forgets the Cursor half is caught here.
-It does the same for the Codex agents, rendering `agents/*.md` with
-`scripts/gen-codex-agents` and parsing the TOML, and it checks each agent
+It does the same for the agents, rendering Codex's TOML (and parsing it) and
+Cursor's Markdown copy, and it checks each agent
 definition: a preloaded skill that is missing or flagged, a body that never
 names the `SKILL.md` it preloads, a read-only agent that Cursor would let write,
 or a field that grants capability on Claude Code alone.

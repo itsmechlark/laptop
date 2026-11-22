@@ -73,6 +73,7 @@
       "Write(**/.codex/**)",
       "Write(~/.cursor/cli-config.json)",
       "Write(~/.cursor/hooks.json)",
+      "Write(~/.cursor/agents/**)",
       "Write(~/.claude/settings.json)",
       "Write(~/.claude/settings.local.json)",
       "Write(~/.codex/config.toml)",

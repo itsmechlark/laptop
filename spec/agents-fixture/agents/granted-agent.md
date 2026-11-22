@@ -7,5 +7,5 @@ readonly: true
 
 One violation, see `broken-agent.md`:
 
-12. `readonly: true`, yet the tools grant Edit, so Claude Code would let it
+13. `readonly: true`, yet the tools grant Edit, so Claude Code would let it
     write where Cursor would not.

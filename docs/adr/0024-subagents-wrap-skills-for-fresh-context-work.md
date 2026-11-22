@@ -8,6 +8,9 @@ metadata:
 
 # Subagents wrap skills for fresh-context work
 
+The `model: inherit` rule and the direct `~/.cursor/agents` link are superseded
+by [ADR 0025](0025-per-agent-models-are-claude-only.md); the rest stands.
+
 Terms used here — *payload*, *flagged skill*, *parity*, *subagent* — are
 defined in the [glossary](../../CONTEXT.md).
 

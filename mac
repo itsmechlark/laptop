@@ -311,8 +311,8 @@ mkdir -p "$CLAUDE_GLOBAL_DIR"
 symlink_path "$AGENTS_GLOBAL_DIR/AGENTS.md" "$CLAUDE_GLOBAL_DIR/CLAUDE.md"
 symlink_path "$AGENTS_GLOBAL_DIR/rules" "$CLAUDE_GLOBAL_DIR/rules"
 symlink_path "$AGENTS_GLOBAL_DIR/skills" "$CLAUDE_GLOBAL_DIR/skills"
-# Subagent definitions, shared with Cursor below; Codex gets its own TOML
-# rendering (ADR 0024).
+# Subagent definitions. Cursor and Codex each get a rendered copy below
+# (ADR 0024, ADR 0025).
 symlink_path "$AGENTS_GLOBAL_DIR/agents" "$CLAUDE_GLOBAL_DIR/agents"
 symlink_path "$PROJECT_DIR/.claude/settings.json" "$CLAUDE_GLOBAL_DIR/settings.json"
 symlink_path "$PROJECT_DIR/.mcp.json" "$HOME/.mcp.json"
@@ -429,9 +429,12 @@ sh "$PROJECT_DIR/scripts/gen-cursor-rules" "$PROJECT_DIR/.cursor/rules"
 symlink_path "$PROJECT_DIR/.cursor/rules" "$CURSOR_GLOBAL_DIR/rules"
 symlink_path "$AGENTS_GLOBAL_DIR/skills" "$CURSOR_GLOBAL_DIR/skills"
 # Cursor also reads ~/.claude/agents and ~/.codex/agents, but ~/.cursor/agents
-# outranks both, so the Markdown — the only form carrying readonly — wins any
-# same-name tie with the Codex TOML.
-symlink_path "$AGENTS_GLOBAL_DIR/agents" "$CURSOR_GLOBAL_DIR/agents"
+# outranks both, so this copy — Markdown, carrying readonly — wins any
+# same-name tie. It is rendered rather than linked because Cursor takes no
+# Claude model alias: the copy resets model to inherit and drops effort.
+fancy_echo "Generating Cursor agents from agents/ ..."
+sh "$PROJECT_DIR/scripts/gen-cursor-agents" "$PROJECT_DIR/.cursor/generated-agents"
+symlink_path "$PROJECT_DIR/.cursor/generated-agents" "$CURSOR_GLOBAL_DIR/agents"
 
 # Sandbox runtime (srt)
 # Machine-wide second-line sandbox for running unsafe commands, wrapped by the

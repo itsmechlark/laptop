@@ -2,7 +2,8 @@
 name: cold-reader
 description: Reads a spec, plan, PRD, handoff, or design with none of the conversation that produced it, through one lens — comprehension, readiness, or reuse — and reports what a newcomer could not follow, what it still leaves to the implementer, or what it proposes building that already exists. Dispatched by the cold-read skill; never for reviewing code.
 tools: Read, Grep, Glob
-model: inherit
+model: sonnet
+effort: medium
 readonly: true
 ---
 
