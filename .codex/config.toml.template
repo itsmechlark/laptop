@@ -454,7 +454,7 @@ approval_mode = "prompt"
 [mcp_servers.safari]
 command = "/usr/bin/safaridriver"
 args = ["--mcp"]
-disabled_tools = ["evaluate_script"]
+disabled_tools = ["evaluate_javascript"]
 
 [mcp_servers."smartbear-bugsnag"]
 url = "https://bugsnag.mcp.smartbear.com/mcp"
@@ -510,6 +510,9 @@ enabled = false
 [apps.github.tools.delete_repository]
 enabled = false
 
+[apps."plugin_atlassian_atlassian".tools.executeDestructive]
+enabled = false
+
 [apps."plugin_atlassian_atlassian".tools.createJiraIssue]
 approval_mode = "prompt"
 
@@ -538,6 +541,18 @@ approval_mode = "prompt"
 approval_mode = "prompt"
 
 [apps."plugin_atlassian_atlassian".tools.createConfluenceInlineComment]
+approval_mode = "prompt"
+
+[apps."plugin_atlassian_atlassian".tools.createConfluenceContent]
+approval_mode = "prompt"
+
+[apps."plugin_atlassian_atlassian".tools.updateConfluenceContent]
+approval_mode = "prompt"
+
+[apps."plugin_atlassian_atlassian".tools.addOrEditJiraIssueComment]
+approval_mode = "prompt"
+
+[apps."plugin_atlassian_atlassian".tools.executeWrite]
 approval_mode = "prompt"
 
 [apps."plugin_sem-ai_sem-ai".tools.pipeline_promote]
