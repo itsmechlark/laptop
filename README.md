@@ -550,6 +550,9 @@ belongs in a `cspell:ignore` comment beside the line it excuses.
 * `spec/srt-shim-fixture/` — a `bin/srt` written with the bare `npx <pkg> srt`
   form (which hands `srt` to npx as an argument, so srt wraps itself) and no
   version pin, proving the shim check catches a regression to that form
+* `spec/env-parity-fixture/` — client configs whose `.env` deny lists drift
+  inside a single file and deny `.env.example`, proving the parity check
+  compares every list on its own and keeps the templates readable
 * `spec/trigger-evals/*.json` — query sets for whether a skill's description
   fires on the requests it should. These need a live model, so they are not part
   of CI — run them with `sh scripts/run-trigger-evals` (all sets) or

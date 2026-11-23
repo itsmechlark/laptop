@@ -1,0 +1,15 @@
+{
+  "filesystem": {
+    "denyRead": [
+      "**/.env",
+      "**/.env.local",
+      "**/.env.qa",
+      "**/.env.*"
+    ],
+    "denyWrite": [
+      "**/.env",
+      "**/.env.qa",
+      "**/.env.*"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+# Deliberate violations for the .env parity self-test in scripts/check-payload,
+# spread across the four files in this directory:
+#   - claude.json sandbox denyRead drops .env.qa, which its own Read() list keeps
+#   - srt.json denyWrite drops .env.local, which its own denyRead keeps
+#   - every list carries .env.*, which denies .env.example and .env.sample
+# .env.fixture exists so that an unquoted glob over these patterns expands to it
+# and silently skips the template check. Do not "fix" these — the violations are
+# the assertion, and a different count fails the run.
+
+[permissions.developer.filesystem.":workspace_roots"]
+"." = "write"
+"**/.env" = "deny"
+"**/.env.local" = "deny"
+"**/.env.qa" = "deny"
+"**/.env.*" = "deny"

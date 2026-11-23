@@ -1373,6 +1373,90 @@ else
   done
 fi
 
+# .env variants can't be denied with one `.env.*` glob, because the template
+# files (.env.example, .env.sample) must stay readable and globs have no
+# negation, so each client carries a list of named variants. The substring
+# check above passes on a partial list, and a file can hold two lists, so every
+# list is compared on its own against Claude's Read() list, and no pattern in
+# that list may match a template file.
+#
+# Reports one problem per line; the caller counts. Takes the four config paths
+# so the fixture can exercise it against files with known answers.
+env_list() {
+  sed 's/^Read(//; s/)$//' | awk -F/ '{ print $NF }' |
+    grep -E '^\.env(\.|$)' | sort -u
+}
+
+scan_env_parity() {
+  e_claude=$1 e_codex=$2 e_cursor=$3 e_srt=$4
+
+  reference=$(jq -r '.permissions.deny[] | select(startswith("Read("))' \
+    "$e_claude" | env_list)
+
+  for list in \
+    "$e_claude sandbox.filesystem.denyRead" \
+    "$e_cursor permissions.deny" \
+    "$e_srt filesystem.denyRead" \
+    "$e_srt filesystem.denyWrite" \
+    "$e_codex deny"; do
+    file=${list% *} key=${list#* }
+    if [ "$key" = deny ]; then
+      entries=$(sed -n 's/^"\([^"]*\)" = "deny"$/\1/p' "$file" | env_list)
+    else
+      entries=$(jq -r ".${key}[]" "$file" | env_list)
+    fi
+    printf '%s\n' "$reference" | while read -r pattern; do
+      printf '%s\n' "$entries" | grep -qxF "$pattern" ||
+        printf "%s %s: does not deny '%s', which %s denies\n" "$file" "$key" "$pattern" "$e_claude"
+    done
+    printf '%s\n' "$entries" | while read -r pattern; do
+      printf '%s\n' "$reference" | grep -qxF "$pattern" ||
+        printf "%s %s: denies '%s', which %s does not\n" "$file" "$key" "$pattern" "$e_claude"
+    done
+  done
+
+  # Unquoted on purpose so the case arm globs; set -f stops the for loop from
+  # expanding each pattern against files in the working directory first.
+  set -f
+  for pattern in $reference; do
+    for template in .env.example .env.sample; do
+      # shellcheck disable=SC2254  # the pattern is meant to glob
+      case "$template" in
+        $pattern) printf "%s: '%s' denies %s, which must stay readable\n" "$e_claude" "$pattern" "$template" ;;
+      esac
+    done
+  done
+  set +f
+}
+
+fancy_echo "Self-testing the .env parity check ..."
+
+# The fixture holds one intra-file drift each in the Claude and srt shapes, and a
+# blanket .env.* that denies both templates. It runs from inside the fixture
+# directory, where .env.fixture is the file an unguarded glob would expand to.
+env_fixture=spec/env-parity-fixture
+if [ ! -d "$env_fixture" ]; then
+  fail "$env_fixture is missing — the .env parity check cannot be self-verified"
+else
+  detected=$(cd "$env_fixture" &&
+    scan_env_parity claude.json codex.toml cursor.json srt.json | wc -l | tr -d ' ')
+  if [ "$detected" -eq 4 ]; then
+    printf "  ok    fixture: per-list drift and template denials detected\n"
+  else
+    fail ".env parity check is broken: fixture yielded $detected of 4 expected detections"
+  fi
+fi
+
+fancy_echo "Checking .env parity across clients ..."
+
+env_report=$(scan_env_parity "$claude" "$codex" "$cursor" srt-settings.json)
+if [ -n "$env_report" ]; then
+  printf '%s\n' "$env_report" | while IFS= read -r line; do
+    printf "  FAIL  %s\n" "$line"
+  done
+  failures=$((failures + $(printf '%s\n' "$env_report" | wc -l | tr -d ' ')))
+fi
+
 # ------------------------------------------------------------------ summary
 
 fancy_echo "----"

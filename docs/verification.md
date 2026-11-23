@@ -82,11 +82,12 @@ but discards the `#fragment`. Fragments resolve against heading slugs
 `<a id="…">`. Use the explicit form when a heading opens with punctuation —
 ``## `## Attribution` `` slugs to `-attribution`, not `attribution`.
 
-Five checks self-test against fixtures carrying deliberate violations:
+Six checks self-test against fixtures carrying deliberate violations:
 invocability against `spec/invocability-fixture/SKILL.md` (four kinds),
 reference-reachability and anchors against `spec/orphan-fixture/` (two each),
-the srt shim form against `spec/srt-shim-fixture/srt` (two), and agent
-definitions against `spec/agents-fixture/agents/` (fourteen). A
+the srt shim form against `spec/srt-shim-fixture/srt` (two), agent
+definitions against `spec/agents-fixture/agents/` (fourteen), and `.env`
+parity against `spec/env-parity-fixture/` (four). A
 different count fails the run. Don't "fix" those fixtures; their violations are
 the assertion.
 
@@ -120,6 +121,7 @@ than no fixture: it reports success.
 | `spec/orphan-fixture/skills/alpha/SKILL.md` | A stale intra-file anchor and a stale cross-file one, beside an anchor that resolves | Must yield exactly 2 detections, or the run fails |
 | `spec/srt-shim-fixture/srt` | A bare-positional npx form (srt wraps itself) and no version pin | Must yield exactly 2 detections, or the run fails |
 | `spec/agents-fixture/agents/` | At least one violation of each agent-definition kind, across three files and a nested directory | Must yield exactly 14 detections, or the run fails |
+| `spec/env-parity-fixture/` | A `.env` entry dropped from the second list in a Claude-shaped and an `srt`-shaped file, a blanket `.env.*` that denies both templates, and a `.env.fixture` an unguarded glob would expand to | Must yield exactly 4 detections, or the run fails |
 | `spec/trigger-evals/<skill>.json` | `[{"query": …, "should_trigger": …}, …]` | Shape, labels, and target skill — see below |
 
 An eval set fails when it is invalid JSON, empty, has missing/empty `query` or
@@ -154,7 +156,7 @@ nothing on Claude. A skill contested from several directions at once cross-label
 its positives as negatives in every neighbor rather than merging their pools;
 `draft-plan` does, and `spec/trigger-evals/README.md` says why.
 
-Two checks are worth understanding before you change them:
+Three checks are worth understanding before you change them:
 
 - **Secret-path parity derives its subjects** from Claude's own `Read()`
   denials rather than a hardcoded list, so adding a deny to
@@ -164,6 +166,13 @@ Two checks are worth understanding before you change them:
   `Read(/…)` with a single leading slash: Claude resolves that against the
   settings file, which is linked into `~/.claude`, so the rule guards only that
   directory while looking mirrored.
+- **`.env` patterns are compared as a set, not a substring.** `.env.example` and
+  `.env.sample` must stay readable and globs cannot exclude them, so the deny
+  is a list of named variants. Every list is compared on its own against
+  Claude's `Read()` list, including the second list in the same file (Claude's
+  `sandbox.filesystem.denyRead`, `srt`'s `denyWrite`), and the check fails when
+  any pattern matches a template file. `spec/env-parity-fixture/` proves it
+  fires.
 - **The self-tests guard the checks whose clean result is indistinguishable from
   a broken one** — invocability and reference reachability are both silent when
   the payload is fine, and the invocability bug they exist for shipped for

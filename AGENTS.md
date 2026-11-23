@@ -96,6 +96,7 @@ spec/                   # verification tests and fixtures
   local-overlay-fixture/ # placeholder; local overlay detection is self-tested inline in check-payload
   orphan-fixture/       # unreachable references + stale anchors; proves the checks fire
   srt-shim-fixture/     # a self-wrapping, unpinned bin/srt; proves the shim check fires
+  env-parity-fixture/   # .env deny lists drifting within a file; proves the parity check fires
   trigger-evals/*.json  # query sets for skill triggering (run by hand, not CI)
 .agents/
   AGENTS.md             # global engineering standards (shipped to ~/.claude/CLAUDE.md)
@@ -668,6 +669,10 @@ and description templates — use them.
   credentials, and destructive git commands, and constrain filesystem writes and
   network egress. Widening any is a deliberate act — justify in the commit
   message and mirror across every client ("Agent-client configuration parity").
+  `.env.example` and `.env.sample` are deliberately open, and globs cannot
+  exclude them, so `.env` variants are denied by name (plus `.env.*.*`). A new
+  `.env.<name>` convention needs an entry in every client; `check-payload`
+  fails when the lists differ.
 - `~/.srt-settings.json` (tracked as `srt-settings.json`) is a sixth boundary:
   the machine-wide config for `srt`, the second-line sandbox for unsafe
   commands. Every `srt` use prompts for approval, and once approved it bypasses
