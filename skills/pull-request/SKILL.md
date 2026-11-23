@@ -8,7 +8,7 @@ argument-hint: "[optional note or context for the PR]"
 
 Turn a branch into a pull request a reviewer can act on: read the whole branch for the *why*, title it the way its lead commit reads, and write a description that explains the decision instead of narrating the diff.
 
-Note to fold in: `$1` — context for the description ("the flag defaults off", "second of three PRs"), never the literal title.
+Note to fold in: `$1` — context for the description ("the flag defaults off", "builds on #1234"), never the literal title. A slice label or spec name in it stays out of the PR text.
 
 **Don't open or update a PR unless explicitly asked.** Drafting a title and description for review is fine; creating or editing a PR publishes to the remote, so wait to be told — as with commits and pushes. A one-time approval covers that instance only.
 
@@ -72,6 +72,7 @@ Read your own body once before posting:
 - The repo's own template sections and checkboxes are filled.
 - No unmerged sibling PR edits the same files — or if one does, the merge order is in Risks & rollout and the PR is opened as a draft.
 - Every criterion checked and every spec marked `done` is backed by the diff, not by the PR being finished.
+- Every reference in the title and body points at something the reviewer can open — no slice or spec labels, no local paths, no "as discussed" ([Write only what the reviewer can open](#write-only-what-the-reviewer-can-open)).
 - Nothing fabricated: no invented issue link, reviewer, label, screenshot, or test you didn't write.
 - The whole body reads in under a minute.
 
@@ -82,7 +83,7 @@ When the branch implements a spec or a slice, update their records before openin
 - **Spec:** `metadata.status` goes from `accepted` to `done` once the diff delivers everything the spec asks for.
 - **Slice:** check each acceptance criterion the diff verifiably satisfies. When every criterion is checked the slice is done, and when every slice in the list is done so is the list.
 
-Finding the files, what counts as met or verified, and where each edit lands: [SPEC-AND-SLICE.md](references/SPEC-AND-SLICE.md).
+Finding the files, what counts as met or verified, and where each edit lands: [SPEC-AND-SLICE.md](references/SPEC-AND-SLICE.md). These records are the author's bookkeeping: the PR text doesn't report them, so no slice id and no spec status.
 
 ### 6. Open or update the PR
 
@@ -125,7 +126,20 @@ Failure modes, feature-flag/gating, and migration or rollback steps.
 
 **Link the issue if there is one.** When the project uses an issue tracker, add a link to the tracked issue the way the repo already does (typically a Markdown link at the end of the body). Omit it if the project doesn't track issues, and never invent one.
 
-**When a spec or ticket already argues the problem, link it and move on.** If `draft-spec` or `triage` produced the write-up, Reasoning is a sentence of context plus the link — re-arguing the problem statement here forks it, and the fork is what goes stale. Reasoning still carries what the spec can't: the approach you chose in the code and why, which the spec deliberately left open.
+**When a spec or ticket already argues the problem, link it and move on — if the reviewer can open it.** A tracker issue or a spec committed to the repository qualifies: Reasoning is a sentence of context plus the link, because re-arguing the problem statement here forks it, and the fork is what goes stale. A spec that lives only under `~/.agents/` does not qualify, so state the part of it the reviewer needs in your own words. Either way Reasoning still carries what the spec can't: the approach you chose in the code and why, which the spec deliberately left open.
+
+### Write only what the reviewer can open
+
+The reviewer has the diff, the repository, the linked tracker issue, and other PRs by number. They don't have the spec, slice list, or plan you worked from when those live under `~/.agents/` or in a session, nor the conversation, a scratch branch, or any local path. A pointer to something they can't open is noise at best and reads as a gap in the PR at worst.
+
+Keep out of the title and body:
+
+- **Slice and spec labels** — "S1 of HDR-1246", "slice 2 of 5", "per the spec", story, decision, or task numbers from a spec or plan. A spec committed to the repository is the exception: link it by path.
+- **Siblings named by label** — "the earlier S1 branch", "the next slice". Link a sibling PR as `#1234` or by URL. For work with no PR yet, say what it will do ("prefill in the client is a follow-up") without ranking it in a list the reviewer never saw.
+- **Local or unpublished references** — paths under `~/.agents/`, `$TMPDIR`, an unpushed branch, a file only in your working tree.
+- **Conversation references** — "as discussed", "per the earlier approach".
+
+State the substance instead: "S1 of HDR-1246" becomes what this PR delivers and what it deliberately leaves out. The issue key stays when the project tracks work there; the "S1 of" in front of it goes.
 
 ### Summary — the changes that matter, not all of them
 
@@ -217,6 +231,8 @@ What's specific to a PR body is the reader's position: they have the diff and do
 - **`gh pr create` from a fork targets the upstream's default branch**, not your own repository's. Pass `--repo` and `--base` explicitly when the remote is a fork.
 
 - **A draft is the quiet state, and readiness is the notification.** Opening a draft requests no review; marking it ready (`gh pr ready <number>`) pings every CODEOWNERS reviewer. Don't flip it to tick a checklist — that's the same publish action as opening one.
+
+- **Your working vocabulary isn't the reviewer's.** Slice ids and plan task numbers slip into prose because you've been reading them all session. Before posting, scan the body for `slice`, `S1`-style ids, `spec`, `plan`, `~/`, "earlier", and "later" (judgment applies: "specific" is fine), and replace each real hit with what it stands for.
 
 - **Marking a spec or criterion done is a claim about the diff.** Check a criterion only when a test or a verification you can name shows it, and mark the spec `done` only when every story and decision in it is delivered. A partial PR leaves both open; an overstated `done` is how a list later hides work nobody did.
 

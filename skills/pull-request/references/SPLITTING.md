@@ -26,7 +26,7 @@ A change that depends on code another PR in the set introduces stacks on that PR
 
 The judgment is yours either way:
 
-- **Say where each PR sits in the set**, in Risks & rollout: which PR it depends on, and that it must not merge first.
+- **Say where each PR sits in the set**, in Risks & rollout: which PR it depends on, and that it must not merge first. Name the parent by PR number, never by its slice label or position in a list the reviewer can't see.
 - **Keep the stack shallow.** Two deep is manageable; four is a queue where feedback on the bottom rewrites everything above it.
 - **Land bottom-up.** The parent merges, then the child.
 

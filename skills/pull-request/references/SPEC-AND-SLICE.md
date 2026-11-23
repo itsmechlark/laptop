@@ -2,6 +2,8 @@
 
 When the branch implements a spec, or one slice of a slice list, the PR is where that work becomes finished. Update the records before opening, so a spec doesn't sit `accepted` and a criterion doesn't sit unchecked after the code has landed.
 
+None of this reaches the PR text. The reviewer can't open a slice list or a spec under `~/.agents/`, so the title and body never cite a slice id or a spec's status, and say what the PR delivers and leaves out instead. A spec committed to the repository can be linked by path. The edits below are the author's record, and the report to the user is where they get named.
+
 ## Find them
 
 - The spec is the one the user, the branch name, or the linked issue names. Otherwise look for a spec whose `metadata.tickets` holds the issue key.
