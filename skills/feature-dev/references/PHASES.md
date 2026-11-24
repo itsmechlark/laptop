@@ -105,23 +105,28 @@ TDD proves the slice does what the criteria demanded. It does not prove the code
 
 **`find-bugs` runs inside the review, not after it.** On your own change `code-review`'s Defects axis makes `find-bugs` the default wherever the change touches concurrency, retries, money, auth, or tenancy; this workflow adds untrusted input and file paths to that list. Run its hunt there — in the `bug-hunter` agent, or the fresh Defects agent, above — with the same scope — no argument for uncommitted work, the branch point when the review was given one — fold its findings into the Defects section and its "Could not verify" items into Coverage, and only then write the Verdict. Loading `find-bugs` does not end `code-review`'s workflow — return to it and finish the report. A slice on one of those surfaces whose report carries neither `find-bugs` findings nor its "No significant issues found." line skipped the pass.
 
-`code-review` returns findings and a per-axis verdict; **it does not edit code.** Applying the fixes is yours. Work its findings by axis:
+`code-review` returns findings and a per-axis verdict; **it does not edit code.** Applying the fixes is yours, and the verdict is not the bar for them. The verdict is a merge gate: it asks whether a merge should wait, and Medium and Low Defects, judgment-call Standards findings, and nits don't hold one up. This phase asks a different question — what is worth fixing while the code is uncommitted, still in your context, and as cheap to change as it will ever be. Work every finding:
 
-- **Defects** are blocking. Fix them, or state plainly why a finding is a false positive.
-- **Standards** findings are firm where the repo documents the convention and a judgment call where it doesn't.
-- **Spec** findings mean the code and the acceptance criteria disagree — decide which one is wrong before touching either.
+- **Blocking — fix it.** A Critical or High Defect, a firm Standards breach, a missing or wrong Spec requirement. Fix it, or state plainly why it is a false positive. A Spec finding means the code and the acceptance criteria disagree; decide which one is wrong before touching either, and changing a criterion is the user's call.
+- **Medium and Low Defects — fix them.** Each is a real bug on a narrower path. That no acceptance criterion named its edge case is why the review had to find it, not a reason to leave it. Leave one only when it is a false positive or its fix reaches into code the slice merely sits beside. If the fixes push the diff past the budget, make [LEANNESS.md](LEANNESS.md#when-it-runs-over)'s three-way call; the budget is advisory, and it never outranks a known bug.
+- **Everything else non-blocking — fix it when it is worth fixing, which is the default.** A judgment-call Standards finding (a divergence from a named sibling, a possible smell), a nit, scope creep nobody asked for or declined (deletion, unless the user adds it to the criteria). It is worth fixing when the fix stays inside code this slice wrote or changed and you can name what it buys: a sibling's convention matched, duplication removed, a name a reader would otherwise misread. Leave it only for a reason you can name: the fix reaches into code the slice merely sits beside; it adds a capability no criterion asked for, or pushes the diff past the budget; the sibling divergence is a deliberate improvement — say so, and why; the smell's cure would cost clarity (LEANNESS.md names that overshoot); or the finding is taste with nothing concrete behind it. "Non-blocking" describes the verdict; it is not a reason.
+- **What no edit resolves — put it to the user before Phase 6.** A Long-term impact flag (a second reviewer, or an ADR), a "Missing standard" candidate, a Needs discussion verdict: each is the user's decision, not yours to absorb. Raise it, then carry it into the commit body and Phase 7's key decisions.
+
+A finding left because its fix reaches past the slice is a follow-up: name it in Phase 7 rather than widening the diff, which is the out-of-scope churn the self-review in step 5 below removes.
+
+Fix Defects test-first. A Defect fix changes behavior, so it starts the way Phase 4 does: a failing test that reproduces the finding — `code-review`'s probe, where it wrote one — then the fix. Then measure the diff against the budget again; a pass that fixes everything worth fixing can still grow it.
 
 Then close out **Definition of Done** (AGENTS.md §4), because the fixes were written outside the red-green-refactor loop and are the least-tested lines in the diff:
 
 1. Re-run the full test suite.
 2. Run the project's linter, formatter, and type-checker — RuboCop, Credo, ESLint/Prettier, `tsc`, Dialyzer, whichever apply. A green suite alone is not Done.
 3. **Offer a browser pass** when the slice touches a UI or user-visible behavior, and run it only if the user agrees — a round-trip through a running app is theirs to spend, so name the criteria you'd exercise and ask rather than opening a browser unasked. On a yes, drive it with whatever automation the machine has — a browser-driving CLI (such as `agent-browser`), or a browser over MCP (Chrome, Firefox, Safari) — through the happy path and the edge cases Phase 3 named, and keep a screenshot for Phase 7. On a no, or where the app can't be run here, name the criteria left resting on tests alone rather than letting a green suite imply them.
-4. If a fix changed behavior no test covers, add that test — failing first, per Phase 4.
+4. If a non-Defect fix turned out to change behavior — a Standards cleanup that was not a pure refactor — give it the same treatment: back it out, write the test, watch it fail, reapply.
 5. Self-review the diff for debug output, secrets, and out-of-scope churn.
 
-Summarize what changed: what the review fixed, anything it flagged and you deliberately left (with the reason), and which checks you ran. If you could not run one here, say which and why rather than skipping it silently.
+Summarize what changed: what the review fixed — blocking and non-blocking separately — anything it flagged and you deliberately left (with the named reason), and which checks you ran. If you could not run one here, say which and why rather than skipping it silently.
 
-**Exit:** `code-review`'s full report on screen, with its Verdict and the tree it read; its findings resolved or explicitly deferred; every check green and named; and — for a UI slice — the browser pass run, declined, or ruled out.
+**Exit:** `code-review`'s full report on screen, with its Verdict and the tree it read; every finding — blocking or not — fixed, shown to be a false positive, or left with a named reason; every escalation put to the user; every check green and named; and — for a UI slice — the browser pass run, declined, or ruled out.
 
 ## Phase 6: Commit the slice
 
@@ -129,7 +134,7 @@ Summarize what changed: what the review fixed, anything it flagged and you delib
 
 **Invoke `git-commit`.** Everything in the working tree is *one coherent slice*, so expect a single atomic commit rather than a split — the logic, its schema change, the handler, the UI, and the tests all tell one story. The exception is anything genuinely independent that snuck in: an unrelated cleanup, a drive-by fix from the review. Don't pre-split it yourself; `git-commit` makes that call.
 
-Feed it the slice's "ships when" line so the message explains *why* the slice exists rather than only what changed, and pass along any risk or deliberate trade-off Phase 5 flagged so it lands in the body.
+Feed it the slice's "ships when" line so the message explains *why* the slice exists rather than only what changed, and pass along any risk, deliberate trade-off, or escalation Phase 5 flagged so it lands in the body.
 
 `git-commit` stops at creating commits. It does not push and does not open a PR.
 

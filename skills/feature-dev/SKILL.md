@@ -60,6 +60,8 @@ A small slice does not guarantee a small diff. Slicing controls *what* ships; no
 
 - **A loaded skill is not a finished phase.** The Skill tool hands back instructions; the phase is the work those instructions describe. Phase 5 is the one that slips: `code-review` loads, one `git diff` runs, `find-bugs` loads, and the run moves on without a report from either. The review is done when `code-review`'s Output block — files covered, three axes, Coverage, Verdict — is in the conversation, with any `find-bugs` findings folded into its Defects section. The slice is still uncommitted at this point, so review the working tree; a base-ref diff with nothing committed is empty.
 
+- **A non-blocking verdict is not a finished review.** `code-review`'s verdict is a merge gate: Medium and Low Defects, judgment-call Standards findings, and nits don't hold one up, so they arrive under an Approve or a Needs discussion. Phase 5 asks a different question — what to fix while the slice is uncommitted and cheapest to change — so it fixes every Medium and Low Defect, fixes the other findings worth fixing, and names the reason for each one it leaves. Shipping a known Medium because "it's non-blocking" turns the gate into a ceiling.
+
 - **Never commit before the review's fixes are green.** Phase 5 edits code outside the red-green-refactor loop, so its fixes are the least-tested lines in the diff. Re-run everything after them, and if a fix changed behavior no test covers, add that test — failing first.
 
 - **The budget is a design constraint, not a gate you discover at the end.** Noticing a 900-line diff at the Phase 4 checkpoint means the last two hours went into code you're now deleting. Carry it from Phase 3.
