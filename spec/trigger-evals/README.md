@@ -14,7 +14,7 @@ here depends on skill-creator any more.
 | --- | --- |
 | `draft-spec`, `slice`, `explain` | `disable-model-invocation` was removed, so these can now fire on their own for the first time |
 | `git-commit` + `pull-request` | The highest description overlap in the repo (0.188) |
-| `code-review` + `find-bugs` | Second highest (0.118), and the boundary between them — verdict vs evidence — has never been tested |
+| `code-review` + `find-bugs` | Second highest (0.118), and the boundary between them — verdict vs evidence — has never been tested. The agent-artifact queries carry that boundary onto diffs of skills, rules, subagents, and client policy, and add the one beside it: a merge verdict on such a change is `code-review`'s, a bypass proof is `find-bugs`', reviewing one skill or rule on its own is `agent-skills`' or `agent-rules`', and adding guardrails to an agent is `agent-safety`'s |
 | `tdd`, `fan-out` | A wrong trigger is expensive: one hijacks an implementation turn into red-green-refactor, the other spawns parallel agents |
 | `codebase-design` + `domain-modeling` | Both are design-time skills that fire on "this code is the wrong shape" requests, and `domain-modeling` hands work to `codebase-design` explicitly. The boundary — where the seam goes vs. what the words mean — had never been tested |
 | `grilling` + `review-response` | Both fire on "push back on this technical judgment" requests. `grilling` is also an interview primitive that four siblings route into — `triage`, `find-bugs`, `draft-spec`, and `brainstorming` — which changes what a bad result costs: the expensive failure is a *missed* trigger, where the agent improvises an interview instead of loading this one, and term overlap cannot see that |
@@ -310,6 +310,13 @@ label may be what's wrong:
   for X" firing `tdd` is the expected default — `rspec` wins only when the ask is
   about type or structure, which is why `rspec.json`'s negatives are `tdd`'s
   own test-first phrasings.
+- **code-review**, "review the rules directory before i commit it — a couple of
+  these globs look way too broad" — labeled should-not-trigger, and
+  should-trigger in `agent-rules.json`. `code-review`'s body claims "review this
+  before I commit", so the phrasing pulls toward it. The label rests on what is
+  asked for: a judgment on the globs of one artifact, with no merge verdict.
+  Flip it if you would rather a pre-commit review of rules land on the gate,
+  which applies `agent-rules`' checklist anyway.
 
 ## One hypothesis these sets exist to settle
 

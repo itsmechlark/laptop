@@ -18,5 +18,12 @@
   {"query": "update the spec doc to match what i actually built, it drifted", "should_trigger": false},
   {"query": "this spec fails maybe one run in five and passes locally every time. why", "should_trigger": false},
   {"query": "a contributor opened #88 against our repo and i'm the reviewer — go through it and tell me whether i should approve", "should_trigger": false},
-  {"query": "what changed in this PR? just the highlights, i'll read it properly after", "should_trigger": false}
+  {"query": "what changed in this PR? just the highlights, i'll read it properly after", "should_trigger": false},
+  {"query": "review PR #301 before i merge — it adds two skills and rewires .claude/settings.json", "should_trigger": false},
+  {"query": "is this branch safe to merge? it rewrites the subagent definitions and adds a codex hook", "should_trigger": false},
+  {"query": "review since main. it's mostly rules/ and AGENTS.md changes but i still want a verdict", "should_trigger": false},
+  {"query": "try to prove our PreToolUse hook can be bypassed — assume the model controls the command string", "should_trigger": true},
+  {"query": "review the rules directory before i commit it — a couple of these globs look way too broad", "should_trigger": false},
+  {"query": "does the name field have to match the folder name? validate this skill for me", "should_trigger": false},
+  {"query": "add a tool allowlist and an approval gate before our support agent can send email", "should_trigger": false}
 ]
