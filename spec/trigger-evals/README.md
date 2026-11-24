@@ -23,6 +23,7 @@ here depends on skill-creator any more.
 | `rspec` | Competes with `tdd` on "write specs for this": `tdd` owns the *order* (a failing example first), `rspec` owns the *shape and spec type*, service objects included. Standalone rather than a shared pool — like `tdd`/`fan-out` — because `tdd.json` already carries the RSpec-mechanics negatives that prove the reverse direction |
 | `lore` | A wrong trigger writes a file into a shared repository, which is the expense. Standalone by necessity rather than preference: its two nearest neighbors — `agent-handoff` and `standup` — both carry `disable-model-invocation`, so a shared pool with either would measure a skill the runner can never see fire. The measurable contest is with `pull-request`, `domain-modeling` and `draft-plan`, whose artifacts a note must not duplicate, so those supply the negatives here. The reverse direction is deliberately one-sided for now: no `lore` positive is planted in `domain-modeling.json`, because that set is a shared pool with `codebase-design` and a third member would change what the pair asserts |
 | `cold-read` | A wrong trigger spawns an agent, and the skill sits on two expensive boundaries: `grilling` ("poke holes in this plan") interviews the user where this reads the page, and `code-review` reviews a diff where this reads a document. Standalone for the reason `lore` gives second — `grilling.json` is already a shared pool with `review-response`, and a third member would change what that pair asserts. So the negatives come from the neighbors' own territory — `grilling`, `code-review`, `find-bugs`, `draft-spec`, `draft-plan`, `review-response`, `sharpen-prose`, `explain`, and `brainstorming`'s no-approach-yet case — plus two document chores no skill owns (updating a drifted spec, proofreading a README), and no `cold-read` positive is planted back in their sets. Its positives must say *who* reads — fresh, cold, no context, someone who wasn't there — because a bare "review this spec" is genuinely ambiguous between a cold read and a self-review |
+| `simplify-code` | A wrong trigger edits code where the user asked for a report: "review this" handed to a skill that rewrites is the expensive mistake, and `code-review`'s Standards axis uses the same vocabulary of naming, duplication, and smells. `--collisions` puts the pair at 0.133; read that as a result, like `draft-plan <-> slice`, since much of it is the description's own exclusions naming the review boundary. On Claude it also competes with the built-in `/simplify`, whose lenses it folds in and which loads in every run because the runner uses the default config dir. The runner scores only the skill under test, so a miss cannot tell the built-in winning from nothing firing; read that query's stream in `artifacts/trigger-evals/` to tell. The "duplicated helpers and wasted queries" positive is the one phrased the way a `/simplify` request reads. Only the inline-ternary positive carries its own code; the rest name files the empty eval project lacks, so read a miss on those as weak evidence. Standalone for the reason `cold-read` gives: `code-review.json` is already a shared pool with `find-bugs`. The negatives come from `code-review`, `find-bugs`, `codebase-design`, `explain`, `tdd`, and `review-response`, plus a formatter run and a feature request no skill owns. No positive is planted back in their sets |
 
 The five pairs share a single query pool, labeled independently per skill, so
 a query establishes which of the two should win rather than testing each in
@@ -247,6 +248,15 @@ label may be what's wrong:
   descriptions, where only `agent-rules` claims the decision. Whichever fires,
   the answer is the same, so this is the pair's cheapest failure — read it as a
   tiebreak, not as evidence a description is wrong.
+- **simplify-code**, "the reviewer left a pile of naming and duplication
+  comments on my PR — go through them and deal with each one" — labeled
+  should-not-trigger, and the sharpest negative in the set. It names exactly the
+  findings `simplify-code` applies, but comments a reviewer left on a PR are
+  `review-response`'s: each one is checked against the code before anything is
+  implemented, and some are pushed back on instead of edited. Its counterpart
+  positive, "you just reviewed my branch — go ahead and apply the duplication
+  and naming findings", differs only in whose review it is. If both fire, the
+  description is reading "duplication" rather than the source of the findings.
 - **draft-plan**, "write an implementation plan for the refund feature" —
   labeled should-trigger, and the positive most likely to fail. It carries the
   skill's own words and none of its gate: no spec is named, and nothing says the
