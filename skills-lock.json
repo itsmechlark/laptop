@@ -1,29 +1,33 @@
 {
-  "version": 3,
+  "version": 2,
   "skills": {
     "agent-browser": {
       "source": "vercel-labs/agent-browser",
       "sourceType": "github",
       "skillPath": "skills/agent-browser/SKILL.md",
-      "computedHash": "a674b7d81066e3cc471a7512ddb4ae724418cbfefa75cbb050b0dc430e4d57a0"
+      "computedHash": "a0dfac7503f69bcf529b2660fc79964064c4f179eb65695904ddc45fc0d99d20",
+      "commit": "0a923358ea989d7602f0d06507ad3447c62ffe9b"
     },
     "chrome-devtools": {
       "source": "github/awesome-copilot",
       "sourceType": "github",
       "skillPath": "skills/chrome-devtools/SKILL.md",
-      "computedHash": "85d9c4ef94e00ddfc937d50aab72a307e80b98bc7e6744ec6e239ef68819c2d7"
+      "computedHash": "5487469a94b2003f826cddc0f7c5c021541b194a3a8ca0e010c34845da7641ac",
+      "commit": "f10fdb8b2660ce85c98f220b2f1ca24653768a5c"
     },
     "create-agentsmd": {
       "source": "github/awesome-copilot",
       "sourceType": "github",
       "skillPath": "skills/create-agentsmd/SKILL.md",
-      "computedHash": "bfbdbb76b17cca970d1d624e36ce72b6847860d740581c8865da796c1fef8552"
+      "computedHash": "f10ebeba6ba37b0c8028e73cfb5f4708bc39fd247f3430f3cc4092cab66b2f28",
+      "commit": "f10fdb8b2660ce85c98f220b2f1ca24653768a5c"
     },
     "ember-best-practices": {
       "source": "ember-tooling/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/ember-best-practices/SKILL.md",
-      "computedHash": "add0485fbbb0775d8410f112d7c993b31f337b6302cece8ecaad522f9534307c"
+      "computedHash": "bfaaa4adf09218f108e57fd6294fbc0153d7cc82219a315a91f99b4c2a110b7e",
+      "commit": "f2cfaa959f5b39bb1d21242c2fc366cb7d948b37"
     },
     "find-skills": {
       "source": "vercel-labs/skills",
@@ -32,13 +36,16 @@
       "skillPath": "skills/find-skills/SKILL.md",
       "skillFolderHash": "76a98a285cb0434f3d39e1a873823556330e398b",
       "installedAt": "2026-08-04T04:42:01.408Z",
-      "updatedAt": "2026-08-04T04:42:01.408Z"
+      "updatedAt": "2026-08-04T04:42:01.408Z",
+      "computedHash": "7bc223e2aafbdbf6e50ea243ba6ef67fe432bb069ab439fea0390795dac0bf7f",
+      "commit": "57217cf86ba38148a57af9e90d14a4c049558330"
     },
     "gh-stack": {
       "source": "github/gh-stack",
       "sourceType": "github",
       "skillPath": "skills/gh-stack/SKILL.md",
-      "computedHash": "28d42250d52f33424b807add6fbdec75736e835f98752311db321ab51733fea6"
+      "computedHash": "4ff26e30a0103af77552e5eebbabfbf80734fd23b1485f0c513a0b35a3126613",
+      "commit": "80b6d6e910cc1b7eaa26b961d7721ade21084fed"
     }
   }
 }
