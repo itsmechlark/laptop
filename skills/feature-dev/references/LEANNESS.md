@@ -21,13 +21,14 @@ Take TDD's "minimal code to pass" literally:
 
 ## Measuring before review
 
-When every acceptance criterion is green, measure the production diff against the base the slice was cut from:
+When every acceptance criterion is green, measure the production diff against the base the slice was cut from. The slice is uncommitted until Phase 6, so compare the working tree, not `HEAD`:
 
 ```sh
-git diff --stat "$(git merge-base HEAD <base>)"...HEAD -- ':(exclude)<test-dirs>'
+git diff --stat "$(git merge-base HEAD <base>)" -- ':(exclude)<test-dirs>'
+git ls-files --others --exclude-standard -- ':(exclude)<test-dirs>'
 ```
 
-Substitute the branch the slice came off for `<base>`, and this project's test directories for `<test-dirs>` — `spec/`, `test/`, `__tests__/`, whatever Phase 2 found. The count includes comments and blank lines, so discount those by eye rather than chasing an exact number.
+Substitute the branch the slice came off for `<base>`, and this project's test directories for `<test-dirs>` — `spec/`, `test/`, `__tests__/`, whatever Phase 2 found. A `...HEAD` range would read only commits and come back empty here. The first command covers tracked files, committed or not; the second lists the new files no diff shows, whose lines count too. The count includes comments and blank lines, so discount those by eye rather than chasing an exact number.
 
 ## When it runs over
 
