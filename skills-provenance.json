@@ -717,6 +717,38 @@
           "note": "The Goldfish idea only: a zero-context subagent reads a document the authoring session cannot see past. The three lenses distill three of EGM's rubrics (re-implementation-standard -> comprehension, implementation-readiness-standard -> readiness, zoom-out-standard's reuse search -> reuse), and the fix/contest triage and one-re-read cap come from egm-resolve and egm-review. Deliberately NOT carried: the five-stage pipeline, the synthesizer, per-skill persona files, structured-question gates, and isolation from instruction files (omitClaudeMd) — a cold reader here keeps the global standards and loses only the conversation."
         }
       ]
+    },
+    "simplify-code": {
+      "sources": [
+        {
+          "origin": "getsentry/skills",
+          "type": "github",
+          "url": "https://github.com/getsentry/skills",
+          "path": "skills/code-simplifier/SKILL.md",
+          "relationship": "adapted",
+          "license": "Apache-2.0",
+          "ref": "a582c51ee29d0f35e6ac321340796f77d43da733",
+          "reviewed": "2026-11-24",
+          "note": "INITIAL PIN at upstream HEAD. Kept: the preserve-functionality and maintain-balance principles, scope limited to recently changed code unless the user names a broader target, and the nested-ternary and redundant-wrapper examples (the TS ternary example now shows the call site and drops the type annotations, which were upstream's house style). Replaced: the hardcoded JS/TS house style (function over arrows, explicit return types, avoid try/catch) with discovering the repo's own standards, since those preferences belong to one codebase. Added: target resolution that counts untracked files, a red-baseline stop, characterization tests where coverage is missing, a test run per step, a report-don't-fix rule for bugs found mid-refactor, public-surface protection, the formatter boundary, and references/BEHAVIOR-TRAPS.md. Dropped: the 'overly compact' example that split a readable chain into named intermediates; the body now cites that case as one to leave alone. Reconcile by porting new principles or examples into the matching section, not by reintroducing the house style."
+        },
+        {
+          "origin": "anthropics/claude-plugins-official",
+          "type": "github",
+          "url": "https://github.com/anthropics/claude-plugins-official",
+          "path": "plugins/code-simplifier/agents/code-simplifier.md",
+          "relationship": "adapted",
+          "license": "Apache-2.0",
+          "ref": "5cec6716767283f4675a05f5f8855b5b49c81783",
+          "reviewed": "2026-11-24",
+          "note": "INITIAL PIN at upstream HEAD. The agent getsentry/skills took its text from; folded in when the code-simplifier plugin was dropped from enabledPlugins in favor of this skill. Its principles and process match the getsentry copy line for line, so the same divergences apply. The one sentence getsentry dropped, 'operate autonomously and proactively, refining code immediately after it's written', is deliberately not taken either: refactoring unasked contradicts AGENTS.md §1, the same call feature-dev's record makes. Its 'model: opus' frontmatter is agent tuning with no skill equivalent."
+        },
+        {
+          "origin": "Claude Code built-in /simplify skill",
+          "type": "product",
+          "relationship": "inspired-by",
+          "note": "Folded in so one skill covers the pass on every client: the Reuse, Efficiency, and Altitude lenses, the Conventions lens's rule that a violation counts only when the rule and the breaking line can both be quoted, scoping CLAUDE.md files by directory, and survey-then-apply ordering. Ideas only. Its prompt ships inside the closed-source, unlicensed Claude Code binary; the lens definitions were read from 2.1.323, where the built-in code review shares them, and the SKILL.md lens bullets were written fresh rather than paraphrased line by line. Keep it that way: do not paste the built-in's wording in on a later revision. Not taken: its multi-agent finder/verifier fan-out and JSON finding schema, which belong to a review tool, not a refactor that runs the tests after every step. The built-in itself still ships with Claude Code; this payload cannot uninstall it."
+        }
+      ]
     }
   }
 }

@@ -34,7 +34,7 @@ Substitute the branch the slice came off for `<base>`, and this project's test d
 
 Make an explicit call among three, and tell the user which applies:
 
-- **Accidental complexity** — over-abstraction, dead flexibility, code no criterion demanded. Simplify now; this is the common case, and the fix is deletion.
+- **Accidental complexity** — over-abstraction, dead flexibility, code no criterion demanded. Simplify now; this is the common case, and the fix is deletion. `simplify-code` runs that pass against the green tests.
 - **Essential complexity** — the slice genuinely spans enough layers that the code cannot be smaller without losing behavior. Legitimate, but say *why* in a sentence or two, so the justification survives into the commit message. It still commits as one slice here; whether the *review* is worth splitting into layers is a PR-time question, and `pull-request`'s SPLITTING.md answers it.
 - **The slice was too big** — if the size traces to scope rather than to style, the honest fix is upstream: return to the Phase 1/3 decision, ship the smaller piece, defer the rest. Re-slicing after the tests exist costs more than re-slicing before, and still costs less than reviewing a diff nobody can hold in their head.
 

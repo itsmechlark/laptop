@@ -14,7 +14,7 @@ Review a change along three independent axes:
 
 Keep the axes separate on purpose. A change can pass one and fail another — clean code that builds the wrong thing (Defects/Standards pass, Spec fail); the right feature built against the conventions (Spec pass, Standards fail). Reporting them together lets one mask the other.
 
-**Report, don't repair.** This skill produces findings and a verdict; it does not edit code, and it does not touch the branch. Write the fix as a suggestion even when it's a one-liner — whoever owns the change decides. On someone else's PR that boundary is absolute.
+**Report, don't repair.** This skill produces findings and a verdict; it does not edit code, and it does not touch the branch. Write the fix as a suggestion even when it's a one-liner — whoever owns the change decides. When the owner is the user and they want the readability, duplication, and convention findings applied, that is `simplify-code`, not a reason to start editing here. On someone else's PR that boundary is absolute.
 
 **The verdict is a recommendation, not a review state.** "Approve" here is what you tell the user. Submitting an approval on a PR is a governance action that can be the last thing standing between it and a merge, and it is recorded as *their* judgment. Never submit one on your own initiative: [PR-REVIEW.md](references/PR-REVIEW.md#6-posting-the-review).
 
