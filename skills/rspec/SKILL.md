@@ -8,7 +8,7 @@ argument-hint: "[the class, service, or behavior to spec]"
 
 Decide which RSpec spec type a behavior belongs in, and how to structure it — with the weight on service and command objects, which the model-versus-request split leaves out.
 
-Two neighbors own the parts this skill defers to. The always-on style — group and example naming, `expect` syntax, `let` versus instance variables, Factory Bot, spec file paths — is settled by `rules/rspec.md`, which auto-loads on every spec file. The order a spec is written in — a failing example before the code that satisfies it — belongs to `tdd`. This skill decides the *shape and level*; it overrides neither.
+Two neighbors own the parts this skill defers to. The always-on style — how `describe`, `context`, `subject`, `let`, `before`, `after`, and `it` are written and ordered, plus `expect` syntax, Factory Bot, and spec file paths — is `rules/rspec.md`, which auto-loads on every spec file. The order a spec is written in — a failing example before the code that satisfies it — belongs to `tdd`. This skill decides the *shape and level*; it overrides neither.
 
 ## When to use this skill
 
@@ -62,8 +62,10 @@ The gap the model/request/system split leaves. A service object — a `Create…
 
 - **Organize by scenario.** A `context` per branch or precondition, and one behavior per example, so each spec type above reads as the set of cases it owns.
 - **Arrange around the public interface:** set up only the world the scenario needs, act through the entry point, assert the outcome.
+- **Vary the scenario by overriding a `let`.** The outer group holds the happy-path world; each `context` changes the one fact that makes it a different case, and every context has its opposite.
+- **Start a service spec from [`templates/service-spec.rb`](templates/service-spec.rb).** It is the layout `rules/rspec.md` requires, filled in with placeholder names and plain RSpec only — no Rails helpers, factories, or time control, so swap in the project's own: a named leading `subject`, then `let`s, then a bare `before`; a `describe '#call'` that renames the subject for the action; a `when` context and its opposite; and one-line `it { is_expected… }` beside single-expectation examples. Rename the class, collaborators, and expectations; keep the shape.
 
-`describe`/`context` wording, example naming, and where shared setup lives are `rules/rspec.md`'s to settle — it auto-loads on every spec file, so this section stays on shape and leaves the phrasing to the cops.
+The wording and ordering rules behind that shape live in `rules/rspec.md`, not here — it auto-loads on every spec file. When a spec you're writing departs from the template, check it against that rule, then run `rubocop` on the file.
 
 ## Gotchas
 

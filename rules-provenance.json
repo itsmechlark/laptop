@@ -228,6 +228,16 @@
         }
       ]
     },
+    "rspec": {
+      "sources": [
+        {
+          "origin": "RSpec Style Guide",
+          "type": "web",
+          "url": "https://rspec.rubystyle.guide",
+          "relationship": "spec"
+        }
+      ]
+    },
     "ruby": {
       "sources": [
         {
