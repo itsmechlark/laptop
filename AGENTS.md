@@ -516,6 +516,10 @@ draw on several). Every source carries a `relationship`:
 - `spec` — conforms to an external spec; watch the spec URL/version.
 - `inspired-by` — ideas/terminology only, no `ref`; attribution, not synced.
 
+Every source also carries a `type` — what kind of thing it is, which decides
+its `## Attribution` form. The `types` map at the top of each provenance file
+defines them; add one there, in both files, before using it.
+
 Keep the human-readable `## Attribution` section in each derived `SKILL.md` and
 `rules/<name>.md` as the reader-facing attribution — the same flat-list format
 in both, defined by the `agent-skills` skill, with the provenance record as its

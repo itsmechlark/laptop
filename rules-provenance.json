@@ -6,6 +6,15 @@
     "spec": "Conforms to an external normative specification rather than forking code. Watch the spec `url`/version; reconcile when the spec revises.",
     "inspired-by": "Ideas, structure, or terminology only — no code lineage. Attribution only; the drift checker skips these (no `ref`)."
   },
+  "types": {
+    "github": "A repository. Carries `url`, plus `path`, `license`, and `ref` when adapted. Attribution bullet links the repository and names `origin`, which check-payload verifies.",
+    "spec": "Normative documentation the subject conforms to: a specification or a tool's official docs. Pairs with the `spec` relationship. Attribution bullet links the title.",
+    "web": "A site or guide that is neither a spec nor an authored essay. Attribution bullet links the title.",
+    "article": "An authored essay or blog post. Attribution bullet links the title, or cites it plainly when there is no `url`.",
+    "book": "Published book, usually no `url`. Attribution bullet is a plain citation.",
+    "paper": "Academic or conference paper, usually no `url`. Attribution bullet is a plain citation.",
+    "product": "A closed-source tool or feature whose behavior or bundled prompt was studied. No `url` or `ref`, and only ever `inspired-by`: with no license there is nothing to adapt. Attribution bullet is a plain citation."
+  },
   "rules": {
     "bundler": {
       "sources": [
