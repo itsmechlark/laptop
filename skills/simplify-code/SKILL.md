@@ -10,6 +10,8 @@ Make code easier to read and cheaper to run and change, while it keeps doing exa
 
 Target: `$1` — empty means uncommitted work.
 
+Code is easiest to simplify from outside the context that wrote it. When you just wrote the target yourself, dispatch the `simplifier` subagent where the client has it, and wait for it before touching the tree again; otherwise follow this skill in place.
+
 ## When to use this skill
 
 - After a change is green, as the refactor step — "clean up what I just wrote", "tidy this before I commit"

@@ -288,10 +288,11 @@ dir: [ADR 0023].
 Subagents (`agents/`)
 ---------------------
 
-Seven role subagents wrap the skills for work that is better done in a fresh
+Eight role subagents wrap the skills for work that is better done in a fresh
 context: `reviewer` and `bug-hunter` read a diff they did not write,
 `cold-reader` reads a document it did not draft, `implementer` builds one
-planned task test-first in a worktree, `spec-writer` writes up an agreed design,
+planned task test-first in a worktree, `simplifier` cleans up code it did not
+write without changing behavior, `spec-writer` writes up an agreed design,
 `explainer` maps unfamiliar code, and `review-responder` drafts replies to PR
 feedback without posting them. Anything that asks you a question or needs your
 approval stays in the main conversation.
@@ -300,7 +301,9 @@ approval stays in the main conversation.
 client: Markdown for Cursor (`scripts/gen-cursor-agents`, linked to
 `~/.cursor/agents`) and TOML for Codex (`scripts/gen-codex-agents`, linked to
 `~/.codex/agents`). Read-only is enforced differently in each client; the
-details, and why there is no orchestrator agent, are in [ADR 0024].
+details, and why there is no orchestrator agent, are in [ADR 0024]. Why
+`simplifier` edits your working tree in place rather than a worktree is in
+[ADR 0026].
 
 On Claude Code, `explainer`, `cold-reader`, `review-responder`, and
 `spec-writer` run on Sonnet rather than your session's model. Cursor keeps your
@@ -309,6 +312,7 @@ session's model for all of them, and Codex only takes the lower effort level
 
 [ADR 0024]: docs/adr/0024-subagents-wrap-skills-for-fresh-context-work.md
 [ADR 0025]: docs/adr/0025-per-agent-models-are-claude-only.md
+[ADR 0026]: docs/adr/0026-simplifier-edits-the-callers-tree.md
 
 Sandbox troubleshooting (`~/.agents/references/SANDBOX.md`)
 ----------------------------------------------------------
