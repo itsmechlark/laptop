@@ -61,7 +61,7 @@ sub-agent that only ran `git diff`, read them from `~/.agents/rules/` directly.
 | The artifact can't load, or loads where it shouldn't: name/directory mismatch, another host's scoping key, frontmatter that doesn't start at line 1 or doesn't parse, a glob that matches nothing, a dropped `paths:` that made a rule always-on | Defects | 🟠 High — the change silently does nothing, or taxes every session |
 | Policy widened: a deny or ask entry removed, an allow broadened, a hook that fails open, a writable path that reaches the agent's own policy, a read-only role granted write tools | Defects | 🔴 Critical when it exposes secrets or lets a destructive command run unprompted; 🟠 High otherwise |
 | One agent now holds private data, untrusted input, and an outbound channel together — `agent-safety`'s lethal trifecta | Defects | 🔴 Critical where the untrusted input is reachable by an outsider; 🟠 High otherwise |
-| Content now sits past a client's silent truncation budget | Defects | 🟠 High — the tail is dropped without a word |
+| Content now sits past a client's truncation budget | Standards | judgment (agents-md) — raised as a question, never blocking: name the chain, the overrun, and the sections the client drops; whether it is acceptable is the developer's call |
 | A link, handoff, or reference that doesn't resolve; a handoff that says to invoke a skill only the user can invoke | Defects | 🟡 Medium |
 | Two files loaded together now contradict each other | Defects | 🟡 Medium |
 | A requirement of the spec or host: the agentskills.io field limits, a host's documented frontmatter shape | Standards | firm (global) |
@@ -79,9 +79,10 @@ prose, the probe is a command, and it is cheap:
   or `skills-ref validate` where it is installed.
 - **Frontmatter** — the first line is `---`, and the block closes and parses.
 - **Codex config** — the validator bundled with `codex-config`.
-- **An instruction file's budget** — `wc -c` summed across every file one
-  client concatenates, the global file included, against the smallest cap in
-  `agent-instructions.md`.
+- **An instruction file's budget** — the measurement script in `agents-md`'s
+  CHECKS.md: every `AGENTS.md` from the repository root to the changed file's
+  directory, summed in bytes against Codex's configured cap. The global file
+  does not count.
 - **The repo's own payload checker** — where CI lints skills or rules, read its
   result first; its findings are CI's, not yours.
 
