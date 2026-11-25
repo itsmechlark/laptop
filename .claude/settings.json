@@ -469,7 +469,7 @@
       "source": {
         "source": "github",
         "repo": "itsmechlark/agent-router",
-        "ref": "feat/per-role-agent-aliases"
+        "ref": "main"
       }
     },
     "cypress": {
