@@ -606,6 +606,34 @@
         { "origin": "Alan Klement, Replacing the User Story with the Job Story", "type": "article", "relationship": "inspired-by" }
       ]
     },
+    "agents-md": {
+      "sources": [
+        {
+          "origin": "getsentry/skills",
+          "type": "github",
+          "url": "https://github.com/getsentry/skills",
+          "path": "skills/agents-md",
+          "relationship": "adapted",
+          "license": "Apache-2.0",
+          "ref": "a582c51ee29d0f35e6ac321340796f77d43da733",
+          "reviewed": "2026-11-25",
+          "note": "Adapted from SKILL.md and SPEC.md. Kept: the short-index goal, inspect-before-writing, file-scoped commands in tables, an external-references table, the anti-pattern list, and the CLAUDE.md symlink. Diverged: dropped the Commit Attribution section (AI co-authorship contradicts the global standard); replaced the line-only budget with each client's size cap, flagged to the developer rather than enforced, deferring to the agent-instructions rules; moved the verification scripts to references/CHECKS.md and made them read-only (no build tool invoked); added the keep test, fixed section order, the relocation map, per-shape section sets, and nested-file rules drawn from auditing an over-budget monorepo."
+        },
+        {
+          "origin": "AGENTS.md",
+          "type": "spec",
+          "url": "https://agents.md/",
+          "relationship": "spec"
+        },
+        {
+          "origin": "github/awesome-copilot",
+          "type": "github",
+          "url": "https://github.com/github/awesome-copilot",
+          "relationship": "inspired-by",
+          "note": "create-agentsmd (skills/create-agentsmd), vendored here: the section inventory and the monorepo guidance."
+        }
+      ]
+    },
     "brainstorming": {
       "sources": [
         {
