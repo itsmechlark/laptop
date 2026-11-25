@@ -100,9 +100,10 @@ Rewriting a commit that already exists can destroy work and breaks every clone t
 - **Scope** (optional), in parentheses, names the affected area — component, package, module, or feature/domain (e.g. `feat(auth): …`). Match the repo's existing scope convention; omit it if the project doesn't use one. Where release tooling defines components (a release config, a workspace manifest), take the scope from those names rather than inventing a parallel vocabulary. When several are touched, use the one that clearly owns the change; when none does, drop the scope rather than reaching for a vague catch-all.
 - **Breaking changes:** add `!` before the colon (`feat(api)!: …`) and/or a `BREAKING CHANGE:` footer (uppercased) → SemVer MAJOR.
 - **Pre-1.0 components release one step lower than the intent implies.** Under release-please's `bump-minor-pre-major` / `bump-patch-for-minor-pre-major`, a component still below `1.0.0` downshifts MAJOR intent to a MINOR release and MINOR intent to a PATCH release. Write the type for the intent you actually mean — the tooling handles the downshift, so don't soften `feat` to `fix` to control the number.
+- **A dependency change that closes a vulnerability is `fix`, not `chore`.** Release tooling that reads types ignores `chore`, so a patched dependency committed that way ships with no version and no changelog line. Severity doesn't pick the type: a low-severity advisory with a patched release is still `fix`. Accepting an advisory that has no patched release fixes nothing, so that stays `chore`. Keep the fix in its own commit; folded into a routine bump it is invisible to the release.
 - **Footers** follow git-trailer convention, one blank line after the body (e.g. `Refs: #123`, `Reviewed-by: …`).
 - **Issue reference (only if the project uses one):** reference a tracked issue the way the repo already does — a trailer (`Refs: #123`) or a plain URL on its own line — and only when it's obvious which one applies (the branch clearly maps to it, or the user named it). Don't fabricate or guess a number; ask if the convention needs a key you don't have.
-- **Skip CI on docs-only commits:** when a commit changes nothing CI validates (no code, config, or tests) and the CI honors it, add `[skip ci]` (or `[ci skip]`) on its own line in the body. Never on a commit that touches code, config, or tests. Four cases are worth naming because the type invites the mistake: a pipeline or workflow definition (the run *is* how it gets validated), any test change and especially a `fix` repairing a failing test, build config or generated contracts, and migrations. A non-feature type is not an exemption — `ci`, `test`, `chore`, and `fix` commits usually need the run. When in doubt leave CI enabled: a wasted run is cheaper than an unvalidated change.
+- **Skip CI on docs-only commits:** when a commit changes nothing CI validates (no code, config, or tests) and the CI honors it, add `[skip ci]` (or `[ci skip]`) on its own line in the body. Never on a commit that touches code, config, or tests. Five cases are worth naming because the type invites the mistake: a pipeline or workflow definition (the run *is* how it gets validated), any test change and especially a `fix` repairing a failing test, build config or generated contracts, migrations, and any dependency or lockfile change (it alters what CI installs and audits). A non-feature type is not an exemption — `ci`, `test`, `chore`, and `fix` commits usually need the run. When in doubt leave CI enabled: a wasted run is cheaper than an unvalidated change.
 
 ### Subject line
 
@@ -120,6 +121,7 @@ Include a body whenever there's a *why* worth recording — which is most of the
 - **Be concise.** A few tight sentences beat a wall of text; cut anything that just restates the code.
 - **Call out anything surprising, or alternatives you rejected** and why — that saves a future reader from re-treading it.
 - **Flag risks and dependencies:** a migration that needs care, a change that depends on another PR shipping first, a config value that must be set in production.
+- **A vulnerability fix names the advisory and what it leaves open.** Subject says what moved and to which version; the body carries the advisory, how it reaches the project, and what remains — [VULNERABILITY-FIXES.md](references/VULNERABILITY-FIXES.md).
 - **Write for a non-technical reader.** Prefer plain language over jargon; someone skimming the history to see what shipped and why should follow it without reading the code.
 
 ## Voice and tone
@@ -191,6 +193,7 @@ docs: fix typo in installation instructions
 
 - [BRANCH-NAMING.md](references/BRANCH-NAMING.md) — the branch-name convention: segment rules, the regex, and renaming an off-convention branch. Read it when naming a branch or when step 1 finds one that looks wrong.
 - [REWRITING.md](references/REWRITING.md) — rewriting commits that already exist: the pushed/unpushed safe-set check, the undo point, the non-interactive equivalent of every `rebase -i` operation, and the rebase failure modes. Read it when the ask is about an existing commit; the workflow above covers everything else.
+- [VULNERABILITY-FIXES.md](references/VULNERABILITY-FIXES.md) — the message body for a dependency change that closes a security advisory: advisory ID and severity, how it reaches the project, what changed, what stays open, and how reachability was checked. Read it when writing that commit.
 
 ## Attribution
 

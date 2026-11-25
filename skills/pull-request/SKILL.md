@@ -53,7 +53,7 @@ Overlap with an **unmerged** sibling is a merge conflict in waiting, even when n
 
 ### 2. Write the title
 
-Conventional Commits, same as a commit subject: `<type>[optional scope]: <description>`. The `git-commit` skill has the full convention — types, scope, breaking-change marker, and voice — and the PR title mirrors the commit subject.
+Conventional Commits, same as a commit subject: `<type>[optional scope]: <description>`. The `git-commit` skill has the full convention — types, scope, breaking-change marker, and voice — and the PR title mirrors the commit subject. An automated PR's title is not exempt: squash-merge makes the PR title the commit subject, so a bot-authored title that carries the wrong type (a chore type on a vulnerability fix, for instance) is retitled before merge.
 
 When the project tracks work in an issue tracker, append the key in square brackets — `<type>[optional scope]: <description> [ISSUE-KEY]` (e.g. `fix(onboarding): validate overlap instead of auto-setting end date [ABC-1234]`). Aim for ≤50 and never exceed the 72-character cap, measuring the `<type>[optional scope]: <description>` portion (a trailing `[ISSUE-KEY]` is exempt) so a PR and its lead commit correlate at a glance.
 
@@ -151,7 +151,7 @@ A change earns a bullet only when the diff alone would leave a reviewer guessing
 - **A contract** — API shape, serializer payload, DB schema, public interface, flag, or config that a consumer depends on.
 - **A non-obvious decision** — why this approach and not the one a reviewer would expect. Name the alternative you rejected.
 
-Everything else is carried by the diff and stays out: file-by-file narration, renames and mechanical refactors, test and fixture edits (those belong in Testing), formatting, generated files, dependency bumps made in service of the above, and process notes ("added a changeset", "addressed review feedback").
+Everything else is carried by the diff and stays out: file-by-file narration, renames and mechanical refactors, test and fixture edits (those belong in Testing), formatting, generated files, dependency bumps made in service of the above, and process notes ("added a changeset", "addressed review feedback"). The exception is a PR whose purpose is a dependency or security fix: there the bump is the change, so the Summary carries the advisory (ID, severity, how it reaches the project) and what the fix leaves open, following the vulnerability-fix body in the `git-commit` skill's [VULNERABILITY-FIXES.md](../git-commit/references/VULNERABILITY-FIXES.md).
 
 **Budget: 2–4 bullets, 7 at the absolute most.** When there are more candidates than budget, rank by blast radius — observable behavior, then contracts, then decisions — and cut from the bottom. Cut bullets don't move somewhere else; the diff already has them. If a PR can't fit under 7 bullets without hiding something a reviewer needs, that's the PR being too big rather than the budget being wrong — say so, and offer to split it.
 
@@ -202,7 +202,7 @@ Running the suite, lint, and type-checks before opening is still required (AGENT
 
 ### Risks & rollout
 
-Failure modes, the flag gating the change and its default, migration and rollback steps. State cross-PR dependencies plainly here too — a PR that must land after another, whether because it builds on that PR's behavior or because the two edit the same files and would otherwise conflict, or one that needs a config value set in production before it's enabled.
+Failure modes, the flag gating the change and its default, migration and rollback steps. State cross-PR dependencies plainly here too — a PR that must land after another, whether because it builds on that PR's behavior or because the two edit the same files and would otherwise conflict, or one that needs a config value set in production before it's enabled. For a vulnerability fix, name every advisory left open and say whether the audit gate still fails after the change.
 
 ## Voice and tone
 
