@@ -468,7 +468,8 @@
     "agent-router-tools": {
       "source": {
         "source": "github",
-        "repo": "alexandernicholson/agent-router"
+        "repo": "itsmechlark/agent-router",
+        "ref": "feat/per-role-agent-aliases"
       }
     },
     "cypress": {
