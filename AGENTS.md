@@ -636,7 +636,7 @@ formats belong to the `domain-modeling` skill.
   `CONTEXT.md`, and `docs/`. Scopes in use
   here: `mac`, `skills`, `agents`, `claude`, `codex`, `cursor`, `srt`, `ci` — e.g.
   `fix(mac): set up asdf via PATH instead of asdf.sh`, `feat(skills): add
-  create-agentsmd skill`.
+  agents-md skill`.
 - `check-payload` and `spec/` are verification code, so they take a code type
   under the `ci` scope — `feat(ci): check attribution against provenance`. A new
   fixture is a new assertion; describe what it now catches, not that a file was

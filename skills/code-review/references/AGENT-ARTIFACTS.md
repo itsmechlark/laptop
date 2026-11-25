@@ -33,19 +33,17 @@ no Skill tool — a sub-agent usually doesn't. Where this payload is installed,
 that is `~/.agents/skills/<name>/SKILL.md`. Read the checklist sections named
 below, not the authoring guidance around them.
 
-**Never load `create-agentsmd` with the Skill tool.** It is a generation prompt,
-not a checklist: it opens by tasking the agent with writing an `AGENTS.md`, and
-tells it to make sure every listed command works. Loaded mid-review, it argues
-for editing the file under review and running its setup commands, which can
-mutate the machine. Read its two named sections from the `SKILL.md` instead, and
-check that each command *resolves* — the script, task, or target exists —
-without running it.
+**From `agents-md`, apply the checks and stop before the workflow's rewrite.**
+Its workflow ends in rewriting the file, which a review must not do. Take its
+keep test, its section rules, and the checks in its CHECKS.md, which confirm
+each command *resolves* (the script, task, or target exists) by reading the
+definition, never by running the tool.
 
 | Kind | Typical paths | Specialist | Apply |
 | --- | --- | --- | --- |
 | Skill | `**/SKILL.md` and its `references/`, `scripts/`, `templates/`, `assets/` | `agent-skills` skill | Its Validation section, shell checks included |
 | Path-scoped rule | `.claude/rules/`, `.cursor/rules/*.mdc`, `.clinerules/`, `.github/instructions/`, `.windsurf/rules/`, `.devin/rules/`, `.amazonq/rules/`, a repo's `rules/` | `agent-rules` skill | Its Validation section; its FORMATS.md for the host's scoping key |
-| Instruction file | `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md` | `create-agentsmd` skill for content, read rather than loaded (below); the global `agent-instructions.md` and `agent-instructions-layout.md` rules for size and layout | Its Essential Sections and Best Practices — a setup or test command that doesn't resolve, a section the change left stale; the rules' size budget, symlink-not-copy, what belongs at which level |
+| Instruction file | `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md` | `agents-md` skill for content (above); the global `agent-instructions.md` and `agent-instructions-layout.md` rules for size and layout | Its keep test, Sections, and Verify step — a command or path that doesn't resolve, a section the change left stale, a passage that restates a file already loaded; the rules' size budget, symlink-not-copy, what belongs at which level |
 | Subagent | `.claude/agents/`, `.cursor/agents/`, `.codex/agents/*.toml`, a repo's `agents/` | `agent-safety` skill for the grant; `agent-skills` for the description | [Subagents](#subagents) |
 | Client policy | `.claude/settings*.json`, `.codex/config.toml` and its template, `.codex/rules/*.rules`, `.cursor/cli-config.json`, `.cursor/hooks.json`, `.mcp.json`, hook scripts | `agent-safety` skill; `codex-config` skill for Codex | [Client policy](#client-policy) |
 | Tool-calling agent code | Tool functions, policy files, orchestration and handoff code in an agent framework | `agent-safety` skill | Its Review checklist; its THREATS.md for the risk a gap leaves open |

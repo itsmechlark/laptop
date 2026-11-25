@@ -94,7 +94,7 @@ Before authoring one, check whether the capability already exists —
 `find-skills` searches the installed set. And check that a skill is even the
 right artifact: a repository-level `AGENTS.md` instructs every agent working in
 one repo rather than packaging a single capability, which makes it a different
-thing entirely — `create-agentsmd` writes those.
+thing entirely — `agents-md` writes those.
 
 ## Frontmatter
 

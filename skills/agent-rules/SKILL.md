@@ -47,7 +47,7 @@ The test is one question: **name the thing that should pull it in.**
 - You can name the request a user would type → skill. `agent-skills` writes
   those.
 - Neither, because it is true of the whole repository → instruction file.
-  `create-agentsmd` writes those.
+  `agents-md` writes those.
 
 If a rule's glob would have to be `**/*` to cover the cases you have in mind,
 it was never a rule — move it to the instruction file, where it will at least

@@ -15,13 +15,6 @@
       "computedHash": "5487469a94b2003f826cddc0f7c5c021541b194a3a8ca0e010c34845da7641ac",
       "commit": "f10fdb8b2660ce85c98f220b2f1ca24653768a5c"
     },
-    "create-agentsmd": {
-      "source": "github/awesome-copilot",
-      "sourceType": "github",
-      "skillPath": "skills/create-agentsmd/SKILL.md",
-      "computedHash": "f10ebeba6ba37b0c8028e73cfb5f4708bc39fd247f3430f3cc4092cab66b2f28",
-      "commit": "f10fdb8b2660ce85c98f220b2f1ca24653768a5c"
-    },
     "ember-best-practices": {
       "source": "ember-tooling/agent-skills",
       "sourceType": "github",

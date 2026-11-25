@@ -630,7 +630,7 @@
           "type": "github",
           "url": "https://github.com/github/awesome-copilot",
           "relationship": "inspired-by",
-          "note": "create-agentsmd (skills/create-agentsmd), vendored here: the section inventory and the monorepo guidance."
+          "note": "create-agentsmd (skills/create-agentsmd), vendored here until agents-md replaced it: the section inventory and the monorepo guidance."
         }
       ]
     },
