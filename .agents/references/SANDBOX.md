@@ -121,9 +121,12 @@ run the `git worktree add` themselves and enter the existing path. If the
 mechanism bases new branches on a remote-tracking ref, fetch first — the local
 ref is only as fresh as the last fetch.
 
-`git worktree move`, `remove`, and `prune` fail the same way. Try a bare `git
-worktree remove <abs-path>` from the main checkout, and if it fails, either
-remove the worktree through the mechanism that made it or hand the user the
+`git worktree move` fails the same way. `remove` and `prune` are hook-assisted
+in Claude Code: a `PreToolUse` hook intercepts bare `git worktree remove
+<abs-path>` and `git worktree prune`, runs them from the hook context (outside
+the sandbox where `.git/worktrees` is writable), and returns the result as a
+deny reason. The command must be bare (no pipe, no `-C`, no prefix) and `remove`
+requires an absolute path. `git worktree move` has no hook; hand the user the
 command. Deleting the branch afterwards (`git branch -d`) writes only a shared
 ref and works sandboxed.
 
@@ -256,7 +259,7 @@ agent follows whichever row matches how it runs shell commands.
 | Mach lookup allowlist | `sandbox.network.allowMachLookup` (holds `com.apple.trustd*`) | none; config is `network_proxy` plus `domains`/`unix_sockets` | n/a |
 | `.git/worktrees` writes (other session's worktrees) | read-only; escape via `excludedCommands` | untested; approval escalation is the escape route if affected | allowed |
 | Creating a worktree | `git worktree add` stays sandboxed despite `excludedCommands`; use `EnterWorktree` with `name` — the `WorktreeCreate` hook in `.claude/settings.json` places it at `$HOME/Codespace/<repo>.worktrees/<name>`, cutting new branches from `origin/HEAD` without fetching. A second `name` is refused until `ExitWorktree` leaves the first | untested; approval escalation is the escape route if affected | `git worktree add` (unsandboxed) |
-| Removing a worktree | `ExitWorktree` with `remove` applies only to the worktree this session entered by `name` and hasn't exited; untested for a hook-made one, since no `WorktreeRemove` hook is configured. Otherwise the user runs `git worktree remove` | untested | `git worktree remove` (unsandboxed) |
+| Removing a worktree | Hook-assisted: `PreToolUse` intercepts bare `git worktree remove <abs-path>` and `git worktree prune`, runs them outside the sandbox, and returns the result as a deny reason. `remove` requires an absolute path; `move` has no hook. `ExitWorktree` with `remove` is the alternative for the worktree the session is still in | untested; approval escalation is the escape route if affected | `git worktree remove` (unsandboxed) |
 | `.idea/` writes in the workspace | denied (built-in protected path) | untested; the profile grants workspace writes | allowed |
 | `pnpm` shell lookup | unaffected | needs `NPM_CONFIG_SCRIPT_SHELL=/bin/sh`, set in `.codex/config.toml.template` | unaffected |
 | Lifting the sandbox | `dangerouslyDisableSandbox` is disabled here | the escalation prompt is the route | n/a |

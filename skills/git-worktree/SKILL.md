@@ -156,7 +156,7 @@ git branch -d <branch>         # once merged; -D only when the user says to drop
 ```
 Removal deletes the symlinks and leaves their targets in the main checkout untouched. A *copied* `.env` goes with the worktree.
 
-**Under a sandbox that keeps `.git/worktrees` read-only, `remove` and `prune` can fail just as `add` does.** Try them bare first. On `Operation not permitted`, hand the user the commands with the absolute path (`! git worktree remove <abs-path>`). In Claude Code, `ExitWorktree` with `action: "remove"` is the other route, but only for the worktree this session is still in. That route is untested for a hook-made worktree, and it keeps the branch either way. `git branch -d` works sandboxed. Never `rm` the directory to force it — that leaves a stale `.git/worktrees` entry and can take uncommitted work with it.
+In Claude Code, `remove` and `prune` are hook-assisted: a `PreToolUse` hook intercepts the bare command, runs it outside the sandbox where `.git/worktrees` is writable, and returns the result. The command must be bare (no pipe, no `-C`, no prefix) and `remove` requires an absolute path. A non-bare form or a relative path bypasses the hook and fails on `.git/worktrees`; hand the user the command with `! git worktree remove <abs-path>`. `git worktree move` has no hook; hand the user that command too. `git branch -d` works sandboxed. Never `rm` the directory to force it — that leaves a stale `.git/worktrees` entry and can take uncommitted work with it.
 
 ## Project setup
 
