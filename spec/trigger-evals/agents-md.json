@@ -1,0 +1,22 @@
+[
+  {"query": "this repo has no AGENTS.md yet. write one from the package.json and the CI workflow", "should_trigger": true},
+  {"query": "our root AGENTS.md is 190 lines and every workspace one repeats the definition of done. trim them down", "should_trigger": true},
+  {"query": "codex seems to ignore the bottom of apps/app/AGENTS.md. is it too big?", "should_trigger": true},
+  {"query": "standardize the AGENTS.md files across the monorepo so they all have the same sections", "should_trigger": true},
+  {"query": "the commands in CLAUDE.md are stale, half those scripts got renamed. update it", "should_trigger": true},
+  {"query": "set up CLAUDE.md for this project so claude code and codex read the same instructions", "should_trigger": true},
+  {"query": "there's a three-paragraph explanation of how sign-in attestation works in our agents file. does that belong there?", "should_trigger": true},
+  {"query": "do the leaf packages like packages/utils even need their own AGENTS.md?", "should_trigger": true},
+  {"query": "audit the agent instruction files in this repo and tell me what's bloat", "should_trigger": true},
+  {"query": "add the new pnpm test-affected command to the agents md", "should_trigger": true},
+  {"query": "split the ruby and migration conventions out of CLAUDE.md into path-scoped rules with the right globs", "should_trigger": false},
+  {"query": "my cursor rule for the api folder never fires. the globs line looks right to me", "should_trigger": false},
+  {"query": "write a SKILL.md for our staging deploy runbook", "should_trigger": false},
+  {"query": "update the README so new contributors know how to run the app locally", "should_trigger": false},
+  {"query": "add 'introduction' to CONTEXT.md, we keep using it three different ways", "should_trigger": false},
+  {"query": "record an ADR for why we moved jobs onto cloudflare queues", "should_trigger": false},
+  {"query": "write up what we learned debugging the expo native module crash before we lose it", "should_trigger": false},
+  {"query": "codex keeps prompting before every git status. fix the config so read-only git is allowed", "should_trigger": false},
+  {"query": "prisma/schema.md has drifted from the schema and its sections are numbered in commit order. clean it up", "should_trigger": false},
+  {"query": "add a CONTRIBUTING.md with our branch naming and review process", "should_trigger": false}
+]
