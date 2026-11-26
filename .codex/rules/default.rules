@@ -549,3 +549,43 @@ prefix_rule(
     justification = "pnpm dlx fetches the newest package from the registry; each use requires approval.",
     match = ["pnpm dlx eas-cli build"],
 )
+
+# -----------------------------------------------------------------------------
+# Forbidden: EAS publishing and store credentials
+# -----------------------------------------------------------------------------
+
+# Submitting to the stores, publishing or re-pointing an over-the-air update,
+# pushing store metadata, deploying EAS Hosting, and writing store credentials
+# or EAS environment variables reach users or secrets. CD owns them. Codex
+# matches whole tokens, so colon subcommands (update:rollback) need their own
+# entry, and a version-pinned runner (npx eas-cli@latest) or a flag anywhere in
+# argv (build --auto-submit, --include-sensitive) is denied by the PreToolUse
+# guard in config.toml.template instead.
+prefix_rule(
+    pattern = ["eas", ["submit", "update", "update:republish", "update:rollback", "update:roll-back-to-embedded", "update:revert-update-rollout", "update:edit", "update:delete", "deploy", "credentials", "channel:edit", "channel:rollout", "metadata:push", "env:create", "env:update", "env:delete", "env:push", "secret:create", "secret:delete", "secret:push"]],
+    decision = "forbidden",
+    justification = "EAS publishing, store credentials, and EAS environment writes are reserved for CD.",
+    match = ["eas submit --platform ios", "eas update --branch main", "eas update:rollback", "eas channel:edit production", "eas env:create"],
+    not_match = ["eas build --profile preview", "eas update:list", "eas env:list"],
+)
+
+prefix_rule(
+    pattern = ["npx", "eas-cli", ["submit", "update", "update:republish", "update:rollback", "update:roll-back-to-embedded", "update:revert-update-rollout", "update:edit", "update:delete", "deploy", "credentials", "channel:edit", "channel:rollout", "metadata:push", "env:create", "env:update", "env:delete", "env:push", "secret:create", "secret:delete", "secret:push"]],
+    decision = "forbidden",
+    justification = "EAS publishing and store credentials are reserved for CD.",
+    match = ["npx eas-cli submit"],
+)
+
+prefix_rule(
+    pattern = ["npx", "-y", "eas-cli", ["submit", "update", "update:republish", "update:rollback", "update:roll-back-to-embedded", "update:revert-update-rollout", "update:edit", "update:delete", "deploy", "credentials", "channel:edit", "channel:rollout", "metadata:push", "env:create", "env:update", "env:delete", "env:push", "secret:create", "secret:delete", "secret:push"]],
+    decision = "forbidden",
+    justification = "EAS publishing and store credentials are reserved for CD.",
+    match = ["npx -y eas-cli update"],
+)
+
+prefix_rule(
+    pattern = ["pnpm", "dlx", "eas-cli", ["submit", "update", "update:republish", "update:rollback", "update:roll-back-to-embedded", "update:revert-update-rollout", "update:edit", "update:delete", "deploy", "credentials", "channel:edit", "channel:rollout", "metadata:push", "env:create", "env:update", "env:delete", "env:push", "secret:create", "secret:delete", "secret:push"]],
+    decision = "forbidden",
+    justification = "EAS publishing and store credentials are reserved for CD.",
+    match = ["pnpm dlx eas-cli deploy"],
+)

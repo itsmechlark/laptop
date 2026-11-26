@@ -1043,6 +1043,33 @@ for raw_argv in split_commands(command):
         has_method = "X" in short or "--method" in long
         if has_field and not has_method:
             deny("gh api sends POST as soon as a field is added (-f/-F/--field/--raw-field/--input), so this is a mutating write the prefix rules do not catch in implicit form. Use the canonical `gh api --method POST ...` form with the method flag immediately after `api`, which is approval-gated, or run it manually outside Codex.")
+
+    eas_args = None
+    if exe == "eas":
+        eas_args = args
+    elif exe == "npx" or (exe == "pnpm" and args[:1] in (["dlx"], ["exec"])):
+        runner_args = args if exe == "npx" else args[1:]
+        for index, token in enumerate(runner_args):
+            if token in {"eas", "eas-cli"} or token.startswith("eas-cli@"):
+                eas_args = runner_args[index + 1:]
+                break
+            if not token.startswith("-"):
+                break
+    if eas_args is not None:
+        operands = [token for token in eas_args if not token.startswith("-")]
+        subcommand = operands[0] if operands else ""
+        if subcommand.split(":", 1)[0] in {"submit", "deploy", "credentials"} or subcommand in {
+            "update", "update:republish", "update:rollback", "update:roll-back-to-embedded",
+            "update:revert-update-rollout", "update:edit", "update:delete",
+            "channel:edit", "channel:rollout", "metadata:push",
+            "env:create", "env:update", "env:delete", "env:push",
+            "secret:create", "secret:delete", "secret:push",
+        }:
+            deny("EAS publishing, store credentials, and EAS environment writes are reserved for CD. Run it manually outside Codex.")
+        if subcommand == "build" and any(token.startswith("--auto-submit") for token in eas_args):
+            deny("eas build --auto-submit submits to the stores, which is reserved for CD. Build without it.")
+        if any(token.startswith("--include-sensitive") for token in eas_args):
+            deny("--include-sensitive prints sensitive EAS environment values and is blocked.")
 ''''
 timeout = 3
 

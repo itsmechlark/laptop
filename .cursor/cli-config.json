@@ -121,7 +121,31 @@
       "Shell(parted)",
       "Shell(shutdown)",
       "Shell(reboot)",
-      "Shell(poweroff)"
+      "Shell(poweroff)",
+      "Shell(eas submit)",
+      "Shell(eas submit *)",
+      "Shell(eas update)",
+      "Shell(eas update *)",
+      "Shell(eas update:republish*)",
+      "Shell(eas update:rollback*)",
+      "Shell(eas update:roll-back-to-embedded*)",
+      "Shell(eas update:revert-update-rollout*)",
+      "Shell(eas update:edit*)",
+      "Shell(eas update:delete*)",
+      "Shell(eas deploy)",
+      "Shell(eas deploy *)",
+      "Shell(eas credentials)",
+      "Shell(eas credentials *)",
+      "Shell(eas channel:edit*)",
+      "Shell(eas channel:rollout*)",
+      "Shell(eas metadata:push*)",
+      "Shell(eas env:create*)",
+      "Shell(eas env:update*)",
+      "Shell(eas env:delete*)",
+      "Shell(eas env:push*)",
+      "Shell(eas secret:create*)",
+      "Shell(eas secret:delete*)",
+      "Shell(eas secret:push*)"
     ]
   }
 }
