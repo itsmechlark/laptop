@@ -1,9 +1,9 @@
 # Verifying the payload
 
-The commands, and what CI runs for you, are in `AGENTS.md` under
-[Testing instructions](../AGENTS.md#testing-instructions). This file is the
-reference behind them: what `scripts/check-payload` settles and what it leaves
-to a person, how the fixtures under `spec/` are kept honest, which skills earn a
+The commands are in `AGENTS.md` under [Commands](../AGENTS.md#commands), and
+what CI runs for you is under [CI](#ci) below. This file is the reference
+behind them: what `scripts/check-payload` settles and what it leaves to a
+person, how the fixtures under `spec/` are kept honest, which skills earn a
 trigger eval, and how spelling is enforced.
 
 Read it before adding a check, a fixture, or an eval set, and when a failure's
@@ -131,7 +131,7 @@ cannot catch anything. The flagged-skill rule is narrower than it sounds: such
 a set is *unrunnable* because the runner is `claude -p`
 ([ADR 0005](adr/0005-verification-stops-where-judgment-starts.md)); on
 Codex and Cursor the skill's own body is the only guard
-([`skills/<name>/SKILL.md`](../AGENTS.md#skillsnameskillmd)).
+([Skills, rules, and agents](../AGENTS.md#skills-rules-and-agents)).
 
 Adding a fixture is adding an assertion; the shape rules stop it from being
 decorative. When one blocks you, the fixture is usually wrong.
@@ -241,3 +241,29 @@ directive comment for a local lint.
 Vendored skills invert the middle row: their words go in `cspell.json` however
 one-off they are, because a directive comment inside a vendored body is a
 hand-edit, and a hand-edit desynchronizes the recorded hash.
+
+## CI
+
+`.github/workflows/tests.yml` runs on push to `main`, every PR, and
+`workflow_dispatch`, as two independent jobs.
+
+**`payload`** — `ubuntu-latest`, seconds, no Homebrew. Shellchecks
+`check-payload`, `run-trigger-evals`, and the three `gen-*` scripts,
+byte-compiles `scripts/lib/run_eval_local.py`, runs the command-hook regression
+tests, then runs `check-payload` (on PRs with `--since origin/<base>` for the
+vendored-edit check). Closes with the spell check — `cspell` comes from npm,
+pinned to the major `mac` installs from Homebrew.
+
+**`tests`** — the matrix of `macos-26` and `macos-15` with `fail-fast: false`:
+
+1. `brew update`
+2. `brew install shellcheck`
+3. `shellcheck mac -e SC2039`
+4. Unlink Homebrew's preinstalled `node` if present (runner-only workaround —
+   the guard is `brew list node` so it never fails on runners without it)
+5. `sh mac`
+
+CI covers the happy path on a runner, which is not the same as a clean laptop.
+For changes to `mac`, the real test is a run on a fresh macOS install in a
+[UTM](https://mac.getutm.app) VM: prepare one machine with macOS installed and
+first launch complete, then duplicate it before each test run.
