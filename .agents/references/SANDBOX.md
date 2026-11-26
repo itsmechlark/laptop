@@ -1,6 +1,6 @@
 ---
 name: sandbox-gotchas
-description: Workarounds for shell commands that fail under a macOS Seatbelt sandbox, whichever agent runs them — gh CLI auth (telling an expired token apart from a sandbox keychain failure), the pipe/redirect trap where a pipe, a leading cd, or git -C re-sandboxes an excluded command, git index- and ref-writing commands that fail in worktrees the session did not create, git worktree add and remove failing on .git/worktrees, the pnpm purge prompt that destroys node_modules when silenced, pnpm and npm installs that fail in-sandbox, and process lookups (ps, pgrep) that fail quietly, so use lsof or kill -0. Read when a command fails with "operation not permitted", HTTP 401, or a keychain/credential error, or when a loop that waits on a process returns immediately. An agent that runs unsandboxed needs only the gh token triage.
+description: Workarounds for shell commands that fail under a macOS Seatbelt sandbox, whichever agent runs them — gh CLI auth (telling an expired token apart from a sandbox keychain failure), the pipe/redirect trap where a pipe, a leading cd, or git -C re-sandboxes an excluded command, git index- and ref-writing commands that fail in worktrees the session did not create, git worktree add and remove failing on .git/worktrees, the pnpm purge prompt that destroys node_modules when silenced, pnpm and npm installs that fail in-sandbox, simulator, emulator, and Java-based tools (Maestro, Expo) that can't reach their system services, and process lookups (ps, pgrep) that fail quietly, so use lsof or kill -0. Read when a command fails with "operation not permitted", HTTP 401, or a keychain/credential error, or when a loop that waits on a process returns immediately. An agent that runs unsandboxed needs only the gh token triage.
 ---
 
 # Sandbox gotchas
@@ -256,6 +256,29 @@ permitted`. That is zsh trying to lower the job's priority; the job still runs.
 Don't add `pgrep` to an exclusion list: `lsof` covers it, and a pipe
 re-sandboxes it anyway.
 
+## Simulators, emulators, and Java-based tools
+
+Mobile tooling reaches system services and home-directory state that the
+sandbox blocks. Verified under Claude Code's sandbox:
+
+| Symptom | Cause |
+| --- | --- |
+| `CoreSimulatorService connection became invalid` from the simulator CLI, `expo run:ios`, or Maestro on iOS | the simulator service is reached over XPC |
+| `Unable to locate a Java Runtime` from `maestro` | the `/usr/bin/java` stub can't look up a JDK |
+| `open: …/watchman/…-state: Operation not permitted` | watchman keeps its state under `~/.local/state` |
+| reads of `~/.maestro`, `~/.expo`, or the Android SDK denied | those live under `~`, outside the readable roots |
+
+None of this is fixed by an allowed path or domain. Run the tool outside the
+sandbox by the harness's escape route (above), as one bare call. Prefer the
+project's own binary (`pnpm exec expo`) over `npx expo`: `npx` fetches the newest
+package from the registry when the binary isn't installed where it runs, and
+that download shouldn't run unsandboxed.
+
+Call the binary directly, not through a package script or pnpm's bin fallback.
+`pnpm ios`, `pnpm run ios`, and `pnpm expo run:ios` don't match an exclusion
+list, so they stay in the sandbox and fail with the errors above. Read the
+script in `package.json` and run what it runs: `pnpm exec expo run:ios`.
+
 ## When a bare command still fails: blocked Mach lookups
 
 TLS verification through a sandbox proxy needs a Mach lookup for the system trust
@@ -275,10 +298,11 @@ agent follows whichever row matches how it runs shell commands.
 | --- | --- | --- | --- |
 | Sandboxed | yes | yes | no |
 | Escape route | `sandbox.excludedCommands` in `.claude/settings.json` (matched per whole call) | `approval_policy = "on-request"`: approve the prompt and the command runs escalated | none needed |
-| Excluded commands — never pipe, redirect, or wrap these | `gh *`; `git add *`, `git apply --cached *`, `git branch -M *`, `git branch -m *`, `git cherry-pick *`, `git checkout *`, `git commit *`, `git fetch *`, `git ls-remote *`, `git merge *`, `git mv *`, `git pull *`, `git push *`, `git rebase *`, `git reset *`, `git restore *`, `git revert *`, `git rm *`, `git stash *`, `git switch *`, `git worktree *`; `pulumi *`; `srt *`, `npx @anthropic-ai/sandbox-runtime *`, `npx -y @anthropic-ai/sandbox-runtime *`; `trivy *`; `pnpm install *`, `pnpm i *`, `pnpm add *`, `pnpm remove *`, `pnpm rm *`, `pnpm uninstall *`, `pnpm un *`, `pnpm update *`, `pnpm up *`, `pnpm upgrade *`, `pnpm dedupe *`, `pnpm rebuild *`, `pnpm rb *`, `pnpm prune *`, `pnpm install-test *`, `pnpm it *`; `npm install *`, `npm i *`, `npm add *`, `npm ci *`, `npm clean-install *`, `npm uninstall *`, `npm remove *`, `npm rm *`, `npm r *`, `npm un *`, `npm unlink *`, `npm update *`, `npm up *`, `npm upgrade *`, `npm dedupe *`, `npm ddp *`, `npm rebuild *`, `npm rb *`, `npm prune *`, `npm install-test *`, `npm it *`, `npm install-ci-test *`, `npm cit *` | none; escalation covers the whole command, so a pipe does not defeat it | none; nothing is sandboxed |
+| Excluded commands — never pipe, redirect, or wrap these | `gh *`; `git add *`, `git apply --cached *`, `git branch -M *`, `git branch -m *`, `git cherry-pick *`, `git checkout *`, `git commit *`, `git fetch *`, `git ls-remote *`, `git merge *`, `git mv *`, `git pull *`, `git push *`, `git rebase *`, `git reset *`, `git restore *`, `git revert *`, `git rm *`, `git stash *`, `git switch *`, `git worktree *`; `pulumi *`; `srt *`, `npx @anthropic-ai/sandbox-runtime *`, `npx -y @anthropic-ai/sandbox-runtime *`; `trivy *`; `pnpm install *`, `pnpm i *`, `pnpm add *`, `pnpm remove *`, `pnpm rm *`, `pnpm uninstall *`, `pnpm un *`, `pnpm update *`, `pnpm up *`, `pnpm upgrade *`, `pnpm dedupe *`, `pnpm rebuild *`, `pnpm rb *`, `pnpm prune *`, `pnpm install-test *`, `pnpm it *`; `npm install *`, `npm i *`, `npm add *`, `npm ci *`, `npm clean-install *`, `npm uninstall *`, `npm remove *`, `npm rm *`, `npm r *`, `npm un *`, `npm unlink *`, `npm update *`, `npm up *`, `npm upgrade *`, `npm dedupe *`, `npm ddp *`, `npm rebuild *`, `npm rb *`, `npm prune *`, `npm install-test *`, `npm it *`, `npm install-ci-test *`, `npm cit *`; `maestro *`, `pnpm exec expo *`, `eas *` | none; escalation covers the whole command, so a pipe does not defeat it | none; nothing is sandboxed |
 | Exclusion matching (verified) | a bare subcommand with no arguments matches (`git fetch` under `git fetch *`); `git -C`, `--no-pager`, `-c`, and most `VAR=` prefixes miss, though `GIT_TERMINAL_PROMPT=0` is stripped first. An excluded call skips the shell's own startup errors, a quick tell for which side it ran on | n/a | n/a |
 | Working directory between calls | kept in the main session; reset for subagents, so a subagent can't `cd` then run a bare command | untested | untested |
 | Install-family approval | a `PreToolUse` hook allows pnpm/npm `install` or `ci` with no package names, `remove`, and `prune` in every permission mode when every install input is committed (npm `install`/`ci` also need `--ignore-scripts`; a `packageManager` pin below pnpm 10 prompts); `add`, `update`, `dedupe`, `rebuild`, and install-test always prompt | every form prompts | every form prompts |
+| Maestro approval | a `PreToolUse` hook allows `maestro test` (and the Maestro MCP `run` tool) when every flow it would run, sub-flows included, uses only device commands; scripts, `openLink`, `addMedia`, JavaScript, continuous mode, output outside the project, and other subcommands prompt | every form prompts | every form prompts |
 | Background-job facility | `run_in_background` re-invokes the agent on exit | none | none |
 | Mach lookup allowlist | `sandbox.network.allowMachLookup` (holds `com.apple.trustd*`) | none; config is `network_proxy` plus `domains`/`unix_sockets` | n/a |
 | `.git/worktrees` writes (other session's worktrees) | read-only; escape via `excludedCommands` | untested; approval escalation is the escape route if affected | allowed |

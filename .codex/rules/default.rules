@@ -505,3 +505,47 @@ prefix_rule(
     match = ["npm ci", "npm install --ignore-scripts", "npm i lodash-es", "npm uninstall lodash-es"],
     not_match = ["npm run build", "npm view lodash-es", "npm init -y"],
 )
+
+# -----------------------------------------------------------------------------
+# Require approval: mobile tooling (Maestro, Expo, EAS)
+# -----------------------------------------------------------------------------
+
+# Maestro, the Expo CLI, and EAS reach simulators, emulators, Java, and their
+# home-directory state, which the agent sandbox blocks, so the local binaries
+# run unsandboxed. The npx and pnpm dlx forms fetch the newest package from the
+# registry: they are gated here but stay sandboxed in Claude Code. See AGENTS.md
+# parity section.
+prefix_rule(
+    pattern = [["maestro", "eas"]],
+    decision = "prompt",
+    justification = "Maestro and EAS run unsandboxed; each use requires approval.",
+    match = ["maestro test flows", "eas build --profile preview"],
+)
+
+prefix_rule(
+    pattern = ["pnpm", "exec", "expo"],
+    decision = "prompt",
+    justification = "The Expo CLI runs unsandboxed; each use requires approval.",
+    match = ["pnpm exec expo run:ios"],
+)
+
+prefix_rule(
+    pattern = ["npx", ["expo", "eas-cli"]],
+    decision = "prompt",
+    justification = "npx fetches the newest package from the registry; each use requires approval.",
+    match = ["npx expo start", "npx eas-cli build"],
+)
+
+prefix_rule(
+    pattern = ["npx", "-y", ["expo", "eas-cli"]],
+    decision = "prompt",
+    justification = "npx fetches the newest package from the registry; each use requires approval.",
+    match = ["npx -y expo start", "npx -y eas-cli build"],
+)
+
+prefix_rule(
+    pattern = ["pnpm", "dlx", "eas-cli"],
+    decision = "prompt",
+    justification = "pnpm dlx fetches the newest package from the registry; each use requires approval.",
+    match = ["pnpm dlx eas-cli build"],
+)
