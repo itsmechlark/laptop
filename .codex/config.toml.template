@@ -23,11 +23,10 @@ web_search = "cached"
 # Byte budget for project AGENTS.md files: every one from the repository root down
 # to the working directory, combined. The global ~/.codex/AGENTS.md loads
 # separately and is not counted. Past the budget Codex truncates mid-file and
-# records a warning naming the file. This repo's own AGENTS.md (~43 KB) is past
-# the 32 KiB default, which cuts it inside "Agent-client configuration parity"
-# and hides the code style, verification, and commit conventions below it. 96 KiB
-# leaves headroom for it to grow; past that, move material out of AGENTS.md
-# rather than raising this again.
+# records a warning naming the file, and the tail it cuts is where the testing
+# and commit conventions usually sit. 96 KiB leaves headroom for a monorepo's
+# chain of root and workspace files; past that, move material out of the
+# instruction files rather than raising this again.
 # Claude Code has no equivalent knob (it warns at 40k chars and skips
 # only past 4 MiB), so this is per-client tuning, not shared policy.
 project_doc_max_bytes = 98304
@@ -119,12 +118,12 @@ glob_scan_max_depth = 8
 # Self-policy guard: the Claude settings files are enforced policy. Keep them
 # readable but never agent-writable (this narrows the ~/.claude write grant
 # above). Repo copies are guarded under [...":workspace_roots"] below; see
-# AGENTS.md "Agent-client configuration parity".
+# docs/client-parity.md.
 "~/.claude/settings.json" = "read"
 "~/.claude/settings.local.json" = "read"
 # Self-policy guard: the srt second-line sandbox config, readable for review but
-# never agent-writable. Global cargo governing unsafe commands. See AGENTS.md
-# "Agent-client configuration parity" and ADR 0015.
+# never agent-writable. Global cargo governing unsafe commands. See
+# docs/client-parity.md and ADR 0015.
 "~/.srt-settings.json" = "read"
 "~/.cache" = "read"
 "~/.cache/rubocop_cache" = "write"
@@ -148,8 +147,8 @@ glob_scan_max_depth = 8
 # 1Password CLI credentials (denied explicitly below as well).
 "~/.config/git" = "read"
 # Machine-wide Trivy config, reached through the bin/trivy shim (~/.bin, read
-# above) — the read path the DoD vuln scan depends on. See AGENTS.md
-# "Agent-client configuration parity".
+# above) — the read path the DoD vuln scan depends on. See
+# docs/client-parity.md.
 "~/.config/trivy" = "read"
 "~/.asdf" = "write"
 "~/.tool-versions" = "write"
@@ -238,8 +237,8 @@ glob_scan_max_depth = 8
 # Self-policy guard: this repo's own governance files stay readable for review
 # but never agent-writable, so a run steered by untrusted input can't silently
 # rewrite its own policy. .codex/** is the Codex policy; .claude/settings*.json
-# is the Claude policy; .cursor/** is the Cursor policy. See AGENTS.md
-# "Agent-client configuration parity".
+# is the Claude policy; .cursor/** is the Cursor policy. See
+# docs/client-parity.md.
 # `read`/`write` rules must be exact paths or simple trailing `/**` subtrees.
 # These paths are relative to every effective workspace root.
 ".codex/**" = "read"

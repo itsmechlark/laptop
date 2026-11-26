@@ -557,8 +557,8 @@ done
 # The bug class this exists for: a skill telling the agent to invoke a sibling
 # that the Skill tool refuses, or describing an invocable sibling as
 # user-invoke-only. Both forms read as correct prose, which is why they survived
-# review twice. AGENTS.md is deliberately not scanned — it documents the trap
-# by quoting the broken form.
+# review twice. AGENTS.md is deliberately not scanned — it states the handoff
+# rule rather than handing off, so it must stay free to quote the broken form.
 scan_invocability() {
   for md in "$@"; do
     [ -f "$md" ] || continue

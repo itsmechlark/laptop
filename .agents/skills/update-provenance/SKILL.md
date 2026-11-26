@@ -17,7 +17,7 @@ machines (its body lives in `.agents/skills/` but is not linked from
 `skills/`). It reads and writes both provenance records and edits `SKILL.md`
 and `rules/*.md` files; it never commits.
 
-The provenance model (see the repo `AGENTS.md` → "Derived skills and rules"):
+The provenance model (see the repo's `docs/provenance.md` → "Derived skills and rules"):
 each subject maps to a list of sources, each carrying a `relationship` that
 decides how it syncs — `adapted` (forked then diverged; pinned to `ref`; 3-way
 reconcile, never overwrite), `spec` (conforms to an external spec; watch its

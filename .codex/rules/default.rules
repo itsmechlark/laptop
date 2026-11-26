@@ -454,7 +454,7 @@ prefix_rule(
 # srt (the bin/srt shim -> npx @anthropic-ai/sandbox-runtime srt) runs unsafe,
 # untrusted commands under its own OS sandbox. It bypasses the per-command gates
 # above by design (the inner command is never the prefix), so each use is gated
-# by a single approval prompt instead. See AGENTS.md parity section and ADR 0015.
+# by a single approval prompt instead. See docs/client-parity.md and ADR 0015.
 prefix_rule(
     pattern = ["srt"],
     decision = "prompt",
@@ -470,7 +470,7 @@ prefix_rule(
 # DB: the agent sandbox's TLS-terminating proxy is rejected by trivy's Go client,
 # so it runs unsandboxed. on-request approval escalates a prompted command out of
 # Seatbelt, so a single approval per use both gates it and un-nests it. See
-# AGENTS.md parity section and ADR 0019.
+# docs/client-parity.md and ADR 0019.
 prefix_rule(
     pattern = ["trivy"],
     decision = "prompt",
@@ -485,7 +485,7 @@ prefix_rule(
 # Commands that rewrite node_modules run unsandboxed: the agent sandbox denies
 # writes inside any .idea/ directory, which some packages ship, and a purge that
 # fails on that write leaves node_modules empty. on-request approval escalates a
-# prompted command out of Seatbelt. See AGENTS.md parity section and SANDBOX.md.
+# prompted command out of Seatbelt. See docs/client-parity.md and SANDBOX.md.
 prefix_rule(
     pattern = ["pnpm", ["install", "i", "add", "remove", "rm", "uninstall", "un", "update", "up", "upgrade", "dedupe", "rebuild", "rb", "prune", "install-test", "it"]],
     decision = "prompt",
@@ -513,8 +513,8 @@ prefix_rule(
 # Maestro, the Expo CLI, and EAS reach simulators, emulators, Java, and their
 # home-directory state, which the agent sandbox blocks, so the local binaries
 # run unsandboxed. The npx and pnpm dlx forms fetch the newest package from the
-# registry: they are gated here but stay sandboxed in Claude Code. See AGENTS.md
-# parity section.
+# registry: they are gated here but stay sandboxed in Claude Code. See
+# docs/client-parity.md.
 prefix_rule(
     pattern = [["maestro", "eas"]],
     decision = "prompt",
