@@ -622,6 +622,8 @@
     },
     "filesystem": {
       "allowWrite": [
+        "/tmp",
+        "/private/tmp",
         "~/Codespace",
         "~/.claude",
         "~/.agents/standup",

@@ -95,6 +95,9 @@ glob_scan_max_depth = 8
 "/opt/homebrew" = "read"
 # The bin/srt shim (npx @anthropic-ai/sandbox-runtime srt), on PATH via ~/.bin.
 "~/.bin" = "read"
+# Scratch space; /tmp is a symlink to /private/tmp on macOS, so grant both.
+"/tmp" = "write"
+"/private/tmp" = "write"
 "~/Codespace" = "write"
 "~/.agents" = "read"
 # Narrows the read grant above for the directories an agent writes under
