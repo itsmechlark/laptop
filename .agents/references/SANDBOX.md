@@ -1,6 +1,6 @@
 ---
 name: sandbox-gotchas
-description: Workarounds for shell commands that fail under a macOS Seatbelt sandbox, whichever agent runs them — gh CLI auth (telling an expired token apart from a sandbox keychain failure), the pipe/redirect trap where a pipe, a leading cd, or git -C re-sandboxes an excluded command, git index- and ref-writing commands that fail in worktrees the session did not create, git worktree add and remove failing on .git/worktrees, the pnpm purge prompt that destroys node_modules when silenced, and process lookups (ps, pgrep) that fail quietly, so use lsof or kill -0. Read when a command fails with "operation not permitted", HTTP 401, or a keychain/credential error, or when a loop that waits on a process returns immediately. An agent that runs unsandboxed needs only the gh token triage.
+description: Workarounds for shell commands that fail under a macOS Seatbelt sandbox, whichever agent runs them — gh CLI auth (telling an expired token apart from a sandbox keychain failure), the pipe/redirect trap where a pipe, a leading cd, or git -C re-sandboxes an excluded command, git index- and ref-writing commands that fail in worktrees the session did not create, git worktree add and remove failing on .git/worktrees, the pnpm purge prompt that destroys node_modules when silenced, pnpm and npm installs that fail in-sandbox, and process lookups (ps, pgrep) that fail quietly, so use lsof or kill -0. Read when a command fails with "operation not permitted", HTTP 401, or a keychain/credential error, or when a loop that waits on a process returns immediately. An agent that runs unsandboxed needs only the gh token triage.
 ---
 
 # Sandbox gotchas
@@ -197,11 +197,34 @@ then fail on the `.idea` write and leave `node_modules` empty:
 - `CI=true`
 - answering yes
 
-Recovery is a plain `pnpm install --frozen-lockfile` run outside the sandbox.
+So never run an install-family command (`install`, `i`, `add`, `remove`, `rm`,
+`uninstall`, `un`, `update`, `up`, `upgrade`, `dedupe`, `rebuild`, `rb`,
+`prune`, `install-test`, `it`) inside the sandbox. Take it out by the
+harness's escape route (above). On an exclusion-list harness that means a single
+bare call. A pipe, a leading `cd`, or a `CI=true` prefix sends it back into the
+sandbox, and with it the purge. Where the harness has no escape route, ask the
+user to run it in their own terminal, answering `n` to any purge prompt.
 
-For a dependency bump, edit the manifests or catalog, then ask the user to run
-`pnpm install` in their own terminal, answering `n` to any purge prompt, and run
-the gates in-sandbox afterwards. Do not regenerate the lockfile from the sandbox.
+Put the subcommand straight after `pnpm` and any `--filter`, `-C`, or `-r`
+after it: `pnpm add zod --filter web`, not `pnpm --filter web add zod`.
+Exclusion lists and prefix rules match from the start of the command, so a flag
+in front of the subcommand keeps it in the sandbox.
+
+For a dependency bump, edit the manifests or catalog, run the install that way,
+then run the gates in-sandbox. Recovery from a purged tree is the same bare
+`pnpm install --frozen-lockfile`.
+
+npm has no purge prompt, but it fails in-sandbox for the same `.idea` reason
+and because its cache under `~/.npm` is not writable, so the same rule applies
+to its install family (`install`, `i`, `ci`, `uninstall`, `update`, `dedupe`,
+`rebuild`, `prune`, and their aliases). npm also runs every dependency's install
+script, so pass `--ignore-scripts` where the project doesn't need them.
+
+Whether such a call needs approval depends on the harness (see "Install-family
+approval" below). Where a harness skips the prompt for committed install inputs,
+a run right after you edit a `package.json`, a lockfile, `.npmrc`,
+`pnpm-workspace.yaml`, `.pnpmfile.cjs`, or `patches/` still prompts. That is
+expected; don't commit just to avoid it.
 
 ## Process inspection: ps, pgrep, and friends
 
@@ -252,9 +275,10 @@ agent follows whichever row matches how it runs shell commands.
 | --- | --- | --- | --- |
 | Sandboxed | yes | yes | no |
 | Escape route | `sandbox.excludedCommands` in `.claude/settings.json` (matched per whole call) | `approval_policy = "on-request"`: approve the prompt and the command runs escalated | none needed |
-| Excluded commands — never pipe, redirect, or wrap these | `gh *`; `git add *`, `git apply --cached *`, `git branch -M *`, `git branch -m *`, `git cherry-pick *`, `git checkout *`, `git commit *`, `git fetch *`, `git ls-remote *`, `git merge *`, `git mv *`, `git pull *`, `git push *`, `git rebase *`, `git reset *`, `git restore *`, `git revert *`, `git rm *`, `git stash *`, `git switch *`, `git worktree *`; `pulumi *`; `srt *`, `npx @anthropic-ai/sandbox-runtime *`, `npx -y @anthropic-ai/sandbox-runtime *`; `trivy *` | none; escalation covers the whole command, so a pipe does not defeat it | none; nothing is sandboxed |
+| Excluded commands — never pipe, redirect, or wrap these | `gh *`; `git add *`, `git apply --cached *`, `git branch -M *`, `git branch -m *`, `git cherry-pick *`, `git checkout *`, `git commit *`, `git fetch *`, `git ls-remote *`, `git merge *`, `git mv *`, `git pull *`, `git push *`, `git rebase *`, `git reset *`, `git restore *`, `git revert *`, `git rm *`, `git stash *`, `git switch *`, `git worktree *`; `pulumi *`; `srt *`, `npx @anthropic-ai/sandbox-runtime *`, `npx -y @anthropic-ai/sandbox-runtime *`; `trivy *`; `pnpm install *`, `pnpm i *`, `pnpm add *`, `pnpm remove *`, `pnpm rm *`, `pnpm uninstall *`, `pnpm un *`, `pnpm update *`, `pnpm up *`, `pnpm upgrade *`, `pnpm dedupe *`, `pnpm rebuild *`, `pnpm rb *`, `pnpm prune *`, `pnpm install-test *`, `pnpm it *`; `npm install *`, `npm i *`, `npm add *`, `npm ci *`, `npm clean-install *`, `npm uninstall *`, `npm remove *`, `npm rm *`, `npm r *`, `npm un *`, `npm unlink *`, `npm update *`, `npm up *`, `npm upgrade *`, `npm dedupe *`, `npm ddp *`, `npm rebuild *`, `npm rb *`, `npm prune *`, `npm install-test *`, `npm it *`, `npm install-ci-test *`, `npm cit *` | none; escalation covers the whole command, so a pipe does not defeat it | none; nothing is sandboxed |
 | Exclusion matching (verified) | a bare subcommand with no arguments matches (`git fetch` under `git fetch *`); `git -C`, `--no-pager`, `-c`, and most `VAR=` prefixes miss, though `GIT_TERMINAL_PROMPT=0` is stripped first. An excluded call skips the shell's own startup errors, a quick tell for which side it ran on | n/a | n/a |
 | Working directory between calls | kept in the main session; reset for subagents, so a subagent can't `cd` then run a bare command | untested | untested |
+| Install-family approval | a `PreToolUse` hook allows pnpm/npm `install` or `ci` with no package names, `remove`, and `prune` in every permission mode when every install input is committed (npm `install`/`ci` also need `--ignore-scripts`; a `packageManager` pin below pnpm 10 prompts); `add`, `update`, `dedupe`, `rebuild`, and install-test always prompt | every form prompts | every form prompts |
 | Background-job facility | `run_in_background` re-invokes the agent on exit | none | none |
 | Mach lookup allowlist | `sandbox.network.allowMachLookup` (holds `com.apple.trustd*`) | none; config is `network_proxy` plus `domains`/`unix_sockets` | n/a |
 | `.git/worktrees` writes (other session's worktrees) | read-only; escape via `excludedCommands` | untested; approval escalation is the escape route if affected | allowed |

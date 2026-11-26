@@ -291,6 +291,133 @@ class ClaudeWorktreeGuardTest(ClaudeHooksCase):
         self.assertEqual(self.decision(self.enter_hooks, {"path": "~/x"}), "deny")
 
 
+@unittest.skipUnless(shutil.which("git"), "git is required for the install gate")
+class ClaudeInstallGateTest(ClaudeHooksCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.repo = Path(os.path.realpath(tmp.name))
+        self.write("package.json", '{"name": "probe", "packageManager": "pnpm@10.4.0"}')
+        self.write("packages/app/package.json", '{"name": "app"}')
+        self.write("pnpm-lock.yaml", "lockfileVersion: '9.0'\n")
+        self.git("init", "-q", "-b", "main")
+        self.git("add", "-A")
+        self.git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "init")
+
+    def write(self, relative, text):
+        path = self.repo / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text)
+
+    def git(self, *args):
+        subprocess.run(["git", "-C", str(self.repo), *args], check=True)
+
+    def gate(self, command, cwd=None):
+        payload = {"tool_input": {"command": command}, "cwd": str(cwd or self.repo)}
+        for hook in self.bash_hooks:
+            if "bash-log.txt" in hook:
+                continue
+            stdout = self.run_hook(hook, payload).stdout
+            if stdout.strip():
+                return json.loads(stdout)["hookSpecificOutput"]["permissionDecision"]
+        return None
+
+    def test_committed_install_inputs_are_allowed_in_every_permission_mode(self):
+        for command in (
+            "pnpm install",
+            "pnpm i --frozen-lockfile",
+            "pnpm install --frozen-lockfile --prefer-offline",
+            "pnpm remove lodash",
+            "pnpm rm lodash",
+            "pnpm prune",
+            "npm ci --ignore-scripts",
+            "npm install --ignore-scripts",
+            "npm uninstall lodash",
+            "npm prune",
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(self.gate(command), "allow")
+
+    def test_purge_flag_is_never_allowed_so_the_deny_rule_applies(self):
+        for command in (
+            "pnpm install --config.confirmModulesPurge=false",
+            "pnpm i --frozen-lockfile --config.confirmModulesPurge=false",
+        ):
+            with self.subTest(command=command):
+                self.assertNotEqual(self.gate(command), "allow")
+
+    def test_installing_named_packages_asks(self):
+        for command in (
+            "pnpm install lodash",
+            "pnpm i lodash --frozen-lockfile",
+            "npm install lodash --ignore-scripts",
+            "npm i -D vitest --ignore-scripts",
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(self.gate(command), "ask")
+
+    def test_npm_install_running_dependency_scripts_asks(self):
+        for command in ("npm ci", "npm install", "npm i", "npm ci --ignore-scripts=false"):
+            with self.subTest(command=command):
+                self.assertEqual(self.gate(command), "ask")
+
+    def test_uncommitted_install_inputs_ask(self):
+        for relative in (
+            "package.json",
+            "packages/app/package.json",
+            "pnpm-lock.yaml",
+            ".npmrc",
+            ".pnpmfile.cjs",
+            "pnpm-workspace.yaml",
+            "patches/lodash.patch",
+        ):
+            with self.subTest(relative=relative):
+                self.write(relative, "changed\n")
+                self.assertEqual(self.gate("pnpm install"), "ask")
+                self.assertEqual(self.gate("npm ci --ignore-scripts"), "ask")
+                self.git("checkout", "-q", "--", ".")
+                self.git("clean", "-fdq")
+
+    def test_unrelated_uncommitted_files_do_not_ask(self):
+        self.write("src/index.ts", "export {}\n")
+        self.assertEqual(self.gate("pnpm install"), "allow")
+
+    def test_pnpm_older_than_10_asks_because_it_runs_dependency_scripts(self):
+        self.write("package.json", '{"name": "probe", "packageManager": "pnpm@9.15.0"}')
+        self.git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qam", "pin")
+        self.assertEqual(self.gate("pnpm install"), "ask")
+        self.assertEqual(self.gate("pnpm prune"), "allow")
+
+    def test_outside_a_git_repository_asks(self):
+        with tempfile.TemporaryDirectory() as plain:
+            self.assertEqual(self.gate("pnpm install", cwd=plain), "ask")
+
+    def test_compound_or_substituted_installs_ask(self):
+        for command in (
+            "pnpm install && pnpm test",
+            "pnpm install; echo done",
+            "pnpm install --filter $PKG",
+            "pnpm install\nnpm ci",
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(self.gate(command), "ask")
+
+    def test_other_package_manager_commands_are_unaffected(self):
+        for command in (
+            "pnpm run test",
+            "pnpm info lodash",
+            "pnpm import",
+            "pnpm exec expo run:ios",
+            "pnpm add lodash",
+            "npm run build",
+            "npm init -y",
+            "npm view lodash",
+            "echo pnpm install",
+        ):
+            with self.subTest(command=command):
+                self.assertIsNone(self.gate(command))
+
+
 @unittest.skipUnless(shutil.which("git"), "git is required for the WorktreeCreate hook")
 class ClaudeWorktreeCreateHookTest(ClaudeHooksCase):
     def setUp(self):

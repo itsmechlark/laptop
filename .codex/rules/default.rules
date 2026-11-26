@@ -477,3 +477,31 @@ prefix_rule(
     justification = "trivy runs unsandboxed to reach its vulnerability DB; each use requires approval.",
     match = ["trivy fs .", "trivy image --download-db-only"],
 )
+
+# -----------------------------------------------------------------------------
+# Require approval: unsandboxed dependency install (pnpm)
+# -----------------------------------------------------------------------------
+
+# Commands that rewrite node_modules run unsandboxed: the agent sandbox denies
+# writes inside any .idea/ directory, which some packages ship, and a purge that
+# fails on that write leaves node_modules empty. on-request approval escalates a
+# prompted command out of Seatbelt. See AGENTS.md parity section and SANDBOX.md.
+prefix_rule(
+    pattern = ["pnpm", ["install", "i", "add", "remove", "rm", "uninstall", "un", "update", "up", "upgrade", "dedupe", "rebuild", "rb", "prune", "install-test", "it"]],
+    decision = "prompt",
+    justification = "pnpm rewrites node_modules unsandboxed; each use requires approval.",
+    match = ["pnpm install --frozen-lockfile", "pnpm add lodash-es", "pnpm i", "pnpm upgrade", "pnpm rm lodash-es", "pnpm prune"],
+    not_match = ["pnpm run test", "pnpm info lodash-es"],
+)
+
+# npm runs every dependency's install script by default, and its cache under
+# ~/.npm is outside the sandbox's writable roots. Codex escalates only on
+# approval, so every install-family form prompts here; Claude's install gate
+# lets the committed, script-free forms through without one.
+prefix_rule(
+    pattern = ["npm", ["install", "i", "add", "ci", "clean-install", "uninstall", "remove", "rm", "r", "un", "unlink", "update", "up", "upgrade", "dedupe", "ddp", "rebuild", "rb", "prune", "install-test", "it", "install-ci-test", "cit"]],
+    decision = "prompt",
+    justification = "npm rewrites node_modules and runs dependency scripts unsandboxed; each use requires approval.",
+    match = ["npm ci", "npm install --ignore-scripts", "npm i lodash-es", "npm uninstall lodash-es"],
+    not_match = ["npm run build", "npm view lodash-es", "npm init -y"],
+)
