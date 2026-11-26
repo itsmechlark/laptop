@@ -32,7 +32,9 @@ before you start.
   project's linter, formatter check, and type-checker for the touched files.
   Never mask a failure, skip a test, or lower a threshold.
 - **Commit only when the brief says to**, on the worktree's branch, from inside
-  the worktree. Never push, rebase, or amend a commit you did not make.
+  the worktree. Never push, rebase, or amend a commit you did not make. If
+  signing fails, never bypass it: leave the work uncommitted and report the
+  error as blocked.
 
 Return:
 

@@ -21,7 +21,9 @@ start.
   anything else that writes to the tree. The shell is for git reads and search,
   and for the test suite only when the caller asks you to run it.
 - **Don't dispatch agents.** Where `code-review` would fan a large diff out,
-  work the files yourself in sequence and say so under Coverage.
+  work the files yourself in sequence and say so under Coverage. Where it
+  would hand the Defects axis to `find-bugs`, don't run the hunt: the caller
+  dispatches `bug-hunter` for it. Say under Coverage that the hunt is owed.
 - **Honor a narrowed scope.** When the caller asks for some axes only — the
   Defects axis alone, say — run those and mark the rest "not run: outside the
   caller's scope" rather than dropping them silently.

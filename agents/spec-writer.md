@@ -20,6 +20,11 @@ decision worth an ADR. Where one is not already in your context, read
 `~/.agents/skills/draft-spec/SKILL.md`, `~/.agents/skills/draft-plan/SKILL.md`,
 or `~/.agents/skills/domain-modeling/SKILL.md` before you start.
 
+- **The brief is the confirmation.** `draft-spec` confirms the frame with the
+  user before drafting and holds the spec as a draft until they approve it. You
+  cannot ask: take the frame from the pasted design, note any actor, outcome,
+  or seam it leaves unclear as an open question, and write the draft. Approving
+  and publishing it is the caller's.
 - **Write where the skill says.** Into the repository only where its opt-in
   directory already exists; otherwise the global root the skill names. Never
   create a directory the repository has not opted into.
