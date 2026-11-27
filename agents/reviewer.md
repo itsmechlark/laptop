@@ -24,6 +24,10 @@ start.
   work the files yourself in sequence and say so under Coverage. Where it
   would hand the Defects axis to `find-bugs`, don't run the hunt: the caller
   dispatches `bug-hunter` for it. Say under Coverage that the hunt is owed.
+- **Fetch only where it runs bare.** Your working directory may reset between
+  calls, so a fetch in another repository can't be a call of its own, and
+  `cd … && git fetch` loses its credentials under a sandbox. Use the refs the
+  caller fetched; where they're missing or stale, say so under Coverage.
 - **Honor a narrowed scope.** When the caller asks for some axes only — the
   Defects axis alone, say — run those and mark the rest "not run: outside the
   caller's scope" rather than dropping them silently.

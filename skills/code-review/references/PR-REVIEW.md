@@ -81,7 +81,9 @@ git diff <commit_id>..FETCH_HEAD
 Two dots here, not three: you want what the author pushed since, not a fresh
 merge-base comparison. Fetching the ref only copies objects — it runs nothing,
 so it's safe on a fork. *Running the branch* below is about installing and
-executing, not fetching.
+executing, not fetching. Keep the fetch a call of its own, with the `log` and
+`diff` in the next one: chained or piped, it loses the credentials it needs
+under a sandbox (see *Scope the change* in [SKILL.md](../SKILL.md)).
 
 Carry forward your open findings unchanged, and check each fix against the
 finding it claims to close rather than accepting the commit message for it.

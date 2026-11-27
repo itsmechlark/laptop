@@ -1,6 +1,6 @@
 ---
 name: sandbox-gotchas
-description: Workarounds for shell commands that fail under a macOS Seatbelt sandbox, whichever agent runs them — gh CLI auth (telling an expired token apart from a sandbox keychain failure), the pipe/redirect trap where a pipe, a leading cd, or git -C re-sandboxes an excluded command, git index- and ref-writing commands that fail in worktrees the session did not create, git worktree add and remove failing on .git/worktrees, the pnpm purge prompt that destroys node_modules when silenced, pnpm and npm installs that fail in-sandbox, simulator, emulator, and Java-based tools (Maestro, Expo) that can't reach their system services, and process lookups (ps, pgrep) that fail quietly, so use lsof or kill -0. Read when a command fails with "operation not permitted", HTTP 401, or a keychain/credential error, or when a loop that waits on a process returns immediately. An agent that runs unsandboxed needs only the gh token triage.
+description: Workarounds for shell commands that fail under a macOS Seatbelt sandbox, whichever agent runs them — gh CLI auth (telling an expired token apart from a sandbox keychain failure), the pipe/redirect trap where a pipe, a leading cd, or git -C re-sandboxes an excluded command, git fetch or push over HTTPS failing with "could not read Username" when chained, git index- and ref-writing commands that fail in worktrees the session did not create, git worktree add and remove failing on .git/worktrees, the pnpm purge prompt that destroys node_modules when silenced, pnpm and npm installs that fail in-sandbox, simulator, emulator, and Java-based tools (Maestro, Expo) that can't reach their system services, and process lookups (ps, pgrep) that fail quietly, so use lsof or kill -0. Read when a command fails with "operation not permitted", HTTP 401, "could not read Username", or a keychain/credential error, or when a loop that waits on a process returns immediately. An agent that runs unsandboxed needs only the gh token triage.
 ---
 
 # Sandbox gotchas
@@ -68,6 +68,36 @@ the write to a session that can, and say so.
 So there is **no** "redirect to a file, then read it" trick — the redirect
 itself sandboxes `gh`. Keep it a single bare command, let the output come back on
 stdout, and shape the output with `gh`'s own flags rather than piping.
+
+### git over HTTPS: the trap reads as an auth failure
+
+`git fetch`, `pull`, `push`, and `ls-remote` against an HTTPS remote get their
+credentials from a credential helper — commonly `gh auth git-credential`, which
+needs `gh`'s config and keychain. Chain one with the commands that use its
+result and the whole call stays sandboxed, so the helper can't answer and git
+falls back to prompting with no terminal:
+
+```
+warning: failed to load config: open …/.config/gh/config.yml: operation not permitted
+fatal: could not read Username for 'https://github.com': Device not configured
+```
+
+The error says nothing about the token. Fetch in one bare call, then run
+`rev-parse`, `merge-base`, `log`, or `diff` in the next — those are local and
+work sandboxed:
+
+```sh
+git fetch origin pull/123/head:refs/remotes/origin/pr-123 main
+```
+
+```sh
+git merge-base origin/main origin/pr-123 && git diff --numstat origin/main...origin/pr-123
+```
+
+If the bare fetch fails the same way, run the `gh` token triage below. A network
+subcommand that isn't on the exclusion list — `git clone`, `git submodule
+update` — fails like this however it's written; hand it to the user rather than
+rephrasing it.
 
 ## git in a worktree: index, ref, and worktree writes are blocked
 
