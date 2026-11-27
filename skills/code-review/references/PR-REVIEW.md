@@ -73,10 +73,15 @@ SHA is on the review, and only over REST — `gh pr view --json reviews` carries
 gh api repos/<owner>/<repo>/pulls/<n>/reviews --paginate \
   --jq '.[] | {user: .user.login, state, submitted_at, commit_id}'
 
-git fetch origin pull/<n>/head
+git fetch <remote> pull/<n>/head
 git log --oneline <commit_id>..FETCH_HEAD
 git diff <commit_id>..FETCH_HEAD
 ```
+
+`<remote>` is the remote whose URL is the PR's own repository, which is the
+`url` that `gh pr view <n> --json url` prints, checked against `git remote -v`.
+In a clone of a fork that is usually `upstream`, not `origin`, and the fork has
+no `pull/` refs: the fetch fails with `couldn't find remote ref`.
 
 Two dots here, not three: you want what the author pushed since, not a fresh
 merge-base comparison. Fetching the ref only copies objects — it runs nothing,
