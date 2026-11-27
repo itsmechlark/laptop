@@ -91,7 +91,9 @@ The two skills fit together: `slice` produced the observable behaviors, and TDD 
 
 Keep the implementation lean while you build, and measure the diff against the budget before moving on — both are in [LEANNESS.md](LEANNESS.md).
 
-**Exit:** every criterion covered by a test that was red before it was green, a green suite, and a diff measured against the budget.
+**In a localized app, the slice's strings ship in every locale.** User-facing text goes through the i18n layer the neighboring code uses, never as a literal. Once the slice's own tests are green, **invoke `translate-locales`** for the keys this slice added or reworded in the source locale — before the full suite, where a missing-translation spec would otherwise stay red. A key that exists only in `en` falls back, shows the raw key, or raises in every other locale, and that is a defect on a normal path, not a follow-up. Translated locale files are data and stay out of the budget ([LEANNESS.md](LEANNESS.md#the-budget)). When the repo deliberately routes translation through a TMS or a translation team instead, say so in Phase 7 rather than translating.
+
+**Exit:** every criterion covered by a test that was red before it was green, a green suite, the slice's new strings present in every shipped locale (or handed off, with a named reason), and a diff measured against the budget.
 
 ## Phase 5: Review and fix the diff
 

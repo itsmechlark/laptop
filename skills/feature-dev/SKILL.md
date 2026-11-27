@@ -39,14 +39,14 @@ Track the phases with `TaskCreate` and `TaskUpdate`, so the user can see where t
 - [ ] **1. Frame the work** — understand the feature, and rule on one slice vs. an epic — [PHASES.md](references/PHASES.md#phase-1-frame-the-work)
 - [ ] **2. Explore the codebase** — where this lands, what to reuse, how this repo tests — [PHASES.md](references/PHASES.md#phase-2-explore-the-codebase)
 - [ ] **3. Shape the slice** — one job story with a "ships when" and verifiable acceptance criteria — [PHASES.md](references/PHASES.md#phase-3-shape-the-slice)
-- [ ] **4. Build it test-first** — strict red-green-refactor, driven by those criteria — [PHASES.md](references/PHASES.md#phase-4-build-it-test-first)
+- [ ] **4. Build it test-first** — strict red-green-refactor, driven by those criteria, then the slice's new strings into every locale — [PHASES.md](references/PHASES.md#phase-4-build-it-test-first)
 - [ ] **5. Review and fix the diff** — findings, then the fixes, then the full Definition of Done — [PHASES.md](references/PHASES.md#phase-5-review-and-fix-the-diff)
 - [ ] **6. Commit the slice** — one atomic commit whose message carries the "ships when" — [PHASES.md](references/PHASES.md#phase-6-commit-the-slice)
 - [ ] **7. Hand it back** — what shipped, what's covered, what's still waiting — [PHASES.md](references/PHASES.md#phase-7-hand-it-back)
 
 **Plan through Phases 1–3, build from 4.** After Phase 0 (it creates a worktree, which plan mode would block), call `EnterPlanMode` and stay in it until the slice is shaped; call `ExitPlanMode` with the sharpened slice as the plan before Phase 4. Plan mode is read-only, which fits framing and exploration, and on Claude with the `opusplan` model it runs the design phases on Opus and the build on Sonnet. On a concrete session model it changes permissions only. Clients without a plan mode skip this and run the phases as written.
 
-Phases 3, 4, 5, and 6 each run a co-shipped skill — `slice`, `tdd`, `code-review`, `git-commit` — through the Skill tool. Run them in sequence and keep the handoffs clean; each is rigorous on its own and your job is not to water it down. If one can't be invoked, follow its `SKILL.md` rather than skipping the phase.
+Phases 3, 4, 5, and 6 each run a co-shipped skill — `slice`, `tdd`, `code-review`, `git-commit` — through the Skill tool. Phase 4 adds `translate-locales` when the app is localized and the slice added user-facing strings. Run them in sequence and keep the handoffs clean; each is rigorous on its own and your job is not to water it down. If one can't be invoked, follow its `SKILL.md` rather than skipping the phase.
 
 ### Keeping the diff lean
 

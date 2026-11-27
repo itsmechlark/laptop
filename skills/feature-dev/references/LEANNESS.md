@@ -4,7 +4,7 @@ Slicing controls *what* ships. It does nothing to stop the implementation of a p
 
 ## The budget
 
-**Under ~300 lines of production code** — excluding tests, comments, and blank lines.
+**Under ~300 lines of production code** — excluding tests, comments, and blank lines. Non-source locale files are excluded too: one new string shipped in twenty languages is one string of work, not twenty lines of design. The source locale (`en.yml`, `en.json`) still counts.
 
 Carry it from Phase 3 onward as a design constraint, not as a gate discovered at the end. A 900-line diff noticed at the Phase 4 checkpoint means the last two hours went into code you are about to delete; the same number predicted at Phase 3 costs one re-slicing conversation.
 
@@ -28,7 +28,7 @@ git diff --stat "$(git merge-base HEAD <base>)" -- ':(exclude)<test-dirs>'
 git ls-files --others --exclude-standard -- ':(exclude)<test-dirs>'
 ```
 
-Substitute the branch the slice came off for `<base>`, and this project's test directories for `<test-dirs>` — `spec/`, `test/`, `__tests__/`, whatever Phase 2 found. A `...HEAD` range would read only commits and come back empty here. The first command covers tracked files, committed or not; the second lists the new files no diff shows, whose lines count too. The count includes comments and blank lines, so discount those by eye rather than chasing an exact number.
+Substitute the branch the slice came off for `<base>`, and this project's test directories for `<test-dirs>` — `spec/`, `test/`, `__tests__/`, whatever Phase 2 found. Add one more `':(exclude)…'` pathspec per non-source locale file or directory the slice translated into. A `...HEAD` range would read only commits and come back empty here. The first command covers tracked files, committed or not; the second lists the new files no diff shows, whose lines count too. The count includes comments and blank lines, so discount those by eye rather than chasing an exact number.
 
 ## When it runs over
 
