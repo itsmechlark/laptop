@@ -1,0 +1,22 @@
+[
+  {"query": "i added six keys to config/locales/en.yml for the waitlist banner, can you translate them into the other locale files", "should_trigger": true},
+  {"query": "fill in the missing translations in ja.yml and ko.yml compared to en.yml", "should_trigger": true},
+  {"query": "we reworded the cancellation policy copy in en.json, the other languages are stale now. sync them", "should_trigger": true},
+  {"query": "localize the new checkout strings into all our supported languages", "should_trigger": true},
+  {"query": "translate the new msgids in priv/gettext into the de and fr .po files", "should_trigger": true},
+  {"query": "check our locale files for broken placeholders and latin letters mixed into the russian translations", "should_trigger": true},
+  {"query": "add the french, spanish and german versions for the new keys in lib/l10n/app_en.arb", "should_trigger": true},
+  {"query": "the ICU plural for seat_count is only in English, add it to the other translations/*.yaml files", "should_trigger": true},
+  {"query": "audit the i18next json files in public/locales for plural forms that don't match the language", "should_trigger": true},
+  {"query": "translate the locale keys changed on this branch vs main", "should_trigger": true},
+  {"query": "replace the hardcoded 'Book now' string in this React component with a t() call", "should_trigger": false},
+  {"query": "translate this README into Japanese for our Tokyo team", "should_trigger": false},
+  {"query": "how does the locale selector decide which language to show a visitor?", "should_trigger": false},
+  {"query": "review PR #812 before I merge it", "should_trigger": false},
+  {"query": "explain how I18n.t falls back when a key is missing in our Rails app", "should_trigger": false},
+  {"query": "write a commit message for the locale file changes I just made", "should_trigger": false},
+  {"query": "tighten up the wording of this error message in en.yml so it reads less robotic", "should_trigger": false},
+  {"query": "set up i18next in our new Vite app with namespaces and lazy loading", "should_trigger": false},
+  {"query": "convert this Python data processing script to Ruby", "should_trigger": false},
+  {"query": "the en.yml file has duplicate keys and the YAML won't parse, fix it", "should_trigger": false}
+]
