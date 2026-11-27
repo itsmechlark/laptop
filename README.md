@@ -499,6 +499,7 @@ shellcheck scripts/check-payload scripts/gen-cursor-rules \
   scripts/gen-codex-agents scripts/gen-cursor-agents
 sh scripts/check-payload
 python3 spec/codex_policy_test.py -v
+python3 spec/check_locales_test.py -v
 ```
 
 All must exit zero before you open a pull request; CI runs them on every PR in
@@ -519,6 +520,12 @@ Claude's worktree hooks are tested the same way, except that the
 `WorktreeCreate` hook runs `git` against a throwaway repository.
 Run one regression with `python3 spec/codex_policy_test.py
 CodexPolicyTest.test_newline_does_not_hide_force_push`.
+
+The locale-checker tests drive the `translate-locales` skill's
+`scripts/check-locales` against small locale files written to a temp
+directory, one case per defect it must catch or legitimate text it must pass.
+They need `ruby`; set `RUBY=/usr/bin/ruby` to run them on the macOS system
+Ruby (2.6), the oldest one the script supports.
 
 A skill or rule adapted from someone else's work has to carry both halves of its
 provenance: an entry in `skills-provenance.json` or `rules-provenance.json`, and

@@ -1,0 +1,724 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Compares translated locale files against their source locale and reports the
+# defects a reader cannot see: drifted placeholders, homoglyphs, decomposed
+# accents, invisible characters, broken ICU messages, and plural-form drift.
+# Stdlib only, and runs on the macOS system Ruby (2.6) as well as current ones.
+# cspell:ignore ZWSP sdif sdifr aceopxy entr -- constants, printf and lookalike character classes, a pluralized message
+# cspell:ignore Встреча другом -- the Cyrillic example in mixed_script_words
+
+require "date"
+require "json"
+require "optparse"
+require "set"
+require "yaml"
+
+PLURAL_FORMS = %w[zero one two few many other].freeze
+PLURAL_SUFFIX = /_(#{PLURAL_FORMS.join('|')})\z/.freeze
+INVISIBLE_FAIL = {
+  0x200B => "ZERO WIDTH SPACE",
+  0x2060 => "WORD JOINER",
+  0xFEFF => "BYTE ORDER MARK",
+  0x00AD => "SOFT HYPHEN"
+}.transform_keys { |cp| cp.chr(Encoding::UTF_8) }.freeze
+INVISIBLE_WARN = {
+  0x200C => "ZERO WIDTH NON-JOINER",
+  0x200D => "ZERO WIDTH JOINER"
+}.transform_keys { |cp| cp.chr(Encoding::UTF_8) }.freeze
+ZWSP = 0x200B.chr(Encoding::UTF_8)
+# Scripts written without spaces between words, where U+200B is a legitimate
+# line-break hint rather than a generation artifact.
+NO_SPACE_SCRIPTS = /\p{Thai}|\p{Lao}|\p{Khmer}|\p{Myanmar}/.freeze
+# Lowercase Latin letters that render identically to a Cyrillic or Greek one.
+# Capitals standing alone ("Тип A", an "H" icon) are usually deliberate labels.
+HOMOGLYPHS = /\A[aceopxy]\z/.freeze
+# Wrappers JSON tools put around one message: FormatJS extraction, Chrome
+# messages.json, Transifex/Crowdin structured JSON.
+MESSAGE_FIELDS = %w[defaultMessage message string].freeze
+MESSAGE_META = %w[description context developer_comment placeholders character_limit id].freeze
+TYPED_ICU = /\{\s*\w+\s*,\s*(?:plural|select|selectordinal|number|date|time)\b/.freeze
+SUPPORTED = %w[.yml .yaml .json .arb .po .pot .properties].freeze
+
+options = { source: nil, keys_file: nil, max: 50, missing: false, icu: nil }
+parser = OptionParser.new do |o|
+  o.banner = <<~USAGE
+    Usage: check-locales [--source SOURCE_FILE] [options] TARGET_FILE...
+
+    Checks each TARGET_FILE against SOURCE_FILE. Formats, by extension:
+    .yml/.yaml, .json/.arb, .po/.pot, .properties. A single root key naming the
+    file's locale (Rails ja.yml -> ja:) is unwrapped. --source is optional for
+    .po targets, whose msgid is the source text; pass the .pot to also count
+    untranslated entries. A target that is the source file is skipped.
+
+    With --keys-file, every listed key must exist in the source and in each
+    target: a missing one is a FAIL, and a listed key the source does not have
+    is a usage error. Without it, the whole file is checked and missing keys
+    are only counted.
+
+    Exits 1 when any FAIL is reported, 2 on a usage error, 0 otherwise.
+  USAGE
+  o.on("--source FILE", "Source-locale file the targets are compared with") { |v| options[:source] = v }
+  o.on("--keys-file FILE", "Check only these keys (one per line; a parent covers its children)") { |v| options[:keys_file] = v }
+  o.on("--[no-]icu", "Force ICU apostrophe quoting on or off (default: on for .arb, or when the source has typed ICU arguments)") { |v| options[:icu] = v }
+  o.on("--max N", Integer, "Findings shown per check per file (default 50, 0 = all)") { |v| options[:max] = v }
+  o.on("--missing", "List each key missing from a target, not just the count") { options[:missing] = true }
+  o.on("-h", "--help", "Show this help") do
+    puts o
+    exit 0
+  end
+end
+
+def usage_error(parser, message)
+  warn "check-locales: #{message}"
+  warn parser
+  exit 2
+end
+
+begin
+  parser.parse!
+rescue OptionParser::ParseError => e
+  usage_error(parser, e.message)
+end
+
+usage_error(parser, "at least one target file is required") if ARGV.empty?
+(ARGV + [options[:source], options[:keys_file]].compact).each do |path|
+  usage_error(parser, "#{path}: no such file") unless File.file?(path)
+end
+(ARGV + [options[:source]].compact).each do |path|
+  next if SUPPORTED.include?(File.extname(path).downcase)
+
+  usage_error(parser, "#{path}: unsupported format (#{SUPPORTED.join(' ')}); see references/FORMATS.md for the rest")
+end
+if options[:source].nil? && !ARGV.all? { |p| File.extname(p).downcase == ".po" }
+  usage_error(parser, "--source is required unless every target is a .po file")
+end
+
+class LocaleFile
+  attr_reader :path, :error, :leaves, :plurals, :fuzzy, :sources, :nplurals, :root
+
+  # unwrap: false keeps a single root key as data; targets pass false whenever
+  # the source had no locale root, so both sides key their entries alike.
+  def initialize(path, plural_bases: [], unwrap: true)
+    @path = path
+    @plural_bases = plural_bases.to_set
+    @unwrap = unwrap
+    @leaves = {}
+    @plurals = {}
+    @fuzzy = []
+    @sources = {}
+    @nplurals = nil
+    @root = nil
+    @error = nil
+    load
+  end
+
+  def ext
+    File.extname(@path).downcase
+  end
+
+  def values
+    @leaves.values + @plurals.values.flat_map(&:values)
+  end
+
+  private
+
+  def load
+    text = read_text
+    case ext
+    when ".po", ".pot" then parse_po(text)
+    when ".properties" then parse_properties(text)
+    else
+      data = unwrap(parse_tree(text))
+      raise "top level is #{data.class}, expected a mapping" unless data.is_a?(Hash)
+
+      flatten(data, [])
+      group_suffix_plurals
+    end
+  rescue StandardError, Psych::Exception => e
+    @error = e.message.lines.first.to_s.strip
+  end
+
+  # Properties files before Java 9 are ISO-8859-1; everything else is UTF-8.
+  def read_text
+    text = File.read(@path, encoding: "UTF-8")
+    return text if text.valid_encoding?
+    raise "not valid UTF-8" unless ext == ".properties"
+
+    File.read(@path, encoding: "ISO-8859-1").encode("UTF-8")
+  end
+
+  def parse_tree(text)
+    %w[.json .arb].include?(ext) ? JSON.parse(text) : YAML.safe_load(text, permitted_classes: [Symbol, Date, Time], aliases: true)
+  end
+
+  # Unwrap only a root that names this file's locale (ja.yml -> ja:,
+  # devise.ja.yml -> ja:, ja/common.json -> ja:), so a namespace file with a
+  # single top-level key is never mistaken for a locale root.
+  def unwrap(data)
+    return data unless @unwrap && data.is_a?(Hash) && data.size == 1 && data.values.first.is_a?(Hash)
+
+    key = data.keys.first
+    stem = File.basename(@path, File.extname(@path))
+    tokens = [stem] + stem.split(/[._]/) + File.dirname(@path).split(File::SEPARATOR)
+    # YAML 1.1 reads a bare Norwegian `no:` root as false.
+    name = key == false ? "no" : key.to_s
+    return data unless tokens.include?(name)
+
+    @root = name
+    data.values.first
+  end
+
+  def flatten(node, path)
+    if node.is_a?(Hash)
+      keys = node.keys.map(&:to_s)
+      if !keys.empty? && (keys - PLURAL_FORMS).empty? && node.values.all? { |v| v.nil? || v.is_a?(String) }
+        @plurals[path.join(".")] = node.each_with_object({}) { |(k, v), h| h[k.to_s] = v }
+        return
+      end
+      field = MESSAGE_FIELDS.find { |f| node[f].is_a?(String) }
+      if ext != ".yml" && ext != ".yaml" && field && (keys - [field] - MESSAGE_META).empty?
+        @leaves[path.join(".")] = node[field]
+        return
+      end
+      node.each do |k, v|
+        # ARB and similar formats keep per-message metadata under "@key".
+        next if k.to_s.start_with?("@")
+
+        flatten(v, path + [k.to_s])
+      end
+    elsif node.is_a?(Array)
+      node.each_with_index { |v, i| flatten(v, path + [i.to_s]) }
+    else
+      @leaves[path.join(".")] = node
+    end
+  end
+
+  # i18next spells plurals as sibling keys: item_one, item_other. A base is a
+  # plural when it has an _other form, or when the source file says it is one
+  # (so a target that dropped _other still reads as that plural).
+  def group_suffix_plurals
+    groups = @leaves.keys.grep(PLURAL_SUFFIX).group_by { |k| k.sub(PLURAL_SUFFIX, "") }
+    groups.each do |base, keys|
+      next unless keys.any? { |k| k.end_with?("_other") } || @plural_bases.include?(base)
+
+      @plurals[base] = keys.each_with_object({}) { |k, h| h[k[(base.size + 1)..-1]] = @leaves.delete(k) }
+    end
+  end
+
+  # Gettext: the msgid is the source text, so each entry is checked against its
+  # own msgid. Keys are "msgctxt|msgid", so the same msgid in two contexts
+  # stays two entries. An entry ends at a blank line or where the next begins.
+  def parse_po(text)
+    entries = []
+    entry = nil
+    field = nil
+    text.each_line do |raw|
+      line = raw.strip
+      if line.empty?
+        entries << entry if entry
+        entry = nil
+        next
+      end
+      if entry && !entry[:str].empty? && line =~ /\A(#|msgctxt\s|msgid\s)/
+        entries << entry
+        entry = nil
+      end
+      entry ||= { flags: [], str: {} }
+      case line
+      when /\A#,(.*)/ then entry[:flags].concat(Regexp.last_match(1).split(",").map(&:strip))
+      when /\A#~/ then entry[:obsolete] = true
+      when /\A#/ then next
+      when /\A(msgctxt|msgid_plural|msgid)\s+(".*")\z/
+        field = Regexp.last_match(1).to_sym
+        entry[field] = po_string(Regexp.last_match(2))
+      when /\Amsgstr(?:\[(\d+)\])?\s+(".*")\z/
+        field = [:str, Regexp.last_match(1).to_i]
+        entry[:str][Regexp.last_match(1).to_i] = po_string(Regexp.last_match(2))
+      when /\A".*"\z/
+        raise "continuation line with no field: #{line}" unless field
+
+        if field.is_a?(Array)
+          entry[:str][field[1]] += po_string(line)
+        else
+          entry[field] += po_string(line)
+        end
+      else
+        raise "unrecognized line: #{line[0, 60]}"
+      end
+    end
+    entries << entry if entry
+    entries.each { |e| add_po_entry(e) }
+  end
+
+  def add_po_entry(entry)
+    return if entry[:obsolete] || entry[:msgid].nil?
+
+    if entry[:msgid].empty?
+      @nplurals = entry[:str][0].to_s[/nplurals\s*=\s*(\d+)/, 1]&.to_i
+      return
+    end
+    key = [entry[:msgctxt], entry[:msgid]].compact.join("|")
+    @fuzzy << key if entry[:flags].include?("fuzzy")
+    if entry[:msgid_plural]
+      @sources[key] = { "one" => entry[:msgid], "other" => entry[:msgid_plural] }
+      forms = entry[:str].sort.map(&:last)
+      @plurals[key] = forms.each_with_index.map { |v, i| ["msgstr[#{i}]", v] }.to_h unless forms.all?(&:empty?)
+    else
+      @sources[key] = entry[:msgid]
+      @leaves[key] = entry[:str][0] unless entry[:str][0].to_s.empty?
+    end
+  end
+
+  def po_string(quoted)
+    quoted[1..-2].gsub(/\\(["\\nt])/) { { "n" => "\n", "t" => "\t" }.fetch(Regexp.last_match(1), Regexp.last_match(1)) }
+  end
+
+  # A line continues only when it ends in an odd number of backslashes;
+  # "C:\\" ends in an escaped backslash and stands alone.
+  def parse_properties(text)
+    logical = []
+    pending = nil
+    text.each_line do |raw|
+      line = raw.chomp
+      line = line.lstrip if pending
+      trailing = line[/\\*\z/].size
+      if trailing.odd?
+        pending = (pending || "") + line[0...-1]
+        next
+      end
+      logical << (pending || "") + line
+      pending = nil
+    end
+    logical << pending if pending
+    logical.each do |line|
+      next if line.strip.empty? || line.lstrip.start_with?("#", "!")
+
+      key, value = line.lstrip.split(/(?<!\\)\s*[=:]\s*|(?<!\\)\s+/, 2)
+      @leaves[key] = (value || "").gsub(/\\u(\h{4})/) { Regexp.last_match(1).hex.chr(Encoding::UTF_8) }.gsub(/\\(.)/, '\1')
+    end
+  end
+end
+
+# Placeholders in the syntaxes locale files use. Each family is removed after
+# it is read so its braces or percent signs are not read twice.
+module Placeholders
+  module_function
+
+  FAMILIES = [
+    /%\{(\w+)\}/,                              # Rails, Elixir/Phoenix gettext
+    /\{\{\s*-?\s*(\w+)[^}]*\}\}/,              # i18next, Handlebars
+    /\$t\([^)]*\)/,                            # i18next nesting
+    /%\((\w+)\)[-+ #0]*\d*(?:\.\d+)?[sdifr]/,  # Python, Django
+    /(%\d+\$[-+ #0]*\d*(?:\.\d+)?[sdif@])/,    # positional printf: Android, iOS
+    /(@\.?\w*:[\w.]+)/                         # vue-i18n linked message
+  ].freeze
+  # Bare %s/%d only where printf is the catalog's convention. Elsewhere it
+  # misreads strftime formats ("%Y-%m-%d") and "%{pct}% discount".
+  PRINTF = /(%(?!%)[-+#0]*\d*(?:\.\d+)?l?[sdif@])/.freeze
+  LOKALISE = /\[%key(?:_id)?:[^\]]+%?\]/.freeze
+  TAG = %r{<(/?)([A-Za-z0-9][\w-]*)[^>]*?(/?)>}.freeze
+
+  def extract(value, ctx)
+    names = []
+    rest = value.gsub(LOKALISE, " ")
+    (ctx[:po] ? FAMILIES + [PRINTF] : FAMILIES).each do |re|
+      rest = rest.gsub(re) { names << Regexp.last_match(0).gsub(/\s+/, ""); " " }
+    end
+    icu = Icu.new(rest, quoting: ctx[:icu]).parse
+    names.concat(icu[:args].map { |a| "{#{a}}" })
+    {
+      names: names.uniq.sort, icu_error: icu[:error], selectors: icu[:selectors],
+      lokalise: value.scan(LOKALISE).sort, tags: tags(value)
+    }
+  end
+
+  def tags(value)
+    value.scan(TAG).reject { |_close, _name, self_closing| self_closing == "/" }
+         .map { |close, name, _| "#{close}#{name.downcase}" }.sort
+  end
+
+  # The text a reader sees: placeholders, link references, and tags removed.
+  def strip(value)
+    stripped = FAMILIES.reduce(value.gsub(LOKALISE, " ").gsub(TAG, " ")) { |s, re| s.gsub(re, " ") }
+    stripped.gsub(/\{[^{}]*\}/, " ")
+  end
+
+  def words(value)
+    strip(value).scan(/\p{L}{2,}/)
+  end
+end
+
+# Just enough ICU MessageFormat to find argument names, record each plural or
+# select's options, and notice a translated keyword, which breaks the message
+# at runtime. Apostrophe quoting applies only where the format is ICU: in
+# vue-i18n or Python brace strings an apostrophe is ordinary text.
+class Icu
+  class IcuError < StandardError; end
+
+  def initialize(text, quoting: false)
+    @s = text
+    @i = 0
+    @quoting = quoting
+    @args = Set.new
+    @selectors = {}
+  end
+
+  def parse
+    message(top: true)
+    { args: @args.to_a.sort, error: nil, selectors: @selectors }
+  rescue IcuError => e
+    { args: @args.to_a.sort, error: e.message, selectors: @selectors }
+  end
+
+  private
+
+  def message(top: false)
+    while @i < @s.size
+      c = @s[@i]
+      if @quoting && c == "'" && @s[@i + 1] == "'"
+        @i += 2
+      elsif @quoting && c == "'" && @s[@i + 1] =~ /[{}#|]/
+        close = @s.index("'", @i + 1)
+        @i = close ? close + 1 : @s.size
+      elsif c == "{"
+        argument
+      elsif c == "}"
+        raise IcuError, "unbalanced '}'" if top
+
+        return
+      else
+        @i += 1
+      end
+    end
+    raise IcuError, "unclosed '{'" unless top
+  end
+
+  def argument
+    @i += 1
+    name = token
+    # A brace that does not open an argument is literal text in Rails or
+    # i18next strings; only ICU-shaped braces are held to ICU rules.
+    return skip_literal if name.empty?
+
+    @args << name
+    ws
+    case @s[@i]
+    when "}" then @i += 1
+    when "," then typed_argument(name)
+    else skip_literal
+    end
+  end
+
+  def typed_argument(name)
+    @i += 1
+    ws
+    type = token
+    ws
+    if %w[plural select selectordinal].include?(type)
+      raise IcuError, "{#{name}, #{type}} has no options" unless @s[@i] == ","
+
+      @i += 1
+      return options(name, type)
+    end
+
+    depth = 1
+    while @i < @s.size && depth.positive?
+      depth += 1 if @s[@i] == "{"
+      depth -= 1 if @s[@i] == "}"
+      @i += 1
+    end
+    raise IcuError, "unclosed {#{name}, #{type}}" unless depth.zero?
+  end
+
+  def options(name, type)
+    selectors = []
+    loop do
+      ws
+      raise IcuError, "unclosed {#{name}, #{type}}" if @i >= @s.size
+
+      if @s[@i] == "}"
+        @i += 1
+        break
+      end
+      selector = @s[@i..-1][/\A[^\s{}]+/].to_s
+      raise IcuError, "{#{name}, #{type}} option without a selector" if selector.empty?
+
+      @i += selector.size
+      next if selector.start_with?("offset:")
+
+      if type != "select" && !PLURAL_FORMS.include?(selector) && selector !~ /\A=\d+\z/
+        raise IcuError, "{#{name}, #{type}} has option '#{selector}', which is not a plural keyword - was it translated?"
+      end
+      selectors << selector
+      ws
+      raise IcuError, "{#{name}, #{type}} option '#{selector}' has no {message}" unless @s[@i] == "{"
+
+      @i += 1
+      message
+      raise IcuError, "unclosed branch '#{selector}' in {#{name}, #{type}}" unless @s[@i] == "}"
+
+      @i += 1
+    end
+    raise IcuError, "{#{name}, #{type}} has no 'other' branch (options: #{selectors.join(' ')})" unless selectors.include?("other")
+
+    (@selectors[name] ||= [type, Set.new])[1].merge(selectors)
+  end
+
+  def token
+    t = @s[@i..-1][/\A\s*(\w+)/, 1].to_s
+    @i += @s[@i..-1][/\A\s*/].size + t.size unless t.empty?
+    t
+  end
+
+  def ws
+    @i += 1 while @i < @s.size && @s[@i] =~ /\s/
+  end
+
+  def skip_literal
+    @i += 1 while @i < @s.size && @s[@i] != "}"
+    @i += 1 if @i < @s.size
+  end
+end
+
+class Report
+  attr_reader :fails
+
+  def initialize(max)
+    @max = max
+    @fails = 0
+    @rows = Hash.new { |h, k| h[k] = [] }
+  end
+
+  def add(level, check, key, detail)
+    @fails += 1 if level == "FAIL"
+    @rows[[level, check]] << [key, detail]
+  end
+
+  def print(path, footer)
+    puts "== #{path}"
+    @rows.sort_by { |(level, check), _| [%w[FAIL WARN INFO].index(level), check] }.each do |(level, check), rows|
+      shown = @max.zero? ? rows : rows.first(@max)
+      shown.each { |key, detail| puts format("%-4s  %-12s %s  %s", level, check, key, detail).rstrip }
+      puts format("%-4s  %-12s ... %d more", level, check, rows.size - shown.size) if shown.size < rows.size
+    end
+    footer.each { |line| puts "      #{line}" }
+    puts
+  end
+end
+
+# The keys a scope entry names: as written, without a leading locale root, and
+# with an i18next plural suffix folded into its base key.
+def scope_forms(entry, root)
+  forms = [entry]
+  forms << entry.sub(/\A#{Regexp.escape(root)}\./, "") if root
+  forms.concat(forms.map { |f| f.sub(PLURAL_SUFFIX, "") })
+  forms.uniq
+end
+
+def scope_hit?(key, entry)
+  key == entry || key.start_with?("#{entry}.") || entry.start_with?("#{key}.")
+end
+
+def in_scope?(key, scope)
+  scope.nil? || scope.any? { |_entry, forms| forms.any? { |f| scope_hit?(key, f) } }
+end
+
+def mixed_script_words(value)
+  # URLs, emails, and "(a)"-style list markers are Latin on purpose.
+  prose = Placeholders.strip(value).gsub(%r{\b(?:https?://|www\.)\S+|\S+@\S+|\(\p{Latin}\)}, " ")
+  words = prose.scan(/\p{L}+/)
+  mixed = words.select do |word|
+    word.match?(/\p{Latin}/) && (word.match?(/\p{Cyrillic}/) || word.match?(/\p{Greek}/))
+  end
+  # A lone Latin lookalike with Cyrillic or Greek on both sides ("Встреча c
+  # другом") is the same defect as one inside a word. A Latin neighbor means a
+  # Latin phrase ("a la carte", "a-z"), which is deliberate.
+  non_latin = ->(w) { w.nil? || w.match?(/\A[\p{Cyrillic}\p{Greek}]+\z/) }
+  words.each_with_index do |w, i|
+    next unless w.match?(HOMOGLYPHS)
+    next unless non_latin.call(i.zero? ? nil : words[i - 1]) && non_latin.call(words[i + 1])
+    next if words.size == 1
+
+    mixed << "#{w} (Latin)"
+  end
+  mixed
+end
+
+def show(list, wrap = nil)
+  return "(none)" if list.empty?
+
+  wrap ? list.map { |x| "<#{x}>" }.join(" ") : list.join(" ")
+end
+
+def check_text(report, ctx, key, src, tgt, plural: nil)
+  if tgt == "" && src.is_a?(String) && !src.empty?
+    return report.add("WARN", "empty", key, "empty string renders nothing; confirm the language needs no text here")
+  end
+  return unless tgt.is_a?(String)
+
+  mixed = mixed_script_words(tgt)
+  report.add("FAIL", "script", key, "mixed-script word(s): #{mixed.join(', ')}") unless mixed.empty?
+  report.add("FAIL", "nfc", key, "not NFC-normalized (decomposed accents)") unless tgt.unicode_normalize(:nfc) == tgt
+  INVISIBLE_FAIL.each do |ch, label|
+    next unless tgt.include?(ch)
+
+    if ch == ZWSP && tgt.match?(NO_SPACE_SCRIPTS)
+      report.add("WARN", "invisible", key, "#{label} - a line-break hint in this script; keep only where intended")
+    else
+      report.add("FAIL", "invisible", key, label)
+    end
+  end
+  INVISIBLE_WARN.each { |ch, label| report.add("WARN", "invisible", key, "#{label} - keep only where the script needs it") if tgt.include?(ch) }
+  return unless src.is_a?(String)
+
+  s = Placeholders.extract(src, ctx)
+  t = Placeholders.extract(tgt, ctx)
+  if plural
+    unknown = t[:names] - plural[:names]
+    report.add("FAIL", "placeholder", key, "#{unknown.join(' ')} appear in no source form") unless unknown.empty?
+    dropped = plural[:required] - t[:names]
+    report.add("FAIL", "placeholder", key, "the 'other' form dropped #{dropped.join(' ')}") unless dropped.empty?
+  elsif s[:names] != t[:names]
+    report.add("FAIL", "placeholder", key, "source #{show(s[:names])} / target #{show(t[:names])}")
+  end
+  report.add("FAIL", "lokalise", key, "source #{show(s[:lokalise])} / target #{show(t[:lokalise])}") if s[:lokalise] != t[:lokalise]
+  report.add("FAIL", "icu", key, t[:icu_error]) if t[:icu_error] && s[:icu_error].nil?
+  t[:selectors].each do |arg, (type, opts)|
+    next unless type == "select" && s[:selectors][arg] && s[:selectors][arg][1] != opts
+
+    report.add("FAIL", "icu", key, "{#{arg}, select} options #{opts.to_a.sort.join(' ')}; source has #{s[:selectors][arg][1].to_a.sort.join(' ')}")
+  end
+  if ctx[:properties] && !s[:names].empty? && tgt.gsub("''", "").include?("'")
+    report.add("FAIL", "apostrophe", key, "a lone ' quotes the rest of a MessageFormat pattern; write ''")
+  end
+  report.add("WARN", "html", key, "source #{show(s[:tags], true)} / target #{show(t[:tags], true)}") if s[:tags] != t[:tags]
+  return unless tgt == src && Placeholders.words(src).size >= 3
+
+  report.add("WARN", "identical", key, "same as source - untranslated, or text that stays as-is?")
+end
+
+def dominant_plural_set(plurals)
+  sets = plurals.values.map { |h| h.keys.sort }
+  return nil if sets.size < 5
+
+  set, count = sets.group_by(&:itself).map { |k, v| [k, v.size] }.max_by { |_, n| n }
+  count.to_f / sets.size >= 0.6 ? set : nil
+end
+
+def check_plurals(report, ctx, target, source_plurals, scope, missing)
+  usual = ctx[:po] ? nil : dominant_plural_set(target.plurals)
+  source_plurals.each do |key, src_forms|
+    next unless in_scope?(key, scope)
+
+    forms = target.plurals[key]
+    if forms.nil?
+      missing << key
+      next
+    end
+    if ctx[:po]
+      if target.nplurals && forms.size != target.nplurals
+        report.add("FAIL", "plural", key, "#{forms.size} msgstr forms; Plural-Forms header says nplurals=#{target.nplurals}")
+      end
+    else
+      report.add("FAIL", "plural", key, "no 'other' form") unless forms.key?("other")
+      report.add("WARN", "plural", key, "forms #{forms.keys.sort.join(',')}; this file usually uses #{usual.join(',')}") if usual && forms.keys.sort != usual
+    end
+    names = src_forms.values.compact.flat_map { |v| Placeholders.extract(v, ctx)[:names] }.uniq
+    required = src_forms["other"] ? Placeholders.extract(src_forms["other"], ctx)[:names] : []
+    forms.each do |form, value|
+      plural = { names: names, required: form == "other" ? required : [] }
+      check_text(report, ctx, "#{key}.#{form}", src_forms[form] || src_forms["other"], value, plural: plural)
+    end
+  end
+end
+
+source = nil
+if options[:source]
+  source = LocaleFile.new(options[:source])
+  usage_error(parser, "cannot parse source #{options[:source]}: #{source.error}") if source.error
+end
+
+scope = nil
+if options[:keys_file]
+  entries = File.readlines(options[:keys_file], chomp: true).map(&:strip).reject { |l| l.empty? || l.start_with?("#") }
+  usage_error(parser, "#{options[:keys_file]} lists no keys") if entries.empty?
+  scope = entries.map { |e| [e, scope_forms(e, source&.root)] }
+end
+matched = Set.new
+
+icu_default = source ? source.ext == ".arb" || source.values.any? { |v| v.is_a?(String) && v.match?(TYPED_ICU) } : false
+
+total_fails = 0
+ARGV.each do |path|
+  if source && File.expand_path(path) == File.expand_path(source.path)
+    puts "== #{path}\n      skipped: this is the source file\n\n"
+    next
+  end
+  report = Report.new(options[:max])
+  target = LocaleFile.new(path, plural_bases: source ? source.plurals.keys : [], unwrap: source.nil? || !source.root.nil?)
+  if target.error
+    report.add("FAIL", "parse", "-", target.error)
+    report.print(path, [])
+    total_fails += report.fails
+    next
+  end
+
+  po = target.ext == ".po"
+  icu = options[:icu].nil? ? (target.ext == ".arb" || icu_default) : options[:icu]
+  ctx = { po: po, icu: icu && !po && target.ext != ".properties", properties: target.ext == ".properties" }
+  src_leaves = po ? target.sources.reject { |_, v| v.is_a?(Hash) } : source.leaves
+  src_plurals = po ? target.sources.select { |_, v| v.is_a?(Hash) } : source.plurals
+  if po && source
+    source.sources.each { |k, v| (v.is_a?(Hash) ? src_plurals : src_leaves)[k] ||= v }
+  end
+  scope&.each do |entry, forms|
+    matched << entry if (src_leaves.keys + src_plurals.keys).any? { |k| forms.any? { |f| scope_hit?(k, f) } }
+  end
+
+  missing = []
+  src_leaves.each do |key, src|
+    next unless in_scope?(key, scope)
+
+    # A null value counts as missing at runtime (Rails, i18next), so a target
+    # null against source text is a gap, not a translation.
+    if target.leaves[key].nil? && !src.nil?
+      missing << key
+    else
+      check_text(report, ctx, key, src, target.leaves[key])
+    end
+  end
+  check_plurals(report, ctx, target, src_plurals, scope, missing)
+
+  unless po
+    extra = (target.leaves.keys + target.plurals.keys) - src_leaves.keys - src_plurals.keys
+    extra.select { |k| in_scope?(k, scope) }.each do |key|
+      report.add("WARN", "extra", key, "not in the source file - deleted or renamed upstream?")
+    end
+  end
+  target.fuzzy.select { |k| in_scope?(k, scope) }.each do |key|
+    report.add("WARN", "fuzzy", key, "marked fuzzy - gettext ignores it at runtime until reviewed")
+  end
+
+  footer = []
+  if scope
+    missing.each { |key| report.add("FAIL", "missing", key, "in --keys-file but absent, empty, or null here") }
+  elsif options[:missing]
+    missing.each { |key| report.add("INFO", "missing", key, "") }
+  elsif !missing.empty?
+    footer << "#{missing.size} key(s) missing or untranslated (rerun with --missing to list)"
+  end
+  report.print(path, footer)
+  total_fails += report.fails
+end
+
+if scope
+  unmatched = scope.map(&:first).reject { |e| matched.include?(e) }
+  unless unmatched.empty?
+    warn "check-locales: #{unmatched.size} --keys-file entr#{unmatched.size == 1 ? 'y matches' : 'ies match'} no source key, so nothing was checked for #{unmatched.size == 1 ? 'it' : 'them'}:"
+    unmatched.first(20).each { |e| warn "  #{e}" }
+    exit 2
+  end
+end
+
+exit(total_fails.zero? ? 0 : 1)

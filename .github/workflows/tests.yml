@@ -28,6 +28,10 @@ jobs:
       - name: Test command policy hooks
         run: python3 spec/codex_policy_test.py -v
 
+      - name: Test the translate-locales checker
+        # Runs on the runner's preinstalled Ruby; no setup action needed.
+        run: python3 spec/check_locales_test.py -v
+
       - name: Check payload (pull request)
         if: github.event_name == 'pull_request'
         # Passed through env rather than interpolated into the command: a ref

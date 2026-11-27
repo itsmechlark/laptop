@@ -33,6 +33,7 @@ scripts/                # verification tooling; each relocates to the repo root 
   lib/run_eval_local.py # trigger-eval engine: drives claude -p against installed skills
 spec/                   # verification tests and fixtures
   codex_policy_test.py   # offline command-hook regressions (Python 3.11+ and jq)
+  check_locales_test.py  # translate-locales checker regressions (needs ruby)
   rules-cases.txt       # path -> which rules/ load for it
   agents-fixture/       # every agent-definition violation; proves the check fires
   invocability-fixture/ # deliberate violations; proves the check still fires

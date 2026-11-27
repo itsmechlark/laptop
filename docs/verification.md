@@ -184,6 +184,17 @@ Three checks are worth understanding before you change them:
 
 Warnings never fail the run. Failures always do.
 
+## Locale checker regression tests
+
+Run `python3 spec/check_locales_test.py -v` with `ruby` on `PATH`, or with
+`RUBY` naming the interpreter; `RUBY=/usr/bin/ruby` covers the macOS system
+Ruby 2.6, the oldest the checker supports. Each case writes a source and a
+target locale file to a temp directory, runs
+`skills/translate-locales/scripts/check-locales`, and asserts the exit code
+and the findings: one case per defect the checker must catch, and cases for
+text that is Latin on purpose (`a la carte`, `(a)` list markers, emails) that
+it must pass. The payload CI job runs them beside the command policy tests.
+
 ## Command policy regression tests
 
 Run `python3 spec/codex_policy_test.py -v` with Python 3.11 or newer and `jq`.
@@ -249,8 +260,9 @@ hand-edit, and a hand-edit desynchronizes the recorded hash.
 
 **`payload`** — `ubuntu-latest`, seconds, no Homebrew. Shellchecks
 `check-payload`, `run-trigger-evals`, and the three `gen-*` scripts,
-byte-compiles `scripts/lib/run_eval_local.py`, runs the command-hook regression
-tests, then runs `check-payload` (on PRs with `--since origin/<base>` for the
+byte-compiles `scripts/lib/run_eval_local.py`, runs the command-hook and
+locale-checker regression tests (the latter on the runner's preinstalled Ruby),
+then runs `check-payload` (on PRs with `--since origin/<base>` for the
 vendored-edit check). Closes with the spell check — `cspell` comes from npm,
 pinned to the major `mac` installs from Homebrew.
 

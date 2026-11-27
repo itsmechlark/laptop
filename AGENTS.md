@@ -24,6 +24,7 @@ Run from the repository root. Install the linters with
 | Compile the eval engine | `python3 -m py_compile scripts/lib/run_eval_local.py` |
 | Verify the payload | `sh scripts/check-payload` |
 | Hook regression tests | `python3 spec/codex_policy_test.py -v` (Python 3.11+ and `jq`) |
+| Locale checker tests | `python3 spec/check_locales_test.py -v` (`RUBY=/usr/bin/ruby` for Ruby 2.6) |
 | Description overlap report | `sh scripts/check-payload --collisions` |
 | Spelling | `cspell lint --no-progress --dot "**/*"` |
 | Run the provisioner | `sh mac 2>&1 \| tee ~/laptop.log` — mutates the machine; keep the log |
@@ -168,8 +169,8 @@ Both CI jobs enforce these; detail is in
   [Commands](#commands) are clean, and the eval engine byte-compiles.
 - `sh scripts/check-payload` exits zero. Warnings may stand; failures never
   do, payload included.
-- `python3 spec/codex_policy_test.py` passes, and `cspell lint --no-progress
-  --dot "**/*"` exits zero.
+- `python3 spec/codex_policy_test.py` and `python3 spec/check_locales_test.py`
+  pass, and `cspell lint --no-progress --dot "**/*"` exits zero.
 - A change to `mac` is run on a fresh macOS VM. Say so plainly when you only
   linted it; shellcheck passing is not a run.
 - A changed skill `description` runs its trigger eval in `spec/trigger-evals/`
