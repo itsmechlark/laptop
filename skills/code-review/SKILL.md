@@ -87,7 +87,7 @@ Real bugs. A genuine defect is blocking on its own merit — none are softened b
 
 When this axis needs to go deeper than a merge decision — attack-surface mapping, a reachability proof for each finding, findings reported as evidence with no verdict — hand it off to the `find-bugs` skill rather than expanding the hunt here.
 
-**On the user's own change, that handoff is the default rather than the deeper option.** The two skills divide by what the reader gets back — a verdict here, evidence there — not by who wrote the code, so "is this safe to merge?" on your own pre-merge work lands on the gate and never gets the hunt. Where the change touches concurrency, retries, money, auth, or tenancy, run `find-bugs` for this axis and fold its findings in: its surface map covers shared mutable state and retried handlers, which is where a checklist read of the diff finds nothing. A self-review that skips it is a gate with no adversary behind it.
+**On the user's own change, that handoff is the default rather than the deeper option.** The two skills divide by what the reader gets back — a verdict here, evidence there — not by who wrote the code, so "is this safe to merge?" on your own pre-merge work lands on the gate and never gets the hunt. Where the change touches concurrency, retries, money, auth, tenancy, a call between services, or config that routes or authorizes a request, run `find-bugs` for this axis and fold its findings in: its surface map covers shared mutable state, retried handlers, and the deployment and infrastructure that decide who reaches an internal endpoint, which is where a checklist read of the diff finds nothing. A self-review that skips it is a gate with no adversary behind it.
 
 ## Standards axis — conformance
 
