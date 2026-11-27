@@ -28,6 +28,7 @@ Extra context from the invocation: `$ARGUMENTS`.
 - **Null is not empty.** In Rails and i18next a null value counts as missing: the lookup falls back to the default locale or reports a missing translation. `""` renders nothing. Copy a null from the source as null, and write `""` only where the target language genuinely needs no text.
 - **Never translate the machinery:** placeholders (`%{name}`, `{name}`, `{{name}}`, `%(name)s`, `%1$s`), ICU keywords (`plural`, `select`, `one`, `other`, `=0`) and `#`, HTML tags and attributes, i18next `$t(...)`, vue-i18n `@:key` links, Lokalise `[%key:...%]` references, URLs, and brand names. Translating `other` inside an ICU message breaks it at runtime.
 - **The target file's terminology beats your preference.** If `de.yml` says "Buchung" for "booking" two hundred times, don't introduce "Reservierung". Build the glossary from the existing files before translating, and give it to every worker.
+- **Grepping for the key misses most of its uses.** Rails lazy lookup (`t(".title")`), model-attribute and validation keys that no code spells out, and dynamic keys (`t("statuses.#{status}")`) all reach the locale file without the key appearing in the source. A key with no grep hit is not proof it's dead, and the source text alone doesn't say whether "Book" is a verb or a noun. Trace the usage before translating.
 - **A fragment composed at runtime may be untranslatable as written.** `"%{count} %{unit} left"` with a noun inserted cannot agree in case (Russian), gender (French), or particle (Japanese) for every value. Report it as a composition warning, with the key, the locale, and the grammar that breaks. Don't paper over it with an awkward translation.
 - **A translation management system may own the target files.** With Lokalise, Crowdin, Phrase, or Transifex configured, the next pull can overwrite a hand-edited file. Read the config for facts (locale list, excluded keys, which locales humans maintain), and say in the report that the edits need to reach the TMS too.
 - **Existing FAILs in a file are not yours to fix unasked.** Large locale files carry legacy defects. Scope the checker with `--keys-file` to the keys you wrote; report anything older as a finding, not an edit.
@@ -38,7 +39,7 @@ Extra context from the invocation: `$ARGUMENTS`.
 
 Read before writing. None of this should be assumed, because each repository answers differently:
 
-- **Source locale and files** — the format and the file layout: Rails `config/locales/*.yml`, plus `engines/*/config/locales` and `packages/*/` in a monorepo; `translations/` (ember-intl); `public/locales/<lng>/<ns>.json` (i18next); `lib/l10n/*.arb` (Flutter); `priv/gettext/<lng>/LC_MESSAGES/*.po` (Phoenix); `locale/<lng>/LC_MESSAGES/django.po`; `res/values-<lng>/strings.xml` (Android); `*.xcstrings` (Apple). Each format's rules are in [FORMATS.md](references/FORMATS.md).
+- **Source locale and files** — the format and the file layout: Rails `config/locales/*.yml`, plus `engines/*/config/locales` and `packages/*/` in a monorepo, and translations kept beside components (ViewComponent sidecar YAML, Vue `<i18n>` blocks); `translations/` (ember-intl); `public/locales/<lng>/<ns>.json` (i18next); `lib/l10n/*.arb` (Flutter); `priv/gettext/<lng>/LC_MESSAGES/*.po` (Phoenix); `locale/<lng>/LC_MESSAGES/django.po`; `res/values-<lng>/strings.xml` (Android); `*.xcstrings` (Apple). Each format's rules are in [FORMATS.md](references/FORMATS.md).
 - **Base ref** — `git symbolic-ref refs/remotes/origin/HEAD` names the default branch; diff against the merge-base with its remote-tracking form (`origin/develop`), never a stale local branch.
 - **Tooling and its config** — `config/i18n-tasks.yml`, or a Lokalise, Crowdin, or Phrase config. These list the shipped locales, the excluded key patterns, and which locales humans maintain.
 - **Translator context** — ARB `@key.description`, FormatJS `description`, gettext `#.` extracted comments, or a translator-notes file kept beside the locales. These carry the length limits and tone notes that grepping call sites only guesses at.
@@ -48,7 +49,14 @@ Read before writing. None of this should be assumed, because each repository ans
 
 Diff the source locale against the base. Sort every key into exactly one bucket: **new**, **changed** (stale everywhere), **renamed** (move translations), **deleted**, or **unchanged but missing** in some locale (gap fill). For each locale, record which keys it needs.
 
-For each key to translate, find its use: translator notes first, then call sites (views, components, mailers, serializers, notifications). Note three things: the audience (end users or internal staff), the UI role (button, error, email subject, tooltip, paragraph), and any length limit.
+For each key to translate, trace how the application uses it: translator notes first, then every call site, found the way its framework actually references keys ([USAGE.md](references/USAGE.md)). Record one line per key covering:
+- the sense it is used in (verb, noun, or state)
+- the surface it renders on, and the audience reading it
+- what fills each placeholder
+- the length limit and markup handling
+- whether it is concatenated with other keys or reused in several places
+
+Report a key with no call site as dynamic, convention-driven, or dead. Report a reused key whose uses need different words as one to split.
 
 Build the glossary: the product's domain terms in this change set, and how each target file already renders them.
 
@@ -93,6 +101,7 @@ Then run the repo's own gates: `i18n-tasks missing` and `i18n-tasks normalize --
 - The keys updated, with their English values, and the per-locale count
 - Renames moved and deletions applied
 - Keys deliberately not retranslated, each with its reason
+- Keys with no call site (dynamic, convention-driven, or dead), and reused keys that should be split
 - Composition warnings, when there are any
 - Checker results: FAILs fixed, WARNs left with the reason, and legacy defects found outside the change set
 - Whether a TMS needs the edits pushed
@@ -105,6 +114,7 @@ Run the checker over whole files with no `--keys-file`, and with `--max 0` to se
 
 Read these as needed, not upfront.
 
+- [USAGE.md](references/USAGE.md) — finding a key's call sites per framework (lazy lookup, model attributes, dynamic keys, namespaces) and what each call site tells the translation
 - [FORMATS.md](references/FORMATS.md) — per library and file format: placeholder syntax, plural shape, where context lives, how to insert without reformatting, and the native validator
 - [LANGUAGES.md](references/LANGUAGES.md) — when the existing file and the brand guide are silent: the decisions every language needs (address, variant, gender, length, placeholders in grammar), then per-language address forms, punctuation, and CLDR plural categories
 - [templates/worker-brief.md](templates/worker-brief.md) — the per-locale brief a translation worker receives

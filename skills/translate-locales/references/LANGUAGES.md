@@ -23,6 +23,8 @@ When a choice below is marked as a product decision and nothing above settles it
 
 **Length.** Translations of short UI strings typically run 30% or more past English in German, Finnish, Russian, and French, and the expansion on one- and two-word labels is far larger. CJK text usually runs shorter. Respect the length limits the change set records, and prefer the shorter of two equally natural phrasings for buttons, tabs, and table headers.
 
+**SMS is the exception to typographic punctuation.** The quote marks and ellipsis in the table below assume screen text. In an SMS, one character outside GSM-7 cuts every segment from 160 to 70 characters, so in a Latin-script language use straight quotes and three periods there ([USAGE.md](USAGE.md) has the detail).
+
 **Placeholders inside grammar.** A value inserted into a sentence can't take case endings (Slavic, Finnish, Hungarian, Turkish), agree in gender (Romance, Slavic, Arabic, Hebrew), or pick its own particle (Japanese, Korean). Rephrase so the placeholder stands where no inflection is needed, such as a label followed by a colon or a noun phrase, and report a composition warning where no rephrasing works.
 
 ## Per language

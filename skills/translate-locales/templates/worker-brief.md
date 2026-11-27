@@ -8,11 +8,13 @@ The keys file lists source keys as dotted paths. If the checker exits 2, a liste
 
 ## Keys
 
-<!-- One row per key. "Status": new / changed (the existing translation is stale) / gap. -->
+<!-- One row per key. "Status": new / changed (the existing translation is stale) / gap. "Used as" and "Inserted values" come from tracing the key's call sites. -->
 
-| Key | Source (<SOURCE LOCALE>) | Status | Audience | Role and limits |
+| Key | Source (<SOURCE LOCALE>) | Status | Used as | Inserted values |
 | --- | --- | --- | --- | --- |
-| `<full.dotted.key>` | `<source value, verbatim>` | new | end user | button; ≤ 20 chars |
+| `<full.dotted.key>` | `<source value, verbatim>` | new | button, verb, customer-facing; ≤ 20 chars; also the dialog title | `%{shop}` = shop display name, untranslated |
+
+Translate each key for the use described, not for the bare English. Where the uses listed for one key would need different words in <LANGUAGE>, or an inserted value can't fit the grammar, translate the most visible use and report it.
 
 ## Glossary — how this file already says it
 
@@ -50,4 +52,5 @@ Always:
 - Keys written (count), and any key you skipped, with the reason
 - **Composition warnings**: any key where an inserted value (`%{name}`, `{count}`) cannot be grammatically right for every value in this language. Give the key and the grammar that breaks (case, gender, particle, vowel harmony).
 - Checker output: FAILs fixed, and the WARNs you left with the reason
+- **Usage conflicts**: keys whose listed uses need different words in this language (a candidate to split), with the word each use needs
 - Anything in the source that looked wrong or ambiguous
