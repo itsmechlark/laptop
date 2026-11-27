@@ -13,9 +13,9 @@ Arguments: `$ARGUMENTS`. Any word that names a lens — `comprehension`, `readin
 ## When to use this skill
 
 - A spec, plan, PRD, or handoff file is about to go to someone who wasn't in the conversation — a teammate, a contractor, an unattended agent, your own next session
-- `draft-spec`, `draft-prd`, `draft-plan`, and `agent-handoff` call it before showing or launching; `brainstorming`'s spec review points here for the pass it cannot do itself
+- `draft-spec`, `draft-prd`, `draft-plan`, and `agent-handoff` call it before showing or launching; `code-review` calls it on the comments it drafts for someone else's PR; `brainstorming`'s spec review points here for the pass it cannot do itself
 - The user asks for fresh eyes, an unbiased read, or whether a document stands on its own
-- Not for code — a diff is `code-review`'s, and the adversarial hunt is `find-bugs`
+- Not for code — a diff is `code-review`'s, and the adversarial hunt is `find-bugs`. The review that skill drafts *about* a diff is prose headed to its author, and is in scope
 - Not for challenging the thinking behind a plan with the person who holds it — that is `grilling`, an interview, where this is a read
 - Not for a document whose only reader is the author, mid-task. Nobody cold will ever read it
 - Not for the prompt you brief an agent with — that is read once by the agent it was written for, and a cold read of it would recurse

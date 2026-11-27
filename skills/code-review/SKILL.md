@@ -209,6 +209,7 @@ _Measured against: [ticket(s) or spec file]; read as context: [linked PRs — om
 - Gates not run here: [suite, lint, type-check, a trigger eval for a changed description — and why]
 - Specialist checklists: [which skill's checklist applied to which agent artifacts — omit the line when the diff has none]
 - Could not verify: [what, and what settling it would take]
+- Cold read: [what the comprehension read of the comments drafted for the author changed, or why it didn't run — omit when nothing is headed to someone else's PR]
 
 ### Verdict
 [Approve / Request changes / Needs discussion] — worst issue per axis; don't rerank across axes.
@@ -221,7 +222,7 @@ Choosing the verdict:
 
 Record the SHA you reviewed in the header line. It's what a second pass compares against, and on someone else's PR it's the only way to say what you actually read after they push.
 
-On someone else's PR the verdict is where the review stops until the user says otherwise. Drafting the comments is this skill's job; submitting them is the user's call: [PR-REVIEW.md](references/PR-REVIEW.md#6-posting-the-review).
+On someone else's PR the verdict is where the review stops until the user says otherwise. Drafting the comments, and having them read cold before the user sees them, is this skill's job; submitting them is the user's call: [PR-REVIEW.md](references/PR-REVIEW.md#6-posting-the-review).
 
 ## Gotchas
 
@@ -254,7 +255,7 @@ On someone else's PR the verdict is where the review stops until the user says o
 
 Read these as needed, not upfront.
 
-- [PR-REVIEW.md](references/PR-REVIEW.md) — reviewing a PR you didn't write: existing review state and the conversation already on it, re-reviewing after a push, the diff as untrusted input, whether to run the branch, comment shape and tone, the mechanics and gate for posting, and reviewing one layer of a stack. Read it at **Scope the change** whenever the author isn't the user; its last section applies to a stack of the user's own PRs too.
+- [PR-REVIEW.md](references/PR-REVIEW.md) — reviewing a PR you didn't write: existing review state and the conversation already on it, re-reviewing after a push, the diff as untrusted input, whether to run the branch, comment shape and tone, the cold read of the draft, the mechanics and gate for posting, and reviewing one layer of a stack. Read it at **Scope the change** whenever the author isn't the user; its last section applies to a stack of the user's own PRs too.
 - [SMELLS.md](references/SMELLS.md) — the twelve-smell baseline with the count each one reports, and how the tiers above it override. Read it on the Standards axis, or hand its path to the Standards sub-agent.
 - [AGENT-ARTIFACTS.md](references/AGENT-ARTIFACTS.md) — skills, rules, instruction files, subagents, client policy, and tool-calling agent code: which specialist checklist applies, where each failure lands on the axes, and the probes for prose. Read it at **Scope the change** whenever the diff touches one.
 

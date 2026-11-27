@@ -1,6 +1,6 @@
 # Reviewing someone else's pull request
 
-Read this whenever the change under review has an author who isn't the user. Four
+Read this whenever the change under review has an author who isn't the user. Five
 things are true here that aren't true of a diff you wrote, and each one changes
 the work:
 
@@ -10,6 +10,8 @@ the work:
 - **The review is published.** It lands in an inbox, and it can't be unsent.
 - **Some of it has already been discussed.** The PR may carry earlier reviews,
   bot comments, and author replies that answer the finding you're about to file.
+- **Your reader wasn't in the conversation.** Whatever the review settled with
+  the user, the author sees only what you post.
 
 ## 1. Read the state before reading the code
 
@@ -184,6 +186,13 @@ a review someone else receives:
   bounded-retry, the test that pins the edge case, the thing you'd have missed.
   On someone else's PR this is what makes the blocking findings land.
 - **Don't restate the diff back.** The author wrote it.
+- **Cite only what the author can open.** The global `AGENTS.md` and its
+  `rules/` live on the user's machine, not in the author's repository, so a
+  Standards finding drawn from them states the rule in a sentence instead of
+  citing a section. The repository's own docs can be linked. The axes and
+  weights in the report ("Defects", "firm (global)", "judgment (sibling)") are
+  this skill's bookkeeping and stay out of the posted text; the Conventional
+  Comments prefix carries the weight. A sibling becomes its `path:line`.
 
 Where a finding is a design disagreement rather than a defect, say what you'd do
 instead and what it costs. "This is wrong" with no alternative is a veto, and a
@@ -254,6 +263,47 @@ author and every subscriber, and it can't be unsent. Write the summary and the
 inline comments, show them, and wait for a yes. A one-time approval covers that
 instance only — the same gate `pull-request` holds on opening a PR and
 `review-response` holds on posting a reply.
+
+**Read the draft cold before the user sees it.** The review is a document headed
+to readers who weren't in this conversation, so it gets a `cold-read` pass
+(AGENTS.md §4, *Definition of Done*). Everything settled while reviewing — which
+file "the sibling" was, which axis a finding came from, the standard a finding
+cites — reads as written down from inside this session, and the author has none
+of it.
+
+- **One lens: comprehension.** Name it to `cold-read` as the caller's choice.
+  Readiness would flag every suggestion that leaves the author a design choice,
+  and on their branch leaving it is right (§5). Reuse has nothing to search.
+- **The reader gets what the author will see, and what the author already
+  has.** The target is the summary and every inline comment exactly as they will
+  post, each with its `path` and `line`. The companions are the PR's title and
+  description and the diff at the reviewed SHA, as files under `$TMPDIR`:
+  `cold-reader` can't run `gh`, and the local checkout isn't the PR head. Write
+  the diff with local git: `git fetch <remote> <base>` and
+  `git fetch <remote> pull/<n>/head`, each a call of its own, with `<remote>`
+  chosen as in §2, then
+  `git diff <remote>/<base>...<reviewed-sha> > "$TMPDIR/pr-<n>.diff"`. Never
+  redirect `gh pr diff` to a file: the redirect puts `gh` back in the sandbox
+  without its credentials, and it leaves an empty file behind for the reader.
+  Say in the companion line that line numbers are checked against the diff.
+  Add the conversation and threads from §1 when the draft refers to one or
+  disagrees with how it was settled, written to `$TMPDIR` with the file tool
+  from what the bare `gh` calls printed. Never pass the findings table, the axis
+  reports, or what you expect the reader to flag.
+- **Triage as `cold-read` says, then fix the draft**, which is this session's
+  to edit. Most fixes are translations (§5): a cited standard the author can't
+  open becomes the rule in a sentence, "the sibling" becomes its `path:line`, an
+  axis or weight label comes out.
+- **Skip it** when nothing in the draft blocks, since a misread nit or a word of
+  praise costs a round trip at most. On a re-review, read only the comments that
+  are new. Where no fresh agent can start (the `reviewer` subagent dispatches
+  none), show the draft anyway and say it was not read cold.
+
+A clean cold read means the author can follow each comment, not that each
+finding holds; that was *Verify before reporting* in
+[SKILL.md](../SKILL.md#verify-before-reporting). Show the user the draft with
+one line on the read: the lens, what you fixed, what you contested, and any
+question only they can answer.
 
 **Never approve on your own initiative.** `APPROVE` is not a verdict, it is a
 governance action: on a protected branch it can be the last thing standing
