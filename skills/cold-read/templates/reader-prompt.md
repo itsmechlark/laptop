@@ -41,9 +41,12 @@ the code whenever the lens below asks you to.
 **Lens — comprehension.** Read it as a competent engineer who joined the team
 today. Report:
 
-- Every term, system, acronym, or component used without being defined in the
-  document or linked to something you can open. Before flagging one, check
-  whether a later section defines it.
+- Every term, system, acronym, or component a reader must understand to follow
+  a claim or act on it, used without being defined in the document or linked.
+  Before flagging one, check whether a later section defines it. A name the
+  document quotes from code, a log, or another document is evidence it cites,
+  not a term it owes a definition: flag it only when the claim depends on what
+  the name means.
 - Every step that assumes setup, a prerequisite, or a side effect the document
   never states.
 - Every sentence that only makes sense to someone who was there — "as
@@ -73,11 +76,27 @@ the document proposes as new:
 - Flag anything built for a requirement the document does not state — an
   option, a hook, a layer for a future case.
 
+**Before you report a finding,** hold it to these, whatever the lens:
+
+- Check a `file:line` citation by opening that file at that line, in the
+  checkout the document is about. The cited line is what the citation claims;
+  a related symbol defined elsewhere in the file (the class around a method,
+  say) does not make it wrong.
+- A source you cannot open (a URL, a ticket, a repository you were not given)
+  is unchecked, not wrong and not unsupported. List it under **Not checked**,
+  and flag the claim only if the document gives no source for it at all.
+- Something the document leaves out is a finding only when it would change a
+  conclusion, a step, or a decision the document makes, or leave the reader
+  unable to follow one. Open the thing you think is missing and say what it
+  would change; if it changes nothing, drop it.
+
 **Report.** For each finding give: where in the document (section heading or a
-short quote), what is missing or wrong, and the evidence — the file you opened,
-the search you ran and what it returned. Order by how badly it would mislead
-the next reader. Do not suggest rewrites of the design itself; report what the
-page fails to say.
+short quote), what is missing or wrong, the evidence (the file and line you
+opened, the search you ran and what it returned), and what the next reader
+would get wrong because of it. Order by how badly it would mislead the next
+reader. Do not suggest rewrites of the design itself; report what the page
+fails to say. End with **Not checked**: each source you could not open, and
+the claims that rest on it.
 
 If you could not read the document itself or one of the files listed as part
 of it, say so first and stop — an incomplete read reported as clean is worse
