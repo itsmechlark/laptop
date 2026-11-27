@@ -139,7 +139,13 @@ update_homebrew() {
 
 fancy_echo "Updating Homebrew formulae ..."
 update_homebrew
+
+brew tap atlassian/acli
+brew trust --formula atlassian/acli/acli
+
 brew bundle --file=- <<EOF
+tap "atlassian/acli"
+
 # Unix
 brew "universal-ctags"
 brew "fzf"
@@ -170,6 +176,7 @@ brew "postgresql@17", restart_service: :changed
 brew "valkey", restart_service: :changed
 
 # Development Tools
+brew "atlassian/acli/acli"
 brew "actionlint"
 brew "agent-browser"
 brew "cspell"

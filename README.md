@@ -111,6 +111,7 @@ GitHub tools:
 
 Development tools:
 
+* [Atlassian CLI] (`acli`) for driving Jira from the terminal and agent workflows
 * [actionlint] for validating GitHub Actions workflow files
 * [Agent Browser] for browser automation from agent workflows
 * [CSpell] for spell-checking code and prose
@@ -126,6 +127,7 @@ Development tools:
 * [1Password CLI] for reading secrets without pasting them
 * [Claude Code] and [Codex] for agentic coding
 
+[Atlassian CLI]: https://developer.atlassian.com/cloud/acli/
 [actionlint]: https://github.com/rhysd/actionlint
 [Agent Browser]: https://agent-browser.dev
 [CSpell]: https://cspell.org

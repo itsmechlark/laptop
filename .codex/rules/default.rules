@@ -182,6 +182,41 @@ prefix_rule(
 )
 
 prefix_rule(
+    pattern = ["acli", "jira", ["workitem", "project"], "delete"],
+    decision = "forbidden",
+    justification = "Atlassian CLI delete operations are destructive and blocked. Use the Jira web UI for deliberate deletions.",
+    match = ["acli jira workitem delete --key HDR-1", "acli jira project delete --key HDR"],
+)
+
+prefix_rule(
+    pattern = ["acli", "jira", "workitem", ["attachment-delete", "comment-delete"]],
+    decision = "forbidden",
+    justification = "Atlassian CLI delete operations are destructive and blocked. Use the Jira web UI for deliberate deletions.",
+    match = ["acli jira workitem attachment-delete --key HDR-1", "acli jira workitem comment-delete --key HDR-1"],
+)
+
+prefix_rule(
+    pattern = ["acli", "jira", "workitem", ["create", "create-bulk", "edit", "transition", "assign", "clone", "link", "archive", "unarchive", "comment-create", "comment-update", "comment-visibility", "watcher-remove"]],
+    decision = "prompt",
+    justification = "Jira work item mutations require approval.",
+    match = ["acli jira workitem create --project HDR", "acli jira workitem transition --key HDR-1"],
+)
+
+prefix_rule(
+    pattern = ["acli", "jira", "project", ["create", "update", "archive", "restore"]],
+    decision = "prompt",
+    justification = "Jira project mutations require approval.",
+    match = ["acli jira project create --key HDR", "acli jira project archive --key HDR"],
+)
+
+prefix_rule(
+    pattern = ["acli", "admin"],
+    decision = "prompt",
+    justification = "Atlassian organization admin commands require approval.",
+    match = ["acli admin user --help"],
+)
+
+prefix_rule(
     pattern = ["git", "push", "--mirror"],
     decision = "forbidden",
     justification = "Mirror pushes overwrite or delete every remote ref and are blocked.",
