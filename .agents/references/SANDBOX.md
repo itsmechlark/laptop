@@ -1,6 +1,6 @@
 ---
 name: sandbox-gotchas
-description: Workarounds for shell commands that fail under a macOS Seatbelt sandbox, whichever agent runs them — gh CLI auth (telling an expired token apart from a sandbox keychain failure), the pipe/redirect trap where a pipe, a leading cd, or git -C re-sandboxes an excluded command, git fetch or push over HTTPS failing with "could not read Username" when chained, git index- and ref-writing commands that fail in worktrees the session did not create, git worktree add and remove failing on .git/worktrees, the pnpm purge prompt that destroys node_modules when silenced, pnpm and npm installs that fail in-sandbox, simulator, emulator, and Java-based tools (Maestro, Expo) that can't reach their system services, and process lookups (ps, pgrep) that fail quietly, so use lsof or kill -0. Read when a command fails with "operation not permitted", HTTP 401, "could not read Username", or a keychain/credential error, or when a loop that waits on a process returns immediately. An agent that runs unsandboxed needs only the gh token triage.
+description: Workarounds for shell commands that fail under a macOS Seatbelt sandbox, whichever agent runs them — gh CLI auth (telling an expired token apart from a sandbox keychain failure), the pipe/redirect trap where a pipe, a leading cd, or git -C re-sandboxes an excluded command, git fetch or push over HTTPS failing with "could not read Username" when chained, git index- and ref-writing commands that fail in worktrees the session did not create, git worktree add and remove failing on .git/worktrees, 1Password shell plugins (op plugin run) failing in-sandbox or with "interactive IO not available", the pnpm purge prompt that destroys node_modules when silenced, pnpm and npm installs that fail in-sandbox, simulator, emulator, and Java-based tools (Maestro, Expo) that can't reach their system services, and process lookups (ps, pgrep) that fail quietly, so use lsof or kill -0. Read when a command fails with "operation not permitted", HTTP 401, "could not read Username", "interactive IO not available", or a keychain/credential error, or when a loop that waits on a process returns immediately. An agent that runs unsandboxed needs only the gh token triage.
 ---
 
 # Sandbox gotchas
@@ -201,6 +201,36 @@ piping:
 On an escalation harness, approve the prompt. An expired token still needs
 `gh auth login` — escalation won't rescue it.
 
+## 1Password shell plugins: call `op plugin run` bare
+
+A 1Password shell plugin works through an alias (`alias pulumi="op plugin run
+-- pulumi"`) that the user's interactive shell sources. An agent's shell may not
+load it, so `pulumi` resolves to the real binary and runs without the 1Password
+credential — succeeding on any stale login it finds, or failing unauthenticated.
+Call the plugin form explicitly, as one bare command:
+
+```sh
+op plugin run -- pulumi whoami
+```
+
+`op` itself can't run in-sandbox: it fails reading `~/.config/op/config` with
+`operation not permitted`. Take the plugin form out by the harness's escape
+route. On an exclusion-list harness, list `op plugin run -- <tool> *` for each
+tool, never `op *` — that would let `op read op://…` print any vault secret
+unsandboxed. Keep the form exact, with no `op` options before or after
+`plugin run`: `op --account … plugin run -- pulumi …` misses the exclusion and
+the wrapped tool's approval rules, so it stays sandboxed or is denied.
+
+`[ERROR] interactive IO not available` is not the sandbox. `op` ran, found no
+default credential for the current directory, and tried to open its credential
+picker with no terminal to show it in. A default saved with "Use automatically
+when in this directory or subdirectories" doesn't reach sibling worktree
+directories (`<repo>.worktrees/<name>` sits beside `<repo>`, not inside it), so
+the same command works in the main checkout and fails in a worktree. Ask the
+user to run `op plugin init <tool>` in their own terminal and choose the global
+default, or a directory that contains both the checkout and its worktrees. An
+agent can't answer the picker.
+
 ## pnpm: shell lookup fails before a lifecycle script starts
 
 A filesystem profile that denies the root by default can make Node return
@@ -328,7 +358,7 @@ agent follows whichever row matches how it runs shell commands.
 | --- | --- | --- | --- |
 | Sandboxed | yes | yes | no |
 | Escape route | `sandbox.excludedCommands` in `.claude/settings.json` (matched per whole call) | `approval_policy = "on-request"`: approve the prompt and the command runs escalated | none needed |
-| Excluded commands — never pipe, redirect, or wrap these | `acli *`; `gh *`; `git add *`, `git apply --cached *`, `git branch -M *`, `git branch -m *`, `git cherry-pick *`, `git checkout *`, `git commit *`, `git fetch *`, `git ls-remote *`, `git merge *`, `git mv *`, `git pull *`, `git push *`, `git rebase *`, `git reset *`, `git restore *`, `git revert *`, `git rm *`, `git stash *`, `git switch *`, `git worktree *`; `pulumi *`; `srt *`, `npx @anthropic-ai/sandbox-runtime *`, `npx -y @anthropic-ai/sandbox-runtime *`; `trivy *`; `pnpm install *`, `pnpm i *`, `pnpm add *`, `pnpm remove *`, `pnpm rm *`, `pnpm uninstall *`, `pnpm un *`, `pnpm update *`, `pnpm up *`, `pnpm upgrade *`, `pnpm dedupe *`, `pnpm rebuild *`, `pnpm rb *`, `pnpm prune *`, `pnpm install-test *`, `pnpm it *`; `npm install *`, `npm i *`, `npm add *`, `npm ci *`, `npm clean-install *`, `npm uninstall *`, `npm remove *`, `npm rm *`, `npm r *`, `npm un *`, `npm unlink *`, `npm update *`, `npm up *`, `npm upgrade *`, `npm dedupe *`, `npm ddp *`, `npm rebuild *`, `npm rb *`, `npm prune *`, `npm install-test *`, `npm it *`, `npm install-ci-test *`, `npm cit *`; `maestro *`, `pnpm exec expo *`, `eas *` | none; escalation covers the whole command, so a pipe does not defeat it | none; nothing is sandboxed |
+| Excluded commands — never pipe, redirect, or wrap these | `acli *`; `gh *`; `git add *`, `git apply --cached *`, `git branch -M *`, `git branch -m *`, `git cherry-pick *`, `git checkout *`, `git commit *`, `git fetch *`, `git ls-remote *`, `git merge *`, `git mv *`, `git pull *`, `git push *`, `git rebase *`, `git reset *`, `git restore *`, `git revert *`, `git rm *`, `git stash *`, `git switch *`, `git worktree *`; `pulumi *`, `op plugin run -- pulumi *`; `srt *`, `npx @anthropic-ai/sandbox-runtime *`, `npx -y @anthropic-ai/sandbox-runtime *`; `trivy *`; `pnpm install *`, `pnpm i *`, `pnpm add *`, `pnpm remove *`, `pnpm rm *`, `pnpm uninstall *`, `pnpm un *`, `pnpm update *`, `pnpm up *`, `pnpm upgrade *`, `pnpm dedupe *`, `pnpm rebuild *`, `pnpm rb *`, `pnpm prune *`, `pnpm install-test *`, `pnpm it *`; `npm install *`, `npm i *`, `npm add *`, `npm ci *`, `npm clean-install *`, `npm uninstall *`, `npm remove *`, `npm rm *`, `npm r *`, `npm un *`, `npm unlink *`, `npm update *`, `npm up *`, `npm upgrade *`, `npm dedupe *`, `npm ddp *`, `npm rebuild *`, `npm rb *`, `npm prune *`, `npm install-test *`, `npm it *`, `npm install-ci-test *`, `npm cit *`; `maestro *`, `pnpm exec expo *`, `eas *` | none; escalation covers the whole command, so a pipe does not defeat it | none; nothing is sandboxed |
 | Exclusion matching (verified) | a bare subcommand with no arguments matches (`git fetch` under `git fetch *`); `git -C`, `--no-pager`, `-c`, and most `VAR=` prefixes miss, though `GIT_TERMINAL_PROMPT=0` is stripped first. An excluded call skips the shell's own startup errors, a quick tell for which side it ran on | n/a | n/a |
 | Working directory between calls | kept in the main session; reset for subagents, so a subagent can't `cd` then run a bare command | untested | untested |
 | Install-family approval | a `PreToolUse` hook allows pnpm/npm `install` or `ci` with no package names, `remove`, and `prune` in every permission mode when every install input is committed (npm `install`/`ci` also need `--ignore-scripts`; a `packageManager` pin below pnpm 10 prompts); `add`, `update`, `dedupe`, `rebuild`, and install-test always prompt | every form prompts | every form prompts |

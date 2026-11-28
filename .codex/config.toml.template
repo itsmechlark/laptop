@@ -837,6 +837,11 @@ def normalize_argv(argv):
         if exe in {"command", "builtin", "exec", "nohup"}:
             argv = argv[1:]
             continue
+        if exe == "op" and is_op_plugin_run(argv):
+            if argv[1:4] != ["plugin", "run", "--"]:
+                deny("1Password plugin runs must use canonical `op plugin run -- <tool>` form so the native rules for the wrapped tool still match. Drop the `op` options, or run it manually outside Codex.")
+            argv = argv[4:]
+            continue
         if exe == "env":
             argv = argv[1:]
             while argv and (argv[0].startswith("-") or re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", argv[0])):
@@ -844,6 +849,11 @@ def normalize_argv(argv):
             continue
         break
     return argv
+
+
+def is_op_plugin_run(argv):
+    head = argv[1:argv.index("--")] if "--" in argv else argv[1:]
+    return any(head[index:index + 2] == ["plugin", "run"] for index in range(len(head)))
 
 
 def option_flags(args):
@@ -1032,6 +1042,13 @@ for raw_argv in split_commands(command):
         sub_index, subcommand = first_subcommand(args, {"up", "update", "cancel", "import", "refresh", "new"})
         if subcommand is not None and sub_index != 0:
             deny("Pulumi mutation must use canonical `pulumi <subcommand>` form so the native approval rule cannot be bypassed. Change directory first instead of placing global options before the subcommand.")
+
+    if exe == "op":
+        sub_index, subcommand = first_subcommand(args, {"read", "inject", "run", "item", "document", "plugin"})
+        if subcommand in {"read", "inject", "run"} or (
+            subcommand in {"item", "document"} and "get" in args[sub_index + 1:]
+        ):
+            deny("Reading 1Password secrets is blocked. Use `op plugin run -- <tool>` so the credential goes straight to the tool.")
 
     if exe == "gh" and args[:2] == ["auth", "status"]:
         short, long = option_flags(args[2:])

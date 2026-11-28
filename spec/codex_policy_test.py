@@ -205,6 +205,30 @@ class CodexPolicyTest(unittest.TestCase):
             with self.subTest(command=command):
                 self.assertIsNone(self.decision(command))
 
+    def test_pulumi_through_the_1password_plugin_keeps_its_guards(self):
+        for command in (
+            "op plugin run -- pulumi destroy --yes",
+            "op plugin run -- pulumi stack rm dev",
+            "op plugin run -- pulumi --cwd infra up",
+            "op plugin run --account example -- pulumi -C infra refresh",
+            "op plugin run --account example -- pulumi up",
+            "op --account example plugin run -- pulumi destroy --yes",
+            "op plugin run pulumi up",
+            "op plugin run -- op plugin run -- pulumi destroy",
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(self.decision(command), "deny")
+
+    def test_1password_secret_reads_are_denied(self):
+        for command in OP_SECRET_READS:
+            with self.subTest(command=command):
+                self.assertEqual(self.decision(command), "deny")
+
+    def test_1password_plugin_runs_and_metadata_are_unaffected(self):
+        for command in OP_UNAFFECTED:
+            with self.subTest(command=command):
+                self.assertIsNone(self.decision(command))
+
     def test_eas_publishing_is_denied_in_every_form(self):
         for command in EAS_PUBLISHING:
             with self.subTest(command=command):
@@ -245,6 +269,45 @@ class CodexPolicyTest(unittest.TestCase):
         for command in EAS_UNAFFECTED:
             with self.subTest(command=command):
                 self.assertIsNone(self.cursor_permission(command))
+
+    def test_cursor_denies_1password_secret_reads(self):
+        for command in OP_SECRET_READS:
+            with self.subTest(command=command):
+                self.assertEqual(self.cursor_permission(command), "deny")
+
+    def test_cursor_denies_1password_secret_reads_inside_substitutions(self):
+        for command in (
+            "export TOKEN=$(op read op://vault/item/field)",
+            "export TOKEN=`op read op://vault/item/field`",
+            "echo \"$(op item get example --fields password)\"",
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(self.cursor_permission(command), "deny")
+
+    def test_cursor_leaves_1password_plugin_runs_and_metadata_alone(self):
+        for command in OP_UNAFFECTED:
+            with self.subTest(command=command):
+                self.assertIsNone(self.cursor_permission(command))
+
+
+OP_SECRET_READS = (
+    "op read op://vault/item/field",
+    "op --account example.1password.com read op://vault/item/field",
+    "/opt/homebrew/bin/op read op://vault/item/field",
+    "op inject -i template.env -o .env",
+    "op run -- env",
+    "op item get example --fields password",
+    "op document get example",
+    "op plugin run -- op read op://vault/item/field",
+)
+
+OP_UNAFFECTED = (
+    "op plugin run -- pulumi whoami",
+    "op plugin run -- pulumi preview --stack dev",
+    "op plugin inspect pulumi",
+    "op item list",
+    "op whoami",
+)
 
 
 EAS_PUBLISHING = (

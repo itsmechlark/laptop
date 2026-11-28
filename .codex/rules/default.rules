@@ -457,6 +457,44 @@ prefix_rule(
     match = ["pulumi stack rm dev"],
 )
 
+prefix_rule(
+    pattern = ["op", "plugin", "run", "--", "pulumi", "destroy"],
+    decision = "forbidden",
+    justification = "Pulumi destroy tears down all resources and is blocked, through the 1Password shell plugin too. Perform the destroy manually outside Codex.",
+    match = ["op plugin run -- pulumi destroy", "op plugin run -- pulumi destroy --yes"],
+)
+
+prefix_rule(
+    pattern = ["op", "plugin", "run", "--", "pulumi", "stack", "rm"],
+    decision = "forbidden",
+    justification = "Pulumi stack removal is destructive and is blocked, through the 1Password shell plugin too. Remove stacks manually outside Codex.",
+    match = ["op plugin run -- pulumi stack rm dev"],
+)
+
+prefix_rule(
+    pattern = ["op", "plugin", "run", "--", "pulumi", ["up", "update", "cancel", "import", "refresh", "new"]],
+    decision = "prompt",
+    justification = "Pulumi infrastructure and state mutation requires approval, through the 1Password shell plugin too.",
+    match = ["op plugin run -- pulumi up", "op plugin run -- pulumi refresh --stack dev"],
+    not_match = ["op plugin run -- pulumi whoami", "op plugin run -- pulumi preview"],
+)
+
+prefix_rule(
+    pattern = ["op", ["read", "inject", "run"]],
+    decision = "forbidden",
+    justification = "Reading 1Password secrets is blocked. Use `op plugin run -- <tool>` so the credential goes straight to the tool.",
+    match = ["op read op://vault/item/field", "op inject -i template.env", "op run -- env"],
+    not_match = ["op plugin run -- pulumi whoami"],
+)
+
+prefix_rule(
+    pattern = ["op", ["item", "document"], "get"],
+    decision = "forbidden",
+    justification = "Reading 1Password secrets is blocked. Use `op plugin run -- <tool>` so the credential goes straight to the tool.",
+    match = ["op item get example --fields password", "op document get example"],
+    not_match = ["op item list"],
+)
+
 # -----------------------------------------------------------------------------
 # Require approval: outbound / remote command tools
 # -----------------------------------------------------------------------------
