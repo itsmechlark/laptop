@@ -284,6 +284,25 @@ class CodexPolicyTest(unittest.TestCase):
             with self.subTest(command=command):
                 self.assertEqual(self.cursor_permission(command), "deny")
 
+    def test_cursor_denies_pulumi_destroy_and_stack_rm_behind_global_flags(self):
+        for command in (
+            "pulumi -C infra destroy --yes",
+            "cd infra && pulumi --cwd . stack rm dev",
+            "op plugin run -- pulumi -C infra destroy",
+            "op --account example plugin run -- pulumi stack rm dev",
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(self.cursor_permission(command), "deny")
+
+    def test_cursor_leaves_pulumi_reads_and_text_alone(self):
+        for command in (
+            "pulumi -C infra preview",
+            "pulumi stack ls",
+            "grep -n 'pulumi -C infra destroy' docs/client-parity.md",
+        ):
+            with self.subTest(command=command):
+                self.assertIsNone(self.cursor_permission(command))
+
     def test_cursor_leaves_1password_plugin_runs_and_metadata_alone(self):
         for command in OP_UNAFFECTED:
             with self.subTest(command=command):
@@ -428,6 +447,47 @@ class ClaudeWorktreeGuardTest(ClaudeHooksCase):
 
 
 @unittest.skipUnless(shutil.which("git"), "git is required for the install gate")
+class ClaudePulumiGuardTest(ClaudeHooksCase):
+    def test_destructive_and_non_canonical_pulumi_is_denied(self):
+        for command in (
+            "pulumi destroy --yes",
+            "pulumi -C infra destroy --yes",
+            "pulumi --cwd=infra destroy",
+            "pulumi --stack dev stack rm dev",
+            "pulumi -C infra up",
+            "pulumi --non-interactive refresh",
+            "pulumi -s dev new typescript",
+            "cd infra && pulumi -C . destroy",
+            "/opt/homebrew/bin/pulumi -C infra destroy",
+            "PULUMI_SKIP_UPDATE_CHECK=1 pulumi -C infra up",
+            "env pulumi --cwd infra cancel",
+            "(pulumi -C infra up)",
+            "pulumi -C infra \\\n  destroy --yes",
+            "op plugin run -- pulumi -C infra destroy",
+            "op plugin run -- pulumi --cwd infra up",
+            "op --account example plugin run -- pulumi stack rm dev",
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(self.decision(self.bash_hooks, {"command": command}), "deny")
+
+    def test_canonical_and_read_only_pulumi_is_left_to_the_permission_rules(self):
+        for command in (
+            "pulumi up",
+            "pulumi up -C infra --stack dev",
+            "pulumi refresh --yes",
+            "pulumi preview -C infra",
+            "pulumi stack ls",
+            "pulumi stack select dev",
+            "pulumi whoami",
+            "op plugin run -- pulumi up",
+            "op plugin run -- pulumi preview --stack dev",
+            "grep -n 'pulumi -C infra destroy' docs/client-parity.md",
+            "echo pulumi -C infra up",
+        ):
+            with self.subTest(command=command):
+                self.assertIsNone(self.decision(self.bash_hooks, {"command": command}))
+
+
 class ClaudeInstallGateTest(ClaudeHooksCase):
     def setUp(self):
         tmp = tempfile.TemporaryDirectory()
